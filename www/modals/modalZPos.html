@@ -1,0 +1,40 @@
+﻿<section ng-init="init()">
+    <div class="modal-header">
+        <h1 class="modal-title">Z de caisse</h1>
+    </div>
+
+    <div class="form-panel modal-body">
+        <table class="zpostable">
+            <thead>
+                <tr>
+                    <th class="zheader" ng-repeat="zheader in zheaders">{{zheader}}</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="zline in zlines track by $index">
+                    <td class="zvalue" ng-repeat="zvalue in zline track by $index">{{zvalue}}</td>
+                </tr>
+                <tr>
+                    <td class="zvalue" ng-repeat="ztot in ztotal track by $index">{{ztot}}</td>
+                </tr>
+                <tr>
+                    <td class="zvalue" ng-repeat="ztotET in ztotalET track by $index">{{ztotET}}</td>
+                </tr>
+            </tbody>
+        </table>
+		<div ng-if="zpos.employees && zpos.employees.length > 0" style="margin-top:20px">
+			<b>Total par utilisateur : </b>
+			<div ng-repeat="employee in zpos.employees">
+				<b style="margin-right:20px">{{employee.name}}</b>{{employee.total | CurrencyFormat}}
+			</div>
+		</div>
+
+    </div>
+
+    <div class="modal-footer">
+		<button ng-if="IziBoxConfiguration.EmailSmtpTargetZpos" class="btn btn-green" ng-click="emailZPos()">Envoyer par email</button>
+        <button class="btn btn-green" ng-click="printZPos()">Imprimer</button>
+        <button class="btn btn-rose" ng-click="cancel()">Annuler</button>
+    </div>
+
+</section>

@@ -1,0 +1,48 @@
+﻿<md-toolbar class="catalogMenu" ng-controller="CatalogMenuController" ng-init="init()">
+    <div class="tools" layout="row" layout-align="space-between stretch">
+		<div layout="column" layout-align="center center">
+			<md-button class="md-icon-button logo" aria-label="drawerMenu" ng-click="onDrawerMenuClick()">
+				<img class="imgLogo" src="img/logo.png" />
+			</md-button>
+			<div class="clock">
+				{{clock}}
+			</div>
+		</div>
+		<md-divider class="vertical-divider"></md-divider>
+		<div layout="row" layout-align="space-between stretch" ng-show="$mdMedia('gt-sm')">
+			<div ng-repeat="category in categories track by $index" class="itemCategory">
+				<md-button aria-label="{{category.Name}}" class="md-icon-button linkCategory" ui-sref="catalog.{{category.CategoryTemplate.ViewPath}}({id: '{{category.Id}}'})">
+					<img class="imgCategory" ng-src="{{category.PictureUrl}}" alt="">
+				</md-button>
+				<div class="titleCategory">{{category.Name}}</div>
+			</div>
+		</div>
+
+		<div layout="column" layout-align="center center" ng-hide="$mdMedia('gt-sm')">
+			<md-button class="md-icon-button logo" aria-label="categories" ng-click="$state.go('catalog.Categories')">
+				<img class="imgLogo" src="img/categories.png" />
+			</md-button>
+		</div>
+
+		<div layout="column" layout-align="center center" ng-hide="$mdMedia('gt-sm')">
+			<md-button class="md-icon-button logo" aria-label="categories" ng-click="$rootScope.showShoppingCart = !$rootScope.showShoppingCart">
+				<img class="imgLogo" src="img/cart-drawer.png" />
+			</md-button>
+		</div>
+
+		<div layout="column" flex>
+			<div class="version" layout="column">
+				<span>{{PosUserName}}</span>
+				<div layout="row" layout-align="end center">
+					<span>{{Version}}</span>
+					<span class="izibox" ng-class="{'connected':IziBoxConnected}"></span>
+
+				</div>				
+			</div>
+			<div ng-if="!CashOpen && IziBoxConfiguration.UseCashMovement" class="infoCashMovement">
+				<span class="glyphicon glyphicon-warning-sign"></span>&nbsp;
+				<span translate>Veuillez renseigner le fond de caisse</span>
+			</div>
+		</div>
+    </div>
+</md-toolbar>

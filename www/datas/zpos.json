@@ -1,0 +1,53 @@
+﻿{
+	"_id": "_design/zpos",
+	"language": "javascript",
+	"views": {
+		"paymentModesByDate": {
+			"map": "function(doc) {\n  var prefix = doc.data.Date.match(/^[^\\s]+\\s/);\n    if(prefix && doc._id.indexOf('ShoppingCart_')===0){\n\tvar splitPref = prefix[0].trim().split(\"/\");\n\tvar dateTk = splitPref[2]+ splitPref[1]+splitPref[0];\n\n        for(i=0;i<doc.data.PaymentModes.length;i++){\n          emit([dateTk,doc.data.PaymentModes[i].Value.toUpperCase()], doc.data.PaymentModes[i].Total);\n        }\n\n        if(doc.data.BalanceUpdate != undefined){\n\t  emit([doc.data.BalanceUpdate.BalanceName.toUpperCase()], doc.data.BalanceUpdate.UpdateValue);\n        }\n\n    }\n  }",
+			"reduce": "_sum"
+		},
+		"VATByDate": {
+			"map": "function(doc) {\n  var prefix = doc.data.Date.match(/^[^\\s]+\\s/);\n    if(prefix && doc._id.indexOf('ShoppingCart_')===0){\n\tvar splitPref = prefix[0].trim().split(\"/\");\n\tvar dateTk = splitPref[2]+ splitPref[1]+splitPref[0];\n      for(i=0;i<doc.data.TotalVAT.length;i++){\n        emit([dateTk,doc.data.TotalVAT[i].VAT], {TotalIT:doc.data.TotalVAT[i].TotalIT,TotalET:doc.data.TotalVAT[i].TotalET});\n      }\n    }\n  }",
+			"reduce": "function(keys, values, rereduce) {\n    var stats = { TotalIT: 0, TotalET: 0 };\n\n        for(var i=0; i < values.length; i++) {\n            stats.TotalIT += values[i].TotalIT;\n            stats.TotalET += values[i].TotalET;\n        }\n\n        return stats;\n}"
+		},
+		"AltVATByDate": {
+			"map": "function(doc) {\n  var prefix = doc.data.Date.match(/^[^\\s]+\\s/);\n    if(prefix && doc._id.indexOf('ShoppingCart_')===0){\n\tvar splitPref = prefix[0].trim().split(\"/\");\n\tvar dateTk = splitPref[2]+ splitPref[1]+splitPref[0];\n\temit([dateTk,doc.data.AltVAT], doc.data.Total);\n    }\n  }",
+			"reduce": "_sum"
+		},
+		"DeliveryTypeByDate": {
+			"map": "function(doc) {\n  var prefix = doc.data.Date.match(/^[^\\s]+\\s/);\n    if(prefix && doc._id.indexOf('ShoppingCart_')===0){\n\tvar splitPref = prefix[0].trim().split(\"/\");\n\tvar dateTk = splitPref[2]+ splitPref[1]+splitPref[0];\n\temit([dateTk,doc.data.DeliveryType], doc.data.Total);\n    }\n  }",
+			"reduce": "_sum"
+		},
+		"repaidByDate": {
+			"map": "function(doc) {\n  var prefix = doc.data.Date.match(/^[^\\s]+\\s/);\n    if(prefix && doc._id.indexOf('ShoppingCart_')===0){\n\tvar splitPref = prefix[0].trim().split(\"/\");\n\tvar dateTk = splitPref[2]+ splitPref[1]+splitPref[0];\n\t emit(dateTk, doc.data.Repaid);\n      \n    }\n  }",
+			"reduce": "_sum"
+		},
+		"VAT": {
+			"map": "function(doc) {\n      for(i=0;i<doc.data.TotalVAT.length;i++){\n        emit(doc.data.TotalVAT[i].VAT, 1);\n      }\n  }",
+			"reduce": "_sum"
+		},
+		"paymentModes": {
+			"map": "function(doc) {\n  var prefix = doc.data.Date.match(/^[^\\s]+\\s/);\n    if(prefix && doc._id.indexOf('ShoppingCart_')===0){\n\tvar splitPref = prefix[0].trim().split(\"/\");\n\tvar dateTk = splitPref[2]+ splitPref[1]+splitPref[0];\n\n        for(i=0;i<doc.data.PaymentModes.length;i++){\n          emit([dateTk,doc.data.PaymentModes[i].Value.toUpperCase()], 1);\n        }\n\n        if(doc.data.BalanceUpdate != undefined){\n\t  emit([doc.data.BalanceUpdate.BalanceName.toUpperCase()], 1);\n        }\n\n    }\n  }",
+			"reduce": "_sum"
+		},
+		"countByDate": {
+			"map": "function(doc) {\n  var prefix = doc.data.Date.match(/^[^\\s]+\\s/);\n    if(prefix && doc._id.indexOf('ShoppingCart_')===0){\n\tvar splitPref = prefix[0].trim().split(\"/\");\n\tvar dateTk = splitPref[2]+ splitPref[1]+splitPref[0];\n      for(i=0;i<doc.data.TotalVAT.length;i++){\n        emit(dateTk, 1);\n      }\n    }\n  }",
+			"reduce": "_count"
+		},
+		"byDate": {
+			"map": "function(doc) {\n  var prefix = doc.data.Date.match(/^[^\\s]+\\s/);\n    if(prefix && doc._id.indexOf('ShoppingCart_')===0){\n\tvar splitPref = prefix[0].trim().split(\"/\");\n\tvar dateTk = splitPref[2]+ splitPref[1]+splitPref[0];\n      emit(dateTk,doc);\n    }\n  }"
+		},
+		"cutleriesByDate": {
+			"map": "function(doc) {\n  var prefix = doc.data.Date.match(/^[^\\s]+\\s/);\n    if(prefix && doc._id.indexOf('ShoppingCart_')===0){\n\tvar splitPref = prefix[0].trim().split(\"/\");\n\tvar dateTk = splitPref[2]+ splitPref[1]+splitPref[0];\n\tvar tableCutleries = doc.data.TableCutleries;\n\ttableCutleries = (tableCutleries == undefined || tableCutleries < 1) ? 0 : tableCutleries;\n\temit(dateTk, tableCutleries);\t\n    }\n  }",
+			"reduce": "_sum"
+		},
+		"creditByDate": {
+			"map": "function(doc) {\n  var prefix = doc.data.Date.match(/^[^\\s]+\\s/);\n    if(prefix && doc._id.indexOf('ShoppingCart_')===0){\n\tvar splitPref = prefix[0].trim().split(\"/\");\n\tvar dateTk = splitPref[2]+ splitPref[1]+splitPref[0];\n\temit(dateTk, doc.data.Credit);\t\n    }\n  }",
+			"reduce": "_sum"
+		},
+		"userByDate": {
+			"map": "function(doc) {\n  var prefix = doc.data.Date.match(/^[^\\s]+\\s/);\n    if(prefix && doc._id.indexOf('ShoppingCart_')===0){\n\tvar splitPref = prefix[0].trim().split(\"/\");\n\tvar dateTk = splitPref[2]+ splitPref[1]+splitPref[0];\n\temit([dateTk,doc.data.PosUserName.toUpperCase()], doc.data.Total);\n    }\n  }",
+			"reduce": "_sum"
+		}
+	}
+}

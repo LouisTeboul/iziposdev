@@ -1,0 +1,70 @@
+﻿<div class="shoppingCartSplit">
+	<uib-accordion close-others="false">
+
+		<uib-accordion-group id="panelTotal" class="panel panel-default miniBasket panel-total" is-open="true">
+			<uib-accordion-heading>
+				<span>{{currentShoppingCartIn.Total | CurrencyFormat}}</span>
+			</uib-accordion-heading>
+
+			<div class="panel-body itemsPanel">
+				<div style="margin-top: -1px;">
+					<div ng-repeat="item in currentShoppingCartIn.Discounts" class="itemRow">
+						<div class="productLine col-md-8">
+							<strong translate>REMISE</strong>
+
+							<strong> {{item.Value}}</strong>
+							<strong ng-if="item.IsPercent == false"> {{IziPosConfiguration.Currency.currencySymbol}}</strong>
+							<strong ng-if="item.IsPercent == true"> %</strong>
+
+							<span>( {{item.Total | CurrencyFormat}} )</span>
+
+						</div>
+
+					</div>
+				</div>
+			</div>
+
+		</uib-accordion-group>
+
+
+
+
+		<uib-accordion-group heading="Ticket" id="miniBasketHeader" is-open="true" class="panel panel-default miniBasket">
+			<div id="miniBasketItems" class="panel-body shoppingCartPanel">
+				<div style="margin-top: -1px;">
+					<div ng-repeat="item in currentShoppingCartIn.Items" class="itemRow" ng-attr-id="{{'itemRow'+item.$$hashKey}}" layout="column">
+						<div layout="column">
+							<div layout="row">
+								<div style="max-width:120px">
+									<md-button aria-label="sendToOut" ng-click="sendToOut(item)">
+										<span class="glyphicon glyphicon-arrow-left"></span>
+									</md-button>
+								</div>
+								<div class="productLine" layout="column" flex>
+									<strong>{{item.Product.Name}}</strong>
+
+									<div style="margin-left:10px" layout="row" ng-if="item.Quantity > 0">
+										<strong ng-show="item.Quantity > 1">x {{item.Quantity}}</strong>
+										<span>( {{item.PriceIT | CurrencyFormat}} )</span>
+									</div>
+
+								</div>
+							</div>
+						</div>
+						<div>
+							<div ng-repeat="attr in item.Attributes" style="margin-left:5px;margin-right:-10px">
+								<div style="padding:0" data-ng-bind-html="attr.Name"></div>
+								<div ng-if="attr.PriceAdjustment && attr.PriceAdjustment!=0" style="padding:0;text-align:right">+ {{attr.PriceAdjustment | CurrencyFormat }}</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+		</uib-accordion-group>
+
+
+
+	</uib-accordion>
+</div>    
+

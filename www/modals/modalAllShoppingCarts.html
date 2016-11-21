@@ -1,0 +1,43 @@
+﻿<section class="shoppingCartModal" ng-init="init()">
+	<div class="modal-header">
+		<h1 class="modal-title" translate>Tickets enregistrés</h1>
+	</div>
+
+	<div class="form-panel modal-body">
+
+		<div ng-hide="loading" class="row">
+			<label for="date-start" class="control-label col-md-6" translate>Début</label>
+			<label for="date-end" class="control-label col-md-6" translate>Fin</label>
+		</div>
+		<div ng-hide="loading" class="row selectDate">
+			<div class="row">
+				<div class="input-group input-group-date col-md-6">
+					<input type="text" class="form-control" datepicker-popup="dd/MM/yyyy" ng-required="true" ng-model="dateStart" is-open="dateStartOpened" starting-day="1" close-text="Fermer" current-text="Aujourd'hui" clear-text="Effacer" disabled style="background-color:white" />
+					<span class="input-group-btn">
+						<button type="button" class="btn btn-default" ng-click="openDateStart($event)"><i class="glyphicon glyphicon-calendar"></i></button>
+					</span>
+				</div>
+
+				<div class="input-group input-group-date col-md-6">
+					<input type="text" class="form-control" datepicker-popup="dd/MM/yyyy" ng-model="dateEnd" is-open="dateEndOpened" starting-day="1" close-text="Fermer" current-text="Aujourd'hui" clear-text="Effacer" disabled style="background-color:white" />
+					<span class="input-group-btn">
+						<button type="button" class="btn btn-default" ng-click="openDateEnd($event)"><i class="glyphicon glyphicon-calendar"></i></button>
+					</span>
+				</div>
+			</div>
+
+		</div>
+		<div ng-if="loading">
+			<center><h2><x translate>Chargement</x>...</h2></center>
+		</div>
+		<kendo-grid ng-hide="loading" k-data-source="gridDatas"
+					k-columns="gridColumns" k-sortable="true" k-filterable="false" k-groupable="false" k-pageable="true" k-scrollable="true">
+		</kendo-grid>
+	</div>
+
+	<div class="modal-footer">
+		<button ng-hide="loading" class="btn btn-info" ng-click="showZPos()" translate>Z de caisse</button>
+		<button class="btn btn-rose" ng-click="cancel()" translate>Annuler</button>
+	</div>
+
+</section>

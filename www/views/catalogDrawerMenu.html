@@ -1,0 +1,23 @@
+﻿<div id="menu-principal" ng-controller="CatalogDrawerMenuController" ng-init="init()" layout="column" layout-align="center center" layout-fill>
+	<button class="btn btn-menu" ng-click="shoppingCartDiscount()" translate>Remise sur ticket</button>
+    <!--<button class="btn btn-menu btn-menu-closable" ng-click="shoppingCartSplit()" translate>Partager un ticket</button>-->
+    <button class="btn btn-menu btn-menu-closable" ng-click="printLastShoppingCart()" translate>Imprimer le dernier ticket</button>
+    <button class="btn btn-menu btn-menu-closable" ng-click="printShoppingCartNote()" translate>Imprimer une note</button>
+    <button class="btn btn-menu btn-menu-closable" ng-click="showAllShoppingCarts()" translate>Consulter les tickets</button>
+    <button class="btn btn-menu btn-menu-closable" ng-if="authService.isLogged()" ng-click="openAdmin('Booking','Index')" translate>Réservation</button>
+    <button class="btn btn-menu btn-menu-closable" ng-if="authService.isLogged()" ng-click="openAdmin('Booking','Page1')" translate>Test (Page1)</button>
+    <button class="btn btn-menu btn-menu-closable" ng-if="authService.isLogged()" ng-click="openAdmin('Booking','Page2')" translate>Test (Page2)</button>
+    <button class="btn btn-menu btn-menu-closable" ng-if="IziBoxConfiguration.UseCashMovement" ng-click="openPos()" translate>Fonds de caisse</button>
+    <button class="btn btn-menu btn-menu-closable" ng-if="IziBoxConfiguration.UseCashMovement" ng-click="closePos()" translate>Fermeture caisse</button>
+    <button class="btn btn-menu btn-menu-closable" ng-click="openDrawer()" translate>Ouvrir le tiroir</button>
+    <button class="btn btn-menu btn-menu-closable" ng-if="IziBoxConfiguration.LoginRequired" ng-click="changeUser()" translate>Changer d'utilisateur</button>
+    <button class="btn btn-logout btn-menu-closable"  ng-if="PosUserId>0" ng-click="logout()" translate>Déconnecter</button>
+    <button class="btn btn-logout btn-menu-closable" ng-if="closable" ng-click="exit()" translate>Fermer l'application</button>
+	<span flex></span>
+	<md-checkbox class="checkbox-menu" ng-checked="IziPosConfiguration.IsDirectPayment" ng-click="toggleDirectPayment()" style="color:white"><x translate>Paiement Rapide</x></md-checkbox>
+	<span flex></span>
+	<div layout="row" layout-align="center center" layout-padding style="width:100%;margin-bottom:30px">
+		<img src="img/FR.png" ng-click="setLanguage('fr_FR')" />
+		<img src="img/US.png" ng-click="setLanguage('en_EN')"/>
+	</div>
+</div>

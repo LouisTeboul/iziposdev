@@ -1,0 +1,23 @@
+﻿<section>
+    <div ng-init="init()" class="modal-header">
+        <h1 class="modal-title" translate>Saisissez le prix</h1>
+    </div>
+
+    <div class="form-panel modal-body">
+        <div class="inp">
+            <label for="txtPrice"><x translate>Prix</x> :</label>
+            <!--<input type="number" step="1" id="txtPrice" ng-model="valuePrice" ng-keypress="$event.stopPropagation()" />-->
+			<text-field style="width:150px" id="txtPrice" ng-model="valuePrice" location="end-start" type="decimal" validfunction="ok"></text-field>
+        </div>
+        <br />
+        <div class="inp" ng-if="errorMessage">
+            <span class="labelErr">{{errorMessage}}</span>
+        </div>
+    </div>
+
+    <div class="modal-footer">
+        <!--<button class="btn btn-green" ng-click="ok()">OK</button>-->
+        <button class="btn btn-rose" ng-click="cancel()" translate>Annuler</button>
+    </div>
+
+</section>

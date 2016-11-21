@@ -1,0 +1,77 @@
+﻿<section class="customerModal" ng-init="init()">
+    <div class="modal-header">
+        <h1 class="modal-title" translate>Client</h1>
+    </div>
+
+    <div class="form-panel modal-body">
+        <tabset>
+            <tab>
+                <tab-heading>
+                    <x translate>EMAIL</x>
+                </tab-heading>
+                <div layout="column" layout-margin>
+
+                    <div layout="row">
+                        <label flex="10" translate>Email</label>
+                        <text-field flex="70" id="email" ng-model="email" location="center-end" type="azerty" validfunction="ok" style="width:510px;margin-right:10px;min-height:34px;"></text-field>
+                    </div>
+
+                    <div layout="row">
+                        <label flex="10" translate>Nom</label>
+                        <text-field flex="70" id="nom" ng-model="nom" location="center-end" type="azerty" validfunction="ok" style="width:510px;margin-right:10px;min-height:34px;"></text-field>
+                    </div>
+
+                    <div layout="row">
+                        <label flex="10" translate>Prénom</label>
+                        <text-field flex="70" id="prenom" ng-model="prenom" location="center-end" type="azerty" validfunction="ok" style="width:510px;margin-right:10px;min-height:34px;"></text-field>
+                    </div>
+
+                    <div layout="row">
+                        <label flex="10" translate>No Carte</label>
+                        <text-field flex="70" s id="nocarte" ng-model="nocarte" location="center-end" type="azerty" validfunction="ok" style="width:510px;margin-right:10px;min-height:34px;"></text-field>                       
+                        <md-button flex="10" style="background-color:grey;">Biiiip</md-button>
+                        
+
+                        </div>
+
+                    <div layout="row">
+                        <div flex="10" class="dummy"></div><md-checkbox flex="70">Fidélité</md-checkbox>
+                    </div>
+
+                </div>
+            </tab>
+            <tab>
+                <tab-heading>
+                    <x translate>RECHERCHE</x>
+                </tab-heading>
+                <div layout="column" layout-margin>
+
+                    <div layout="row">
+                        <label flex="10" translate>Nom, prénom ou email</label>
+                        <text-field flex="70" id="txtComment" ng-model="search.query" location="center-end" type="azerty" validfunction="ok" style="width:510px;margin-right:10px;min-height:34px;"></text-field>
+                        <md-button flex="10" ng-click="searchForCustomer(search.query)" style="background-color:grey;">Rechercher</md-button>
+                    </div>
+
+                    <div ng-if="searchResults && searchResults.length > 0" ng-repeat="client in searchResults">
+                        <h4 style="margin-top: 0">{{client.FirstName}} {{client.LastName}}</h4>
+                        <h4>{{client.Email}}</h4>
+                        <h4 style="margin-bottom: 0">
+                            <small translate>N° de carte</small>:
+                            {{client.Barcode}}
+                        </h4>
+                    </div>
+
+                    <div class="card error" ng-if="searchResults.length === 0">
+                        <h4 style="margin-top: 8px; text-align: center" translate>Aucun résultat</h4>
+                    </div>
+                </div>
+            </tab>
+        </tabset>
+    </div>
+
+    <div class="modal-footer">
+        <button class="btn btn-green" ng-click="ok()">OK</button>
+        <button class="btn btn-rose" ng-click="close()" translate>Annuler</button>
+    </div>
+
+</section>

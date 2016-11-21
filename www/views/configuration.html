@@ -1,0 +1,205 @@
+﻿<md-content class="configuration" ng-controller="ConfigurationController" ng-init="init()" layout="column" layout-align="start center" layout-fill layout-padding>
+    <div>
+        <img style="width:70px;height:70px" src="img/logo.png" />
+    </div>
+    <div>
+        <h1 ng-if="IziBoxConfiguration == undefined"><x translate>Veuillez patienter</x>...</h1>
+        <h1 ng-if="IziBoxConfiguration != undefined" translate>Configuration</h1>
+    </div>
+    <md-content ng-if="IziBoxConfiguration != undefined">
+        <div class="configRow" style="border-bottom:1px solid #C2C2C2;" layout="row" layout-align="center center" layout-wrap >
+            <div layout="column" layout-wrap>
+                <div layout="row" layout-align="start center" layout-wrap>
+                    <div class="title" style="min-width:155px">
+                        <b translate>Imprimante caisse</b><b> : </b>
+                    </div>
+                    <div class="value" style="min-width:250px">
+                        <md-radio-group ng-model="PrinterConfiguration.POSPrinter" layout="row">
+                            <md-radio-button value="1">1</md-radio-button>
+                            <md-radio-button value="2">2</md-radio-button>
+                            <md-radio-button value="3">3</md-radio-button>
+                            <md-radio-button value="4">4</md-radio-button>
+                            <md-radio-button value="5">5</md-radio-button>
+                        </md-radio-group>
+                    </div>
+                </div>
+                <div layout="row" layout-align="start center" layout-wrap>
+                    <div class="title" style="min-width:155px">
+                        <b translate>Nb impression</b><b> : </b>
+                    </div>
+                    <div class="value" style="min-width:250px">
+                        <md-radio-group ng-model="PrinterConfiguration.POSPrinterCount" layout="row">
+                            <md-radio-button value="1">1</md-radio-button>
+                            <md-radio-button value="2">2</md-radio-button>
+                            <md-radio-button value="3">3</md-radio-button>
+                            <md-radio-button value="4">4</md-radio-button>
+                        </md-radio-group>
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <md-button ng-click="testPrinter(PrinterConfiguration.POSPrinter)" class="md-raised md-warn btn-rose">Test</md-button>
+            </div>
+        </div>
+
+        <div class="configRow" layout="row" layout-align="center center" layout-wrap >
+            <div layout="column" layout-wrap>
+                <div layout="row" layout-align="start center" layout-wrap>
+                    <div class="title" style="min-width:155px">
+                        <b translate>Imprimante prod.</b><b> : </b>
+                    </div>
+                    <div class="value" style="min-width:250px">
+                        <md-radio-group ng-model="PrinterConfiguration.ProdPrinter" layout="row">
+                            <md-radio-button value="1">1</md-radio-button>
+                            <md-radio-button value="2">2</md-radio-button>
+                            <md-radio-button value="3">3</md-radio-button>
+                            <md-radio-button value="4">4</md-radio-button>
+                            <md-radio-button value="5">5</md-radio-button>
+                        </md-radio-group>
+                    </div>
+                </div>
+                <div layout="row" layout-align="start center" layout-wrap>
+                    <div class="title" style="min-width:155px">
+                        <b translate>Nb impression</b><b> : </b>
+                    </div>
+                    <div class="value" style="min-width:250px">
+                        <md-radio-group ng-model="PrinterConfiguration.ProdPrinterCount" layout="row">
+                            <md-radio-button value="1">1</md-radio-button>
+                            <md-radio-button value="2">2</md-radio-button>
+                            <md-radio-button value="3">3</md-radio-button>
+                            <md-radio-button value="4">4</md-radio-button>
+                        </md-radio-group>
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <md-button ng-click="testPrinter(PrinterConfiguration.ProdPrinter)" class="md-raised md-warn btn-rose">Test</md-button>
+            </div>
+        </div>
+
+		<div ng-if="RatioConfiguration.Enabled" class="configRow" layout="row" layout-align="start center" layout-wrap>
+			<div class="title" flex="35">
+				<b translate>Ratio paysage</b><b> : </b>
+			</div>
+			<div class="value" flex="auto">
+				<text-field tostring="true" id="txtLandscapeRatio" ng-model="Model.LandscapeRatio" location="end-start" type="decimal" validfunction="updateLandscapeRatio()" style="width:40px"></text-field>
+			</div>
+		</div>
+
+		<div ng-if="RatioConfiguration.Enabled" class="configRow" layout="row" layout-align="start center" layout-wrap>
+			<div class="title" flex="35">
+				<b translate>Ratio portrait</b><b> : </b>
+			</div>
+			<div class="value" flex="auto">
+				<text-field tostring="true" id="txtPortraitRatio" ng-model="Model.PortraitRatio" location="end-start" type="decimal" validfunction="updatePortraitRatio()" style="width:40px"></text-field>
+			</div>
+		</div>
+
+        <div class="configRow" layout="row" layout-align="start center" layout-wrap >
+            <div class="title" flex="35">
+                <b>Hardware Id :</b>
+            </div>
+            <div class="value" flex="auto">
+                <span>{{HardwareId}}</span>
+            </div>
+        </div>
+
+        <div class="configRow" layout="row" layout-align="start center" layout-wrap >
+            <div class="title" flex="35">
+                <b>IziBox :</b>
+            </div>
+            <div class="value" flex="auto">
+                <span>{{IziBoxConfiguration.LocalIpIziBox}}</span>
+            </div>
+        </div>
+
+		<div class="configRow" layout="row" layout-align="start center" layout-wrap>
+			<div class="title" flex="35">
+				<b>Version IziBox :</b>
+			</div>
+			<div class="value" flex="auto">
+				<span>{{IziBoxConfiguration.VersionIziBox}}</span>
+			</div>
+		</div>
+
+        <!--<div class="configRow" layout="row" layout-align="start center" layout-wrap >
+            <div class="title" flex="35">
+                <b>CouchDB :</b>
+            </div>
+            <div class="value" flex="auto">
+                <span>{{IziBoxConfiguration.UrlCouchDb}}</span>
+            </div>
+        </div>-->
+
+        <div class="configRow" layout="row" layout-align="start center" layout-wrap >
+            <div class="title" flex="35">
+                <b>IdxCouchDB :</b>
+            </div>
+            <div class="value" flex="auto">
+                <span>{{IziBoxConfiguration.IdxCouchDb}}</span>
+            </div>
+        </div>
+
+        <div class="configRow" layout="row" layout-align="start center" layout-wrap >
+            <div class="title" flex="35">
+                <b>Fid API :</b>
+            </div>
+            <div class="value" flex="auto">
+                <span>{{IziBoxConfiguration.UrlSmartStoreApi}}</span>
+            </div>
+        </div>
+
+        <div class="configRow" layout="row" layout-align="start center" layout-wrap >
+            <div class="title" flex="35">
+                <b>StoreId :</b>
+            </div>
+            <div class="value" flex="auto">
+                <span>{{IziBoxConfiguration.StoreId}}</span>
+            </div>
+        </div>
+
+        <div class="configRow" layout="row" layout-align="start center" layout-wrap >
+            <div class="title" flex="35">
+                <b>LoginRequired :</b>
+            </div>
+            <div class="value" flex="auto">
+                <span>{{IziBoxConfiguration.LoginRequired}}</span>
+            </div>
+        </div>
+
+        <div class="configRow" ng-if="IziBoxConfiguration.LoginRequired" layout="row" layout-align="start center" layout-wrap >
+            <div class="title" flex="35">
+                <b>Timeout :</b>
+            </div>
+            <div class="value" flex="auto">
+                <span>{{IziBoxConfiguration.LoginTimeout}}</span>
+            </div>
+        </div>
+    </md-content>
+
+    <div layout="column" layout-align="center center" style="width:100%;height:200px;">
+		<div ng-if="IziBoxConfiguration == undefined" layout="column" layout-fill layout-align="center center">
+			<uib-progressbar style="width:50%;margin-left:auto;margin-right:auto" animate="false" value="searchIziBoxProgression.percent" type="success"></uib-progressbar>
+			<span ng-if="!isAndroid"><b>Recherche IziBox : {{searchIziBoxProgression.step}}/{{searchIziBoxProgression.total}}</b></span>
+			<md-button style="width:100px" class="md-raised btn-rose validBtn" title="Exit" ng-click="stopIziboxSearch()">
+				Ignorer
+			</md-button>
+		</div>
+		<div layout="row">
+			<md-button ng-if="closable" class="md-raised btn-rose validBtn" title="Exit" ng-click="exit()">
+				Fermer l'application
+			</md-button>
+			<md-button ng-if="IziBoxConfiguration.LocalIpIziBox != undefined && IziBoxConfiguration.UrlCouchDb && HardwareId" class="md-raised btn-green validBtn" title="Valid config" ng-click="validConfig()">
+				Ok
+			</md-button>
+			<md-button ng-if="IziBoxConfiguration.LocalIpIziBox == undefined && IziBoxConfiguration != undefined && HardwareId" class="md-raised btn-green validBtn" title="Config index" ng-click="configIndex()">
+				Configurer Index
+			</md-button>
+			<md-button ng-if="IziBoxConfiguration.LocalIpIziBox == undefined && IziBoxConfiguration.WithoutIzibox != undefined && HardwareId" class="md-raised btn-rose validBtn" title="Start without IziBox" ng-click="validConfig()">
+				Démarrer sans IziBox
+			</md-button>
+		</div>
+    </div>
+</md-content>

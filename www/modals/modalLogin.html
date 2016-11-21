@@ -1,0 +1,17 @@
+﻿<section modal-location="center">
+    <div class="modal-header" ng-init="init()">
+        <h3 class="modal-title">Login&nbsp;{{password}}</h3>
+    </div>
+    <div class="modal-body keypad-container" layout="row" layout-wrap layout-padding>
+        <div ng-repeat="posUser in posUsers" class="itemPosUser" layout="column" layout-align="center center">
+            <a class="linkPosUser" ng-click="login(posUser)" style="position:relative">
+                <img class="imgPosUser" ng-src="{{posUser.PictureUrl}}" alt="{{posUser.Name}}" />
+				<img src="img/check.png" style="top: -18px; left: 58px;position: absolute;" ng-if="posUser.IsWorking" />
+            </a>
+            <p class="titlePosuser">{{posUser.Name}}</p>
+        </div>  
+
+    </div>
+
+
+</section>

@@ -1,0 +1,58 @@
+﻿<md-content md-no-ink ng-controller="ConfigurableMenuController" ng-init="init()" id="configurableMenu" class="configurableMenu" layout="column">
+    <div id="configurableMenuHeader" layout="column" class="heading" ng-class="(IziBoxConfiguration.StepEnabled) ? 'high' : ''">
+        <div layout="row" layout-wrap>
+            <div class="title"><h3 class="title-text">{{product.Name}}</h3></div>
+            <span flex></span>
+            <div class="title"><h3 class="title-text">{{TotalPrice | CurrencyFormat}}</h3></div>
+            <span flex></span>
+            <md-button aria-label="AddToCart" ng-click="addToCart(product)" ng-if="canAddToCart" class="md-raised btn-green"><x translate>Ajouter au panier</x></md-button>
+        </div>
+        <div layout="row" layout-align="start center" class="editStep" ng-if="IziBoxConfiguration.StepEnabled">
+            <md-button aria-label="NavigAttr" class="md-fab md-mini" ng-click="moveStep(-1)"><span class="glyphicon glyphicon-minus"></span></md-button>
+            <span class="stepName">{{currentStep | StepName:stepNames}}</span>
+            <md-button aria-label="NavigAttr"  class="md-fab md-mini" ng-click="moveStep(1)"><span class="glyphicon glyphicon-plus"></span></md-button>
+        </div>
+        <div layout="row" layout-align="center center" ng-show="$mdMedia('gt-sm')">
+            <md-button aria-label="NavigAttr" ng-repeat="attr in product.ProductAttributes track by $index" class="md-raised navigAction" ng-click="scrollTo(attr.Name)">{{attr.Name | Truncate:16}}</md-button>
+        </div>
+    </div>
+
+    <md-content class="attributes" id="attributes" layout-padding>        
+        <div id="{{attribute.Name}}" ng-repeat="attribute in product.ProductAttributes track by $index">
+            <div class="attributesPanel" layout="column">
+                <div class="attributesPanelInfos" layout="row">
+                    <span class="title">{{attribute.Name}}</span>
+                    <span class="info" data-ng-bind-html="attribute.Description" ng-show="$mdMedia('gt-sm')"></span>
+                </div>
+
+
+                <div layout="row" layout-wrap>
+                    <div ng-repeat="v in attribute.ProductAttributeValues track by $index">
+                        <md-button aria-label="attributeBox" layout-fill class="attributeBox" ng-class="v.DisableBuyButton ? 'disable' : (v.Selected == 1 ? 'active' : '')" ng-click="v.DisableBuyButton ? null : selectAttributeValue(v.ProductAttributeId,v.Id)">
+                            <div layout="column" layout-fill>
+                                <div class="attributeInfo-text">
+                                    <div ng-if="v.LinkedProduct" data-ng-bind-html="v.LinkedProduct.Name"></div>
+                                    <div ng-if="!v.LinkedProduct" data-ng-bind-html="v.Name"></div>
+                                </div>
+
+                                <span flex></span>
+
+                                <div layout="row" layout-align="start center">
+                                    <img class="imgAttribute" ng-src="{{v.DefaultPictureUrl}}" />
+                                    <span flex></span>
+                                    <div class="attributeInfo-text" layout="column" layout-align="center center">
+                                        <div ng-if="v.DisableBuyButton"><i class="glyphicon glyphicon-warning-sign"></i> Rupture</div>
+                                        <span ng-if="v.PriceAdjustment">+ {{v.PriceAdjustment}} €</span>
+                                        <span ng-if="IziBoxConfiguration.StepEnabled && v.Selected" >{{attribute.Step | StepName:stepNames}}</span>
+                                        <span class="attributeInfo-comment" ng-if="v.Comment && v.Comment!=''">{{v.Comment}}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </md-button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </md-content>
+
+</md-content>

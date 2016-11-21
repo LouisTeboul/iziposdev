@@ -1,0 +1,10 @@
+﻿<md-content class="categories" ng-controller="CatalogMenuController" ng-init="init()" layout="column" flex>
+	<div layout="row" layout-wrap layout-align="center start">
+		<div ng-repeat="category in categories track by $index" class="itemCategory" ui-sref="catalog.{{category.CategoryTemplate.ViewPath}}({id: '{{category.Id}}'})">
+			<md-button aria-label="{{category.Name}}" class="md-icon-button linkCategory" ui-sref="catalog.{{category.CategoryTemplate.ViewPath}}({id: '{{category.Id}}'})">
+				<img class="imgCategory" ng-src="{{category.PictureUrl}}" alt="">
+			</md-button>
+			<div class="titleCategory">{{category.Name}}</div>
+		</div>
+	</div>
+</md-content>

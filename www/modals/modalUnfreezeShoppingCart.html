@@ -1,0 +1,116 @@
+﻿<section class="shoppingCartModal" ng-init="init()">
+    <div class="modal-header">
+        <h1 class="modal-title" translate>Reprendre un ticket</h1>
+    </div>
+
+    <div class="form-panel modal-body modal-unfreeze">
+        <tabset>
+            <tab>
+				<tab-heading>
+					<x translate>En attente</x>
+				</tab-heading>
+                <div ng-if="shoppingCarts != undefined && shoppingCarts.length > 0">
+                    <div class="itemRow" layout="column" ng-repeat="shoppingCart in shoppingCarts track by $index" ng-click="select(shoppingCart)" ng-style="shoppingCart.Customer != undefined && {'line-height':'30px'} || {'line-height':'60px'}">
+                        <div style="margin-left:10px; margin-right:10px" layout="row">
+                            <div>
+                                <div style="margin-top:10px;margin-bottom:-10px;">
+                                    <input type="checkbox" ng-click="$event.stopPropagation();checkShoppingCart(shoppingCart,$event);" style="width:25px;height:25px;">
+                                </div>
+                            </div>
+							<div layout="row" flex>
+								<strong flex ng-if="shoppingCart.TableNumber != undefined"><md-icon md-svg-src="img/icons/table.svg"></md-icon> {{shoppingCart.TableNumber}}</strong>
+								<strong flex><md-icon md-svg-src="img/icons/shoppingcart.svg"></md-icon> {{shoppingCart.Timestamp}}</strong>
+								<strong flex ng-if="shoppingCart.TableCutleries != undefined"><md-icon md-svg-src="img/icons/cutleries.svg"></md-icon> {{shoppingCart.TableCutleries}}</strong>
+								<strong flex ng-if="shoppingCart.PosUserName != undefined && shoppingCart.PosUserName.length > 0"><md-icon md-svg-src="img/icons/user.svg"></md-icon> {{shoppingCart.PosUserName}}</strong>
+							</div>
+
+                            <strong flex="10"><md-icon md-svg-src="img/icons/box.svg"></md-icon> {{getItemsCount(shoppingCart)}}</strong>
+                            <strong flex="20"><x translate>TOTAL</x> : {{shoppingCart.Total | CurrencyFormat}}</strong>
+
+                            <!--<a style="width:10%;float:right" class="btn btn-xs btn-default itemActionContainer" ng-click="$event.stopPropagation();removeShoppingCart(shoppingCart)">
+                                <span class="glyphicon glyphicon-trash itemAction"></span>
+                            </a>-->
+
+                        </div>
+                        <div ng-if="shoppingCart.Customer != undefined" style="margin-left:10px; margin-right:10px" ng-if="shoppingCart.Customer != undefined">
+                            <strong style="width:20%;float:left"><x translate>Horaire</x> : {{shoppingCart.ShippingOption}}</strong>
+                            <span style="width:30%;float:left">{{shoppingCart.Customer.FirstName+" "+shoppingCart.Customer.LastName}}</span>
+                            <span style="width:30%;float:left">{{shoppingCart.Customer.Email}}</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="itemRow" ng-if="modelDb.freezeReady == true && (shoppingCarts == undefined || shoppingCarts.length == 0)">
+                    <strong translate>Aucun ticket en attente</strong>
+                </div>
+                <div class="itemRow" ng-if="!modelDb.freezeReady">
+                    <strong><x translate>Les tickets en attentes sont en cours de synchronisation</x>...<br /><br /><x translate>Veuillez patienter</x>...</strong>
+                </div>
+            </tab>
+            <tab>
+                <tab-heading>
+					<x translate>A traiter</x>
+                    <div ng-if="ordersInProgress.length > 0" class="tabNotif">
+                        <span class="tabNotif-text">
+                            {{ordersInProgress.length}}
+                        </span>
+                    </div>
+                </tab-heading>
+                <div ng-if="ordersInProgress != undefined && ordersInProgress.length > 0">
+                    <div class="itemRow row" ng-repeat="order in ordersInProgress track by $index" ng-click="selectOrder(order)" ng-style="order.Customer != undefined && {'line-height':'30px'} || {'line-height':'60px'}">
+                        <div style="margin-left:10px; margin-right:10px">
+                            <strong style="width:60%;float:left"><x translate>Ticket</x> : {{order.Timestamp}}</strong>
+                            <strong style="width:20%;float:left">{{getItemsCount(order)}} <x translate>produit(s)</x></strong>
+                            <strong style="width:20%;float:left"><x translate>TOTAL</x> : {{order.Total | CurrencyFormat}}</strong>
+                        </div>
+                        <br ng-if="order.Customer != undefined" />
+                        <div style="margin-left:10px; margin-right:10px" ng-if="order.Customer != undefined">
+                            <strong style="width:40%;float:left"><x translate>Horaire</x> : {{order.ShippingOption}}</strong>
+                            <span style="width:30%;float:left">{{order.Customer.FirstName+" "+order.Customer.LastName}}</span>
+                            <span style="width:30%;float:left">{{order.Customer.Email}}</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="itemRow" ng-if="modelDb.orderReady == true && (ordersInProgress == undefined || ordersInProgress.length == 0)">
+                    <strong translate>Aucune commande à préparer</strong>
+                </div>
+            </tab>
+            <tab>
+				<tab-heading>
+					<x translate>Commandes</x>
+                    <div ng-if="orders.length > 0" class="tabNotif notifWarning">
+                        <span class="tabNotif-text">
+                            {{orders.length}}
+                        </span>
+                    </div>
+				</tab-heading>
+                <div ng-if="orders != undefined && orders.length > 0">
+                    <div class="itemRow row" ng-repeat="order in orders track by $index" ng-click="selectOrder(order)" ng-style="order.Customer != undefined && {'line-height':'30px'} || {'line-height':'60px'}">
+                        <div style="margin-left:10px; margin-right:10px">
+                            <strong style="width:60%;float:left"><x translate>Ticket</x> : {{order.Timestamp}}</strong>
+                            <strong style="width:20%;float:left">{{getItemsCount(order)}} <x translate>produit(s)</x></strong>
+                            <strong style="width:20%;float:left"><x translate>TOTAL</x> : {{order.Total | CurrencyFormat}}</strong>
+                        </div>
+                        <br ng-if="order.Customer != undefined" />
+                        <div style="margin-left:10px; margin-right:10px" ng-if="order.Customer != undefined">
+                            <strong style="width:40%;float:left"><x translate>Horaire</x> : {{order.ShippingOption}}</strong>
+                            <span style="width:30%;float:left">{{order.Customer.FirstName+" "+order.Customer.LastName}}</span>
+                            <span style="width:30%;float:left">{{order.Customer.Email}}</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="itemRow" ng-if="modelDb.orderReady == true && (orders == undefined || orders.length == 0)">
+                    <strong translate>Aucune commande en attente</strong>
+                </div>
+                <div class="itemRow" ng-if="!modelDb.orderReady">
+                    <strong><x translate>Les commandes en attentes sont en cours de synchronisation</x>...<br /><br /><x translate>Veuillez patienter</x>...</strong>
+                </div>
+            </tab>
+        </tabset>
+    </div>
+
+    <div class="modal-footer">
+        <button ng-if="selectedShoppingCarts.length > 1" class="btn btn-info" ng-click="join()"><span style="white-space:normal;font-weight: bold;" translate>Joindre tickets sélectionnés</span></button>
+        <button class="btn btn-rose" ng-click="cancel()" translate>Annuler</button>
+    </div>
+
+</section>

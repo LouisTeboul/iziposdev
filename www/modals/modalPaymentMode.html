@@ -1,0 +1,50 @@
+﻿<section>
+    <div ng-init="init()" class="modal-header">
+        <h1 class="modal-title">{{paymentMode.Text}}</h1>
+    </div>
+
+    <div class="form-panel modal-body">
+        <center class="inp">
+            <label for="address"><x translate>Montant</x> :</label>
+            <!--<input readonly type="tel" id="txtAmount" ng-model="value" ng-keypress="$event.stopPropagation()" />-->
+			<text-field tostring="true" id="txtAmount" ng-model="value" location="center-end" type="decimal" validfunction="ok" style="width:160px"></text-field>
+            <a class="btn btn-default" ng-click="calculate()">
+                <span class="glyphicon itemAction">=</span>
+            </a>
+            <!--<a class="btn btn-default" ng-click="remove()">
+                <span class="glyphicon glyphicon-trash itemAction"></span>
+            </a>-->
+        </center>
+        <div ng-if="paymentMode.PaymentType == 4" style="margin-top: 40px;">
+            <div ng-repeat="item in currentShoppingCart.TicketsResto" class="row">
+                <div class="col-md-8">
+                    <strong><x translate>Ticket</x> : </strong>
+                    <strong> {{item.Number}}</strong>
+                    <span>( {{item.Value | CurrencyFormat}} )</span>
+
+                </div>
+                <div class="col-md-4" style="padding: 0">
+                    <span class="btn-group">
+                        <!-- Remove line -->
+                        <a class="btn btn-xs btn-default" style="border:0;" ng-click="removeTicketResto(item)">
+                            <span class="glyphicon glyphicon-trash"></span>
+                        </a>
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="inp" ng-if="errorMessage">
+            <span class="labelErr">{{errorMessage}}</span>
+        </div>
+
+        <!--<div data-ng-keypad="paymentKeypad" class="numpad">
+            <div ng-include="'partials/decimal.html'"></div>
+        </div>-->
+    </div>
+
+    <div class="modal-footer">
+        <!--<button class="btn btn-green" ng-click="ok()">OK</button>-->
+        <button class="btn btn-rose" ng-click="cancel()" translate>Annuler</button>
+    </div>
+
+</section>

@@ -1,0 +1,30 @@
+﻿<section>
+    <div ng-init="init()" class="modal-header">
+        <h1 class="modal-title" translate>Remise sur ticket</h1>
+    </div>
+
+    <div class="form-panel modal-body">
+		<center>
+			<toggle-switch ng-model="result.isPercent"
+						   style="width:80%;margin-top:8px;"
+						   on-label="{{'Pourcentage' | translate}}"
+						   off-label="{{'Montant' | translate}}">
+			</toggle-switch>
+		</center>
+        <center class="inp">
+            <label ng-if="result.isPercent"><x translate>Pourcentage</x> :</label>
+			<label ng-if="!result.isPercent"><x translate>Montant</x> :</label>
+			<text-field ng-if="result.isPercent" id="txtAmount" ng-model="result.value" location="end-start" type="numeric" validfunction="ok" style="width:160px"></text-field>
+			<text-field ng-if="!result.isPercent" id="txtAmount" ng-model="result.value" location="end-start" type="decimal" validfunction="ok" style="width:160px"></text-field>
+        </center>
+        <div class="inp" ng-if="errorMessage">
+            <span class="labelErr">{{errorMessage}}</span>
+        </div>
+    </div>
+
+    <div class="modal-footer">
+        <!--<button class="btn btn-green" ng-click="ok()">OK</button>-->
+        <button class="btn btn-rose" ng-click="cancel()" translate>Annuler</button>
+    </div>
+
+</section>

@@ -1,0 +1,56 @@
+﻿<section ng-init="init()">
+    <div class="modal-header">
+        <h1 class="modal-title" translate>Fonds de caisse</h1>
+    </div>
+
+    <div class="modal-body">
+        <div class="modal-openpos">
+            <div class="row">
+                <div style="width:40%;float:left">
+                    <div class="title"><x translate>Motif</x> :</div>
+                </div>
+                <div style="width:60%;float:left">
+                    <div class="btn-group" dropdown is-open="status.isopen" style="width:100%">
+                        <button id="single-button" type="button" style="width:270px" class="btn btn-default" dropdown-toggle ng-disabled="disabled">
+                            {{model.motif.Name | NullConverter:("&lt;"+("Sélectionner un motif" | translate)+"&gt;")}}
+                            <span style="margin-top:8px;float:right" class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu" style="width:270px" role="menu" aria-labelledby="single-button">
+                            <li ng-repeat="m in motifs" role="menuitem" class="item"><a ng-click="selectMotif(m)">{{m.Name}}</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div style="width:40%;float:left">
+                    <div class="title"><x translate>Montant en caisse</x> :</div>
+                </div>
+                <div style="width:60%;float:left">
+                    <div class="title">{{model.total | CurrencyFormat}}</div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div style="width:40%;float:left">
+                    <div class="title"><x translate>Montant du mouvement</x> :</div>
+                </div>
+                <div style="width:230px;float:left">
+                   <!-- <input type="tel" id="txtAmount" ng-model="openPosValues.CashMovementLines[0].PaymentMode.Total" style="line-height: 29px; vertical-align: middle; width: 100%;font-size: 18px" ng-keypress="$event.stopPropagation();" />-->
+					<text-field id="txtAmount" ng-model="openPosValues.CashMovementLines[0].PaymentMode.Total" location="end-start" type="decimal" validfunction="ok" style="line-height: 29px; vertical-align: middle; width: 100%;font-size: 18px"></text-field>
+                </div>
+                <div style="width:30px;float:left">
+                    <a class="btn btn-xs btn-default" style="margin-left:3px;padding:5px" ng-click="$event.stopPropagation();editCashValues()">
+                        <img class="itemAction" src="img/coins.png" />
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-footer">
+        <button class="btn btn-green" ng-click="ok()">OK</button>
+        <button class="btn btn-rose" ng-click="cancel()" translate>Annuler</button>
+    </div>
+
+</section>

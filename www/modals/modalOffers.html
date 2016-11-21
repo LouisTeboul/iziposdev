@@ -1,0 +1,26 @@
+﻿<section class="offerModal">
+    <div class="modal-header">
+        <h1 class="modal-title" translate>Choisir une offre</h1>
+        <button class="btn btn-rose right" style="float: right; margin-top: -40px;" ng-click="cancel()" translate>Ne rien choisir</button>        
+    </div>
+
+    <div class="form-panel modal-body" style="overflow-y:auto">
+        <div class="row rowOffer" ng-repeat="offer in offers">
+            <div class="col-md-2">
+                <img class="imgOffer" ng-src="{{offer.OfferImageUrl}}" />
+            </div>
+            <div class="col-md-7">
+                <strong>{{offer.OfferClassDescription}}</strong><br />
+                <span>{{offer.OfferObjectDescription}}</span>
+            </div>
+            <div class="col-md-3 pull-right dataRowOffer">
+                <button ng-if="offer.isValid" class="btn btn-green" ng-disabled="relevantOffers.indexOf(offer) < 0" ng-click="selectOffer(offer)">Selectionner</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-footer">
+        <button class="btn btn-rose" ng-click="cancel()" translate>Ne rien choisir</button>
+    </div>
+
+</section>

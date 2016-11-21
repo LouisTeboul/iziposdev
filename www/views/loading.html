@@ -1,0 +1,31 @@
+﻿<section class="loading" ng-controller="LoadingController" ng-init="init()" >
+    <div style="margin-left:auto;margin-right:auto" class="row">
+        <div class="col-xs-12" style="text-align:center">
+            <img style="width:80px;height:80px" src="img/logo.png" />
+        </div>
+        <div class="col-xs-12" style="text-align:center">
+            <h1>Loading...</h1>
+        </div>
+        <div class="col-xs-12" style="text-align:center">
+            <b ng-bind="infos.start_time.toString()"></b>
+        </div>
+        <div class="col-xs-12" style="text-align:center" ng-show="loading">
+            <uib-progressbar style="width:50%;margin-left:auto;margin-right:auto" animate="false" value="percentProgress" type="success"><b>Datas {{percentProgress}}%</b></uib-progressbar>
+        </div>
+        <div class="col-xs-12" style="text-align:center" ng-show="freezeLoading">
+            <uib-progressbar style="width:50%;margin-left:auto;margin-right:auto" animate="false" value="freezeProgress" type="success"><b>Freeze {{freezeProgress}}%</b></uib-progressbar>
+        </div>
+        <div class="col-xs-12" style="text-align:center" ng-show="replicLoading">
+            <uib-progressbar style="width:50%;margin-left:auto;margin-right:auto" animate="false" value="replicProgress" type="success"><b>Replic {{replicProgress}}%</b></uib-progressbar>
+        </div>
+        <div class="col-xs-12" style="text-align:center" ng-show="orderLoading">
+            <uib-progressbar style="width:50%;margin-left:auto;margin-right:auto" animate="false" value="orderProgress" type="success"><b>Orders {{orderProgress}}%</b></uib-progressbar>
+        </div>
+        <div class="col-xs-12" style="text-align:center" ng-show="zposPurge">
+            <uib-progressbar style="width:50%;margin-left:auto;margin-right:auto" animate="false" value="zposPurgeProgress" type="success"><b>ZPos {{zposPurgeProgress}}%</b></uib-progressbar>
+        </div>
+        <div class="col-xs-12" style="text-align:center" ng-show="downloading">
+            <uib-progressbar style="width:50%;margin-left:auto;margin-right:auto" animate="false" value="downloadProgress" type="success"><b>{{downloadProgress}}%</b></uib-progressbar>
+        </div>
+    </div>
+</section>

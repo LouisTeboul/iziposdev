@@ -1,0 +1,7 @@
+﻿$rootScope.$emit("shoppingCartItemChanged",cartItem);
+$rootScope.$emit("shoppingCartItemAdded",cartItem);
+$rootScope.$emit("shoppingCartItemRemoved",cartItem);
+$rootScope.$emit("shoppingCartChanged", currentShoppingCart);
+$rootScope.$emit("paymentModesAvailableChanged", paymentModesAvailable);
+$rootScope.$emit("paymentModesChanged");
+$rootScope.$emit("customerLoyaltyChanged", loyalty);

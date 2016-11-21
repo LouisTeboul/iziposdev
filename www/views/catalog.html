@@ -1,0 +1,24 @@
+﻿<md-content class="catalog" ng-controller="CatalogController" ng-init="init()" layout="column" layout-fill>
+    <div id="catalogMenuDiv" ng-include="'views/catalogMenu.html'"></div>
+	<md-sidenav class="md-sidenav-left md-whiteframe-z2 drawerMenu" md-component-id="drawerMenuDiv" ng-include="'views/catalogDrawerMenu.html'">
+	</md-sidenav>
+    <md-content layout="row" flex>
+        <md-content div id="catalogViewDiv" flex ui-view layout="column">
+        </md-content>
+
+		<md-sidenav class="md-sidenav-right md-whiteframe-z2 miniBasketSlide" md-is-locked-open="!$rootScope.adminMode.state && ($mdMedia('gt-sm') || $rootScope.showShoppingCart)">
+			<md-content id="catalogBasketDiv" class="catalogBasketDiv" ng-include="'views/miniBasket.html'" layout="column" flex>
+			</md-content>
+		</md-sidenav>
+    </md-content>
+
+    <script type="text/ng-template" id="warning-dialog.html">
+        <div class="modal-header">
+            <h3 translate>Attention ! Mise en veille !</h3>
+        </div>
+        <div idle-countdown="countdown" ng-init="countdown=15" class="modal-body">
+            <uib-progressbar max="15" value="15" animate="false" class="progress-striped active"><x translate>Mise en veille dans</x> {{countdown}} <x translate>secondes</x>.</uib-progressbar>
+        </div>
+
+    </script>
+</md-content>

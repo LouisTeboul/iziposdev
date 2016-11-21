@@ -1,0 +1,35 @@
+﻿<section>
+	<div ng-init="init()" class="modal-header">
+		<h1 class="modal-title" translate>Commentaire</h1>
+	</div>
+
+	<div class="form-panel modal-body">
+        <div layout="row" layout-wrap layout-padding>
+            <button class="btn btn-green" style="margin:8px;" ng-click="addComment(item)" ng-repeat="item in ProductComments">
+                {{item.Name}}
+            </button>
+        </div>
+        <div layout="row">
+            <text-field id="txtComment" ng-model="value" location="center-end" type="azerty" validfunction="ok" style="width:510px;margin-right:10px;min-height:34px;"></text-field>
+            <a class="btn btn-default" ng-click="clear();">
+                <span class="glyphicon glyphicon-trash itemAction"></span>
+            </a>
+        </div>
+        <div layout="row">
+            <md-chips class="comment-toast" ng-model="model.toast" ng-click="delSelectedChip($event)" readonly="false">
+				<md-chip-template>
+					<span>{{$chip.text}}</span>
+				</md-chip-template>
+			</md-chips>
+        </div>
+        <div class="inp" ng-if="errorMessage">
+            <span class="labelErr">{{errorMessage}}</span>
+        </div>
+    </div>
+
+	<div class="modal-footer">
+		<button class="btn btn-green" ng-click="close()">OK</button>
+		<button class="btn btn-rose" ng-click="cancel()" translate>Annuler</button>
+	</div>
+
+</section>

@@ -1,0 +1,53 @@
+﻿<section ng-init="init()" modal-location="left">
+    <div class="modal-header">
+        <h1 class="modal-title" translate>Fermeture de caisse</h1>
+    </div>
+
+    <div class="form-panel modal-body modal-closepos">
+        <div class="row" style="border-bottom: 1px solid lightgray;margin-bottom:10px">
+            <div style="width:35%;float:left">
+                <div class="title" translate>Paiements</div>
+            </div>
+            <div style="width:15%;float:left">
+                <div class="title centered" translate>Nb</div>
+            </div>
+            <div style="width:25%;float:left">
+                <div class="title centered" translate>Montant</div>
+            </div>
+            <div style="width:25%;float:left">
+                <div class="title centered" translate>Attendu</div>
+            </div>
+        </div>
+
+        <div class="row" ng-repeat="p in closePosValues.CashMovementLines">
+            <div style="width:35%;float:left">
+                <div class="title">{{p.PaymentMode.Text}}</div>
+            </div>
+            <div style="width:15%;float:left;min-height:60px">
+                <div class="title centered">
+                    <!--<input ng-if="p.PaymentMode.PaymentType != 1" type="tel" id="txtNb" ng-model="p.Count" style="line-height: 29px; vertical-align: middle; width: 60%;font-size: 18px; text-align:center" ng-keypress="$event.stopPropagation();" />-->
+					<text-field ng-if="p.PaymentMode.PaymentType != 1" id="txtNb" ng-model="p.Count" location="end-start" type="numeric" validfunction="ok" style="line-height: 29px; vertical-align: middle; width: 60%;font-size: 18px; text-align:center"></text-field>
+                </div>
+            </div>
+            <div style="width:25%;float:left">
+                <div class="title centered" layout="row">
+                    <!--<input ng-style="p.PaymentMode.PaymentType == 1 && {'width':'60%'} || {'width':'80%'}" type="tel" id="txtAmount" ng-model="p.PaymentMode.Total" style="line-height: 29px; vertical-align: middle; width: 60%;font-size: 18px; text-align:center" ng-keypress="$event.stopPropagation();" />-->
+					<text-field ng-style="p.PaymentMode.PaymentType == 1 && {'width':'60%'} || {'width':'80%'}" id="txtAmount" ng-model="p.PaymentMode.Total" location="end-start" type="decimal" validfunction="ok" style="line-height: 29px; vertical-align: middle; width: 60%;font-size: 18px; text-align:center"></text-field>
+                    <a ng-if="p.PaymentMode.PaymentType == 1" class="btn btn-xs btn-default" style="padding:5px" ng-click="$event.stopPropagation();editCashValues(p)">
+                        <img class="itemAction" src="img/coins.png"/>
+                    </a>
+                </div>
+            </div>
+            <div style="width:25%;float:left">
+                <div class="title centered">{{p.TotalKnown | CurrencyFormat}}</div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="modal-footer">
+        <button class="btn btn-green" ng-click="ok()" translate>Fermer la caisse</button>
+        <button class="btn btn-rose" ng-click="cancel()" translate>Annuler</button>
+    </div>
+
+</section>

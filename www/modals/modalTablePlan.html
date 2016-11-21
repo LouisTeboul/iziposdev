@@ -1,0 +1,53 @@
+﻿<section ng-init="init()" layout="column" flex id="modalTablePlan" class="tableplan">
+    <div class="modal-header">
+        <h1 class="modal-title" translate>Tables</h1>
+    </div>
+
+    <div class="modal-body" layout="column" flex>
+		<md-tabs md-selected="mapSelectedIndex" md-border-bottom flex class="tabFill">
+			<md-tab ng-repeat="map in storeMap.data" label="{{map.Name}}">
+				<md-tabs md-selected="map.areaSelectedIndex" md-border-bottom>
+					<md-tab ng-repeat="area in map.Areas"
+							label="{{area.Name}}">
+						<div id="mapContainer{{map.Id+''+area.Id}}" flex>
+							<div ng-class="{'layout-row':$mdMedia('gt-sm'), 'layout-column':!$mdMedia('gt-sm')}" layout-wrap>
+								<div ng-show="!isLoading && $mdMedia('gt-sm')" id="canvasContainer{{map.Id+''+area.Id}}" class="canvas-container" style="position: relative; -webkit-user-select: none;">
+								</div>
+								<div ng-show="!isLoading && !$mdMedia('gt-sm')" layout="row" layout-wrap layout-padding>
+									<button style="background-color:{{t.fabObj.fill}}" class="btn btnItemTable" ng-class="{'btnTableCircle':t.fabObj.type=='Labeledcircle'}" ng-repeat="t in currentArea.Objects" ng-click="selectTable(t.Id)">{{t.TableNumber}}</button>
+								</div>
+								<div ng-show="!isLoading" layout="column" style="width:260px;min-width:260px;max-width:260px;" flex>
+									<div layout="row" layout-wrap>
+										<md-checkbox class="checkbox-criterias" ng-checked="tableModel.allCriteriasSelected" ng-click="toggleAllCriterias()"><x translate>Tous</x></md-checkbox>
+										<md-checkbox ng-disabled="tableModel.allCriteriasSelected" ng-repeat="criteria in tableModel.criterias" class="checkbox-criterias" ng-checked="criteria.IsSelected" ng-click="toggleCriteria(criteria)">{{criteria.Name}}</md-checkbox>
+									</div>
+									<div class="form-panel modal-body">
+										<div class="inp">
+											<label for="address"><x translate>Numéro</x> :</label>
+											<text-field id="txtTable" ng-model="tableModel.valueTable" location="end-start" type="numeric" validfunction="ok" style="width:150px"></text-field>
+										</div>
+										<br />
+										<div class="inp">
+											<label for="address"><x translate>Couvert(s)</x> :</label>
+											<text-field id="txtCutleries" ng-model="tableModel.valueCutleries" location="end-start" type="numeric" validfunction="ok" style="width:128px"></text-field>
+										</div>
+										<div class="inp" ng-if="errorMessage">
+											<span class="labelErr">{{errorMessage}}</span>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</md-tab>
+				</md-tabs>
+
+			</md-tab>
+		</md-tabs>
+    </div>
+
+    <div class="modal-footer">
+        <button class="btn btn-green" ng-click="ok()">OK</button>
+        <button class="btn btn-rose" ng-click="cancel()" translate>Annuler</button>
+    </div>
+
+</section>
