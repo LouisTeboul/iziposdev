@@ -4,7 +4,7 @@
 
     $scope.init = function () {
         settingService.getPaymentModesAsync().then(function (paymentSetting) {
-            var paymentModesAvailable = paymentSetting.ValueObject;
+            var paymentModesAvailable = paymentSetting;
             var newPaymentValues = {
                 PaymentValues: $scope.shoppingCart.PaymentModes
             }

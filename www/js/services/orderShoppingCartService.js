@@ -137,7 +137,7 @@
     	    /// Search payments Methods
     		settingService.getPaymentModesAsync().then(function (paymentSetting) {
 
-    		    var paymentModesAvailable = paymentSetting.ValueObject;
+    		    var paymentModesAvailable = paymentSetting;
 
     		    Enumerable.from(shoppingCart.PaymentModes).forEach(function (item) {
     		        var p = Enumerable.from(paymentModesAvailable).where('x => x.Text == item.Text').firstOrDefault();

@@ -23,6 +23,10 @@
             if ("ontouchstart" in document.documentElement) {
                 $element.bind('touchstart.ngKey', keyPressed);
                 body.bind('touchend.ngKey', keyDepressed);
+
+                //Added to support dual mode touchscreen and mouse -- useful for remote assistance
+                $element.bind('mousedown.ngKey', keyPressed);
+                body.bind('mouseup.ngKey', keyDepressed);
             } else {
                 $element.bind('mousedown.ngKey', keyPressed);
                 body.bind('mouseup.ngKey', keyDepressed);

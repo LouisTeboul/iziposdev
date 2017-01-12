@@ -14,9 +14,7 @@ app.factory('CustomerSearch', function ($http) {
         this.loadedItems = false;
         this.PAGE_SIZE = 50;
         this.fetchNumItems_();
-
     };
-
 
     CustomerSearch.prototype.search = function () {
         this.page = 0;
@@ -59,12 +57,11 @@ app.factory('CustomerSearch', function ($http) {
             }
         }.bind(this));
     };
+
     CustomerSearch.prototype.fetchNumItems_ = function () {
         this.fetchPage_(0);
     };
-
-
-
+    
     CustomerSearch.prototype.getLength = function () {
         return this.totalCount;
     };

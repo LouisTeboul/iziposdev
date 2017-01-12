@@ -58,19 +58,19 @@ body {
 }
 
 h1 {
-    color: #d83448;
-    letter-spacing: -0.5px;
-    font-size: 36px;
-    font-family: 'Gotham Light'; 
+	color: #d83448;
+	letter-spacing: -0.5px;
+	font-size: 36px;
+	font-family: 'Gotham Light'; 
 }
 
 hr{
-    margin-bottom: 0 !important;
+	margin-bottom: 0 !important;
 }
 
 html{
 	/*overflow-x: hidden;
-    overflow-y:hidden;*/
+	overflow-y:hidden;*/
 }
 
 .loader {
@@ -83,29 +83,29 @@ html{
 }
 
 .modal-backdrop {
-    z-index: 1020;
-    height:100%;
+	z-index: 1020;
+	height:100%;
 }
 
 .modal-large{
-    width: 60% !important;
+	width: 60% !important;
 }
 
 .modal-full{
-    width: 95% !important;
-    height: 90% !important;
-    flex-direction: column !important;
-    display: flex;
+	width: 95% !important;
+	height: 90% !important;
+	flex-direction: column !important;
+	display: flex;
 }
 
 .modal-full .modal-content{
 	min-height: 100%;
-    flex-direction: column !important;
-    display: flex;
+	flex-direction: column !important;
+	display: flex;
 }
 
 .labelErr{
-    color: #d83448;
+	color: #d83448;
 }
 
 [data-notifications] {
@@ -122,31 +122,31 @@ html{
 	color: #f2f2f2;
 	right: -10px;
 	top: -10px;
-    width: 25px;
-    text-align: center;
+	width: 25px;
+	text-align: center;
 }
 
 .panel-body{
-    padding-top: 0px !important;
-    padding-bottom: 5px !important;
-    padding-left: 0px;
-    padding-right: 0;
+	padding-top: 0px !important;
+	padding-bottom: 5px !important;
+	padding-left: 0px;
+	padding-right: 0;
 }
 
 .inp{
-    font-size:18px;
+	font-size:18px;
 }
 
 .progress-bar-success{
-    background-color:#d83448 !important;
+	background-color:#d83448 !important;
 }
 
 input:focus, textarea:focus {
-    outline: none;
+	outline: none;
 }
 
 .btn-default.disabled{
-    background-color:#ccc;
+	background-color:#ccc;
 }
 
 .modal-dialog{
@@ -158,21 +158,21 @@ input:focus, textarea:focus {
 }
 
 .modal-dialog.right{
-    margin: 5px 5px 5px auto;
+	margin: 5px 5px 5px auto;
 }
 
 text-field {
-    border: 1px solid gray;
-    display: inline-block;
-    height: 100%;
+	border: 1px solid gray;
+	display: inline-block;
+	height: 100%;
 }
 
 .md-button.md-raised:not([disabled]) {
-    box-shadow: none !important;
+	box-shadow: none !important;
 }
 
 .md-switch-thumb, md-radio-button {
-    margin: 4px 8px 4px 8px !important;
+	margin: 4px 8px 4px 8px !important;
 }
 
 *:focus{
@@ -187,8 +187,8 @@ text-field {
 }
 
 .toggle-switch .switch-right {
-    color: #ffffff;
-    background: #ec971f;
+	color: #ffffff;
+	background: #ec971f;
 }
 
 
@@ -197,25 +197,25 @@ text-field {
 }
 
 .tabFill md-tab-content > div:first-child {
-    margin: 0;
-    min-height: 100%;
-    height: 100%;
+	margin: 0;
+	min-height: 100%;
+	height: 100%;
 	-webkit-flex-direction: row;
-    -ms-flex-direction: row;
-    flex-direction: row;
+	-ms-flex-direction: row;
+	flex-direction: row;
 	display: flex;
 }
 
 .tabFill md-tabs {
-    margin: 0;
-    width: 100%;
-    min-height: 100%;
-    height: 100%;
+	margin: 0;
+	width: 100%;
+	min-height: 100%;
+	height: 100%;
 }
 
 .vertical-divider {
-    height: 100px !important;
-    border-color: gray !important;
+	height: 100px !important;
+	border-color: gray !important;
 }
 
 /*-----------------------END DEFAULTS---------------------*/
@@ -223,30 +223,30 @@ text-field {
 
 /*-----------------------BUTTONS--------------------------*/
 .btn {
-    font-size: 14px;
+	font-size: 14px;
 }
 
 .btn-rose {
-    background: #d83448 !important;
-    color: #fff !important;
-    font-weight: bold !important;
+	background: #d83448 !important;
+	color: #fff !important;
+	font-weight: bold !important;
 }
 
 
 .btn-green {
-    background: #5cb85c !important;
-    color: #fff !important;
-    font-weight: bold !important;
+	background: #5cb85c !important;
+	color: #fff !important;
+	font-weight: bold !important;
 }
 
 .btn-menu {
-    background: #2EBBD0;
-    color: #fff;
-    font-size: 14px;
-    /*height: 45px;*/
-    width: 85%;
-    margin-bottom: 5px;
-    margin-top: 5px;
+	background: #2EBBD0;
+	color: #fff;
+	font-size: 14px;
+	/*height: 45px;*/
+	width: 85%;
+	margin-bottom: 5px;
+	margin-top: 5px;
 }
 
 .checkbox-menu{
@@ -258,13 +258,13 @@ text-field {
 }
 
 .btn-logout {
-    background: red;
-    color: #fff;
-    font-size: 14px;
-    /*height: 45px;*/
-    width: 85%;
-    margin-bottom: 5px;
-    margin-top: 5px;
+	background: red;
+	color: #fff;
+	font-size: 14px;
+	/*height: 45px;*/
+	width: 85%;
+	margin-bottom: 5px;
+	margin-top: 5px;
 }
 
 /*-----------------------END BUTTONS----------------------*/
@@ -272,21 +272,21 @@ text-field {
 /*-----------------------CONFIGURATION--------------------*/
 
 .configuration{
-    margin-top:30px;
+	margin-top:30px;
 }
 
 .configRow{
-    min-height: 30px;
-    padding-top: 0px;
-    padding-bottom: 0px;
+	min-height: 30px;
+	padding-top: 0px;
+	padding-bottom: 0px;
 }
 
 .configRow .title{
-    text-align:right;
+	text-align:right;
 }
 
 .configRow .value{
-    text-align:center;
+	text-align:center;
 }
 
 /*-----------------------END CONFIGURATION----------------*/
@@ -294,7 +294,7 @@ text-field {
 /*-----------------------LOADING--------------------*/
 
 .loading{
-    margin-top:30px;
+	margin-top:30px;
 }
 
 
@@ -308,12 +308,12 @@ text-field {
 
 /*-----------------------DRAWER MENU----------------------*/
 .drawerMenu {
-    max-width: 210px !important;
-    min-width: 210px !important;
-    background-color: #272727;
-    top: 100px !important;
-    z-index: 100;
-    /* box-shadow: -6px 14px 5px 9px grey !important; */
+	max-width: 210px !important;
+	min-width: 210px !important;
+	background-color: #272727;
+	top: 100px !important;
+	z-index: 100;
+	/* box-shadow: -6px 14px 5px 9px grey !important; */
 }
 
 .drawerMenu.menuVisible{
@@ -329,327 +329,327 @@ text-field {
 
 .productboxIZIPASS{
 	background: #fff !important;
-    border: 1px solid grey !important;
-    border-radius: 4px !important;
-    padding: 0 !important;
-    width: 150px !important;
-    height: 160px !important;
-    margin: 2px !important;
+	border: 1px solid grey !important;
+	border-radius: 4px !important;
+	padding: 0 !important;
+	width: 150px !important;
+	height: 160px !important;
+	margin: 2px !important;
 }
 
 .productboxIZIPASS .link{
-    text-decoration: none !important;
-    color:#2b2b2b;
+	text-decoration: none !important;
+	color:#2b2b2b;
 }
 
 
 .productboxIZIPASS .titleRow{
-    white-space: normal;
-    font-size: 14px;
-    font-family: 'Gotham Light';
-    line-height: 15px;
-    font-weight: bold;
-    margin: 2px;
+	white-space: normal;
+	font-size: 14px;
+	font-family: 'Gotham Light';
+	line-height: 15px;
+	font-weight: bold;
+	margin: 2px;
 }
 
 .productboxIZIPASS .price{
-    font-family: 'Gotham Light';
-    font-size: 15px;
-    font-weight:bold;
-    overflow: hidden;
-    color: #d83448;
-    text-align:right;
+	font-family: 'Gotham Light';
+	font-size: 15px;
+	font-weight:bold;
+	overflow: hidden;
+	color: #d83448;
+	text-align:right;
 }
 
 .productboxIZIPASS .action{
-    font-weight: normal !important;
-    border-radius: 0 0 4px 4px;
-    white-space: normal;
-    line-height: 15px;
-    background: #d83448;
-    font-family: 'Gotham Light';
-    color: white;
-    font-size: 12px;
-    height: 28px;
-    display: table;
-    width: 100%;
+	font-weight: normal !important;
+	border-radius: 0 0 4px 4px;
+	white-space: normal;
+	line-height: 15px;
+	background: #d83448;
+	font-family: 'Gotham Light';
+	color: white;
+	font-size: 12px;
+	height: 28px;
+	display: table;
+	width: 100%;
 }
 
 .productboxIZIPASS .action .action-text {
-    vertical-align: middle;
-    display: table-cell;
-    padding: 2px;
+	vertical-align: middle;
+	display: table-cell;
+	padding: 2px;
 }
 
 .productboxIZIPASS .image{
-    height: 70px;
-    width: 70px;
+	height: 70px;
+	width: 70px;
 }
 
 .productboxIZIPASS .descriptionRow{
-    padding:2px;
+	padding:2px;
 }
 
 .productboxIZIPASS .description ul{
-    padding-left: 0;
+	padding-left: 0;
 }
 /*-----------------END PRODUCTBOX IZIPASS------------------*/
 
 /*-----------------BARCODETEXTFIELD------------------------*/
 .barcodeTextField{
-    height:38px;
+	height:38px;
 }
 
 .barcodeTextField .btnClear{
 	height: 38px;
-    min-width: 35px;
-    border: 1px;
-    border-right: 0;
-    border-top: 0;
-    border-style: solid;
-    border-color: gray;
+	min-width: 35px;
+	border: 1px;
+	border-right: 0;
+	border-top: 0;
+	border-style: solid;
+	border-color: gray;
 }
 
 .barcodeTextField .inp{
-    border-style: solid;
-    border-color: lightgray;
-    font-size: 13px;
-    margin-top: 1px;
+	border-style: solid;
+	border-color: lightgray;
+	font-size: 13px;
+	margin-top: 1px;
 }
 
 .barcodeTextField .btnAction{
-    max-width: 40px;
-    min-width: 40px;
-    padding: 0 !important;
-    margin: 0 2px 0 2px !important;
-    background: lightgray !important;
-    color: black;
+	max-width: 40px;
+	min-width: 40px;
+	padding: 0 !important;
+	margin: 0 2px 0 2px !important;
+	background: lightgray !important;
+	color: black;
 }
 
 .barcodeTextField .btnAction.double{
-    max-width: 80px;
-    min-width: 80px;
+	max-width: 80px;
+	min-width: 80px;
 }
 
 /*-----------------END BARCODETEXTFIELD--------------------*/
 
 /*-----------------MINI BASKET-----------------------------*/
 .catalogBasketDiv{
-    overflow:hidden;
+	overflow:hidden;
 }
 
 .miniBasketSlide{
-    min-width: 345px;
-    box-shadow: none !important;
-    border-left: 1px solid gray;
+	min-width: 345px;
+	box-shadow: none !important;
+	border-left: 1px solid gray;
 }
 
 .miniBasket{
-    width:344px;
-    overflow:hidden;
+	width:344px;
+	overflow:hidden;
 }
 
 .miniBasket text-field {
-    border-top: 0;
+	border-top: 0;
 }
 
 .miniBasket .panel-heading {
-    background-color: #d83448 !important; 
+	background-color: #d83448 !important; 
 }
 
 .miniBasket .panel-title {
-    font-family: 'Gotham Light';
-    font-size: 20px;
-    background-color: #d83448 !important;
-    color: #FFF;
+	font-family: 'Gotham Light';
+	font-size: 20px;
+	background-color: #d83448 !important;
+	color: #FFF;
 }
 
 .btn-action-fullwidth {
-    margin-top:10px;
-    width:100%;
+	margin-top:10px;
+	width:100%;
 }
 
 .miniBasket .btnAction{
-    max-width: 40px;
-    min-width: 40px;
-    padding: 0 !important;
-    margin: 0 2px 0 2px !important;
-    background: lightgray !important;
-    color: black;
+	max-width: 40px;
+	min-width: 40px;
+	padding: 0 !important;
+	margin: 0 2px 0 2px !important;
+	background: lightgray !important;
+	color: black;
 }
 
 .miniBasket .productLine{
-    padding-left:0px !important;
-    padding-right:0px !important;
+	padding-left:0px !important;
+	padding-right:0px !important;
 }
 
 .miniBasket .fidRow{
-    margin-top:10px;
-    margin-left:1px;
-    margin-right:2px;
+	margin-top:10px;
+	margin-left:1px;
+	margin-right:2px;
 }
 
 .miniBasket .fidAction{
-    font-weight:normal;
-    font-size:18px;
-    border-color:white;
+	font-weight:normal;
+	font-size:18px;
+	border-color:white;
 }
 
 .miniBasket .loyaltyRow{
-    overflow-x: hidden;
-    overflow-y: auto;
+	overflow-x: hidden;
+	overflow-y: auto;
 }
 
 .miniBasket .itemsPanel{
-    overflow-x: hidden;
-    overflow-y: auto;
+	overflow-x: hidden;
+	overflow-y: auto;
 }
 
 .miniBasket .miniBasketInfos{
-    overflow-x: hidden;
-    overflow-y: auto;
+	overflow-x: hidden;
+	overflow-y: auto;
 }
 
 .miniBasket .itemRow{
-    border-top: 1px solid #aaa;
-    padding-top: 7px;
-    padding-bottom: 5px;
-    min-height: 50px;
+	border-top: 1px solid #aaa;
+	padding-top: 7px;
+	padding-bottom: 5px;
+	min-height: 50px;
 }
 
 .miniBasket .itemRow.printed {
-    background: #B4CCAF;
+	background: #B4CCAF;
 }
 
 .miniBasket .itemRow.partialPrinted {
-    background: repeating-linear-gradient(
-         121deg, #B4CCAF, #B4CCAF 4px, #FFFFFF 4px, #DCDCDC 20px 
-    );
+	background: repeating-linear-gradient(
+		 121deg, #B4CCAF, #B4CCAF 4px, #FFFFFF 4px, #DCDCDC 20px 
+	);
 
 }
 
 
 .miniBasket .attrRow{
-    margin-left:5px;
-    margin-right:-10px;
-    
+	margin-left:5px;
+	margin-right:-10px;
+	
 }
 
 .miniBasket .attrRow.printed {
-    background: #B4CCAF;
+	background: #B4CCAF;
 }
 
 .miniBasket .stepRow{
-    border-top: 1px solid #aaa;
-    min-height: 40px;
-    background: #C5C5C5;
+	border-top: 1px solid #aaa;
+	min-height: 40px;
+	background: #C5C5C5;
 }
 
 .miniBasket .itemAction{
-    font-size: 15px;
-    color: black;
-    margin: 2px !important;
-    width: 36px !important;
-    height: 36px !important;
-    background: lightgray !important;
+	font-size: 15px;
+	color: black;
+	margin: 2px !important;
+	width: 36px !important;
+	height: 36px !important;
+	background: lightgray !important;
 }
 
 .miniBasket .itemAction.highlight{
-    background: #5cb85c !important;
+	background: #5cb85c !important;
 }
 
 .miniBasket .discountAction{
-    font-size: 18px;
-    color: black;
-    background: transparent;
-    width: 40px;
-    line-height: 30px;
-    text-align: center;
+	font-size: 18px;
+	color: black;
+	background: transparent;
+	width: 40px;
+	line-height: 30px;
+	text-align: center;
 }
 
 .miniBasket .total{
-    font-size:18px;
+	font-size:18px;
 }
 
 .miniBasket .totalValue{
-    font-size: 25px;
-    font-weight: bold;
-    font-family: 'LEDCalculator';
-    text-decoration: none !important;
+	font-size: 25px;
+	font-weight: bold;
+	font-family: 'LEDCalculator';
+	text-decoration: none !important;
 }
 
 .miniBasket .totalVAT{
-    font-size:14px;
+	font-size:14px;
 }
 
 .miniBasket .totalPayment{
-    font-size:14px;
+	font-size:14px;
 }
 
 .miniBasket .totalPayment a {
-    background-color: transparent;
-    color: black;
-    font-size: 15px;
-    height: 28px;
+	background-color: transparent;
+	color: black;
+	font-size: 15px;
+	height: 28px;
 }
 
 .miniBasket .totalPayment .btn {
-    padding: 0 15px 0 0;
-    line-height: normal;
+	padding: 0 15px 0 0;
+	line-height: normal;
 }
 
 .miniBasket .payments{
-    margin-top:10px;
+	margin-top:10px;
 }
 
 .miniBasket .bottomPanel{
-    padding-top:0;
+	padding-top:0;
 }
 
 
 .miniBasket .shoppingCartPanel{
-    padding-right: 0;
-    padding-bottom: 0;
-    padding-top: 0;
-    overflow-x: hidden;
-    overflow-y: auto;
-    max-height: 310px;
-    /*margin-left: -10px;
-    margin-right: -15px;*/
+	padding-right: 0;
+	padding-bottom: 0;
+	padding-top: 0;
+	overflow-x: hidden;
+	overflow-y: auto;
+	max-height: 310px;
+	/*margin-left: -10px;
+	margin-right: -15px;*/
 }
 
 .btn-action{
-    margin-top:5px;
+	margin-top:5px;
 }
 
 .btn-payment {
-    background: #E9E9E9;
-    color: #000000 !important;
-    line-height: 10px;
-    white-space: normal;
-    margin-top: 13px !important;
-    font-weight: bold;
-    font-size: 10px;
-    height: 75px;
-    width: 75px;
-    border: #BFBEBE 1px solid;
-    display: table;
-    margin: 4px;
-    padding: 0 5px;
+	background: #E9E9E9;
+	color: #000000 !important;
+	line-height: 10px;
+	white-space: normal;
+	margin-top: 13px !important;
+	font-weight: bold;
+	font-size: 10px;
+	height: 75px;
+	width: 75px;
+	border: #BFBEBE 1px solid;
+	display: table;
+	margin: 4px;
+	padding: 0 5px;
 }
 
 .btn-payment .btn-payment-text {
-    max-height: 45px;
-    overflow: hidden;
+	max-height: 45px;
+	overflow: hidden;
 }
 
 .btn-payment .btn-payment-image {
-    width:34px;
+	width:34px;
 	height:34px;
 }
 
 .btn-payment.active {
-    background: #5cb85c;
+	background: #5cb85c;
 }
 
 .panel-title a {
@@ -661,107 +661,107 @@ text-field {
 
 
 .panel-total a{
-    background-color: black;
-    text-decoration: none !important;
-    color: #5cb85c;
-    font-size: 25px;
-    font-weight: bold;
-    font-family: 'LEDCalculator';
-    text-align: right;
-    line-height: 40px;
+	background-color: black;
+	text-decoration: none !important;
+	color: #5cb85c;
+	font-size: 25px;
+	font-weight: bold;
+	font-family: 'LEDCalculator';
+	text-align: right;
+	line-height: 40px;
 }
 
 .panel-total .btnTable{
-    float: left;
-    font-family: 'Helvetica';
-    font-weight: normal;
-    font-size: 16px;
-    background-color: #46b8da;
-    color: white;
-    line-height: 18px;
-    font-weight: normal;
-    text-align: left;
-    margin: 0px -10px !important;
+	float: left;
+	font-family: 'Helvetica';
+	font-weight: normal;
+	font-size: 16px;
+	background-color: #46b8da;
+	color: white;
+	line-height: 18px;
+	font-weight: normal;
+	text-align: left;
+	margin: 0px -10px !important;
 	height: 40px;
-    padding: 2px 5px;
+	padding: 2px 5px;
 	min-width:70px;
 }
 
 .panel-total .btnOffersOnly{
-    float: left;
-    font-family: 'Helvetica';
-    font-weight: normal;
-    font-size: 18px;
-    background-color: #46b8da;
-    color: white;
-    line-height: 20px;
-    font-weight: normal;
-    text-align: left;
-    margin: -5px -10px !important;
+	float: left;
+	font-family: 'Helvetica';
+	font-weight: normal;
+	font-size: 18px;
+	background-color: #46b8da;
+	color: white;
+	line-height: 20px;
+	font-weight: normal;
+	text-align: left;
+	margin: -5px -10px !important;
 }
 
 .panel-total .btnOffers{
-    margin: 0px 20px !important;
+	margin: 0px 20px !important;
 }
 
 .buttonbar {
-    /*min-height: 145px;
-    height: 145px;
-    padding: 0 !important;*/
+	/*min-height: 145px;
+	height: 145px;
+	padding: 0 !important;*/
 }
 
 .buttonbar .shoppingCartActionsBar {
-    padding-bottom:5px;
+	padding-bottom:5px;
 }
 
 .buttonbar .shoppingCartAction {
-    font-size: 15px;
-    padding: 7px;
-    height: 47px;
-    margin-left: 4px;
-    margin-right: 4px;
+	font-size: 15px;
+	padding: 7px;
+	height: 47px;
+	margin-left: 4px;
+	margin-right: 4px;
 }
 
 .btnAddStep{
-    margin: -6px -12px !important;
-    height: 34px;
-    width: 70px;
-    padding: 0px !important;
-    font-size: 23px;
-    font-weight: bold;
+	margin: -6px -12px !important;
+	height: 34px;
+	width: 70px;
+	padding: 0px !important;
+	font-size: 23px;
+	font-weight: bold;
 }
 
 .btnPrintStep{
-    margin: -6px 25px -6px -12px !important;
-    height: 34px;
-    width: 70px;
-    padding: 2px !important;
-    font-size: 20px;
+	margin: -6px 25px -6px -12px !important;
+	height: 34px;
+	width: 70px;
+	padding: 2px !important;
+	font-size: 20px;
 }
 
 .btnDivideReceipt{
-    margin: -6px -12px !important;
-    height: 34px;
-    width: 70px;
-    padding: 0px !important;
-    font-size: 23px;
-    font-weight: bold;
+	margin: -6px -12px !important;
+	height: 34px;
+	width: 70px;
+	padding: 0px !important;
+	font-size: 23px;
+	font-weight: bold;
 }
 
 .btnDivideTotal{
-    margin: -6px 25px -6px -12px !important;
-    height: 34px;
-    width: 70px;
-    padding: 2px !important;
-    font-size: 20px;
+	margin: -6px 25px -6px -12px !important;
+	height: 34px;
+	width: 70px;
+	padding: 2px !important;
+	font-size: 20px;
 }
 
 .btnFreeze{
-    width: 165px;
+	width: 165px;
 }
 
 .buttonbar .btn-action-image {
-    width:30px;
+	width:30px;
 }
 
 
@@ -770,42 +770,44 @@ text-field {
 /*-----------------CATALOG-----------------------------*/
 
 .catalogMenu{
-    min-height: 100px;
-    /*box-shadow: 0px -7px 8px 10px grey;*/
-    z-index: 25;
+	min-height: 100px;
+	max-height:100px;
+	/*box-shadow: 0px -7px 8px 10px grey;*/
+	z-index: 25;
 }
 
 .catalogMenu .tools{
-    min-height: 100px;
-    background: #272727;
+	min-height: 100px;
+	background: #272727;
 }
 
 .catalogMenu .logo{
-    height: 70px !important;
-    width:70px !important;
+	height: 70px !important;
+	width:70px !important;
 }
 
 .catalogMenu .clock{
 	font-size: 18px;
+	color: #cecece;
 }
 
 .catalogMenu .imgLogo{
-    max-height: 50px;
-    max-width: 50px;
+	max-height: 50px;
+	max-width: 50px;
 }
 
 .catalogMenu .version{
-    text-align: right;
-    color: #B6B4B4;
-    font-size: 14px;
+	text-align: right;
+	color: #B6B4B4;
+	font-size: 14px;
 }
 
 .catalogMenu .izibox{
 	background: #d83448;
-    width: 18px;
-    height: 18px;
-    border-radius: 50%;
-    margin: 5px;
+	width: 18px;
+	height: 18px;
+	border-radius: 50%;
+	margin: 5px;
 }
 
 .catalogMenu .izibox.connected{
@@ -813,34 +815,41 @@ text-field {
 }
 
 .catalogMenu .infoCashMovement{
-    text-align: right;
-    color: #d83448;
-    padding-right: 5px;
-    font-size: 14px;
+	text-align: right;
+	color: #d83448;
+	padding-right: 5px;
+	font-size: 14px;
 }
 
 .catalogMenu .itemCategory {
-    text-align: center;
-    max-width: 94px;
-    min-width: 80px;
+	text-align: center;
+	max-width: 94px;
+	min-width: 80px;
+	max-height: 100px;
 }
 
 .catalogMenu .imgCategory{
-    max-height: 60px;
-    max-width: 60px;
+	max-height: 60px;
+	max-width: 60px;
 }
 
 .catalogMenu .linkCategory {
-    width: 55px !important;
-    height: 55px !important;
-    padding: 0 !important;
+	width: 55px !important;
+	height: 55px !important;
+	padding: 0 !important;
 }
 
 .catalogMenu .titleCategory{
-    color:white;
-    font-size:11px;
-    font-family: 'Gotham Light';
-    font-weight: bold;
+	color: white;
+	font-size: 11px;
+	font-family: 'Gotham Light';
+	font-weight: bold;
+	display: block;
+	overflow: hidden;
+	word-wrap: break-word;
+	text-overflow: ellipsis;
+	width: 80px;
+	height: 30px;
 }
 
 .categories{
@@ -848,28 +857,28 @@ text-field {
 }
 
 .categories .itemCategory{
-    text-align: center;
-    background: #272727;
-    margin: 4px;
-    border-radius: 7px;
-    width: 150px;
-    height: 160px;
+	text-align: center;
+	background: #272727;
+	margin: 4px;
+	border-radius: 7px;
+	width: 150px;
+	height: 160px;
 }
 .categories .imgCategory{
-    max-height: 70px;
-    max-width: 70px;
+	max-height: 70px;
+	max-width: 70px;
 }
 
 .categories .linkCategory{
-    width: 75px !important;
-    height: 70px !important;
+	width: 75px !important;
+	height: 70px !important;
 }
 
 .categories .titleCategory{
-    color:white;
-    font-size:12px;
-    font-family: 'Gotham Light';
-    font-weight: bold;
+	color:white;
+	font-size:12px;
+	font-family: 'Gotham Light';
+	font-weight: bold;
 }
 
 
@@ -877,27 +886,27 @@ text-field {
 
 /*-----------------OFFER MODAL-----------------------------*/
 .offerModal .rowOffer {
-    height:50px;
-    margin-bottom:5px;
+	height:50px;
+	margin-bottom:5px;
 }
 
 .offerModal .imgOffer{
-    height:50px;
+	height:50px;
 }
 
 .offerModal .dataRowOffer{
-    line-height:50px;
-    vertical-align:middle;
+	line-height:50px;
+	vertical-align:middle;
 }
 /*-----------------END OFFER MODAL-------------------------*/
 
 /*-----------------SHOPPING CART MODAL---------------------*/
 .shoppingCartModal {
-    margin-top: 5px;
+	margin-top: 5px;
 }
 .shoppingCartModal .itemRow{
-    border-bottom: 1px solid #aaa;
-    line-height: 60px;
+	border-bottom: 1px solid #aaa;
+	line-height: 60px;
 }
 
 /*-----------------END SHOPPING CART MODAL-----------------*/
@@ -908,39 +917,39 @@ text-field {
 }
 
 .configurableMenu .heading {
-    background-color: #d83448 !important;
-    min-height: 130px;
-    padding: 5px;
+	background-color: #d83448 !important;
+	min-height: 130px;
+	padding: 5px;
 }
 
 .configurableMenu .heading.high {
-    min-height: 150px !important;
+	min-height: 150px !important;
 }
 
 .configurableMenu .heading .title{
-    color: #FFF;
-    display: table; 
-    height: 50px; 
+	color: #FFF;
+	display: table; 
+	height: 50px; 
 	min-height:50px;
-    text-align:center;
-    font-family: 'Gotham Light';
-    font-size: 20px;
+	text-align:center;
+	font-family: 'Gotham Light';
+	font-size: 20px;
 }
 
 .configurableMenu .heading .title-text {
-    display: table-cell;
-    vertical-align: middle;
+	display: table-cell;
+	vertical-align: middle;
 }
 
 .configurableMenu .heading .navigAction {
-    line-height: 12px;
-    font-size: 12px;
-    white-space: normal;
-    font-family: 'Gotham Light';
-    min-width: 80px;
-    max-width: 80px;
-    font-weight: bold;
-    margin: 4px;
+	line-height: 12px;
+	font-size: 12px;
+	white-space: normal;
+	font-family: 'Gotham Light';
+	min-width: 80px;
+	max-width: 80px;
+	font-weight: bold;
+	margin: 4px;
 }
 
 .configurableMenu .editStep{
@@ -949,21 +958,21 @@ text-field {
 }
 .configurableMenu .editStep .stepName{
 	max-width: 120px;
-    min-width: 120px;
-    height: 30px;
-    font-size: 16px;
-    font-family: 'Gotham Light';
-    color: white;
-    text-align: center;
+	min-width: 120px;
+	height: 30px;
+	font-size: 16px;
+	font-family: 'Gotham Light';
+	color: white;
+	text-align: center;
 }
 
 .configurableMenu .editStep button {
-    font-size: 15px;
-    color: black;
-    margin: 0px !important;
-    width: 36px !important;
-    height: 36px !important;
-    background: lightgray !important;
+	font-size: 15px;
+	color: black;
+	margin: 0px !important;
+	width: 36px !important;
+	height: 36px !important;
+	background: lightgray !important;
 }
 
 .configurableMenu .attributes{
@@ -988,47 +997,47 @@ text-field {
 }
 
  .configurableMenu .btn-menu-attr{
-    padding: 5px;
-    font-size: 12px;
-    white-space: normal;
-    max-width: 80px;
-    min-height: 46px;
+	padding: 5px;
+	font-size: 12px;
+	white-space: normal;
+	max-width: 80px;
+	min-height: 46px;
 }
 
 .attributesPanel {
-    /*margin-bottom: 30px;*/
+	/*margin-bottom: 30px;*/
 }
 
 
 .attributeBox {
-    height: 90px !important;
-    width: 160px !important;
-    background: #fff !important;
-    border: 1px solid #000 !important;
-    color: black !important;
-    margin: 5px !important;
-    font-size: 13px !important;
-    text-align: center !important;
-    font-weight: bolder !important;
-    font-family: 'Gotham Light' !important;
-    border-radius: 7px 7px 7px 0 !important;
-    padding: 0 !important;
+	height: 90px !important;
+	width: 160px !important;
+	background: #fff !important;
+	border: 1px solid #000 !important;
+	color: black !important;
+	margin: 5px !important;
+	font-size: 13px !important;
+	text-align: center !important;
+	font-weight: bolder !important;
+	font-family: 'Gotham Light' !important;
+	border-radius: 7px 7px 7px 0 !important;
+	padding: 0 !important;
 }
 
 .attributeBox .attributeInfo-text{
-    white-space: normal;
-    line-height: 14px;
-    padding:2px;
+	white-space: normal;
+	line-height: 14px;
+	padding:2px;
 }
 
 .attributeBox .attributeInfo-comment{
-    text-transform: none;
-    font-weight: normal;    
+	text-transform: none;
+	font-weight: normal;    
 }
 
 .attributeBox .imgAttribute{
-    width: 40px;
-    height: 40px;
+	width: 40px;
+	height: 40px;
 }
 
 
@@ -1061,194 +1070,194 @@ text-field {
 
 /*-----------------MODAL LOGIN---------------------------------------*/
 .itemPosUser {
-    max-height: 150px;
+	max-height: 150px;
 }
 /*-----------------END MODAL LOGIN---------------------------------------*/
 
 /*-----------------MODAL Z POS---------------------------------------*/
 .input-group-date{
-    float:left !important;
-    padding-left:15px !important;
-    padding-right:15px !important;
+	float:left !important;
+	padding-left:15px !important;
+	padding-right:15px !important;
 }
 
 .selectDate{
-    margin-bottom:5px;
-    margin-left:0 !important;
-    margin-right:0 !important;
+	margin-bottom:5px;
+	margin-left:0 !important;
+	margin-right:0 !important;
 }
 
 .zpostable{
-    width : 100%;
-    border : 0;
+	width : 100%;
+	border : 0;
 }
 
 td.zvalue {
-    border: 1px solid;
+	border: 1px solid;
 }
 
 .zheader{
-    text-align:center !important;
+	text-align:center !important;
 }
 
 .zvalue{
-    text-align:center !important;
+	text-align:center !important;
 }
 /*-----------------END MODAL Z POS-----------------------------------*/
 /*-----------------MODAL unFreeze -----------------------------------*/
 .modal-unfreeze {
-    overflow-y: auto;
-    max-height:520px;
+	overflow-y: auto;
+	max-height:520px;
 }
 
 .modal-unfreeze .itemActionContainer{
-    margin-top: 12px;
+	margin-top: 12px;
 }
 
 .modal-unfreeze .itemAction{
-    font-size: 18px;
-    /*color: black;
-    background-color: white;*/
-    width: 25px;
-    line-height: 30px;
+	font-size: 18px;
+	/*color: black;
+	background-color: white;*/
+	width: 25px;
+	line-height: 30px;
 }
 
 .tabNotif{
-    display: inline-block;
-    width: 30px;
-    height: 20px;
-    background: #d83448;
-    text-align: center;
-    border-radius: 15px;
-    margin: 1px 2px 1px 0px;
-    color: white;
-    line-height: 19px;
+	display: inline-block;
+	width: 30px;
+	height: 20px;
+	background: #d83448;
+	text-align: center;
+	border-radius: 15px;
+	margin: 1px 2px 1px 0px;
+	color: white;
+	line-height: 19px;
 }
 
 .tabNotif.mini {
-    width: 30px;
-    height: 20px;
-    line-height: 19px;
-    font-size: 14px;
-    margin: 1px 2px 1px 0px;
-    border-radius: 15px;
+	width: 30px;
+	height: 20px;
+	line-height: 19px;
+	font-size: 14px;
+	margin: 1px 2px 1px 0px;
+	border-radius: 15px;
 }
 
 .tabNotif-text{
-    vertical-align: middle;
+	vertical-align: middle;
 }
 
 .tabNotif.notifWarning{
-    /*background: #ec971f;*/
-    background:black;
+	/*background: #ec971f;*/
+	background:black;
 }
 
 /*-----------------END MODAL unFreeze -----------------------------------*/
 /*-----------------MODAL openPos -----------------------------------*/
 .modal-openpos {
-    overflow-y: auto;
-    /*height:520px;*/
+	overflow-y: auto;
+	/*height:520px;*/
 }
 
 .modal-openpos .row{
-    line-height: 60px;
-    float:left;
-    width:100%;
-    margin-left:0;
-    margin-right:0;
+	line-height: 60px;
+	float:left;
+	width:100%;
+	margin-left:0;
+	margin-right:0;
 }
 
 .modal-openpos .title{
-    font-size: 20px;
+	font-size: 20px;
 }
 
 .modal-openpos .item{
-    text-align: center;
+	text-align: center;
 }
 
 .modal-openpos .itemAction{
-    font-size: 20px;
-    width: 25px;
-    line-height: 30px;
+	font-size: 20px;
+	width: 25px;
+	line-height: 30px;
 }
 
 /*-----------------END MODAL openPos -----------------------------------*/
 /*-----------------MODAL closePos -----------------------------------*/
 .modal-closepos {
-    overflow-y: auto;
-    /*height:520px;*/
+	overflow-y: auto;
+	/*height:520px;*/
 }
 
 .modal-closepos .row{
-    height:40px;
-    float:left;
-    width:100%;
-    margin-left:0;
-    margin-right:0;
+	height:40px;
+	float:left;
+	width:100%;
+	margin-left:0;
+	margin-right:0;
 }
 
 .modal-closepos .title{
-    font-size: 20px;
+	font-size: 20px;
 }
 
 .modal-closepos .centered{
-    text-align:center;
+	text-align:center;
 }
 
 .modal-closepos .item{
-    text-align: center;
+	text-align: center;
 }
 
 .modal-closepos .itemAction{
-    font-size: 20px;
-    width: 25px;
-    line-height: 30px;
+	font-size: 20px;
+	width: 25px;
+	line-height: 30px;
 }
 
 /*-----------------END MODAL closePos -----------------------------------*/
 /*-----------------MODAL editShoppingCart -----------------------------------*/
 .modal-editShoppingCart {
-    overflow-y: auto;
-    /*height:520px;*/
+	overflow-y: auto;
+	/*height:520px;*/
 }
 
 .modal-editShoppingCart .row{
-    line-height: 60px;
-    float:left;
-    width:100%;
-    margin-left:0;
-    margin-right:0;
+	line-height: 60px;
+	float:left;
+	width:100%;
+	margin-left:0;
+	margin-right:0;
 }
 
 .modal-editShoppingCart .title{
-    font-size: 20px;
+	font-size: 20px;
 }
 
 .modal-editShoppingCart .centered{
-    text-align:center;
+	text-align:center;
 }
 
 .modal-editShoppingCart .item{
-    text-align: center;
+	text-align: center;
 }
 
 .modal-editShoppingCart .itemAction{
-    font-size: 20px;
-    width: 25px;
-    line-height: 30px;
+	font-size: 20px;
+	width: 25px;
+	line-height: 30px;
 }
 
 /*-----------------END MODAL editShoppingCart -----------------------------------*/
 /*-----------------MODAL cashValues -----------------------------------*/
 .modal-cashvalues {
-    overflow-y: auto;
-    height:450px;
+	overflow-y: auto;
+	height:450px;
 }
 /*-----------------END MODAL cashValues -----------------------------------*/
 /*-----------------MODAL shoppingCartSplit -----------------------------------*/
 .modal-shoppingCartSplit {
-    overflow-y: auto;
-    height:450px;
+	overflow-y: auto;
+	height:450px;
 }
 
 .shoppingCartSplit{
@@ -1256,20 +1265,20 @@ td.zvalue {
 }
 
 .shoppingCartSplit .panel-group {
-    margin: 0 !important;
+	margin: 0 !important;
 }
 
 .shoppingCartSplit .miniBasket {
-    width: 100%;
+	width: 100%;
 }
 
 
 /*-----------------END MODAL shoppingCartSplit -----------------------------------*/
 /*-----------------TEXTFIELD------------------------------------------------------*/
 .textfield{
-    /*width: 100%;
-    height: 100%;
-    min-height: inherit !important;*/
+	/*width: 100%;
+	height: 100%;
+	min-height: inherit !important;*/
 }
 
 .textfield.focused{
@@ -1279,33 +1288,33 @@ td.zvalue {
 /*-----------------KeyboardContainer----------------------------------------------*/
 .keyboardContainer{
 	height: 100%;
-    width: 100%;
-    position: absolute;
-    padding: 5px;
+	width: 100%;
+	position: absolute;
+	padding: 5px;
 }
 /*-----------------END KeyboardContainer------------------------------------------*/
 
 /*-----------------Comment popup--------------------------------------------------*/
 .comment-toast md-chip {
-    background: #ec971f!important;
-        color:black!important;
+	background: #ec971f!important;
+		color:black!important;
 }
 
 .comment-toast input {
-    visibility:hidden;
+	visibility:hidden;
 }
 
 .comment-toast md-chips.md-default-theme .md-chips.md-focused, md-chips .md-chips.md-focused {
-    box-shadow: none;
+	box-shadow: none;
 
 }
 /*-----------------End Comment popup----------------------------------------------*/
 
 /*-----------------MODAL TablePlan--------------------------------------------------*/
 .lower-canvas{
-    border: 4px solid #D3D3D3;
-    border-radius: 20px;
-    margin-top: 5px;
+	border: 4px solid #D3D3D3;
+	border-radius: 20px;
+	margin-top: 5px;
 }
 
 .checkbox-criterias{
@@ -1326,14 +1335,14 @@ td.zvalue {
 
 /*---------------MODAL Customer---------------------------------------------------------*/
 .customerModal{
-    margin-top: 5px;
+	margin-top: 5px;
 }
 /*---------------End customer modal-----------------------------------------------------*/
 /*-----------------Admin----------------------------------------------*/
 md-input-container label:not(._md-container-ignore) {
-    position: absolute;
-    bottom: 100%;
-    left: 0;
-    top: -45px;
-    right: auto;
+	position: absolute;
+	bottom: 100%;
+	left: 0;
+	top: -45px;
+	right: auto;
 }

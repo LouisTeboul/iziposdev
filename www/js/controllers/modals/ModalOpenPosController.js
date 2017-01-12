@@ -24,7 +24,7 @@
 
         settingService.getPaymentModesAsync().then(function (paymentSetting) {
 
-            var paymentModesAvailable = paymentSetting.ValueObject;
+            var paymentModesAvailable = paymentSetting;
 
             var cashPaymentMode = Enumerable.from(paymentModesAvailable).firstOrDefault(function (x) {
                 return x.PaymentType == PaymentType.ESPECE;

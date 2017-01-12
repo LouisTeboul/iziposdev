@@ -3,7 +3,7 @@
 	$scope.init = function () {
 		settingService.getPaymentModesAsync().then(function (paymentSetting) {
 
-			var paymentModesAvailable = paymentSetting.ValueObject;
+			var paymentModesAvailable = paymentSetting;
 			var dateClose = new Date().toString('dd/MM/yyyy H:mm:ss');
 
 			$scope.closePosValues = {
@@ -76,20 +76,20 @@
 	
 
 		swal({ title: $translate.instant("Cloturer la caisse ?"), text: "", type: "warning", showCancelButton: true, confirmButtonColor: "#d83448", confirmButtonText: $translate.instant("Oui"), cancelButtonText: $translate.instant("Non"), closeOnConfirm: true },
-            function () {
-            	cashMovementService.saveMovementAsync($scope.closePosValues);
-            	zposService.purgeZPosAsync(true);
+			function () {
+				cashMovementService.saveMovementAsync($scope.closePosValues);
+				zposService.purgeZPosAsync(true);
 
-            	$uibModalInstance.close();
+				$uibModalInstance.close();
 
-            	setTimeout(function () {
-            		$rootScope.closeKeyboard();
-            		$rootScope.closeKeyboard();
-            	}, 500);
+				setTimeout(function () {
+					$rootScope.closeKeyboard();
+					$rootScope.closeKeyboard();
+				}, 500);
 
-            }, function () {
-            
-            });
+			}, function () {
+			
+			});
 	}
 
 	$scope.cancel = function () {

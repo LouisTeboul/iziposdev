@@ -62,45 +62,45 @@ var setupDatabases = function ($rootScope, $q, zposService) {
 
 		$rootScope.dbFreeze.replicate.to(remoteDbFreeze, $rootScope.configPouchDB.opts, null);
 		$rootScope.dbFreeze.replicate.from(remoteDbFreeze, $rootScope.configPouchDB.opts, null)
-            .on('change', function (info) {
-            	if (!info) {
-            		info = {};
-            	}
-            	info.remoteInfo = freezeRemoteInfo;
-            	info.status = "Change";
-            	$rootScope.$emit("dbFreezeChange", info);
-            })
-            .on('paused', function (info) {
-            	//console.log("dbFreeze => UpToDate");
-            	if (!info) {
-            		info = {};
-            	}
+			.on('change', function (info) {
+				if (!info) {
+					info = {};
+				}
+				info.remoteInfo = freezeRemoteInfo;
+				info.status = "Change";
+				$rootScope.$emit("dbFreezeChange", info);
+			})
+			.on('paused', function (info) {
+				//console.log("dbFreeze => UpToDate");
+				if (!info) {
+					info = {};
+				}
 
-            	if ($rootScope.modelDb.databaseReady) {
-            		$rootScope.$emit("dbFreezeReplicate", info);
-            	}
-            	$rootScope.modelDb.freezeReady = true;
-            	$rootScope.$evalAsync();
-            })
-            .on('error', function (info) {
-            	//console.log("dbFreeze => Error");
-            	//console.log(info);
-            	$rootScope.modelDb.freezeReady = true;
-            	$rootScope.$evalAsync();
-            });
+				if ($rootScope.modelDb.databaseReady) {
+					$rootScope.$emit("dbFreezeReplicate", info);
+				}
+				$rootScope.modelDb.freezeReady = true;
+				$rootScope.$evalAsync();
+			})
+			.on('error', function (info) {
+				//console.log("dbFreeze => Error");
+				//console.log(info);
+				$rootScope.modelDb.freezeReady = true;
+				$rootScope.$evalAsync();
+			});
 	} else {
 		$rootScope.modelDb.freezeReady = true;
 	}
 
 	$rootScope.dbFreeze.setSchema([
-    {
-    	singular: 'ShoppingCart',
-    	plural: 'ShoppingCarts'
-    },
-        {
-        	singular: 'PosUser',
-        	plural: 'PosUsers'
-        }
+	{
+		singular: 'ShoppingCart',
+		plural: 'ShoppingCarts'
+	},
+		{
+			singular: 'PosUser',
+			plural: 'PosUsers'
+		}
 	]);
 
 	//#endregion
@@ -140,39 +140,39 @@ var setupDatabases = function ($rootScope, $q, zposService) {
 
 
 	$rootScope.dbInstance.replicate.from(remoteDbInstance, $rootScope.configPouchDB.opts, null)
-      .on('change', function (info) {
-      	if (!info) {
-      		info = {};
-      	}
-      	//console.log("PouchDB  => Change");
-      	info.remoteInfo = datasRemoteInfo;
-      	info.status = "Change";
-      	$rootScope.$emit("dbDatasReplicate", info);
-      }).on('paused', function (info) {
-      	//console.log("dbInstance => UpToDate");
-      	if (!info) {
-      		info = {};
-      	}
+	  .on('change', function (info) {
+		if (!info) {
+			info = {};
+		}
+		//console.log("PouchDB  => Change");
+		info.remoteInfo = datasRemoteInfo;
+		info.status = "Change";
+		$rootScope.$emit("dbDatasReplicate", info);
+	  }).on('paused', function (info) {
+		//console.log("dbInstance => UpToDate");
+		if (!info) {
+			info = {};
+		}
 
-      	$rootScope.modelDb.dataReady = true;
-      	$rootScope.$evalAsync();
-      	info.status = "UpToDate";
-      	$rootScope.$emit("dbDatasReplicate", info);
+		$rootScope.modelDb.dataReady = true;
+		$rootScope.$evalAsync();
+		info.status = "UpToDate";
+		$rootScope.$emit("dbDatasReplicate", info);
 
-      }).on('error', function (info) {
-      	if (!info) {
-      		info = {};
-      	}
-      	//console.log("PouchDB => Error");
-      	console.log(info);
-      	$rootScope.modelDb.dataReady = true;
-      	$rootScope.$evalAsync();
-      	info.status = "Error";
-      	$rootScope.$emit("dbDatasReplicate", info);
+	  }).on('error', function (info) {
+		if (!info) {
+			info = {};
+		}
+		//console.log("PouchDB => Error");
+		console.log(info);
+		$rootScope.modelDb.dataReady = true;
+		$rootScope.$evalAsync();
+		info.status = "Error";
+		$rootScope.$emit("dbDatasReplicate", info);
 
-      	$rootScope.replicationMessage = "Erreur de synchronisation !";
-      	$rootScope.$evalAsync();
-      });
+		$rootScope.replicationMessage = "Erreur de synchronisation !";
+		$rootScope.$evalAsync();
+	  });
 
 	$rootScope.dbInstance.changes({
 		since: 'now',
@@ -186,76 +186,76 @@ var setupDatabases = function ($rootScope, $q, zposService) {
 	});
 
 	$rootScope.dbInstance.setSchema([
-        {
-        	singular: 'Category',
-        	plural: 'Categories',
-        	relations: {
-        		'PictureId': { belongsTo: 'Picture' },
-        		'CategoryTemplateId': { belongsTo: 'CategoryTemplate' }
-        	}
-        },
-        {
-        	singular: 'PosUser',
-        	plural: 'PosUsers',
-        	relations: {
-        		'PictureId': { belongsTo: 'Picture' }
-        	}
-        },
-        {
-        	singular: 'Picture',
-        	plural: 'Pictures'
-        },
-        {
-        	singular: 'CategoryTemplate',
-        	plural: 'CategoryTemplates'
-        },
-        {
-        	singular: 'ProductCategory',
-        	plural: 'ProductCategories'
-        },
-        {
-        	singular: 'Product',
-        	plural: 'Products',
-        	relations: {
-        		'ProductTemplateId': { belongsTo: 'ProductTemplate' }
-        	}
-        },
-        {
-        	singular: 'ProductPicture',
-        	plural: 'ProductPictures'
-        },
-        {
-        	singular: 'ShoppingCart',
-        	plural: 'ShoppingCarts'
-        },
-        {
-        	singular: 'Setting',
-        	plural: 'Settings'
-        },
-        {
-        	singular: 'Update',
-        	plural: 'Updates'
-        },
-        {
-        	singular: 'ProductAttributeValue',
-        	plural: 'ProductAttributeValues'
-        },
-        {
-        	singular: 'ProductAttribute',
-        	plural: 'ProductAttributes'
-        },
-        {
-        	singular: 'ProductTemplate',
-        	plural: 'ProductTemplates'
-        },
-        {
-        	singular: 'CashMovementType',
-        	plural: 'CashMovementTypes'
-        },
-        {
-        	singular: 'Currency',
-        	plural: 'Currencies'
-        }
+		{
+			singular: 'Category',
+			plural: 'Categories',
+			relations: {
+				'PictureId': { belongsTo: 'Picture' },
+				'CategoryTemplateId': { belongsTo: 'CategoryTemplate' }
+			}
+		},
+		{
+			singular: 'PosUser',
+			plural: 'PosUsers',
+			relations: {
+				'PictureId': { belongsTo: 'Picture' }
+			}
+		},
+		{
+			singular: 'Picture',
+			plural: 'Pictures'
+		},
+		{
+			singular: 'CategoryTemplate',
+			plural: 'CategoryTemplates'
+		},
+		{
+			singular: 'ProductCategory',
+			plural: 'ProductCategories'
+		},
+		{
+			singular: 'Product',
+			plural: 'Products',
+			relations: {
+				'ProductTemplateId': { belongsTo: 'ProductTemplate' }
+			}
+		},
+		{
+			singular: 'ProductPicture',
+			plural: 'ProductPictures'
+		},
+		{
+			singular: 'ShoppingCart',
+			plural: 'ShoppingCarts'
+		},
+		{
+			singular: 'Setting',
+			plural: 'Settings'
+		},
+		{
+			singular: 'Update',
+			plural: 'Updates'
+		},
+		{
+			singular: 'ProductAttributeValue',
+			plural: 'ProductAttributeValues'
+		},
+		{
+			singular: 'ProductAttribute',
+			plural: 'ProductAttributes'
+		},
+		{
+			singular: 'ProductTemplate',
+			plural: 'ProductTemplates'
+		},
+		{
+			singular: 'CashMovementType',
+			plural: 'CashMovementTypes'
+		},
+		{
+			singular: 'Currency',
+			plural: 'Currencies'
+		}
 
 	]);
 
@@ -281,37 +281,37 @@ var setupDatabases = function ($rootScope, $q, zposService) {
 		$rootScope.dbOrder.replicate.to(remoteDbOrder, $rootScope.configPouchDB.opts, null);
 		$rootScope.dbOrderFrom = $rootScope.dbOrder.replicate.from(remoteDbOrder, $rootScope.configPouchDB.opts, null);
 		$rootScope.dbOrderFrom
-            .on('paused', function (info) {
-            	//console.log("dbOrder => UpToDate");
-            	if (!info) {
-            		info = {};
-            	}
+			.on('paused', function (info) {
+				//console.log("dbOrder => UpToDate");
+				if (!info) {
+					info = {};
+				}
 
-            	if ($rootScope.modelDb.databaseReady) {
-            		$rootScope.$emit("dbOrderReplicate", info);
-            	}
-            	$rootScope.modelDb.orderReady = true;
-            	$rootScope.$evalAsync();
-            })
-            .on('change', function (change) {
-            	change.remoteInfo = orderRemoteInfo;
-            	$rootScope.$emit("dbOrderChange", change);
-            })
-            .on('error', function (info) {
-            	//console.log("dbOrder => Error");
-            	//console.log(info);
-            	$rootScope.modelDb.orderReady = true;
-            	$rootScope.$evalAsync();
-            });
+				if ($rootScope.modelDb.databaseReady) {
+					$rootScope.$emit("dbOrderReplicate", info);
+				}
+				$rootScope.modelDb.orderReady = true;
+				$rootScope.$evalAsync();
+			})
+			.on('change', function (change) {
+				change.remoteInfo = orderRemoteInfo;
+				$rootScope.$emit("dbOrderChange", change);
+			})
+			.on('error', function (info) {
+				//console.log("dbOrder => Error");
+				//console.log(info);
+				$rootScope.modelDb.orderReady = true;
+				$rootScope.$evalAsync();
+			});
 	} else {
 		$rootScope.modelDb.orderReady = true;
 	}
 
 	$rootScope.dbOrder.setSchema([
-    {
-    	singular: 'ShoppingCart',
-    	plural: 'ShoppingCarts'
-    }
+	{
+		singular: 'ShoppingCart',
+		plural: 'ShoppingCarts'
+	}
 	]);
 	//#endregion
 
@@ -339,54 +339,54 @@ var setupDatabases = function ($rootScope, $q, zposService) {
 		});
 
 		$rootScope.dbReplicate.replicate.to($rootScope.remoteDbReplicate, $rootScope.configPouchDB.optsReplicate, null)
-            .on('change', function (info) {
-            	if (!info) {
-            		info = {};
-            	}
-            	info.remoteInfo = replicateInfo;
-            	info.status = "Change";
-            	$rootScope.$emit("dbReplicChange", info);
-            })
-            .on('error', function (info) {
-            	$rootScope.modelDb.replicateReady = true;
-            	$rootScope.$evalAsync();
-            })
-            .on('paused', function (info) {
-            	if (!info) {
-            		info = {};
-            	}
+			.on('change', function (info) {
+				if (!info) {
+					info = {};
+				}
+				info.remoteInfo = replicateInfo;
+				info.status = "Change";
+				$rootScope.$emit("dbReplicChange", info);
+			})
+			.on('error', function (info) {
+				$rootScope.modelDb.replicateReady = true;
+				$rootScope.$evalAsync();
+			})
+			.on('paused', function (info) {
+				if (!info) {
+					info = {};
+				}
 
-            	if (!$rootScope.modelDb.replicateReady) {
-            		$rootScope.modelDb.replicateReady = true;
-            		$rootScope.dbReplicate.destroy().then(function () {
-            			$rootScope.InitDBReplicate();
-            		});
-            	}
+				if (!$rootScope.modelDb.replicateReady) {
+					$rootScope.modelDb.replicateReady = true;
+					$rootScope.dbReplicate.destroy().then(function () {
+						$rootScope.InitDBReplicate();
+					});
+				}
 
-            	$rootScope.$evalAsync();
-            });
+				$rootScope.$evalAsync();
+			});
 
 		$rootScope.dbReplicate.setSchema([
-        {
-        	singular: 'ShoppingCart',
-        	plural: 'ShoppingCarts'
-        },
-        {
-        	singular: 'Event',
-        	plural: 'Events'
-        },
-        {
-        	singular: 'CashMovement',
-        	plural: 'CashMovements'
-        },
-        {
-        	singular: 'PosLog',
-        	plural: 'PosLogs'
-        },
-        {
-        	singular: 'PaymentEdit',
-        	plural: 'PaymentEdits'
-        }
+		{
+			singular: 'ShoppingCart',
+			plural: 'ShoppingCarts'
+		},
+		{
+			singular: 'Event',
+			plural: 'Events'
+		},
+		{
+			singular: 'CashMovement',
+			plural: 'CashMovements'
+		},
+		{
+			singular: 'PosLog',
+			plural: 'PosLogs'
+		},
+		{
+			singular: 'PaymentEdit',
+			plural: 'PaymentEdits'
+		}
 		]);
 	}
 
@@ -409,14 +409,14 @@ var setupDatabases = function ($rootScope, $q, zposService) {
 			$rootScope.remoteDbZPos = new PouchDB(urlZPosCouchDb);
 
 			$rootScope.remoteDbZPos.setSchema([
-                {
-                	singular: 'ShoppingCart',
-                	plural: 'ShoppingCarts'
-                },
-                {
-                	singular: 'PaymentValues',
-                	plural: 'AllPaymentValues'
-                }
+				{
+					singular: 'ShoppingCart',
+					plural: 'ShoppingCarts'
+				},
+				{
+					singular: 'PaymentValues',
+					plural: 'AllPaymentValues'
+				}
 			]);
 
 			$rootScope.dbZPos.info().then(function (resInfo) {
@@ -430,49 +430,49 @@ var setupDatabases = function ($rootScope, $q, zposService) {
 
 
 			$rootScope.dbZPos.replicate.to($rootScope.remoteDbZPos, $rootScope.configPouchDB.optsReplicate, null)
-                .on('change', function (info) {
-                	if (!info) {
-                		info = {};
-                	}
-                	info.remoteInfo = zposInfo;
-                	info.status = "Change";
-                	$rootScope.$emit("dbZposChange", info);
-                })
-                .on('error', function (info) {
-                	$rootScope.modelDb.zposReady = true;
-                	$rootScope.$evalAsync();
-                })
-				.on('complete', function (info) {
-				    $rootScope.modelDb.zposReady = true;
-				    $rootScope.$evalAsync();
+				.on('change', function (info) {
+					if (!info) {
+						info = {};
+					}
+					info.remoteInfo = zposInfo;
+					info.status = "Change";
+					$rootScope.$emit("dbZposChange", info);
 				})
-                .on('paused', function (info) {
-                	if (!info) {
-                		info = {};
-                	}
+				.on('error', function (info) {
+					$rootScope.modelDb.zposReady = true;
+					$rootScope.$evalAsync();
+				})
+				.on('complete', function (info) {
+					$rootScope.modelDb.zposReady = true;
+					$rootScope.$evalAsync();
+				})
+				.on('paused', function (info) {
+					if (!info) {
+						info = {};
+					}
 
-                	if (!$rootScope.modelDb.zposReady) {
-                		$rootScope.modelDb.zposReady = true;
-                		$rootScope.dbZPos.destroy().then(function () {
-                			$rootScope.InitDBZpos();
-                		});
-                	}
+					if (!$rootScope.modelDb.zposReady) {
+						$rootScope.modelDb.zposReady = true;
+						$rootScope.dbZPos.destroy().then(function () {
+							$rootScope.InitDBZpos();
+						});
+					}
 
-                	$rootScope.$evalAsync();
-                });
+					$rootScope.$evalAsync();
+				});
 		} else {
 			$rootScope.modelDb.zposReady = true;
 		}
 
 		$rootScope.dbZPos.setSchema([
-            {
-            	singular: 'ShoppingCart',
-            	plural: 'ShoppingCarts'
-            },
-            {
-            	singular: 'PaymentValues',
-            	plural: 'AllPaymentValues'
-            }
+			{
+				singular: 'ShoppingCart',
+				plural: 'ShoppingCarts'
+			},
+			{
+				singular: 'PaymentValues',
+				plural: 'AllPaymentValues'
+			}
 		]);
 	}
 
