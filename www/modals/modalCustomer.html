@@ -16,24 +16,28 @@
 						<text-field flex="70" id="email" ng-model="newLoyalty.CustomerEmail" location="center-end" type="azerty" validfunction="ok" style="width:510px;margin-right:10px;min-height:34px;"></text-field>
 					</div>
 
-					<div layout="row">
+					<div layout="row" ng-if="registerOperation=='registerFid'">
 						<label flex="10" translate>Nom</label>
 						<text-field flex="70" id="firstName" ng-model="newLoyalty.CustomerFirstName" location="center-end" type="azerty" validfunction="ok" style="width:510px;margin-right:10px;min-height:34px;"></text-field>
 					</div>
 
-					<div layout="row">
+					<div layout="row" ng-if="registerOperation=='registerFid'">
 						<label flex="10" translate>Prénom</label>
 						<text-field flex="70" id="lastName" ng-model="newLoyalty.CustomerLastName" location="center-end" type="azerty" validfunction="ok" style="width:510px;margin-right:10px;min-height:34px;"></text-field>
 					</div>
 
-					<div class="barcodeTextField"  layout="row">
+					<div class="barcodeTextField"  layout="row" ng-if="registerOperation=='registerFid'">
 						<label flex="10" translate>No Carte</label>
 						<text-field flex="70" id="txtBarcodeCustomer" ng-model="newLoyalty.barcode.barcodeValue" location="center-end" type="azerty" validfunction="ok" style="width:510px;margin-right:10px;min-height:34px;"></text-field>                        
 						<md-button aria-label="scanBarcode" class="btnAction double" ng-click="scanBarcode()"><span class="glyphicon glyphicon-camera"></span></md-button>
 					</div>
 
 					<div layout="row">
-						<div flex="10" class="dummy"></div><md-checkbox ng-model="isLoyaltyEnabled.value" ng-true-value="'Fid'" ng-false-value="'NoFid'" flex="70">Créer un compte fidélité</md-checkbox>
+						<!--<div flex="10" class="dummy"></div><md-checkbox ng-model="isLoyaltyEnabled.value" ng-true-value="'Fid'" ng-false-value="'NoFid'" flex="70">Créer un compte fidélité OU Récupérer l'email pour le ticket</md-checkbox>-->
+                        <md-radio-group ng-model="registerOperation">
+                            <md-radio-button  ng-model="registerOperation" value="getEmail" ng-click="changeOperation('getEmail')">Enregistrer l'email pour le ticket</md-radio-button>
+                            <md-radio-button  ng-model="registerOperation" value="registerFid" ng-click="changeOperation('registerFid')"> Enregistrer le client  </md-radio-button>                           
+                        </md-radio-group>
 					</div>
 
 				</div>
@@ -46,16 +50,16 @@
 
 					<div layout="row">
 						<label flex="30" translate>Nom, prénom ou email</label>
-						<text-field flex="50" id="txtComment" ng-model="search.query" location="center-end" type="azerty" validfunction="ok" style="width:510px;margin-right:10px;min-height:34px;"></text-field>
-						<md-button flex="10" ng-click="searchForCustomer(search.query)" style="background-color:grey;">Go</md-button>
+						<text-field flex="40" id="txtComment" ng-model="search.query" location="center-end" type="azerty" validfunction="ok" style="width:510px;margin-right:10px;min-height:34px;"></text-field>
+						<md-button flex="20" ng-click="searchForCustomer(search.query)" style="background-color:lightgrey;">Rechercher</md-button>
 					</div>
 					<md-content layout-padding style="max-height:400px">
-						<div ng-if="searchResults && searchResults.length > 0" ng-repeat="client in searchResults"  ng-click="selectCustomer(client.Barcode)" ng-style="{ 'background-color' : (client.Barcode == currentShoppingCart.Barcode) ? 'rgba(255, 0, 0, 0.42)' : 'transparent' }" >
+						<div ng-if="searchResults && searchResults.length > 0" ng-repeat="client in searchResults"  ng-click="selectCustomer(client.Barcode)" ng-style="{ 'background-color' : (client.Barcode == currentShoppingCart.Barcode) ? 'rgba(171, 242, 150, 0.42)' : 'transparent' }" >
 							<h4 style="margin-top: 0">{{client.FirstName}} {{client.LastName}}</h4>
 							<h4>{{client.Email}}</h4>
 							<h4 style="margin-bottom: 0" >
 								<small translate>N° de carte</small>:
-								{{client.Barcode}} / {{currentShoppingCart.Barcode}}
+								{{client.Barcode}} 
 							</h4>
 							<hr />
 						</div>

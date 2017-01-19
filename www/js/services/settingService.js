@@ -110,7 +110,7 @@
 					}
 
 					//EasyTransac
-					var paymentEasyTransac = Enumerable.from(results.Settings).firstOrDefault("s => s.Name == 'eazytransacpaymentsettings.eazytransackey'");
+					var paymentEasyTransac = Enumerable.from(results.Settings).firstOrDefault("s => s.Name == 'easytransacpaymentsettings.easytransackey'");
 					if (paymentEasyTransac) {
 						if (!paymentSetting) {
 							paymentSetting = [];

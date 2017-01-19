@@ -232,6 +232,11 @@ text-field {
 	font-weight: bold !important;
 }
 
+.btn-orange {
+	background: #ec971f !important;
+	color: #fff !important;
+	font-weight: bold !important;
+}
 
 .btn-green {
 	background: #5cb85c !important;

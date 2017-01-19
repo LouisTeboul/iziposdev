@@ -1,13 +1,13 @@
 ﻿app.service('shoppingCartModel', ['$rootScope', '$q', '$state','$timeout', '$uibModal', 'shoppingCartService', 'productService', 'settingService', 'posUserService','$translate','storeMapService','taxesService',
-    function ($rootScope, $q, $state,$timeout, $uibModal, shoppingCartService, productService, settingService, posUserService,$translate,storeMapService,taxesService) {
-        var current = this;
-        var lastShoppingCart = undefined;
-        var currentShoppingCart = undefined;
-        var currentShoppingCartIn = undefined;
-        var currentShoppingCartOut = undefined;
-        var paymentModesAvailable = undefined;
-        var deliveryType = DeliveryTypes.FORHERE; 
-        var currentBarcode = { barcodeValue: '' };
+	function ($rootScope, $q, $state,$timeout, $uibModal, shoppingCartService, productService, settingService, posUserService,$translate,storeMapService,taxesService) {
+		var current = this;
+		var lastShoppingCart = undefined;
+		var currentShoppingCart = undefined;
+		var currentShoppingCartIn = undefined;
+		var currentShoppingCartOut = undefined;
+		var paymentModesAvailable = undefined;
+		var deliveryType = DeliveryTypes.FORHERE; 
+		var currentBarcode = { barcodeValue: '' };
 
 		//#region Actions on item
 		this.incrementQuantity = function (cartItem) {
@@ -548,34 +548,34 @@
 		this.printPOSShoppingCart = function (shoppingCart, ignorePrintTicket) {	   
 
             //Envoi le mail si configuré
-		    if ($rootScope.IziBoxConfiguration.TicketByMail) {
+		    if ($rootScope.IziBoxConfiguration.TicketByMail && !ignorePrintTicket) {
 
-		        //L'adresse email du client est nécessaire
-		        if (!shoppingCart.customerLoyalty) {
+				//L'adresse email du client est nécessaire
+				if (!shoppingCart.customerLoyalty) {
 
-		            sweetAlert($translate.instant("Impossible d'envoyer le ticket par mail les infos du clients ne sont pas renseignés!"));
-		            return;
+					sweetAlert($translate.instant("Impossible d'envoyer le ticket par mail les infos du clients ne sont pas renseignés!"));
+					return;
 
 		            if (!shoppingCart.customerLoyalty.CustomerEmail || shoppingCart.customerLoyalty.CustomerEmail=='') {
 		                sweetAlert($translate.instant("L'email du client n'est pas renseigné!"));
 		                return;
 		            }
-
-
 		        }
 
-		        shoppingCartService.printShoppingCartAsync2(shoppingCart, $rootScope.PrinterConfiguration.POSPrinter, true, $rootScope.PrinterConfiguration.POSPrinterCount, ignorePrintTicket).then(function (msg) {
+				shoppingCartService.printShoppingCartAsync2(shoppingCart, $rootScope.PrinterConfiguration.POSPrinter, true, $rootScope.PrinterConfiguration.POSPrinterCount, ignorePrintTicket).then(function (msg) {
 
-		        }, function (err) {
+				   
 
-		            if (!ignorePrintTicket) {
-		                sweetAlert($translate.instant("Erreur d'envoi par mail du ticket!"));
-		            }
+				}, function (err) {
 
-		        });
-		        return;
+					if (!ignorePrintTicket) {
+						sweetAlert($translate.instant("Erreur d'envoi par mail du ticket!"));
+					}
 
-		    }
+				});
+				return;
+
+			}
 
 
 			shoppingCartService.printShoppingCartAsync(shoppingCart, $rootScope.PrinterConfiguration.POSPrinter, true, $rootScope.PrinterConfiguration.POSPrinterCount, ignorePrintTicket).then(function (msg) {
@@ -747,7 +747,7 @@
 			if (currentShoppingCart != undefined) {
 				currentShoppingCart = undefined;
 				currentShoppingCartIn = undefined;
-				currentShoppingCartOut = undefined;
+				currentShoppingCartOut = undefined;			   
 				$rootScope.$emit("shoppingCartCleared");
 			};
 
@@ -1167,24 +1167,24 @@
 			if (idxToRemove > -1) {
 				currentShoppingCart.Discounts.splice(idxToRemove, 1);
 
-                currentShoppingCart.Discount
+				currentShoppingCart.Discount
 
-              
+			  
 
-                this.calculateTotal();
-                this.calculateLoyalty();
+				this.calculateTotal();
+				this.calculateLoyalty();
 
-                //In case the discount has beenn removedthe discount has been removed
-                Enumerable.from(currentShoppingCart.Items).forEach(function (i) {
-                    i.DiscountIT = 0;
-                    i.DiscountET = 0;
+				//In case the discount has beenn removedthe discount has been removed
+				Enumerable.from(currentShoppingCart.Items).forEach(function (i) {
+					i.DiscountIT = 0;
+					i.DiscountET = 0;
 
-                });
+				});
 
-                $rootScope.$emit("shoppingCartDiscountRemoved", item);
-            }
-        }
-        //#endregion
+				$rootScope.$emit("shoppingCartDiscountRemoved", item);
+			}
+		}
+		//#endregion
 
 		//#region Payment totals
 		this.getPaymentModesAvailable = function () {
@@ -1327,10 +1327,11 @@
 				var maxValue = undefined;
 				var currentValue = (customValue && customValue < currentShoppingCart.Residue) ? customValue : currentShoppingCart.Residue;
 
-				//TODO ?
-				//if (selectedPaymentMode.PaymentType == PaymentType.CB) {
-				//	maxValue = currentShoppingCart.Residue + (currentPaymentMode ? currentPaymentMode.Total : 0);
-				//}
+			    //Prevents "cashback"
+                //TODO ? : 
+				if (selectedPaymentMode.PaymentType == PaymentType.CB) {
+					maxValue = currentShoppingCart.Residue + (currentPaymentMode ? currentPaymentMode.Total : 0);
+				}
 
 				if (selectedPaymentMode.IsBalance) {
 					var totalBalance = currentShoppingCart.BalanceUpdate ? currentShoppingCart.BalanceUpdate.UpdateValue : 0;

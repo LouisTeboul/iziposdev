@@ -1,9 +1,9 @@
 ﻿app.config(function ($stateProvider) {
 	$stateProvider
-        .state('loading', {
-        	url: '/loading',
-        	templateUrl: 'views/loading.html'
-        })
+		.state('loading', {
+			url: '/loading',
+			templateUrl: 'views/loading.html'
+		})
 })
 
 
@@ -144,11 +144,11 @@ app.controller('LoadingController', function ($scope, $rootScope, $location, $ti
 	var checkDbReady = function () {
 		if ($rootScope.modelDb &&
 			$rootScope.modelDb.configReplicationReady &&
-            $rootScope.modelDb.dataReady &&
-            $rootScope.modelDb.freezeReady &&
-            $rootScope.modelDb.zposReady &&
-            $rootScope.modelDb.replicateReady &
-            $rootScope.modelDb.orderReady) {
+			$rootScope.modelDb.dataReady &&
+			$rootScope.modelDb.freezeReady &&
+			$rootScope.modelDb.zposReady &&
+			$rootScope.modelDb.replicateReady &
+			$rootScope.modelDb.orderReady) {
 			$rootScope.modelDb.databaseReady = true;
 			$rootScope.$evalAsync();
 		}
@@ -270,14 +270,14 @@ app.controller('LoadingController', function ($scope, $rootScope, $location, $ti
 			url: entry.nativeURL,
 			type: 'application/vnd.android.package-archive'
 		},
-            function () { navigator.app.exitApp(); },
-            function (e) {
-            	$rootScope.hideLoading();
+			function () { navigator.app.exitApp(); },
+			function (e) {
+				$rootScope.hideLoading();
 
-            	sweetAlert({ title: 'Error launching app update' }, function () {
-            		next();
-            	});
-            }
-        );
+				sweetAlert({ title: 'Error launching app update' }, function () {
+					next();
+				});
+			}
+		);
 	}
 });

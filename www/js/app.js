@@ -43,14 +43,14 @@ app.config(function ($stateProvider, $urlRouterProvider, ngToastProvider, $trans
 
 })
 
-app.run(function ($rootScope, $location, $q, $http, ipService, zposService, $translate) {
+app.run(function ($rootScope, $location, $q, $http, ipService, zposService, $translate, $uibModal) {
 
 	try {
 		angularLocation = $location;
 
-        $rootScope.Version = "2.1.0.12011";
-        $rootScope.adminMode = { state: false };
-        $rootScope.loading = 0;
+		$rootScope.Version = "2.1.0.19011";
+		$rootScope.adminMode = { state: false };
+		$rootScope.loading = 0;
 
 		$rootScope.showLoading = function () {
 			$rootScope.loading++;
@@ -91,22 +91,22 @@ app.run(function ($rootScope, $location, $q, $http, ipService, zposService, $tra
 			$rootScope.RatioConfiguration = {Enabled: true};
 
 			document.addEventListener("deviceready", function () {
-				init($rootScope, $location, $q, $http, ipService, zposService, $translate);
+				init($rootScope, $location, $q, $http, ipService, zposService, $translate, $uibModal);
 			}, false);
 
-            if (navigator.userAgent.match(/(iPhone|iPod|iPad)/)) {
-                FastClick.attach(document.body);                
-            }
-        } else {
-        	init($rootScope, $location, $q, $http, ipService, zposService, $translate); //this is the browser
-        }
-        //debugger;
-        //$http({
-        //    method: 'POST',
-        //    url: 'http://montpellier.bigsister.biz/apiV2/login',
-        //    data: 'grant_type=password&username=stephen.tissot@bigsister.fr&password=potiron9'
-        //}).then(function successCallback(response) {
-        //    console.log(response);
+			if (navigator.userAgent.match(/(iPhone|iPod|iPad)/)) {
+				FastClick.attach(document.body);                
+			}
+		} else {
+			init($rootScope, $location, $q, $http, ipService, zposService, $translate, $uibModal); //this is the browser
+		}
+		//debugger;
+		//$http({
+		//    method: 'POST',
+		//    url: 'http://montpellier.bigsister.biz/apiV2/login',
+		//    data: 'grant_type=password&username=stephen.tissot@bigsister.fr&password=potiron9'
+		//}).then(function successCallback(response) {
+		//    console.log(response);
 
 		//}, function errorCallback(response) {
 		//    console.log(response);
@@ -117,13 +117,13 @@ app.run(function ($rootScope, $location, $q, $http, ipService, zposService, $tra
 	}
 })
 
-var init = function ($rootScope, $location, $q, $http, ipService, zposService, $translate) {
+var init = function ($rootScope, $location, $q, $http, ipService, zposService, $translate, $uibModal) {
 
 	//Init services
 	zposService.init();
 
 	//IziBoxConfiguration
-	app.getConfigIziBoxAsync($rootScope, $q, $http, ipService, $translate, $location).then(function (config) {
+	app.getConfigIziBoxAsync($rootScope, $q, $http, ipService, $translate, $location, $uibModal).then(function (config) {
 
 		$rootScope.IziBoxConfiguration = config;
 

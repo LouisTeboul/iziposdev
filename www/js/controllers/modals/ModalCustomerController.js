@@ -1,13 +1,16 @@
-﻿app.controller('ModalCustomerController', function ($scope, $rootScope, $uibModalInstance, $uibModal, shoppingCartService,shoppingCartModel) {
+﻿app.controller('ModalCustomerController', function ($scope, $rootScope, $uibModalInstance, $uibModal, shoppingCartService, ngToast,  shoppingCartModel) {
 
-	var current = this;
+    var current = this;
+    $scope.registerOperation = "getEmail"; // for display
    
 	$scope.init = function () {
 		$scope.searchResults = [];
 		$scope.barcode = {};
 		$scope.firstName;
 		$scope.lastName;
-		$scope.email;       
+		$scope.email;
+		$scope.clientSelected = false;
+		
 		$scope.newLoyalty = {            
 		};
 		$scope.isLoyaltyEnabled = {
@@ -43,8 +46,9 @@
 					$scope.currentShoppingCart.Barcode = barcode;
 					$scope.currentShoppingCart.customerLoyalty = loyalty;
 					$rootScope.$emit("customerLoyaltyChanged", loyalty);
-					$rootScope.$emit("shoppingCartChanged", $scope.currentShoppingCart);
+					$rootScope.$emit("shoppingCartChanged", $scope.currentShoppingCart);                    
 					$scope.$evalAsync();
+					$scope.clientSelected = true;
 					//$uibModalInstance.close();
 				} else {
 					sweetAlert($translate.instant("Carte de fidélité introuvable !"));
@@ -81,18 +85,25 @@
 		}
 	}
 
+    
+	$scope.changeOperation = function (strOperation){
+	    $scope.registerOperation = strOperation;
+	    console.log(strOperation);
+	}
 
 	$scope.ok = function () {
 
-	   
+	    if ($scope.clientSelected == true) {
+	        $uibModalInstance.close();
+	        return;
 
-		//Si pas d'infos obligatoire saisie
-		if ($scope.newLoyalty == undefined || $scope.newLoyalty.barcode.barcodeValue == undefined) {
-			$uibModalInstance.close();
-			return;
-		}
+	    }
 
-		
+		//Si pas d'infos saisie
+	    if ($scope.newLoyalty.CustomerEmail == '' || $scope.newLoyalty.CustomerEmail == undefined) {
+	            $uibModalInstance.close();
+	            return;			
+		}		
 
 		//on récupère le ticket courant
 		var curShoppingCart = shoppingCartModel.getCurrentShoppingCart();
@@ -100,27 +111,52 @@
 		if (curShoppingCart == undefined) {
 			shoppingCartModel.createShoppingCart();
 		}
-		curShoppingCart = shoppingCartModel.getCurrentShoppingCart();          
 
+		curShoppingCart = shoppingCartModel.getCurrentShoppingCart();        
 
 		//si la case fidélité est coché on enregistre le client    
-		if ($scope.isLoyaltyEnabled.value=="Fid") {
+		if ($scope.registerOperation == "registerFid") {
 			try {                
-				shoppingCartService.registerCustomerAsync($scope.newLoyalty);
-				console.log("client enregistré");
+			    shoppingCartService.registerCustomerAsync($scope.newLoyalty);
+			    curShoppingCart.customerLoyalty = $scope.newLoyalty;
+			    $rootScope.$emit("customerLoyaltyChanged", $scope.newLoyalty);
+			    $rootScope.$emit("shoppingCartChanged", curShoppingCart);
+
+			    //ngToast.create({
+			    //    className: 'success',
+			    //    content: '<b>Client enregistré</b>',
+			    //    dismissOnTimeout: true,
+			    //    timeout: 10000,
+			    //    dismissOnClick: true
+			    //});
 			}
-			catch (err) {
-				//TODO : style fenetre
-				alert("Impossible d'enregister le client");
+			catch (err) {			
+			    ngToast.create({
+			        className: 'danger',
+			        content: '<b>Impossible d\'enregistrer le client</b>',
+			        dismissOnTimeout: true,
+			        timeout: 10000,
+			        dismissOnClick: true
+			    });
 			}
 		}
 
-		curShoppingCart.CustomerLoyalty = $scope.newLoyalty;
+		if ($scope.registerOperation == "getEmail") {		 
+		    curShoppingCart.customerLoyalty = $scope.newLoyalty;
+		    $rootScope.$emit("customerLoyaltyChanged", $scope.newLoyalty);
+		    $rootScope.$emit("shoppingCartChanged", curShoppingCart);
+		    
+		    ngToast.create({
+		        className: 'info',
+		        content: 'le mail ' + $scope.newLoyalty.CustomerEmail + 'a été ajouté au ticket',
+		        dismissOnTimeout: true,
+		        timeout: 10000,
+		        dismissOnClick: true
+		    });
+		}
 
-		$rootScope.$emit("customerLoyaltyChanged", $scope.newLoyalty);
-		$rootScope.$emit("shoppingCartChanged", curShoppingCart);
 		$uibModalInstance.close();
-			   
+		return;	   
 		
 	}
 

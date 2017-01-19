@@ -5,6 +5,8 @@
 		var accordionHandler = undefined;
 		var loyaltyHandler = undefined;
 		var orderServiceHandler = undefined;
+		var currentShoppingCartUpdatedHandler = undefined;
+
 		$scope.filter = $filter;
 
 		$scope.DeliveryTypes = DeliveryTypes;
@@ -33,9 +35,16 @@
 				ticketOpen : true
 			}
 
-        deliveryTypeHandler = $scope.$watch('deliveryType', function () {        	
-        	shoppingCartModel.setDeliveryType($scope.deliveryType);
-        });
+			currentShoppingCartHandler = $scope.$watchCollection('currentShoppingCart', function () {
+				if ($scope.currentShoppingCart) {
+					$scope.filteredTaxDetails = taxesService.groupTaxDetail($scope.currentShoppingCart.TaxDetails);
+					$scope.$evalAsync();
+				}
+			});
+
+			deliveryTypeHandler = $scope.$watch('deliveryType', function () {        	
+				shoppingCartModel.setDeliveryType($scope.deliveryType);
+			});
 
 			accordionHandler = $scope.$watch('accordionStatus.ticketOpen', function () {
 				setTimeout(resizeMiniBasket, 500);
@@ -61,10 +70,10 @@
 			$scope.ordersInProgress = orderShoppingCartService.ordersInProgress;
 		}
 
-    $scope.setDeliveryType = function (value) {        
-    	$scope.deliveryType = value;
-    	$scope.$evalAsync();
-    }
+	$scope.setDeliveryType = function (value) {        
+		$scope.deliveryType = value;
+		$scope.$evalAsync();
+	}
 
 		var updateCurrentShoppingCart = function () {
 			$scope.totalDivider = 1;
@@ -223,6 +232,7 @@
 		var shoppingCartClearedHandler = $rootScope.$on('shoppingCartCleared', function (event, args) {
 			$scope.currentShoppingCart = undefined;
 			$scope.balancePassages = undefined;
+			$scope.filteredTaxDetails = undefined;
 			$scope.accordionStatus.paiementOpen = false;
 			$scope.accordionStatus.ticketOpen = true;
 		});
@@ -256,35 +266,36 @@
 			resizeMiniBasket();
 		});
 
-    /**
-     * Events on fid
-     */
-    var customerLoyaltyChangedHandler = $rootScope.$on('customerLoyaltyChanged', function (event, args) {
-    	updateBalancePassages();
-    	resizeMiniBasket();
-    });
+	/**
+	 * Events on fid
+	 */
+	var customerLoyaltyChangedHandler = $rootScope.$on('customerLoyaltyChanged', function (event, args) {
+		updateBalancePassages();
+		resizeMiniBasket();
+	});
 
-    var shoppingCartDiscountChangedHandler = $rootScope.$on('shoppingCartDiscountRemoved', function (event, args) {
-            //
-        resizeMiniBasket();
-    });
+	var shoppingCartDiscountChangedHandler = $rootScope.$on('shoppingCartDiscountRemoved', function (event, args) {
+			//
+		resizeMiniBasket();
+	});
 
 
 
-    $scope.$on("$destroy", function () {
-    	if (deliveryTypeHandler) deliveryTypeHandler();
-    	if (itemsHandler) itemsHandler();
-    	if (accordionHandler) accordionHandler();
-    	if (loyaltyHandler) loyaltyHandler();
-        shoppingCartChangedHandler();
-        shoppingCartClearedHandler();
-        shoppingCartItemAddedHandler();
-        shoppingCartItemRemovedHandler();
-        paymentModesAvailableChangedHandler();
-        paymentModesChangedHandler();
-        customerLoyaltyChangedHandler();
-        orderServiceHandler();
-    });
+	$scope.$on("$destroy", function () {
+		if (deliveryTypeHandler) deliveryTypeHandler();
+		if (itemsHandler) itemsHandler();
+		if (accordionHandler) accordionHandler();
+		if (loyaltyHandler) loyaltyHandler();
+		shoppingCartChangedHandler();
+		shoppingCartClearedHandler();
+		shoppingCartItemAddedHandler();
+		shoppingCartItemRemovedHandler();
+		paymentModesAvailableChangedHandler();
+		paymentModesChangedHandler();
+		customerLoyaltyChangedHandler();
+		orderServiceHandler();
+		currentShoppingCartUpdatedHandler();
+	});
 
 		//#endregion
 
@@ -504,10 +515,6 @@
 				if (miniBasketInfosDiv) {
 					miniBasketInfosDiv.style.maxHeight = itemsHeight + "px";
 				}
-			}
-
-			if ($scope.currentShoppingCart) {
-				$scope.filteredTaxDetails = taxesService.groupTaxDetail($scope.currentShoppingCart.TaxDetails);
 			}
 		}
 		//#endregion

@@ -1,10 +1,11 @@
 ﻿var config = undefined;
 var defaultConfig = undefined;
 
-app.getConfigIziBoxAsync = function ($rootScope, $q, $http, ipService, $translate, $location) {
+app.getConfigIziBoxAsync = function ($rootScope, $q, $http, ipService, $translate, $location, $uibModal) {
 	var configDefer = $q.defer();
 
 	var configJSON = window.localStorage.getItem("IziBoxConfiguration");
+	var existingConfig = false;
 
 	if (!configJSON) {
 		defaultConfig = {
@@ -25,34 +26,32 @@ app.getConfigIziBoxAsync = function ($rootScope, $q, $http, ipService, $translat
 		};
 	} else {
 		defaultConfig = JSON.parse(configJSON);
+		existingConfig = true;
 	}
 
 	if (/*!defaultConfig.WithoutIzibox*/true) {
 		defaultConfig.deleteCouchDb = false;
 
-	    try {
-            //Mis en commentaire pour désactiver la gestion de l'UDP sur android
+		try {
+			//Mis en commentaire pour désactiver la gestion de l'UDP sur android
 			//if (navigator.userAgent.match(/(Android)/)) {
 			//	$rootScope.isAndroid = true;
 			//	createAndSendUdpGetConfig($rootScope, configDefer, $translate);
 			//} else {
 			//	$rootScope.isAndroid = false;
 			//	throw "Not Android";
-	        //}
+			//}
 
-	        //on force le mode "standard"
-	        throw "Not UDP";
+			//on force le mode "standard"
+			throw "Not UDP";
 
 		} catch (err) {
 			var ips = [];
 
-			//ipService.getLocalIpAsync(defaultConfig.LocalIpIziBox).then(function (ip) {
 			ipService.getLocalIpAsync().then(function (ip) {
 				console.log(ip);
 
-				if (ip.izibox) {
-					ips.push(ip.izibox);
-				} else if (ip.local) {
+				if (ip.local) {
 					
 					//first add last finded izibox ip
 					if (defaultConfig.LocalIpIziBox) {
@@ -68,11 +67,33 @@ app.getConfigIziBoxAsync = function ($rootScope, $q, $http, ipService, $translat
 						}
 					}
 				}
-				searchRestConfigurationAsync($rootScope,$q, $http, ips,$translate).then(function (msg) {
-					window.localStorage.setItem("IziBoxConfiguration", msg);
-					config = JSON.parse(msg);
-					config.deleteCouchDb = config.IdxCouchDb != defaultConfig.IdxCouchDb;
-					configDefer.resolve(config);
+				searchRestConfigurationAsync($rootScope, $q, $http, ips, $translate, existingConfig).then(function (configs) {
+					var returnResult = function (selectedConfig) {
+						window.localStorage.setItem("IziBoxConfiguration", selectedConfig);
+						config = JSON.parse(selectedConfig);
+						config.deleteCouchDb = config.IdxCouchDb != defaultConfig.IdxCouchDb;
+						configDefer.resolve(config);
+					}
+
+					if (configs.length === 1) {
+						returnResult(configs[0]);
+					} else {
+						var modalInstance = $uibModal.open({
+							templateUrl: 'modals/modalSelectConfig.html',
+							controller: 'ModalSelectConfigController',
+							resolve: {
+								configs: function () {
+									return configs;
+								}
+							},
+							backdrop: 'static'
+						});
+
+						modalInstance.result.then(function (selectedConfig) {
+							returnResult(selectedConfig);
+						});
+					}
+
 				}, function (errSearch) {
 					swal({
 						title: $translate.instant("Izibox non trouvée !"),
@@ -103,28 +124,37 @@ app.getConfigIziBoxAsync = function ($rootScope, $q, $http, ipService, $translat
 	return configDefer.promise;
 }
 
-var searchRestConfigurationAsync = function ($rootScope,$q, $http, ips, $translate) {
+var searchRestConfigurationAsync = function ($rootScope,$q, $http, ips, $translate, existingConfig) {
 	var searchDefer = $q.defer();
 
 	if (!ips || ips.length == 0) {
 		searchDefer.reject();
 	} else {
-		var noip = true;
 		var i = 0;
+		var configs = [];
 
 		var callRest = function(){
-			if (i < ips.length && noip && !$rootScope.ignoreSearchIzibox) {
-				$rootScope.$emit("searchIziBoxProgress", { step: i, total: ips.length });
+			if (i < ips.length && !$rootScope.ignoreSearchIzibox) {
+				$rootScope.$emit("searchIziBoxProgress", { step: i, total: ips.length, find: configs.length });
 				var ip = ips[i];
 				getRestConfigurationAsync($q, $http, ip, 8080).then(function (config) {
-					noip = false;
-					searchDefer.resolve(config);
+					configs.push(config);
+					if (i === 0 && existingConfig) {
+						searchDefer.resolve(configs);
+					} else {
+						i++;
+						callRest();
+					}
 				}, function () {
 					i++;
 					callRest();
 				});
 			} else {
-				searchDefer.reject();
+				if (configs.length > 0) {
+					searchDefer.resolve(configs);
+				} else {
+					searchDefer.reject();
+				}
 			}
 		}
 
@@ -140,13 +170,13 @@ var getRestConfigurationAsync = function ($q, $http, localIpIziBox, restPort) {
 	if (localIpIziBox) {
 		var configApiUrl = "http://" + localIpIziBox + ":" + restPort + "/configuration";
 		$http.get(configApiUrl, { timeout: 500 }).
-            success(function (data, status, headers, config) {
-            	var msg = JSON.stringify(data);
-            	restConfigDefer.resolve(msg);
-            }).
-            error(function (data, status, headers, config) {
-            	restConfigDefer.reject("config error");
-            });
+			success(function (data, status, headers, config) {
+				var msg = JSON.stringify(data);
+				restConfigDefer.resolve(msg);
+			}).
+			error(function (data, status, headers, config) {
+				restConfigDefer.reject("config error");
+			});
 	} else {
 		restConfigDefer.reject("Izibox not found");
 	}

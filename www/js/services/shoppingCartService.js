@@ -69,7 +69,8 @@
 				loyaltyDefer.resolve(true);
 			}).
 			error(function (data, status, headers, config) {
-				loyaltyDefer.reject("Error registering customer");
+			    loyaltyDefer.reject("Error registering customer");
+			    sweetAlert($translate.instant("Erreur lors de l'enregistrement du client"));
 			});
 			
 			return loyaltyDefer.promise;
@@ -369,7 +370,7 @@
 			var customerEmail = shoppingCart.customerLoyalty.CustomerEmail; //on récupère le mail
 			var apiUrl = $rootScope.IziBoxConfiguration.URLSignalR +"/common/EmailSendToSimple";
 			var request = {
-				subject: "ticket test - a changer", //              
+				subject: "Ticket caisse", //              
 				emailTo: customerEmail,
 				body:msg                       
 			}

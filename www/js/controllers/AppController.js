@@ -33,41 +33,41 @@
 		return elems.length > 0 && !elems.hasClass("closed");
 	}
 
-    $rootScope.openKeyboard = function (type, alignment) {
-    	if (!$mdMedia('gt-sm')) {
-    		alignment = "center-end";
-    	}
+	$rootScope.openKeyboard = function (type, alignment) {
+		if (!$mdMedia('gt-sm')) {
+			alignment = "center-end";
+		}
 
 
-    	$scope.keyboardLocation = alignment || "center-center";
-    	$scope.currentKeyboardType = type;
+		$scope.keyboardLocation = alignment || "center-center";
+		$scope.currentKeyboardType = type;
 
 		//TODO Hack for first show :(
-    	setTimeout(function () {
-    		$scope.$emit(Keypad.OPEN, "keyboard-" + type);
-    	}, 0);
-    	setTimeout(function () {
-    		$scope.$emit(Keypad.OPEN, "keyboard-" + type);
-    	}, 100);
-    }
+		setTimeout(function () {
+			$scope.$emit(Keypad.OPEN, "keyboard-" + type);
+		}, 0);
+		setTimeout(function () {
+			$scope.$emit(Keypad.OPEN, "keyboard-" + type);
+		}, 100);
+	}
 
-    $rootScope.closeKeyboard = function () {
-    	//console.log("closeKb " + $scope.currentKeyboardType);
-    	$scope.$emit(Keypad.CLOSE, "keyboard-decimal");// + $scope.currentKeyboardType);
-    	$scope.$emit(Keypad.CLOSE, "keyboard-numeric");
-    	$scope.$emit(Keypad.CLOSE, "keyboard-azerty");
-    }
+	$rootScope.closeKeyboard = function () {
+		//console.log("closeKb " + $scope.currentKeyboardType);
+		$scope.$emit(Keypad.CLOSE, "keyboard-decimal");// + $scope.currentKeyboardType);
+		$scope.$emit(Keypad.CLOSE, "keyboard-numeric");
+		$scope.$emit(Keypad.CLOSE, "keyboard-azerty");
+	}
 
-    //document.addEventListener("keypress", function (e) {
-    //	$rootScope.$emit(Keypad.KEY_PRESSED, String.fromCharCode(e.keyCode));
-    //});
+	//document.addEventListener("keypress", function (e) {
+	//	$rootScope.$emit(Keypad.KEY_PRESSED, String.fromCharCode(e.keyCode));
+	//});
 
-    //document.addEventListener("keydown", function (e) {
-    //	if (e.keyCode == 13) { $rootScope.$emit(Keypad.MODIFIER_KEY_PRESSED, "NEXT"); }
-    //	if (e.keyCode == 8) {
-    //		$rootScope.$emit(Keypad.MODIFIER_KEY_PRESSED, "CLEAR");
-    //		e.preventDefault();
-    //		e.stopPropagation();
-    //	}
-    //});
+	//document.addEventListener("keydown", function (e) {
+	//	if (e.keyCode == 13) { $rootScope.$emit(Keypad.MODIFIER_KEY_PRESSED, "NEXT"); }
+	//	if (e.keyCode == 8) {
+	//		$rootScope.$emit(Keypad.MODIFIER_KEY_PRESSED, "CLEAR");
+	//		e.preventDefault();
+	//		e.stopPropagation();
+	//	}
+	//});
 });

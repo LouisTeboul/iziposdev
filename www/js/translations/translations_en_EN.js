@@ -62,7 +62,7 @@
 		"Saisissez le numéro de carte": "Enter card number",
 		"Choisir une offre": "Select an offer",
 		"Ne rien choisir": "Nothing",
-		"Ajouter au panier": "Add",
+		"Ajouter au ticket": "Add",
 		"Choisir produit": "Select product",
 		"Saisir le prix": "Enter price",
 		"Montant en caisse": "Value",
