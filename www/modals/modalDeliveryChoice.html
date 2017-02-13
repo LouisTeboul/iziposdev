@@ -1,0 +1,27 @@
+﻿<section>
+    <div ng-init="init()" class="modal-header">
+        <h1 class="modal-title" translate>Choississez le mode de livraison</h1>
+    </div>
+
+    <center>
+        <div class="switch-toggle switch-3 switch-candy" >
+
+            <input id="forhere" name="state-d" type="radio" ng-checked="deliveryType == DeliveryTypes.FORHERE">
+            <label for="forhere" ng-click="setDeliveryType(DeliveryTypes.FORHERE)"><x translate>Sur place</x></label>
+
+            <input id="takeout" name="state-d" type="radio" ng-checked="deliveryType == DeliveryTypes.TAKEOUT">
+            <label for="takeout" ng-click="setDeliveryType(DeliveryTypes.TAKEOUT)"><x translate>Emporté</x></label>
+
+            <input id="delivery" name="state-d" type="radio" ng-checked="deliveryType == DeliveryTypes.DELIVERY">
+            <label for="delivery" ng-click="setDeliveryType(DeliveryTypes.DELIVERY)"><x translate>Livré</x></label>
+            <a></a>
+        </div>
+    </center>
+
+
+    <div class="modal-footer">
+        <!--<button class="btn btn-green" ng-click="ok()">OK</button>-->
+        <button class="btn btn-rose" ng-click="close()" translate>Fermer</button>
+    </div>
+
+</section>
