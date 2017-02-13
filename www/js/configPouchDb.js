@@ -14,7 +14,7 @@
 	} else {
 		setupDatabases($rootScope, $q, zposService);
 	}
-}
+};
 
 var setupDatabases = function ($rootScope, $q, zposService) {
 	$rootScope.configPouchDB = {
@@ -149,15 +149,20 @@ var setupDatabases = function ($rootScope, $q, zposService) {
 		info.status = "Change";
 		$rootScope.$emit("dbDatasReplicate", info);
 	  }).on('paused', function (info) {
+
 		//console.log("dbInstance => UpToDate");
 		if (!info) {
 			info = {};
 		}
 
-		$rootScope.modelDb.dataReady = true;
-		$rootScope.$evalAsync();
-		info.status = "UpToDate";
-		$rootScope.$emit("dbDatasReplicate", info);
+		$rootScope.dbInstance.info().then(function (dbInstanceInfo) {
+			if (dbInstanceInfo.doc_count === datasRemoteInfo.doc_count) {
+				$rootScope.modelDb.dataReady = true;
+				$rootScope.$evalAsync();
+				info.status = "UpToDate";
+				$rootScope.$emit("dbDatasReplicate", info);
+			}
+		});
 
 	  }).on('error', function (info) {
 		if (!info) {
