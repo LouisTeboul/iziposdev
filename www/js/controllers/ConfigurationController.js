@@ -11,13 +11,13 @@
 })
 
 
-app.controller('ConfigurationController', function ($scope, $rootScope, $location, $http,$uibModal, shoppingCartService, posLogService) {
+app.controller('ConfigurationController', function ($scope, $rootScope, $location, $http, $uibModal, shoppingCartService, posLogService) {
 	var current = this;
 
 	var portraitRatioHandler = undefined;
 	var lanscapeRatioHandler = undefined;
 
-	$scope.searchIziBoxProgression = {total:0,step:0,percent:0,find:0};
+	$scope.searchIziBoxProgression = { total: 0, step: 0, percent: 0, find: 0 };
 
 	$rootScope.$on('searchIziBoxProgress', function (event, args) {
 		$scope.searchIziBoxProgression.total = args.total;
@@ -39,14 +39,14 @@ app.controller('ConfigurationController', function ($scope, $rootScope, $locatio
 		var landscapeRatioValue = window.localStorage.getItem("LandscapeRatio");
 		var portraitRatioValue = window.localStorage.getItem("PortraitRatio");
 
-		
-		$rootScope.RatioConfiguration.LandscapeRatio = $scope.Model.LandscapeRatio = (landscapeRatioValue ? parseFloat(landscapeRatioValue)*100 : 100);
-		$rootScope.RatioConfiguration.PortraitRatio = $scope.Model.PortraitRatio = (portraitRatioValue ? parseFloat(portraitRatioValue)*100 : 100);
+
+		$rootScope.RatioConfiguration.LandscapeRatio = $scope.Model.LandscapeRatio = (landscapeRatioValue ? parseFloat(landscapeRatioValue) * 100 : 100);
+		$rootScope.RatioConfiguration.PortraitRatio = $scope.Model.PortraitRatio = (portraitRatioValue ? parseFloat(portraitRatioValue) * 100 : 100);
 
 		var posPrinterCountValue = window.localStorage.getItem("POSPrinterCount");
 		var prodPrinterCountValue = window.localStorage.getItem("ProdPrinterCount");
 
-		$rootScope.PrinterConfiguration.POSPrinterCount = posPrinterCountValue !=undefined ? parseInt(posPrinterCountValue) : 1;
+		$rootScope.PrinterConfiguration.POSPrinterCount = posPrinterCountValue != undefined ? parseInt(posPrinterCountValue) : 1;
 		$rootScope.PrinterConfiguration.ProdPrinterCount = prodPrinterCountValue != undefined ? parseInt(prodPrinterCountValue) : 1;
 
 		if (!$rootScope.PrinterConfiguration.POSPrinter) $rootScope.PrinterConfiguration.POSPrinter = 1;
@@ -61,6 +61,20 @@ app.controller('ConfigurationController', function ($scope, $rootScope, $locatio
 		}
 
 		$scope.closable = navigator.userAgent.match(/(WPF)/);
+	};
+
+	$scope.emptyCache = function () {
+		swal({ title: "Attention", text: "Supprimer le cache de l'application ?", type: "warning", showCancelButton: true, confirmButtonColor: "#d83448", confirmButtonText: "Oui", cancelButtonText: "Non", closeOnConfirm: true },
+			function () {
+				var barcode = undefined;
+
+				try {
+					window.cache.clear(function () {
+						$scope.reset();
+					});
+				} catch (err) {
+				}
+			});
 	};
 
 	$scope.updatePortraitRatio = function () {
@@ -128,9 +142,9 @@ app.controller('ConfigurationController', function ($scope, $rootScope, $locatio
 		window.localStorage.setItem("ProdPrinter", $rootScope.PrinterConfiguration.ProdPrinter);
 		window.localStorage.setItem("POSPrinterCount", $rootScope.PrinterConfiguration.POSPrinterCount);
 		window.localStorage.setItem("ProdPrinterCount", $rootScope.PrinterConfiguration.ProdPrinterCount);
-		window.localStorage.setItem("LandscapeRatio", $rootScope.RatioConfiguration.LandscapeRatio/100);
-		window.localStorage.setItem("PortraitRatio", $rootScope.RatioConfiguration.PortraitRatio/100);
-		
+		window.localStorage.setItem("LandscapeRatio", $rootScope.RatioConfiguration.LandscapeRatio / 100);
+		window.localStorage.setItem("PortraitRatio", $rootScope.RatioConfiguration.PortraitRatio / 100);
+
 
 
 
@@ -144,12 +158,12 @@ app.controller('ConfigurationController', function ($scope, $rootScope, $locatio
 	var decryptBarcode = function (value) {
 		var plain = "";
 
-		try{
+		try {
 			plain = Aes.Ctr.decrypt(value, "IziPassIziPos", 256);
 		} catch (err) {
 
 		}
-	
+
 		return plain;
 	}
 
@@ -186,8 +200,8 @@ app.controller('ConfigurationController', function ($scope, $rootScope, $locatio
 	}
 
 	this.updateConfig = function (index) {
-		var configApiUrl = "http://izitools.cloudapp.net:5984/iziboxsetup/"+index;    	
-		
+		var configApiUrl = "http://izitools.cloudapp.net:5984/iziboxsetup/" + index;
+
 		$http.get(configApiUrl, { timeout: 10000 }).
 			success(function (data, status, headers, config) {
 				$rootScope.IziBoxConfiguration = data;

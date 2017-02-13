@@ -83,6 +83,7 @@ app.run(function ($rootScope, $location, $q, $http, ipService, zposService, $tra
 		$rootScope.RatioConfiguration = { Enabled: true };
 
 		if (navigator.userAgent.match(/(iPhone|iPod|iPad|Android|BlackBerry|IEMobile)/)) {
+			$rootScope.isBrowser = false;
 			document.addEventListener("deviceready", function () {
 				init($rootScope, $location, $q, $http, ipService, zposService, $translate, $uibModal);
 			}, false);
@@ -91,6 +92,7 @@ app.run(function ($rootScope, $location, $q, $http, ipService, zposService, $tra
 				FastClick.attach(document.body);                
 			}
 		} else {
+			$rootScope.isBrowser = true;
 			init($rootScope, $location, $q, $http, ipService, zposService, $translate, $uibModal); //this is the browser
 		}
 		//debugger;
