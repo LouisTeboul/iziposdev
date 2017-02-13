@@ -3,8 +3,7 @@
 
         var cacheTaxProvider = undefined;
         var cacheTaxCategories = undefined;
-        var cacheTaxDisplay = undefined;
-        //var roundPrecisionNumber = settingService.getRoundNumberPrecisionAsync();
+        var cacheTaxDisplay = undefined;       
         var cacheIsPricesIncludedTax = undefined;
     	var self = this;
 
@@ -114,9 +113,6 @@
         //Récupération du provider de taxe à utiliser
         this.getTaxProviderAsync = function () {
             var taxProviderDefer = $q.defer();
-
-            //TODO à enlever POUR TEST
-            //cacheTaxProvider = "Tax.FixedRate";
 
             if ($rootScope.modelDb.databaseReady) {
                 if (cacheTaxProvider) {
@@ -296,7 +292,7 @@
                         //Si l'article est à emporter on utilise la TVA alternative
                         var taxRate = deliveryType == DeliveryTypes.FORHERE ? cartItem.Product.TaxCategory.VAT : cartItem.Product.TaxCategory.altVAT;
                         
-                        //calcul du prix est Hors-taxe
+                        //calcul du prix Hors-taxe
                         if (!cacheIsPricesIncludedTax) {
                             priceET = cartItem.Product.Price;
                             priceIT = ETtoIT(priceET, taxRate);
@@ -383,7 +379,7 @@
 
                         // On ajoute le montant de la taxe 
                         if (existingTaxDetail) {
-                            existingTaxDetail.TaxAmount += itemTaxDetail.TaxAmount;
+                            existingTaxDetail.TaxAmount += roundValue(itemTaxDetail.TaxAmount);
                         } else {
                             taxDetails.push(clone(itemTaxDetail));
                         }
@@ -403,6 +399,11 @@
                         valueDiscount = discount.Value;
                         totalDiscount = totalIT - valueDiscount;
                         var ratio = totalDiscount / totalIT;
+
+                        // Calcule la remise sur la tva total du panier
+                        Enumerable.from(taxDetails).forEach(function (i) {
+                            i.TaxAmount = roundValue(i.TaxAmount - (i.TaxAmount * ratio));
+                        });
                     }
                     // si la remise est en pourcentage
                     else {
@@ -414,27 +415,22 @@
                         Enumerable.from(taxDetails).forEach(function (i) {
                             i.TaxAmount = roundValue( i.TaxAmount-( i.TaxAmount * ratio));                         
                         });
-                    }
-                    
+                    }                   
                    
-
                     //On récupère la remise totale sur le Hors-taxe
                     totalETDiscount = totalET * ratio;
 
                     totalIT = totalDiscount;
                     totalET = totalETDiscount;
 
-                    discount.Total = valueDiscount;
-                    
-                    
+                    discount.Total = valueDiscount;                                   
                     
                     // Calc discount on each item
                     Enumerable.from(shoppingCart.Items).forEach(function (i) {
-                        i.DiscountIT = roundValue(i.PriceIT - i.PriceIT * ratio);
-                        i.DiscountET = roundValue(i.PriceET - i.PriceET * ratio);                     
-                                    
-                    });
-                    
+                        i.DiscountIT = roundValue(i.PriceIT - i.PriceIT * ratio); 
+                        i.DiscountET = roundValue(i.PriceET - i.PriceET * ratio);                  
+
+                    });                   
                    
                 }
 
@@ -453,19 +449,24 @@
                     totalPayment = totalPayment + shoppingCart.BalanceUpdate.UpdateValue;
                 }
 
-                //On calcule le rendu 
+                //On calcule le rendu monnaie
                 var residue = totalIT - totalPayment;
                 var repaid = 0;
                 var credit = 0;
 
                 if (residue < 0) {
-                    //Test if only "ticket-restaurant" in payment modes -> Credit
+
+                    //Pas de rendue monnaie sur les tickets restaurants ou avoir 
+                    var hasCreditPaymentMode = Enumerable.from(shoppingCart.PaymentModes).any('p=>p.PaymentType == PaymentType.TICKETRESTAURANT || p.PaymentType == PaymentType.AVOIR');
                     var hasRepaidPaymentMode = Enumerable.from(shoppingCart.PaymentModes).any('p=>p.PaymentType != PaymentType.TICKETRESTAURANT && p.PaymentType != PaymentType.AVOIR');
-                    if (!hasRepaidPaymentMode) {
+
+                    if (hasCreditPaymentMode && !hasRepaidPaymentMode) {
                         credit = residue * -1;
                     } else {
                         repaid = residue * -1;
                     }
+
+                    //TODO : prendre en compte rendu et avoir sur different mode de paiement 
                     residue = 0;
                 }
 

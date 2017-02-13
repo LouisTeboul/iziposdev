@@ -23,7 +23,7 @@
 		<meta name="format-detection" content="telephone=no" />
 		<meta name="msapplication-tap-highlight" content="no" />
 		<!-- WARNING: for iOS 7, remove the width=device-width and height=device-height attributes. See https://issues.apache.org/jira/browse/CB-4323 -->
-		<meta name="viewport" content="user-scalable=no, initial-scale=2, maximum-scale=2, minimum-scale=0.5, width=device-width" />
+		<meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width" />
 		<!--<meta http-equiv="Content-Security-Policy" content="default-src * blob:;media-src * blob:;img-src * 'self' blob: data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline' 'unsafe-eval'" />-->
 		<meta http-equiv="Content-Security-Policy" />
 		<!-- Styles -->
@@ -66,6 +66,7 @@
 		<script src="js/lib/linq.js"></script>
 		<script src="js/lib/pouchdb-3.6.0.min.js"></script>
 		<script src="js/lib/pouchdb.relational-pouch.min.js"></script>
+		<script src="js/lib/pouchdb.load.js"></script>
 		<script src="js/lib/detect-element-resize.js"></script>
 		<script src="js/lib/date.js"></script>
 <!--        <script src="js/lib/bootstrap-switch.min.js"></script>-->
@@ -91,12 +92,18 @@
 		<script src="js/lib/aes-ctr.js"></script>
 		<script src="js/lib/angular-gage.min.js"></script>
 		<script src="js/lib/fastclick.js"></script>
+		<script src="js/lib/randomColor.js"></script>
 		
 
 		<!-- App -->
 		<script src="js/app.js"></script>
 		<script src="js/configPouchDb.js"></script>
 		<script src="js/configIziBox.js"></script>
+
+		<!-- AppDemo -->
+		<!--<script src="js/appDemo.js"></script>
+		<script src="js/configPouchDbDemo.js"></script>
+		<script src="js/configIziBoxDemo.js"></script>-->
 
 		<!-- Admin libs -->
 		<script src="js/lib/AdminLibs/adminLibs.js"></script>
@@ -146,6 +153,8 @@
 		<script src="js/controllers/modals/ModalOpenAdminController.js"></script>
 		<script src="js/controllers/modals/ModalCustomerController.js"></script>
 		<script src="js/controllers/modals/ModalSelectConfigController.js"></script>
+		<script src="js/controllers/modals/ModalDeliveryChoiceController.js"></script>
+
 
 		<!-- Partials Controllers -->
 		<script src="js/controllers/partials/BarcodeTextFieldController.js"></script>

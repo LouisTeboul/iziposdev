@@ -34,7 +34,7 @@
             </div>
 
             <center>
-                <div class="switch-toggle switch-3 switch-candy">                 
+                <div class="switch-toggle switch-3 switch-candy" ng-if="!$rootScope.IziBoxConfiguration.ForceDeliveryChoice">                 
 
                     <input id="forhere" name="state-d" type="radio" ng-checked="deliveryType == DeliveryTypes.FORHERE">
                     <label for="forhere" ng-click="setDeliveryType(DeliveryTypes.FORHERE)"><x translate>Sur place</x></label>
@@ -309,11 +309,11 @@
         </div>
 
         <div class="shoppingCartActionsBar" layout="row">
-            <a ng-if="PrinterConfiguration.POSPrinterCount == 0 || IziBoxConfiguration.ConfirmPrint || !IziBoxConfiguration.LocalIpIziBox" class="shoppingCartAction btn btn-success" ng-click="validShoppingCart(true)" flex>
+            <a ng-if="PrinterConfiguration.POSPrinterCount == 0 || IziBoxConfiguration.ConfirmPrint || !IziBoxConfiguration.LocalIpIziBox" class="shoppingCartAction btn btn-success" ng-click="$rootScope.IziBoxConfiguration.ForceDeliveryChoice ? openModalDelivery(true) : validShoppingCart(true) " flex>
                 <span style="white-space:normal"><img class="btn-action-image" alt="Image" src="img/valid.png"></span>
             </a>
 
-            <a ng-if="PrinterConfiguration.POSPrinterCount > 0 && IziBoxConfiguration.LocalIpIziBox" class="shoppingCartAction btn btn-success" ng-click="validShoppingCart()" flex>
+            <a ng-if="PrinterConfiguration.POSPrinterCount > 0 && IziBoxConfiguration.LocalIpIziBox" class="shoppingCartAction btn btn-success" ng-click="$rootScope.IziBoxConfiguration.ForceDeliveryChoice ? openModalDelivery() : validShoppingCart() " flex>
                 <span style="white-space:normal"><img style="width:25px;margin-right:2px;" alt="Image" src="img/valid.png"><img style="width:28px;margin-left:2px;" alt="Image" src="img/print.png"></span>
             </a>
 

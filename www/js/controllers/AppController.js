@@ -15,12 +15,14 @@
 
 	var updateMeta = function () {
 		if ($rootScope.RatioConfiguration) {
-			var metaDesc = $rootElement.parent().find('meta[name=viewport]')[0];
+			var body = $("body")[0];
 
-			if ($(window).width() < 1100) {
-				metaDesc.setAttribute('content', 'user-scalable=no, initial-scale=' + $rootScope.RatioConfiguration.PortraitRatio + ', maximum-scale=1, minimum-scale=0.5, width=device-width');
+			if ($(window).width() < $(window).height()) {
+				if ($rootScope.RatioConfiguration.PortraitRatio < 10) $rootScope.RatioConfiguration.PortraitRatio = 100;
+				body.style.zoom = $rootScope.RatioConfiguration.PortraitRatio+"%";
 			} else {
-				metaDesc.setAttribute('content', 'user-scalable=no, initial-scale=' + $rootScope.RatioConfiguration.LandscapeRatio + ', maximum-scale=1, minimum-scale=0.5, width=device-width');
+				if ($rootScope.RatioConfiguration.LandscapeRatio < 10) $rootScope.RatioConfiguration.LandscapeRatio = 100;
+				body.style.zoom = $rootScope.RatioConfiguration.LandscapeRatio+"%";
 			}
 		}
 	}
@@ -37,7 +39,6 @@
 		if (!$mdMedia('gt-sm')) {
 			alignment = "center-end";
 		}
-
 
 		$scope.keyboardLocation = alignment || "center-center";
 		$scope.currentKeyboardType = type;

@@ -400,6 +400,10 @@
 			shoppingCartModel.validShoppingCart(ignorePrintTicket);
 		}
 
+		$scope.openModalDelivery = function (parameter) {
+		    shoppingCartModel.openModalDelivery(parameter);
+		}
+
 		$scope.printProdShoppingCart = function () {
 			if($scope.currentShoppingCart != undefined && $scope.currentShoppingCart.Items.length > 0){
 				//$rootScope.showLoading();

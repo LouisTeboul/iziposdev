@@ -1,4 +1,4 @@
-﻿app.controller('ModalCustomerController', function ($scope, $rootScope, $uibModalInstance, $uibModal, shoppingCartService, ngToast,  shoppingCartModel) {
+﻿app.controller('ModalCustomerController', function ($scope, $rootScope,$q, $uibModalInstance, $uibModal, shoppingCartService, ngToast,  shoppingCartModel) {
 
     var current = this;
     $scope.registerOperation = "getEmail"; // for display
@@ -93,13 +93,13 @@
 
 	$scope.ok = function () {
 
+        // Pas d'enregistrement si un client est sélectionné
 	    if ($scope.clientSelected == true) {
 	        $uibModalInstance.close();
 	        return;
-
 	    }
 
-		//Si pas d'infos saisie
+		//Si pas d'infos saisie pour les mails- aucune opération
 	    if ($scope.newLoyalty.CustomerEmail == '' || $scope.newLoyalty.CustomerEmail == undefined) {
 	            $uibModalInstance.close();
 	            return;			
@@ -116,19 +116,43 @@
 
 		//si la case fidélité est coché on enregistre le client    
 		if ($scope.registerOperation == "registerFid") {
-			try {                
-			    shoppingCartService.registerCustomerAsync($scope.newLoyalty);
-			    curShoppingCart.customerLoyalty = $scope.newLoyalty;
-			    $rootScope.$emit("customerLoyaltyChanged", $scope.newLoyalty);
-			    $rootScope.$emit("shoppingCartChanged", curShoppingCart);
+		    try {
+		       // var loyalty;
 
-			    //ngToast.create({
-			    //    className: 'success',
-			    //    content: '<b>Client enregistré</b>',
-			    //    dismissOnTimeout: true,
-			    //    timeout: 10000,
-			    //    dismissOnClick: true
-			    //});
+                //On récupère le loyalty si il existe 
+		        if ($scope.newLoyalty.barcode.barcodeValue) {
+
+		            shoppingCartService.getLoyaltyObjectAsync($scope.newLoyalty.barcode.barcodeValue).then(function (loyalty) {
+
+		                if (!loyalty) {
+		                    loyalty = $scope.newLoyalty;
+		                } else {
+		                    //On associe le client à la carte		                    
+		                    loyalty.CustomerEmail = $scope.newLoyalty.CustomerEmail;
+		                    loyalty.CustomerFirstName = $scope.newLoyalty.CustomerFirstName;
+		                    loyalty.CustomerLastName = $scope.newLoyalty.CustomerLastName;                            
+		                }
+
+		                //On enregistre le client 
+		                shoppingCartService.registerCustomerAsync(loyalty);
+
+		                // On ajoute la fidélité au ticket
+		                curShoppingCart.customerLoyalty = loyalty;
+		                $rootScope.$emit("customerLoyaltyChanged", $scope.newLoyalty);
+		                $rootScope.$emit("shoppingCartChanged", curShoppingCart);		                
+		            });         
+		        }
+		        else {
+		            ngToast.create({
+		                className: 'info',
+		                content: 'le code barre n\'est pas renseigné',
+		                dismissOnTimeout: true,
+		                timeout: 10000,
+		                dismissOnClick: true
+		            });
+
+		            return;		            
+		        }               
 			}
 			catch (err) {			
 			    ngToast.create({
@@ -277,7 +301,7 @@
 			"Barcode": $scope.currentShoppingCart.customerLoyalty.Barcodes[0].Barcode,
 			"CustomerFirstName": $scope.currentShoppingCart.customerLoyalty.CustomerFirstName,
 			"CustomerLastName": $scope.currentShoppingCart.customerLoyalty.CustomerLastName,
-			"CustomerEmail": v$scope.currentShoppingCart.customerLoyalty.CustomerEmail,
+			"CustomerEmail": $scope.currentShoppingCart.customerLoyalty.CustomerEmail,
 			"OrderTotalIncludeTaxes": 0,
 			"OrderTotalExcludeTaxes": 0,
 			"CurrencyCode": "EUR",

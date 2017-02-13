@@ -1,5 +1,5 @@
 ﻿app.service('shoppingCartModel', ['$rootScope', '$q', '$state','$timeout', '$uibModal', 'shoppingCartService', 'productService', 'settingService', 'posUserService','$translate','storeMapService','taxesService',
-	function ($rootScope, $q, $state,$timeout, $uibModal, shoppingCartService, productService, settingService, posUserService,$translate,storeMapService,taxesService) {
+	function ($rootScope, $q, $state, $timeout, $uibModal,  shoppingCartService, productService, settingService, posUserService, $translate, storeMapService, taxesService) {
 		var current = this;
 		var lastShoppingCart = undefined;
 		var currentShoppingCart = undefined;
@@ -101,12 +101,9 @@
 
 					}
 					this.calculateTotal();
-					this.calculateLoyalty();
-					
+					this.calculateLoyalty();					
 				}
 			}
-
-
 		}
 		
 		this.removeItemFrom = function (shoppingCart,cartItem) {
@@ -190,10 +187,7 @@
 				this.calculateTotal();
 				this.calculateLoyalty();
 				$rootScope.$emit("shoppingCartItemChanged", cartItem);
-
 			}
-
-
 		}
 
 		//#endregion
@@ -352,6 +346,7 @@
 
 			if (this.getCurrentShoppingCart() && this.getCurrentShoppingCart().isPayed) return;
 
+
 			if (!product.DisableBuyButton) {
 				if (isfree == undefined) {
 					isfree = false;
@@ -472,7 +467,32 @@
 			}
 		}
 
-		this.validShoppingCart = function (ignorePrintTicket) {
+
+		
+		this.openModalDelivery = function (boolValue) {		    
+
+			//Si configuré - oblige l'utilisateur à saisir un mode de livraison 
+			if ($rootScope.IziBoxConfiguration.ForceDeliveryChoice) {
+
+				var modalInstance = $uibModal.open({
+					templateUrl: 'modals/modalDeliveryChoice.html',
+					controller: 'ModalDeliveryChoiceController',
+					backdrop: 'static',
+					size: 'lg',
+					resolve: {
+						parameter : boolValue
+					}
+				});
+			   
+			}
+
+		}		
+
+
+
+		this.validShoppingCart = function (ignorePrintTicket) {           
+
+
 			if (currentShoppingCart != undefined && currentShoppingCart.Items.length > 0) {
 				$rootScope.showLoading();
 
@@ -547,45 +567,28 @@
 
 		this.printPOSShoppingCart = function (shoppingCart, ignorePrintTicket) {	   
 
-            //Envoi le mail si configuré
-		    if ($rootScope.IziBoxConfiguration.TicketByMail && !ignorePrintTicket) {
-
-				//L'adresse email du client est nécessaire
-				if (!shoppingCart.customerLoyalty) {
-
-					sweetAlert($translate.instant("Impossible d'envoyer le ticket par mail les infos du clients ne sont pas renseignés!"));
-					return;
-
-		            if (!shoppingCart.customerLoyalty.CustomerEmail || shoppingCart.customerLoyalty.CustomerEmail=='') {
-		                sweetAlert($translate.instant("L'email du client n'est pas renseigné!"));
-		                return;
-		            }
-		        }
-
-				shoppingCartService.printShoppingCartAsync2(shoppingCart, $rootScope.PrinterConfiguration.POSPrinter, true, $rootScope.PrinterConfiguration.POSPrinterCount, ignorePrintTicket).then(function (msg) {
-
-				   
+			//Envoi le mail si configuré
+			if ($rootScope.IziBoxConfiguration.TicketByMail         // option ticket materiel                
+				&& shoppingCart.customerLoyalty                     // Il ya une fidélité
+				&& shoppingCart.customerLoyalty.CustomerEmail != '' // TODO : Vérification de la validité de l'email 
+				&& ignorePrintTicket) {                             // envoie le mail que sur le bouton gauche de validation
+				shoppingCartService.printShoppingCartAsync2(shoppingCart, $rootScope.PrinterConfiguration.POSPrinter,
+					true, $rootScope.PrinterConfiguration.POSPrinterCount, ignorePrintTicket).then(function (msg) {
 
 				}, function (err) {
-
-					if (!ignorePrintTicket) {
-						sweetAlert($translate.instant("Erreur d'envoi par mail du ticket!"));
-					}
-
+					sweetAlert($translate.instant("Erreur d'envoi par mail du ticket!"));					
 				});
+				//
 				return;
-
 			}
 
 
-			shoppingCartService.printShoppingCartAsync(shoppingCart, $rootScope.PrinterConfiguration.POSPrinter, true, $rootScope.PrinterConfiguration.POSPrinterCount, ignorePrintTicket).then(function (msg) {
-				
+			shoppingCartService.printShoppingCartAsync(shoppingCart, $rootScope.PrinterConfiguration.POSPrinter,
+				true, $rootScope.PrinterConfiguration.POSPrinterCount, ignorePrintTicket).then(function (msg) {				
 			}, function (err) {
-
 				if (!ignorePrintTicket) {
 					sweetAlert($translate.instant("Erreur d'impression caisse !"));
-				}
-				
+				}				
 			});
 		}
 
@@ -1327,12 +1330,14 @@
 				var maxValue = undefined;
 				var currentValue = (customValue && customValue < currentShoppingCart.Residue) ? customValue : currentShoppingCart.Residue;
 
-			    //Prevents "cashback"
-                //TODO ? : 
+				//Prevents "cashback" : Le montant de la carte de bleue ne peut dépasser le montant du ticket                 
 				if (selectedPaymentMode.PaymentType == PaymentType.CB) {
 					maxValue = currentShoppingCart.Residue + (currentPaymentMode ? currentPaymentMode.Total : 0);
 				}
 
+				
+
+				//
 				if (selectedPaymentMode.IsBalance) {
 					var totalBalance = currentShoppingCart.BalanceUpdate ? currentShoppingCart.BalanceUpdate.UpdateValue : 0;
 					currentValue = selectedPaymentMode.Balance.Value <= currentShoppingCart.Residue ? selectedPaymentMode.Balance.Value : currentShoppingCart.Residue;

@@ -1,10 +1,11 @@
-﻿app.controller('ModalZPosController', function ($scope, $rootScope, $uibModalInstance, zposService, dateStart, dateEnd,$translate) {
+﻿app.controller('ModalZPosController', function ($scope, $rootScope,  $uibModalInstance, zposService, dateStart, dateEnd,$translate) {
 	$scope.dateStart = dateStart;
 	$scope.dateEnd = dateEnd;
 	$scope.zheaders = [];
 	$scope.zlines = [];
 	$scope.ztotal = [];
 	$scope.ztotalET = [];
+	
 
 	$scope.zpos = undefined;
 
@@ -51,7 +52,7 @@
 
 			    columnValues.push(Date.parseExact(line.date, "yyyyMMdd").toString("dd/MM/yyyy"));//date
 			    columnValues.push(line.count);//nb
-			    columnValues.push(line.totalIT);//total
+			    columnValues.push(roundValue( line.totalIT));//total
 
 			    //Cutleries
 			    var lineCutleries = Enumerable.from(resZpos.cutleries.byDate).firstOrDefault(function (value) { return value.date == line.date; });
@@ -60,21 +61,21 @@
 			    //Sur place
 			    var lineForHere = Enumerable.from(resZpos.deliveryValues).firstOrDefault(function (value) { return value.type == DeliveryTypes.FORHERE; });
 			    var lineTotalForHere = lineForHere ? Enumerable.from(lineForHere.byDate).firstOrDefault(function (value) { return value.date == line.date; }) : undefined;
-			    columnValues.push(lineTotalForHere ? lineTotalForHere.total : 0);
+			    columnValues.push(lineTotalForHere ? roundValue(lineTotalForHere.total) : 0);
 
 			    //Emporté
 			    var lineTakeOut = Enumerable.from(resZpos.deliveryValues).firstOrDefault(function (value) { return value.type == DeliveryTypes.TAKEOUT; });
 			    var lineTotalTakeOut = lineTakeOut ? Enumerable.from(lineTakeOut.byDate).firstOrDefault(function (value) { return value.date == line.date; }) : undefined;
-			    columnValues.push(lineTotalTakeOut ? lineTotalTakeOut.total : 0);
+			    columnValues.push(lineTotalTakeOut ? roundValue(lineTotalTakeOut.total) : 0);
 
 			    //Livré
 			    var lineDelivery = Enumerable.from(resZpos.deliveryValues).firstOrDefault(function (value) { return value.type == DeliveryTypes.DELIVERY; });
 			    var lineTotalDelivery = lineDelivery ? Enumerable.from(lineDelivery.byDate).firstOrDefault(function (value) { return value.date == line.date; }) : undefined;
-			    columnValues.push(lineTotalDelivery ? lineTotalDelivery.total : 0);
+			    columnValues.push(lineTotalDelivery ? roundValue(lineTotalDelivery.total) : 0);
 
 			    //Avoirs émis
 			    var lineCredit = Enumerable.from(resZpos.credit.byDate).firstOrDefault(function (value) { return value.date == line.date; });
-			    columnValues.push(lineCredit ? lineCredit.total : 0);
+			    columnValues.push(lineCredit ? roundValue(lineCredit.total) : 0);
 
 			    //Taxes
 			    Enumerable.from(resZpos.taxDetails).forEach(function (tax) {
@@ -85,7 +86,7 @@
 			    //PaymentModes
 			    Enumerable.from(resZpos.paymentModes).forEach(function (pm) {
 			        var linePM = Enumerable.from(pm.byDate).firstOrDefault(function (value) { return value.date == line.date; });
-			        columnValues.push(linePM ? linePM.total : 0);
+			        columnValues.push(linePM ? roundValue(linePM.total) : 0);
 			    });
 
 			    lineValues.push(columnValues);
@@ -98,19 +99,19 @@
 			//TotalIT
 			$scope.ztotal.push("Total");
 			$scope.ztotal.push(resZpos.count);
-			$scope.ztotal.push(resZpos.totalIT);
+			$scope.ztotal.push(roundValue(resZpos.totalIT));
 			$scope.ztotal.push(resZpos.cutleries.count);
 
 			var lineForHere = Enumerable.from(resZpos.deliveryValues).firstOrDefault(function (value) { return value.type == DeliveryTypes.FORHERE; });
-			$scope.ztotal.push(lineForHere ? lineForHere.total : 0);
+			$scope.ztotal.push(lineForHere ? roundValue(lineForHere.total) : 0);
 
 			var lineTakeOut = Enumerable.from(resZpos.deliveryValues).firstOrDefault(function (value) { return value.type == DeliveryTypes.TAKEOUT; });
-			$scope.ztotal.push(lineTakeOut ? lineTakeOut.total : 0);
+			$scope.ztotal.push(lineTakeOut ? roundValue(lineTakeOut.total) : 0);
 
 			var lineDelivery = Enumerable.from(resZpos.deliveryValues).firstOrDefault(function (value) { return value.type == DeliveryTypes.DELIVERY; });
-			$scope.ztotal.push(lineDelivery ? lineDelivery.total : 0);
+			$scope.ztotal.push(lineDelivery ? roundValue(lineDelivery.total) : 0);
 
-			$scope.ztotal.push(resZpos.credit.total);
+			$scope.ztotal.push( roundValue(resZpos.credit.total));
 
 			while ($scope.ztotal.length < $scope.zheaders.length) {
 			    $scope.ztotal.push("");
@@ -119,7 +120,7 @@
 			//TotalET
 			$scope.ztotalET.push($translate.instant("Total HT"));
 			$scope.ztotalET.push("");
-			$scope.ztotalET.push(resZpos.totalET);
+			$scope.ztotalET.push(roundValue(resZpos.totalET));
 			while ($scope.ztotalET.length < $scope.zheaders.length) {
 			    $scope.ztotalET.push("");
 			}

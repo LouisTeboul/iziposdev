@@ -1,15 +1,15 @@
-﻿app.service('shoppingCartService', ["$http", "$rootScope", "$q","$filter", "zposService", "settingService","$translate",
+app.service('shoppingCartService', ["$http", "$rootScope", "$q","$filter", "zposService", "settingService","$translate",
 	function ($http, $rootScope, $q,$filter, zposService, settingService,$translate) {
-		var current = this;
+	    var current = this;
 
+        // Récupère les informations de fidélité 
 		this.getLoyaltyObjectAsync = function (barcode) {
 			var loyaltyDefer = $q.defer();
-
-			//TODO
+			
 			var getLoyaltyUrl = $rootScope.IziBoxConfiguration.UrlSmartStoreApi + "/RESTLoyalty/RESTLoyalty/GetLoyaltyObject?barcode=" + barcode;
 
 			//TODO for test
-			//var getLoyaltyUrl = "http://127.0.0.1/izipos/www/datas/loyaltytest.json";
+		    //var getLoyaltyUrl = "http://127.0.0.1/izipos/www/datas/loyaltytest.json";     
 
 			var callLoyalty = function (retry) {
 				$http({
@@ -18,12 +18,33 @@
 					timeout: 20000
 				}).
 				then(function (response) {
-					if (response && response.data && response.data.CustomerId != 0) {
-						Enumerable.from(response.data.Offers).forEach(function (o) { o.OfferParam = JSON.parse(o.OfferParam); });
-						loyaltyDefer.resolve(response.data);
-					} else {
-						loyaltyDefer.resolve();
-					}
+				    if (response && response.data){
+				        //On créer un guest customer pour cette fidélité pour permettre de cagnotter la carte 
+				        //Le guest customer n'est pas supprimé par la tache de maintenance
+				        if (response.data.CustomerId == 0 && response.data.AllowAnonymous && response.data.Barcodes.length!=0) {	       
+
+				            barcodeNumber = response.data.Barcodes[0].Barcode;                       			        
+
+				            //On crée l'objet pour enregister un client anonyme 
+				            var request ={				            
+				                "Barcode": barcodeNumber                            
+				            };
+
+				            current.registerAnonymousCustomerAsync(request).then(function (data) {
+				                response.data = data;				           
+				                loyaltyDefer.resolve(response.data);	           
+				            }).catch(function (error) {				            
+				                console.log(error);
+				                loyaltyDefer.reject();
+				            });				        
+				        }
+
+				        if (response.data.CustomerId != 0) {				 
+				            Enumerable.from(response.data.Offers).forEach(function (o) { o.OfferParam = JSON.parse(o.OfferParam); });
+				            loyaltyDefer.resolve(response.data);
+				        }
+			    	}
+				   
 				}, function (err) {
 					if (retry < 2) {
 						callLoyalty(retry + 1);
@@ -38,8 +59,9 @@
 			return loyaltyDefer.promise;
 		}
 
-		this.addPassageAsync = function (obj) {
-			console.log(obj);
+
+		this.addPassageAsync = function (obj) {            
+			//console.log(obj);
 			passagePromise = null;
 			if (!passagePromise) {
 				passagePromise = $http.post(methods.get.callableUrl("AddPassage"), JSON.stringify(JSON.stringify(obj))).success(function (data) {
@@ -51,11 +73,40 @@
 			}
 		};
 
-		//Enregistre un utilisateur
+
+	    //Enregistre un guest customer
+		this.registerAnonymousCustomerAsync = function (loyaltyRegisterequest) {
+		    var loyaltyDefer = $q.defer();           
+            
+		    var getLoyaltyUrl = $rootScope.IziBoxConfiguration.UrlSmartStoreApi + "/RESTLoyalty/RESTLoyalty/RegisterAnonymous";
+
+		    // Simple POST request example (passing data) :
+		    $http.post(getLoyaltyUrl, JSON.stringify(JSON.stringify(loyaltyRegisterequest)), { timeout: 10000 }).
+			success(function (data, status, headers, config) {
+			    loyaltyDefer.resolve(data);
+			}).
+			error(function (data, status, headers, config) {
+			    loyaltyDefer.reject("Error registering customer");
+			    sweetAlert($translate.instant("Erreur lors de l'enregistrement du client"));
+			});
+
+		    return loyaltyDefer.promise;
+		}
+
+		//Enregistre un utilisateur partiel
 		this.registerCustomerAsync = function (loyalty) {
-			var loyaltyDefer = $q.defer();
+		    var loyaltyDefer = $q.defer();
+
+		    var code;
+
+		    if (loyalty.Barcodes) {
+		        code = loyalty.Barcodes[0].Barcode;
+		    } else {
+		        code = loyalty.barcode.barcodeValue;
+		    }
+
 			var obj = {
-				"Barcode": loyalty.barcode.barcodeValue,
+				"Barcode": code ,
 				"FirstName": loyalty.CustomerFirstName,
 				"LastName": loyalty.CustomerLastName,
 				"Email": loyalty.CustomerEmail
@@ -76,6 +127,7 @@
 			return loyaltyDefer.promise;
 		}
 
+        //Recherche de client fidélité
 		this.searchForCustomerAsync = function (query) {
 			var searchDefer = $q.defer();
 		  
@@ -312,7 +364,6 @@
 
 			//FOR TESTING ONLY
 			this.emailShoppingCartAsync(shoppingCart);
-
 
 			//TODO : renseigner le champ dans la box
 			if ($rootScope.IziBoxConfiguration.sendTicketByMail) {

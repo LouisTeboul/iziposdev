@@ -187,11 +187,11 @@
 				} else {
 					$rootScope.dbInstance.rel.find('Setting').then(function (results) {
 						var currencySetting = Enumerable.from(results.Settings).firstOrDefault(function (setting) {
-							return setting.Name.indexOf('currencysettings.primarystorecurrencyid') == 0 &&
-								(($rootScope.IziBoxConfiguration.StoreId &&
-								  $rootScope.IziBoxConfiguration.StoreId == setting.StoreId) ||
-								(!$rootScope.IziBoxConfiguration.StoreId &&
-								  $rootScope.IziBoxConfiguration.StoreId == 0))
+							return setting.Name.indexOf('currencysettings.primarystorecurrencyid') == 0 // &&
+								//(($rootScope.IziBoxConfiguration.StoreId &&
+								//  $rootScope.IziBoxConfiguration.StoreId == setting.StoreId) ||
+								//(!$rootScope.IziBoxConfiguration.StoreId &&
+								//  $rootScope.IziBoxConfiguration.StoreId == 0))
 						});
 
 						currencyLoaded = true;

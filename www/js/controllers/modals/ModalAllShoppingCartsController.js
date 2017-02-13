@@ -1,4 +1,4 @@
-﻿app.controller('ModalAllShoppingCartsController', function ($scope, $rootScope, $uibModalInstance, $uibModal, zposService, shoppingCartService, shoppingCartModel) {
+app.controller('ModalAllShoppingCartsController', function ($scope, $rootScope, $uibModalInstance, $uibModal, zposService, shoppingCartService, shoppingCartModel) {
 	var currentDateStart = undefined;
 	var currentDateEnd = undefined;
 	var dateStartHandler = undefined;
@@ -6,7 +6,7 @@
 
 	$scope.init = function () {
 		$scope.gridColumns = [
-            { field: "Date", title: "Date", type: "date", format: "{0:dd/MM/yyyy}" },
+            { field: "Date", title: "Date", type: "date", format: "{0:dd/MM/yyyy HH:mm:ss}" },
             { field: "Timestamp", title: "No Ticket" },
             { field: "TableNumber", title: "Table", width: 80 },
             { field: "Total", title: "Total", width: 80 },
@@ -55,6 +55,25 @@
 
 		zposService.getAllShoppingCartsAsync(dateStart, dateEnd).then(function (shoppingCarts) {
 			$scope.gridDatas = new kendo.data.DataSource({
+                schema:{
+                    model:{
+                        fields:{                                                  
+                            Date:{ type: "date", parse: function (e) {
+                                // HACK -> However, JavaScript does work with mm/dd/yyyy format by default.
+                                var res = e.split("/");
+                                var tmp = res[0];
+                                res[0] = res[1];
+                                res[1] = tmp;
+                                e =res.join("/");                                  
+                                var test  = Date.parse(e,'dd/MM/yyyy HH:mm:ss');
+                                return test}},
+                            Timestamp:{ type: "string" },
+                            TableNumber:{ type: "number" },
+                            Total:{ type: "number" }
+                        }
+                        
+                    }
+                },
 				data: shoppingCarts,
 				pageSize: 4,
 				sort: {
@@ -62,6 +81,7 @@
 					dir: "desc"
 				}
 			});
+            $scope.gridDatas.sort();
 			$scope.loading = false;
 
 		}, function () {

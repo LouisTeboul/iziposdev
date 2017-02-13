@@ -40,8 +40,8 @@ app.controller('ConfigurationController', function ($scope, $rootScope, $locatio
 		var portraitRatioValue = window.localStorage.getItem("PortraitRatio");
 
 		
-		$rootScope.RatioConfiguration.LandscapeRatio = $scope.Model.LandscapeRatio = (landscapeRatioValue ? parseFloat(landscapeRatioValue) : 1);
-		$rootScope.RatioConfiguration.PortraitRatio = $scope.Model.PortraitRatio = (portraitRatioValue ? parseFloat(portraitRatioValue) : 1);
+		$rootScope.RatioConfiguration.LandscapeRatio = $scope.Model.LandscapeRatio = (landscapeRatioValue ? parseFloat(landscapeRatioValue)*100 : 100);
+		$rootScope.RatioConfiguration.PortraitRatio = $scope.Model.PortraitRatio = (portraitRatioValue ? parseFloat(portraitRatioValue)*100 : 100);
 
 		var posPrinterCountValue = window.localStorage.getItem("POSPrinterCount");
 		var prodPrinterCountValue = window.localStorage.getItem("ProdPrinterCount");
@@ -64,8 +64,8 @@ app.controller('ConfigurationController', function ($scope, $rootScope, $locatio
 	};
 
 	$scope.updatePortraitRatio = function () {
-		if ($scope.Model.PortraitRatio > 1) $scope.Model.PortraitRatio = 1;
-		if ($scope.Model.PortraitRatio < 0.1) $scope.Model.PortraitRatio = 0.1;
+		if ($scope.Model.PortraitRatio > 100) $scope.Model.PortraitRatio = 100;
+		if ($scope.Model.PortraitRatio < 10) $scope.Model.PortraitRatio = 10;
 
 		$rootScope.RatioConfiguration.PortraitRatio = $scope.Model.PortraitRatio;
 
@@ -75,8 +75,8 @@ app.controller('ConfigurationController', function ($scope, $rootScope, $locatio
 	}
 
 	$scope.updateLandscapeRatio = function () {
-		if ($scope.Model.LandscapeRatio > 1) $scope.Model.LandscapeRatio = 1;
-		if ($scope.Model.LandscapeRatio < 0.1) $scope.Model.LandscapeRatio = 0.1;
+		if ($scope.Model.LandscapeRatio > 100) $scope.Model.LandscapeRatio = 100;
+		if ($scope.Model.LandscapeRatio < 10) $scope.Model.LandscapeRatio = 10;
 
 		$rootScope.RatioConfiguration.LandscapeRatio = $scope.Model.LandscapeRatio;
 
@@ -128,8 +128,8 @@ app.controller('ConfigurationController', function ($scope, $rootScope, $locatio
 		window.localStorage.setItem("ProdPrinter", $rootScope.PrinterConfiguration.ProdPrinter);
 		window.localStorage.setItem("POSPrinterCount", $rootScope.PrinterConfiguration.POSPrinterCount);
 		window.localStorage.setItem("ProdPrinterCount", $rootScope.PrinterConfiguration.ProdPrinterCount);
-		window.localStorage.setItem("LandscapeRatio", $rootScope.RatioConfiguration.LandscapeRatio);
-		window.localStorage.setItem("PortraitRatio", $rootScope.RatioConfiguration.PortraitRatio);
+		window.localStorage.setItem("LandscapeRatio", $rootScope.RatioConfiguration.LandscapeRatio/100);
+		window.localStorage.setItem("PortraitRatio", $rootScope.RatioConfiguration.PortraitRatio/100);
 		
 
 

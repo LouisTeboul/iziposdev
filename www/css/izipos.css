@@ -386,6 +386,9 @@ text-field {
 	padding: 2px;
 }
 
+.productboxIZIPASS .action.disabled {
+	background-color:grey !important;
+}
 .productboxIZIPASS .image{
 	height: 70px;
 	width: 70px;

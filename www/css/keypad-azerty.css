@@ -1,17 +1,17 @@
 .azerty {
-    position: absolute;
-    height: 350px;
-    width: 748px;
-    z-index: 10000;
-    background: #E2E2E2;
-    border: solid 1px #272727;
-    -moz-border-radius: 10px;
-    -ms-border-radius: 10px;
-    -o-border-radius: 10px;
-    border-radius: 10px;
-    -webkit-box-shadow: rgba(0, 0, 0, 0.4) 0 0 25px;
-    -moz-box-shadow: rgba(0, 0, 0, 0.4) 0 0 25px;
-    box-shadow: rgba(0, 0, 0, 0.4) 0 0 25px;
+	position: absolute;
+	height: 350px;
+	width: 748px;
+	z-index: 10000;
+	background: #E2E2E2;
+	border: solid 1px #272727;
+	-moz-border-radius: 10px;
+	-ms-border-radius: 10px;
+	-o-border-radius: 10px;
+	border-radius: 10px;
+	-webkit-box-shadow: rgba(0, 0, 0, 0.4) 0 0 25px;
+	-moz-box-shadow: rgba(0, 0, 0, 0.4) 0 0 25px;
+	box-shadow: rgba(0, 0, 0, 0.4) 0 0 25px;
 }
 
 .azerty.relative{
@@ -19,8 +19,8 @@
 }
 
 .azerty.phone {
-    height: 260px;
-    width: 505px;
+	height: 260px;
+	width: 505px;
 }
 
 
@@ -28,16 +28,16 @@
   opacity: .5;
 }
 
-.azerty .button-wrapper {
-  /*width: 735px;
+/*.azerty .button-wrapper {
+  width: 735px;
   overflow: auto;
-  position:absolute;*/
-}
+  position:absolute;
+}*/
 
 .azerty.phone .button-wrapper button {
-    width: 35px;
-    height: 35px;
-    font-size: 14px;
+	width: 35px;
+	height: 35px;
+	font-size: 14px;
 }
 
 .azerty .button-wrapper .action {
@@ -46,7 +46,7 @@
 
 .azerty .button-wrapper .space {
 	margin-top:25px;
-	width:585px;
+	width:530px;
 }
 
 .azerty.phone .button-wrapper .action {
@@ -59,19 +59,19 @@
 }
 
 .azerty .button-wrapper button {
-    border-radius: 5px;
-    background-color: #FFFFFF;
-    box-sizing: border-box;
-    width: 55px;
-    height: 55px;
-    border: 1px solid #272727;
-    font-size: 20px;
-    margin: 2px;
+	border-radius: 5px;
+	background-color: #FFFFFF;
+	box-sizing: border-box;
+	width: 55px;
+	height: 55px;
+	border: 1px solid #272727;
+	font-size: 20px;
+	margin: 2px;
 }
 
 .azerty .button-wrapper button[disabled] {
-    background-color: #E2E2E2;
-    color: gray;
+	background-color: #E2E2E2;
+	color: gray;
 }
 
 .azerty .button-wrapper button.circle{
@@ -81,19 +81,19 @@
 .azerty .button-wrapper button.warning{
 	color: #fff;
 	background-color: #f0ad4e;
-    border-color: #eea236;
+	border-color: #eea236;
 }
 
 .azerty .button-wrapper button.alert{
-    color: #fff;
-    background-color: #d9534f;
-    border-color: #d43f3a;
+	color: #fff;
+	background-color: #d9534f;
+	border-color: #d43f3a;
 }
 
 .azerty .button-wrapper button.success{
 	color: #fff;
-    background-color: #5cb85c;
-    border-color: #4cae4c;
+	background-color: #5cb85c;
+	border-color: #4cae4c;
 }
 
 .azerty .button-wrapper .smaller {
@@ -158,5 +158,5 @@
   font-size: 16px;
 }
 .closed{
-    display:none;
+	display:none;
 }

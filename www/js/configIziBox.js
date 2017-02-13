@@ -49,7 +49,7 @@ app.getConfigIziBoxAsync = function ($rootScope, $q, $http, ipService, $translat
 			var ips = [];
 
 			ipService.getLocalIpAsync().then(function (ip) {
-				console.log(ip);
+				
 
 				if (ip.local) {
 					

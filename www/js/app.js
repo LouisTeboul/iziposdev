@@ -1,4 +1,4 @@
-var app = angular.module('app', ['ui.router', 'ngMaterial', 'ui.bootstrap', 'ngSanitize', 'toggle-switch', 'kendo.directives', 'ngIdle', 'ngKeypad', 'ngDraggable', 'angular-md5', 'ngToast', 'pascalprecht.translate']);
+var app = angular.module('app', ['ui.router', 'ngMaterial', 'ui.bootstrap', 'ngSanitize', 'toggle-switch','kendo.directives', 'ngIdle', 'ngKeypad', 'ngDraggable', 'angular-md5', 'ngToast', 'pascalprecht.translate']);
 var controllerProvider = null;
 var $routeProviderReference = null;
 var angularLocation = null;
@@ -48,7 +48,7 @@ app.run(function ($rootScope, $location, $q, $http, ipService, zposService, $tra
 	try {
 		angularLocation = $location;
 
-		$rootScope.Version = "2.1.0.19011";
+		$rootScope.Version = "2.1.1.13021";
 		$rootScope.adminMode = { state: false };
 		$rootScope.loading = 0;
 
@@ -80,16 +80,9 @@ app.run(function ($rootScope, $location, $q, $http, ipService, zposService, $tra
 			$translate.use('fr_FR');
 		}
 
+		$rootScope.RatioConfiguration = { Enabled: true };
+
 		if (navigator.userAgent.match(/(iPhone|iPod|iPad|Android|BlackBerry|IEMobile)/)) {
-
-			//var windowWidth = window.innerWidth > window.innerHeight ? window.innerWidth : window.innerHeight;
-			//var bodyWidth = 1280;
-			//var scaleFactor = windowWidth / bodyWidth;
-
-			//$('meta[name=viewport]').remove();
-			//$('head').append('<meta name="viewport" content="user-scalable=no, initial-scale='+scaleFactor+', maximum-scale=1, minimum-scale=0.1, width=device-width" />');
-			$rootScope.RatioConfiguration = {Enabled: true};
-
 			document.addEventListener("deviceready", function () {
 				init($rootScope, $location, $q, $http, ipService, zposService, $translate, $uibModal);
 			}, false);

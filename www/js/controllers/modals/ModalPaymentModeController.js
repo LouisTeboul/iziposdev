@@ -87,7 +87,7 @@
 		switch($scope.paymentMode.PaymentType){
 			case PaymentType.EASYTRANSAC:
 				try {
-				    var apiKey = $scope.paymentMode.Options.EasyTransacKey;                    
+					var apiKey = $scope.paymentMode.Options.EasyTransacKey;
 					var amountCtsStr = (parseFloat($scope.value) * 100).toString();
 					var scannerType = $scope.options.easytransacType;
 

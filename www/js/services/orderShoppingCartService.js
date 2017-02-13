@@ -133,7 +133,7 @@
     	this.loadOrderShoppingCartAsync = function (shoppingCart) {
     		var unfreezeDefer = $q.defer();
     		shoppingCart.Timestamp = new Date().getTime();
-    		shoppingCart.Step = 0;
+    		shoppingCart.CurrentStep = 0;
     	    /// Search payments Methods
     		settingService.getPaymentModesAsync().then(function (paymentSetting) {
 

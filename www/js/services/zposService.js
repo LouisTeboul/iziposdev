@@ -1,4 +1,4 @@
-﻿app.service('zposService', ['$http', '$rootScope', '$q', 'posLogService',
+app.service('zposService', ['$http', '$rootScope', '$q', 'posLogService',
     function ($http, $rootScope, $q, posLogService) {
     	var current = this;
     	var hardwareId = undefined;
@@ -288,13 +288,13 @@
     	    Enumerable.from(countByDate).forEach(function (row) {
     	        var newLine = {
     	            date: row.key,
-    	            totalIT: row.value.TotalIT,
-    	            totalET: row.value.TotalET,
+    	            totalIT: roundValue(row.value.TotalIT),
+    	            totalET: roundValue(row.value.TotalET),
                     count: row.value.Count
     	        }
     	        zpos.totalsByDate.push(newLine);
-    	        zpos.totalIT += newLine.totalIT;
-    	        zpos.totalET += newLine.totalET;
+    	        zpos.totalIT = roundValue(zpos.totalIT + newLine.totalIT);
+    	        zpos.totalET = roundValue(zpos.totalET + newLine.totalET);
     	        zpos.count += newLine.count;
     	    });
 
@@ -303,11 +303,11 @@
 
     	        var newPM = Enumerable.from(zpos.paymentModes).firstOrDefault(function (pm) { return pm.type == type; });
     	        if (newPM) {
-    	            newPM.total += row.value.Total;
+    	            newPM.total = roundValue(newPM.total+row.value.Total);
     	            newPM.count += row.value.Count;
     	            newPM.byDate.push({
     	                date: row.key[0],
-    	                total: row.value.Total,
+    	                total: roundValue(row.value.Total),
     	                count: row.value.Count
     	            });
 
@@ -315,14 +315,16 @@
     	            newPM = {
     	                type: type,
     	                byDate: [],
-    	                total: row.value.Total,
+    	                total: roundValue(row.value.Total),
                         count: row.value.Count
     	            }
     	            newPM.byDate.push({
     	                date: row.key[0],
-    	                total: row.value.Total,
+    	                total: roundValue(row.value.Total),
                         count: row.value.Count
     	            });
+
+    	            newPM.total = roundValue(newPM.total);
     	            zpos.paymentModes.push(newPM);
     	        }
 
@@ -333,21 +335,21 @@
 
     	        var newDelivery = Enumerable.from(zpos.deliveryValues).firstOrDefault(function (del) { return del.type == type; });
     	        if (newDelivery) {
-    	            newDelivery.total += row.value;
+    	            newDelivery.total = roundValue(newDelivery.total + row.value);
     	            newDelivery.byDate.push({
     	                date: row.key[0],
-    	                total: row.value
+    	                total: roundValue(row.value)
     	            });
 
     	        } else {
     	            newDelivery = {
     	                type: type,
     	                byDate: [],
-    	                total: row.value
+    	                total: roundValue(row.value)
     	            }
     	            newDelivery.byDate.push({
     	                date: row.key[0],
-    	                total: row.value
+    	                total: roundValue(row.value)
     	            });
     	            zpos.deliveryValues.push(newDelivery);
     	        }
@@ -359,21 +361,21 @@
 
     	        var newUser = Enumerable.from(zpos.employees).firstOrDefault(function (user) { return user.name == name; });
     	        if (newUser) {
-    	            newUser.total += row.value;
+    	            newUser.total = roundValue(newUser.total+ row.value);
     	            newUser.byDate.push({
     	                date: row.key[0],
-    	                total: row.value
+    	                total: roundValue(row.value)
     	            });
 
     	        } else {
     	            newUser = {
     	                name: name,
     	                byDate: [],
-    	                total: row.value
+    	                total: roundValue(row.value)
     	            }
     	            newUser.byDate.push({
     	                date: row.key[0],
-    	                total: row.value
+    	                total: roundValue(row.value)
     	            });
     	            zpos.employees.push(newUser);
     	        }
@@ -385,21 +387,21 @@
 
     	        var newTax = Enumerable.from(zpos.taxDetails).firstOrDefault(function (tax) { return tax.taxCode == taxCode; });
     	        if (newTax) {
-    	            newTax.total += row.value;
+    	            newTax.total = roundValue(newTax.total +row.value);
     	            newTax.byDate.push({
     	                date: row.key[0],
-    	                total: row.value
+    	                total: roundValue(row.value)
     	            });
 
     	        } else {
     	            newTax = {
     	                taxCode: taxCode,
     	                byDate: [],
-    	                total: row.value
+    	                total: roundValue(row.value)
     	            }
     	            newTax.byDate.push({
     	                date: row.key[0],
-    	                total: row.value
+    	                total: roundValue(row.value)
     	            });
     	            zpos.taxDetails.push(newTax);
     	        }
@@ -415,21 +417,26 @@
     	    });
 
     	    Enumerable.from(creditByDate).forEach(function (row) {
-    	        zpos.credit.total += row.value;
+    	        zpos.credit.total = roundValue(zpos.credit.total +row.value);
     	        zpos.credit.byDate.push({
     	            date: row.key,
-    	            total: row.value
+    	            total: roundValue(row.value)
     	        });
     	    });
 
     	    Enumerable.from(repaidByDate).forEach(function (row) {
-    	        zpos.repaid.total += row.value;
+    	        zpos.repaid.total = roundValue(zpos.repaid.total  +row.value);
     	        zpos.repaid.byDate.push({
     	            date: row.key,
-    	            total: row.value
+    	            total: roundValue(row.value)
     	        });
     	    });
 
+    	    zpos.totalET = roundValue(zpos.totalET);
+    	    zpos.totalIT = roundValue(zpos.totalIT);
+
+    	    zpos.totalsByDate = roundValue(zpos.totalsByDate);
+            //console.log(JSON.stringify(zpos));
     	    zposDefer.resolve(zpos);
     	}
         //#endregion
