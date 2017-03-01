@@ -1,4 +1,4 @@
-﻿app.directive('textField', function ($timeout,$rootScope) {
+app.directive('textField', function ($timeout,$rootScope) {
 	return {
 		templateUrl: 'partials/textfield.html',
 		require: 'ngModel',
@@ -146,14 +146,19 @@ app.controller('TextFieldCtrl', function ($rootScope, $scope, textFieldService) 
 
 		var resizeInnerDiv = function () {
 			var currentHeight = $scope.currentElement[0].clientHeight;
-			$scope.currentElement.find("#txtValue")[0].style.minHeight = currentHeight + "px";
+			if(currentHeight > 0){
+                $scope.currentElement.find("#txtValue")[0].style.minHeight = currentHeight + "px";
+            }
 		}
 
 		$scope.currentElement.bind("resize", function (e) {
 			resizeInnerDiv();
 		});
 
-		resizeInnerDiv();
+        setTimeout(function(){
+            resizeInnerDiv();    
+        },1000);
+		
 	});
 
 	var modelHandler = $rootScope.$on("updateModel", function (event,ngModel) {
@@ -189,15 +194,26 @@ app.controller('TextFieldCtrl', function ($rootScope, $scope, textFieldService) 
 		}
 	}
 
+	// This functions traps the physical keyboard interaction in
+	// By default it is enabled 
 	var trapkeypress = function (e) {
-		if (isVisible()) {
+
+		//How to tell if a uibModal is opened
+		//https://github.com/angular-ui/bootstrap/tree/master/src/modal/docs
+		var isModal = $("body").hasClass("modal-open");
+
+		if (isVisible() || isModal) {
 			lastEvent = e;
 			$scope.$emit(Keypad.KEY_PRESSED, String.fromCharCode(e.keyCode));
 		}
 	}
 
 	var trapkeydown = function (e) {
-		if (isVisible()) {
+		//How to tell if a uibModal is opened
+		//https://github.com/angular-ui/bootstrap/tree/master/src/modal/docs
+		var isModal = $("body").hasClass("modal-open");
+
+		if (isVisible() || isModal) {
 			if (e.keyCode == 13) {
 				setTimeout(function () {
 					$scope.$emit(Keypad.MODIFIER_KEY_PRESSED, "NEXT");

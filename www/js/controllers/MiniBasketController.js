@@ -534,5 +534,12 @@
 			return (ret);
 		}
 
+
+		$scope.removeLoyaltyInfo = function () {		   
+		        $scope.currentShoppingCart.customerLoyalty = null;
+		        $rootScope.$emit("customerLoyaltyChanged", $scope.currentShoppingCart.customerLoyalty);
+		        $rootScope.$emit("shoppingCartChanged", $scope.currentShoppingCart);
+		        resizeMiniBasket();
+		}
 	}
 ]);

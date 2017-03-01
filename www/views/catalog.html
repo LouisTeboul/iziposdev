@@ -1,6 +1,6 @@
 ﻿<md-content class="catalog" ng-controller="CatalogController" ng-init="init()" layout="column" layout-fill>
 	<div id="catalogMenuDiv" ng-include="'views/catalogMenu.html'"></div>
-	<md-sidenav class="md-sidenav-left md-whiteframe-z2 drawerMenu" md-component-id="drawerMenuDiv" ng-include="'views/catalogDrawerMenu.html'">
+	<md-sidenav class="md-sidenav-left md-whiteframe-z2 drawerMenu" md-component-id="drawerMenuDiv" id="drawerMenuDiv" ng-include="'views/catalogDrawerMenu.html'">
 	</md-sidenav>
 	<md-content layout="row" flex>
 		<md-content div id="catalogViewDiv" flex ui-view layout="column">

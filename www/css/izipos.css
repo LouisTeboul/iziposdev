@@ -1,4 +1,4 @@
-﻿/*----------------------FONTS-----------------------*/
+/*----------------------FONTS-----------------------*/
 
 @font-face {
   font-family: 'futura_lt_btlight';
@@ -164,7 +164,18 @@ input:focus, textarea:focus {
 text-field {
 	border: 1px solid gray;
 	display: inline-block;
-	height: 100%;
+	height: 100%;   
+}
+
+text-field.flexbox{
+    position: relative;
+    min-height: 34px;
+}
+
+text-field.flexbox div{
+    position: absolute;
+    width: 100%;
+    height:100%;
 }
 
 .md-button.md-raised:not([disabled]) {

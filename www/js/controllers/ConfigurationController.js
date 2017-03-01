@@ -64,17 +64,47 @@ app.controller('ConfigurationController', function ($scope, $rootScope, $locatio
 	};
 
 	$scope.emptyCache = function () {
-		swal({ title: "Attention", text: "Supprimer le cache de l'application ?", type: "warning", showCancelButton: true, confirmButtonColor: "#d83448", confirmButtonText: "Oui", cancelButtonText: "Non", closeOnConfirm: true },
-			function () {
-				var barcode = undefined;
+		//On vérifie qu'il n'y a pas de tickets en attente
+		var dbReplicate = new PouchDB('izipos_replicate', { adapter: settingsPouchDB.typeDB });
 
-				try {
-					window.cache.clear(function () {
+		var deleteCache = function () {
+			swal({ title: "Attention", text: "Supprimer le cache de l'application ?", type: "warning", showCancelButton: true, confirmButtonColor: "#d83448", confirmButtonText: "Oui", cancelButtonText: "Non", closeOnConfirm: true },
+				function () {
+					var barcode = undefined;
+
+					if ($scope.closable) {
+						emptyCache.clear();
 						$scope.reset();
-					});
-				} catch (err) {
-				}
+					} else {
+						try {
+							window.cache.clear(function () {
+								$scope.reset();
+							});
+						} catch (err) {
+						}
+					}
+				});
+		}
+
+
+		dbReplicate.allDocs({
+			include_docs: false,
+			attachments: false
+		}).then(function (result) {
+			var docToSynchronize = Enumerable.from(result.rows).any(function (item) {
+				return item.id.indexOf("PosLog_") === -1;
 			});
+
+			if (docToSynchronize) {
+				swal({ title: "Attention", text: "Il reste des documents à synchroniser, vous ne pouvez pas supprimer le cache.", type: "warning", showCancelButton: false, confirmButtonColor: "#d83448", confirmButtonText: "Ok", closeOnConfirm: true });
+			} else {
+				deleteCache();
+			}
+		}).catch(function (err) {
+			deleteCache();
+		});
+
+
 	};
 
 	$scope.updatePortraitRatio = function () {

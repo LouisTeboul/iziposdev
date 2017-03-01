@@ -1,30 +1,30 @@
 ﻿app.configPouchDb = function ($rootScope, $q, zposService) {
-	$rootScope.configPouchDB = {
-		typeDB: 'websql',
-		//opts : { live: true, retry: true },
-		//optsReplicate : { live: true, retry: true },
-		//optsReplicate : { live: true, retry: true, batch_size: 100, batches_limit: 4 },
-		opts: { live: true, retry: true, batch_size: 50, batches_limit: 100 },
-		optsReplicate: { live: true, retry: true, batch_size: 10, batches_limit: 8 }
-	}
-
-	//new PouchDB('izipos_datas', { adapter: $rootScope.configPouchDB.typeDB }).destroy();
-	//new PouchDB('izipos_replicate', { adapter: $rootScope.configPouchDB.typeDB }).destroy();
-	//new PouchDB('izipos_zpos', { adapter: $rootScope.configPouchDB.typeDB }).destroy();
-	//new PouchDB('izipos_freeze', { adapter: $rootScope.configPouchDB.typeDB }).destroy();
+	//new PouchDB('izipos_datas', { adapter: settingsPouchDB.typeDB }).destroy();
+	//new PouchDB('izipos_replicate', { adapter: settingsPouchDB.typeDB }).destroy();
+	//new PouchDB('izipos_zpos', { adapter: settingsPouchDB.typeDB }).destroy();
+	//new PouchDB('izipos_freeze', { adapter: settingsPouchDB.typeDB }).destroy();
 	setTimeout(function () {
 		console.log("Datas destroyed");
 		setupDatabases($rootScope, $q, zposService);
 	}, 5000);
 }
 
+var settingsPouchDB = {
+	typeDB: 'websql',
+	//opts : { live: true, retry: true },
+	//optsReplicate : { live: true, retry: true },
+	//optsReplicate : { live: true, retry: true, batch_size: 100, batches_limit: 4 },
+	opts: { live: true, retry: true, batch_size: 50, batches_limit: 100 },
+	optsReplicate: { live: true, retry: true, batch_size: 10, batches_limit: 8 }
+}
+
 var setupDatabases = function ($rootScope, $q, zposService) {
 
 
 	//Instantiate PouchDB
-	$rootScope.dbInstance = new PouchDB('izipos_datas', { adapter: $rootScope.configPouchDB.typeDB });
-	$rootScope.dbOrder = new PouchDB('izipos_order', { adapter: $rootScope.configPouchDB.typeDB });
-	$rootScope.dbFreeze = new PouchDB('izipos_freeze', { adapter: $rootScope.configPouchDB.typeDB });
+	$rootScope.dbInstance = new PouchDB('izipos_datas', { adapter: settingsPouchDB.typeDB });
+	$rootScope.dbOrder = new PouchDB('izipos_order', { adapter: settingsPouchDB.typeDB });
+	$rootScope.dbFreeze = new PouchDB('izipos_freeze', { adapter: settingsPouchDB.typeDB });
 
 	console.log($rootScope.dbInstance.adapter); // prints either 'idb' or 'websql'
 
@@ -183,7 +183,7 @@ var setupDatabases = function ($rootScope, $q, zposService) {
 
 	//#region dbReplicate
 	$rootScope.InitDBReplicate = function () {
-		$rootScope.dbReplicate = new PouchDB('izipos_replicate', { adapter: $rootScope.configPouchDB.typeDB });
+		$rootScope.dbReplicate = new PouchDB('izipos_replicate', { adapter: settingsPouchDB.typeDB });
 
 		$rootScope.dbReplicate.setSchema([
 		{
@@ -219,7 +219,7 @@ var setupDatabases = function ($rootScope, $q, zposService) {
 
 	//#region dbZPos
 	$rootScope.InitDBZpos = function () {
-		$rootScope.dbZPos = new PouchDB('izipos_zpos', { adapter: $rootScope.configPouchDB.typeDB });
+		$rootScope.dbZPos = new PouchDB('izipos_zpos', { adapter: settingsPouchDB.typeDB });
 
 		$rootScope.dbZPos.setSchema([
 			{

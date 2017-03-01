@@ -38,8 +38,10 @@
 
         var validPaymentModes = [];
 
+        var newTotal = 0;
         Enumerable.from($scope.newPaymentValues.PaymentValues).forEach(function (p) {
-            p.Total = parseFloat(p.Total);
+        	p.Total = parseFloat(p.Total);
+        	newTotal = roundValue(p.Total + newTotal);
 
             if (isNaN(p.Total)) {
                 p.Total = 0;
@@ -50,16 +52,21 @@
             }
         });
 
-        shoppingCart.PaymentModes = validPaymentModes;
+        if (newTotal == shoppingCart.TotalPayment) {
+        	shoppingCart.PaymentModes = validPaymentModes;
 
-        var paymentEdit = {
-            Timestamp: shoppingCart.Timestamp,
-            PaymentModes: validPaymentModes
+        	var paymentEdit = {
+        		Timestamp: shoppingCart.Timestamp,
+        		PaymentModes: validPaymentModes
+        	}
+
+        	shoppingCartService.savePaymentEditAsync(shoppingCart, paymentEdit, $scope.oldPaymentValues);
+
+        	$uibModalInstance.close();
+        } else {
+        	swal({ title: "Attention", text: "Le total des moyens de réglements saisis ne correspond pas au total encaissé.", type: "warning", showCancelButton: false, confirmButtonColor: "#d83448", confirmButtonText: "Ok", closeOnConfirm: true });
         }
 
-        shoppingCartService.savePaymentEditAsync(shoppingCart, paymentEdit, $scope.oldPaymentValues);
-
-        $uibModalInstance.close();
     }
 
     $scope.cancel = function () {

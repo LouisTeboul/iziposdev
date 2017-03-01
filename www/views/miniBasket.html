@@ -9,8 +9,16 @@
             </div>
 
             <div id="loyaltyRow" layout="column" class="loyaltyRow">
-                <div ng-if="currentShoppingCart.customerLoyalty">
+                <div ng-if="currentShoppingCart.customerLoyalty && currentShoppingCart.customerLoyalty.CustomerFirstName">
                     <strong><x translate>Bienvenue</x> {{currentShoppingCart.customerLoyalty.CustomerFirstName}} {{currentShoppingCart.customerLoyalty.CustomerLastName}}</strong>
+                    <span class="glyphicon glyphicon-remove" ng-click="removeLoyaltyInfo()"></span>
+                </div>
+                <div ng-if="currentShoppingCart.customerLoyalty
+                      && currentShoppingCart.customerLoyalty.CustomerEmail
+                      && !currentShoppingCart.customerLoyalty.CustomerFirstName 
+                      && !currentShoppingCart.customerLoyalty.CustomerLastName">
+                    <strong><x translate>Email : </x> {{currentShoppingCart.customerLoyalty.CustomerEmail}} </strong>
+                    <span class="glyphicon glyphicon-remove" ng-click="removeLoyaltyInfo()"></span>
                 </div>
                 <div layout="row" ng-if="balancePassages">
                     <div flex>

@@ -1,184 +1,211 @@
 ﻿app.controller('CatalogDrawerMenuController', function ($scope, $rootScope, $state, $uibModal, $http, shoppingCartModel, posUserService, $translate, $compile, $location, authService) {
-    $scope.closable = false;
-    $scope.authService = authService;
-    $scope.init = function () {
-        var btnMenus = document.getElementsByClassName("btn-menu-closable");
-        
-        for (i = 0; i < btnMenus.length; i++) {
-            var btn = btnMenus[i];
-            btn.onclick = function () {
-                $scope.closeDrawerMenu();
-            }
-        }
+	$scope.closable = false;
+	$scope.authService = authService;
+	$scope.docToSynchronize = 0;
 
-        $scope.closable = navigator.userAgent.match(/(WPF)/);
+	$scope.init = function () {
+		var btnMenus = document.getElementsByClassName("btn-menu-closable");
 
-        if (!$rootScope.IziPosConfiguration) {
-        	$rootScope.IziPosConfiguration = {};
-        }
+		for (i = 0; i < btnMenus.length; i++) {
+			var btn = btnMenus[i];
+			btn.onclick = function () {
+				$scope.closeDrawerMenu();
+			}
+		}
 
-        $rootScope.IziPosConfiguration.IsDirectPayment = window.localStorage.getItem("IsDirectPayment") == "true" ? true : false;
-        $rootScope.$evalAsync();
-    }
+		$scope.closable = navigator.userAgent.match(/(WPF)/);
 
-    $scope.setLanguage = function (codeLng) {
+		if (!$rootScope.IziPosConfiguration) {
+			$rootScope.IziPosConfiguration = {};
+		}
 
-    	window.localStorage.setItem("CurrentLanguage", codeLng);
+		$rootScope.IziPosConfiguration.IsDirectPayment = window.localStorage.getItem("IsDirectPayment") == "true" ? true : false;
+		$rootScope.$evalAsync();
 
-    	$translate.use(codeLng);
-    }
+		$scope.checkDocSynchro();
+	};
 
-    $scope.toggleDirectPayment = function () {
-    	$rootScope.IziPosConfiguration.IsDirectPayment = $rootScope.IziPosConfiguration.IsDirectPayment ? false : true;
-    	window.localStorage.setItem("IsDirectPayment", $rootScope.IziPosConfiguration.IsDirectPayment);
-    }
+	$scope.checkDocSynchro = function () {
+		var loop = function () {
+			setTimeout(function () { $scope.checkDocSynchro(); }, 3000);
+		};
 
-    $scope.shoppingCartDiscount = function () {
+		if (!$("#drawerMenuDiv").hasClass("_md-closed")) {
+			$rootScope.dbReplicate.allDocs({
+				include_docs: false,
+				attachments: false
+			}).then(function (result) {
+				$scope.docToSynchronize = Enumerable.from(result.rows).count(function (item) {
+					return item.id.indexOf("PosLog_") === -1;
+				});
 
-        if (posUserService.isEnable('DISC'))
-        {
-            var modalInstance = $uibModal.open({
-                templateUrl: 'modals/modalShoppingCartDiscount.html',
-                controller: 'ModalShoppingCartDiscountController',
-                backdrop: 'static',
-                resolve: {
-                    defaultValue: function () {
-                        return 15;
-                    }
-                }
-            });
+				$scope.$evalAsync();
 
-            modalInstance.result.then(function (result) {
-            	shoppingCartModel.addShoppingCartDiscount(result.value, result.isPercent);
-            	$scope.closeDrawerMenu();
-            }, function () {
-            	$scope.closeDrawerMenu();
-            });
-        }
+				loop();
+			}).catch(function (err) {
+				loop();
+			});
+		} else {
+			loop();
+		}
+	};
 
+	$scope.setLanguage = function (codeLng) {
 
-    }
+		window.localStorage.setItem("CurrentLanguage", codeLng);
 
-    $scope.showAllShoppingCarts = function () {
-        var modalInstance = $uibModal.open({
-            templateUrl: 'modals/modalAllShoppingCarts.html',
-            controller: 'ModalAllShoppingCartsController',
-            size: 'lg',
-            backdrop: 'static'
-        });
+		$translate.use(codeLng);
+	};
 
-        modalInstance.result.then(function (shoppingCart) {
-        	$scope.closeDrawerMenu();
-        }, function () {
-        	$scope.closeDrawerMenu();
-        });
-    }
+	$scope.toggleDirectPayment = function () {
+		$rootScope.IziPosConfiguration.IsDirectPayment = $rootScope.IziPosConfiguration.IsDirectPayment ? false : true;
+		window.localStorage.setItem("IsDirectPayment", $rootScope.IziPosConfiguration.IsDirectPayment);
+	};
 
-    $scope.printLastShoppingCart = function () {
-        shoppingCartModel.printLastShoppingCart();
-    }
+	$scope.shoppingCartDiscount = function () {
 
-    $scope.printShoppingCartNote = function () {
-        shoppingCartModel.printShoppingCartNote();
-    }
+		if (posUserService.isEnable('DISC')) {
+			var modalInstance = $uibModal.open({
+				templateUrl: 'modals/modalShoppingCartDiscount.html',
+				controller: 'ModalShoppingCartDiscountController',
+				backdrop: 'static',
+				resolve: {
+					defaultValue: function () {
+						return 15;
+					}
+				}
+			});
 
-    $scope.openPos = function () {
-        $scope.closeDrawerMenu();
-
-        var modalInstance = $uibModal.open({
-            templateUrl: 'modals/modalOpenPos.html',
-            controller: 'ModalOpenPosController',
-            
-            backdrop: 'static'
-        });
-
-        modalInstance.result.then(function () {
-
-        }, function () {
-        });
-    }
-
-    $scope.closePos = function () {
-        $scope.closeDrawerMenu();
-
-        var modalInstance = $uibModal.open({
-            templateUrl: 'modals/modalClosePos.html',
-            controller: 'ModalClosePosController',
-            size: 'lg',
-            backdrop: 'static'
-        });
-
-        modalInstance.result.then(function () {
-
-        }, function () {
-        });
-    }
-
-    $scope.openDrawer = function () {
-
-        if (posUserService.isEnable('ODRAW'))
-        {
-            var configApiUrl = "http://" + $rootScope.IziBoxConfiguration.LocalIpIziBox + ":" + $rootScope.IziBoxConfiguration.RestPort + "/open/" + $rootScope.PrinterConfiguration.POSPrinter;
-            $http.get(configApiUrl, { timeout: 10000 });
-
-        }
-
-    }
-
-    $scope.logout = function () {
-        $scope.closeDrawerMenu();
-
-        posUserService.saveEventAsync("Logout", 1, 0);
-        posUserService.StopWork($rootScope.PosUserId);
-        $rootScope.PosUserId = 0;
-        $rootScope.PosUserName = "";
-    }
-
-    $scope.exit = function () {
-        if (navigator.userAgent.match(/(WPF)/)) {
-            try {
-                wpfCloseApp.shutdownApp();
-            } catch (err) {
-            }
-        }
-    }
-
-    $scope.changeUser = function () {
-        $scope.closeDrawerMenu();
-        posUserService.saveEventAsync("Logout", 1, 0);        
-        $rootScope.PosUserId = 0;
-        $rootScope.PosUserName = "";
-    }
-
-    $scope.shoppingCartSplit = function () {
-
-        if (posUserService.isEnable('SPLIT')) {
-            var modalInstance = $uibModal.open({
-                templateUrl: 'modals/modalShoppingCartSplit.html',
-                controller: 'ModalShoppingCartSplitController',
-                backdrop: 'static',
-                size:'lg',
-                resolve: {
-                    defaultValue: function () {
-                        return true;
-                    }
-                }
-            });
-
-            
-        }
+			modalInstance.result.then(function (result) {
+				shoppingCartModel.addShoppingCartDiscount(result.value, result.isPercent);
+				$scope.closeDrawerMenu();
+			}, function () {
+				$scope.closeDrawerMenu();
+			});
+		}
+	};
 
 
-    }
-    $scope.openAdmin = function (adminController,adminAction) {
-        $scope.closeDrawerMenu();
 
-        var htmlcontent = $('#loadAdmin ');
-        $http.get($rootScope.IziBoxConfiguration.UrlSmartStoreApi + '/../PosAdminV2/' + adminController + '/' + adminAction).then(function (response) {
-            htmlcontent.html(response.data);
-            //$compile(htmlcontent.contents())($scope);
-        });
-               
-    }
+	$scope.showAllShoppingCarts = function () {
+		var modalInstance = $uibModal.open({
+			templateUrl: 'modals/modalAllShoppingCarts.html',
+			controller: 'ModalAllShoppingCartsController',
+			size: 'lg',
+			backdrop: 'static'
+		});
+
+		modalInstance.result.then(function (shoppingCart) {
+			$scope.closeDrawerMenu();
+		}, function () {
+			$scope.closeDrawerMenu();
+		});
+	};
+
+	$scope.printLastShoppingCart = function () {
+		shoppingCartModel.printLastShoppingCart();
+	};
+
+	$scope.printShoppingCartNote = function () {
+		shoppingCartModel.printShoppingCartNote();
+	};
+
+	$scope.openPos = function () {
+		$scope.closeDrawerMenu();
+
+		var modalInstance = $uibModal.open({
+			templateUrl: 'modals/modalOpenPos.html',
+			controller: 'ModalOpenPosController',
+
+			backdrop: 'static'
+		});
+
+		modalInstance.result.then(function () {
+
+		}, function () {
+		});
+	};
+
+	$scope.closePos = function () {
+		$scope.closeDrawerMenu();
+
+		var modalInstance = $uibModal.open({
+			templateUrl: 'modals/modalClosePos.html',
+			controller: 'ModalClosePosController',
+			size: 'lg',
+			backdrop: 'static'
+		});
+
+		modalInstance.result.then(function () {
+
+		}, function () {
+		});
+	};
+
+	$scope.openDrawer = function () {
+
+		if (posUserService.isEnable('ODRAW')) {
+			var configApiUrl = "http://" + $rootScope.IziBoxConfiguration.LocalIpIziBox + ":" + $rootScope.IziBoxConfiguration.RestPort + "/open/" + $rootScope.PrinterConfiguration.POSPrinter;
+			$http.get(configApiUrl, { timeout: 10000 });
+
+		}
+
+	};
+
+	$scope.logout = function () {
+		$scope.closeDrawerMenu();
+
+		posUserService.saveEventAsync("Logout", 1, 0);
+		posUserService.StopWork($rootScope.PosUserId);
+		$rootScope.PosUserId = 0;
+		$rootScope.PosUserName = "";
+	};
+
+	$scope.exit = function () {
+		if (navigator.userAgent.match(/(WPF)/)) {
+			try {
+				wpfCloseApp.shutdownApp();
+			} catch (err) {
+			}
+		}
+	};
+
+	$scope.changeUser = function () {
+		$scope.closeDrawerMenu();
+		posUserService.saveEventAsync("Logout", 1, 0);
+		$rootScope.PosUserId = 0;
+		$rootScope.PosUserName = "";
+	};
+
+	$scope.shoppingCartSplit = function () {
+
+		if (posUserService.isEnable('SPLIT')) {
+			var modalInstance = $uibModal.open({
+				templateUrl: 'modals/modalShoppingCartSplit.html',
+				controller: 'ModalShoppingCartSplitController',
+				backdrop: 'static',
+				size: 'lg',
+				resolve: {
+					defaultValue: function () {
+						return true;
+					}
+				}
+			});
+
+
+		}
+
+
+	};
+	$scope.openAdmin = function (adminController, adminAction) {
+		$scope.closeDrawerMenu();
+
+		var htmlcontent = $('#loadAdmin ');
+		$http.get($rootScope.IziBoxConfiguration.UrlSmartStoreApi + '/../PosAdminV2/' + adminController + '/' + adminAction).then(function (response) {
+			htmlcontent.html(response.data);
+			//$compile(htmlcontent.contents())($scope);
+		});
+
+	};
 
 });

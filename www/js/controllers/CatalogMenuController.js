@@ -21,14 +21,16 @@ app.controller('CatalogMenuController', function ($scope, $rootScope, $state, ca
 	var observeIzibox = function (force) {
 		if ($rootScope.IziBoxConfiguration.LocalIpIziBox) {
 			var pingApiUrl = "http://" + $rootScope.IziBoxConfiguration.LocalIpIziBox + ":" + $rootScope.IziBoxConfiguration.RestPort + "/ping";
-			var timeout = force ? 0 : 10000;
+			var timeout = force ? 0 : 5000;
 
-			$timeout(function () {
-				$http.get(pingApiUrl).then(function (data) {
+			setTimeout(function () {
+				$http.get(pingApiUrl, {timeout:1000}).then(function (data) {
 					$scope.IziBoxConnected = true;
+					$scope.$evalAsync();
 					if (isEnabled) observeIzibox();
 				}).catch(function (err) {
 					$scope.IziBoxConnected = false;
+					$scope.$evalAsync();
 					if (isEnabled) observeIzibox();
 				});
 			}, timeout);

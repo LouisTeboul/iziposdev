@@ -16,20 +16,21 @@
 	}
 };
 
-var setupDatabases = function ($rootScope, $q, zposService) {
-	$rootScope.configPouchDB = {
-		typeDB: 'websql',
-		//opts : { live: true, retry: true },
-		//optsReplicate : { live: true, retry: true },
-		//optsReplicate : { live: true, retry: true, batch_size: 100, batches_limit: 4 },
-		opts: { live: true, retry: true, batch_size: 50, batches_limit: 100 },
-		optsReplicate: { live: true, retry: true, batch_size: 10, batches_limit: 8 }
-	}
+var settingsPouchDB = {
+	typeDB: 'websql',
+	//opts : { live: true, retry: true },
+	//optsReplicate : { live: true, retry: true },
+	//optsReplicate : { live: true, retry: true, batch_size: 100, batches_limit: 4 },
+	opts: { live: true, retry: true, batch_size: 50, batches_limit: 100 },
+	//optsReplicate: { live: true, retry: true, batch_size: 10, batches_limit: 8}
+	optsReplicate: { live: true, retry: true, batch_size: 10, batches_limit: 8 }
+}
 
+var setupDatabases = function ($rootScope, $q, zposService) {
 	//Instantiate PouchDB
-	$rootScope.dbInstance = new PouchDB('izipos_datas', { adapter: $rootScope.configPouchDB.typeDB });
-	$rootScope.dbOrder = new PouchDB('izipos_order', { adapter: $rootScope.configPouchDB.typeDB });
-	$rootScope.dbFreeze = new PouchDB('izipos_freeze', { adapter: $rootScope.configPouchDB.typeDB });
+	$rootScope.dbInstance = new PouchDB('izipos_datas', { adapter: settingsPouchDB.typeDB });
+	$rootScope.dbOrder = new PouchDB('izipos_order', { adapter: settingsPouchDB.typeDB });
+	$rootScope.dbFreeze = new PouchDB('izipos_freeze', { adapter: settingsPouchDB.typeDB });
 
 	console.log($rootScope.dbInstance.adapter); // prints either 'idb' or 'websql'
 
@@ -60,8 +61,8 @@ var setupDatabases = function ($rootScope, $q, zposService) {
 			$rootScope.$evalAsync();
 		});
 
-		$rootScope.dbFreeze.replicate.to(remoteDbFreeze, $rootScope.configPouchDB.opts, null);
-		$rootScope.dbFreeze.replicate.from(remoteDbFreeze, $rootScope.configPouchDB.opts, null)
+		$rootScope.dbFreeze.replicate.to(remoteDbFreeze, settingsPouchDB.opts, null);
+		$rootScope.dbFreeze.replicate.from(remoteDbFreeze, settingsPouchDB.opts, null)
 			.on('change', function (info) {
 				if (!info) {
 					info = {};
@@ -139,44 +140,51 @@ var setupDatabases = function ($rootScope, $q, zposService) {
 	});
 
 
-	$rootScope.dbInstance.replicate.from(remoteDbInstance, $rootScope.configPouchDB.opts, null)
+	$rootScope.dbInstance.replicate.from(remoteDbInstance, settingsPouchDB.opts, null)
 	  .on('change', function (info) {
-		if (!info) {
-			info = {};
-		}
-		//console.log("PouchDB  => Change");
-		info.remoteInfo = datasRemoteInfo;
-		info.status = "Change";
-		$rootScope.$emit("dbDatasReplicate", info);
+	  	if (!info) {
+	  		info = {};
+	  	}
+	  	//console.log("PouchDB  => Change");
+	  	info.remoteInfo = datasRemoteInfo;
+	  	info.status = "Change";
+	  	$rootScope.$emit("dbDatasReplicate", info);
 	  }).on('paused', function (info) {
 
-		//console.log("dbInstance => UpToDate");
-		if (!info) {
-			info = {};
-		}
+	  	//console.log("dbInstance => UpToDate");
+	  	if (!info) {
+	  		info = {};
+	  	}
 
-		$rootScope.dbInstance.info().then(function (dbInstanceInfo) {
-			if (dbInstanceInfo.doc_count === datasRemoteInfo.doc_count) {
-				$rootScope.modelDb.dataReady = true;
-				$rootScope.$evalAsync();
-				info.status = "UpToDate";
-				$rootScope.$emit("dbDatasReplicate", info);
-			}
-		});
+	  	$rootScope.dbInstance.info().then(function (dbInstanceInfo) {
+	  		if (datasRemoteInfo) {
+	  			if (dbInstanceInfo.doc_count === datasRemoteInfo.doc_count) {
+	  				$rootScope.modelDb.dataReady = true;
+	  				$rootScope.$evalAsync();
+	  				info.status = "UpToDate";
+	  				$rootScope.$emit("dbDatasReplicate", info);
+	  			}
+	  		} else {
+	  			$rootScope.modelDb.dataReady = true;
+	  			$rootScope.$evalAsync();
+	  			info.status = "UpToDate";
+	  			$rootScope.$emit("dbDatasReplicate", info);
+	  		}
+	  	});
 
 	  }).on('error', function (info) {
-		if (!info) {
-			info = {};
-		}
-		//console.log("PouchDB => Error");
-		console.log(info);
-		$rootScope.modelDb.dataReady = true;
-		$rootScope.$evalAsync();
-		info.status = "Error";
-		$rootScope.$emit("dbDatasReplicate", info);
+	  	if (!info) {
+	  		info = {};
+	  	}
+	  	//console.log("PouchDB => Error");
+	  	console.log(info);
+	  	$rootScope.modelDb.dataReady = true;
+	  	$rootScope.$evalAsync();
+	  	info.status = "Error";
+	  	$rootScope.$emit("dbDatasReplicate", info);
 
-		$rootScope.replicationMessage = "Erreur de synchronisation !";
-		$rootScope.$evalAsync();
+	  	$rootScope.replicationMessage = "Erreur de synchronisation !";
+	  	$rootScope.$evalAsync();
 	  });
 
 	$rootScope.dbInstance.changes({
@@ -283,8 +291,8 @@ var setupDatabases = function ($rootScope, $q, zposService) {
 			$rootScope.$evalAsync();
 		});
 
-		$rootScope.dbOrder.replicate.to(remoteDbOrder, $rootScope.configPouchDB.opts, null);
-		$rootScope.dbOrderFrom = $rootScope.dbOrder.replicate.from(remoteDbOrder, $rootScope.configPouchDB.opts, null);
+		$rootScope.dbOrder.replicate.to(remoteDbOrder, settingsPouchDB.opts, null);
+		$rootScope.dbOrderFrom = $rootScope.dbOrder.replicate.from(remoteDbOrder, settingsPouchDB.opts, null);
 		$rootScope.dbOrderFrom
 			.on('paused', function (info) {
 				//console.log("dbOrder => UpToDate");
@@ -322,7 +330,7 @@ var setupDatabases = function ($rootScope, $q, zposService) {
 
 	//#region dbReplicate
 	$rootScope.InitDBReplicate = function () {
-		$rootScope.dbReplicate = new PouchDB('izipos_replicate', { adapter: $rootScope.configPouchDB.typeDB });
+		$rootScope.dbReplicate = new PouchDB('izipos_replicate', { adapter: settingsPouchDB.typeDB });
 
 		var replicateInfo = undefined;
 
@@ -343,18 +351,23 @@ var setupDatabases = function ($rootScope, $q, zposService) {
 			$rootScope.modelDb.replicateReady = true;
 		});
 
-		$rootScope.dbReplicate.replicate.to($rootScope.remoteDbReplicate, $rootScope.configPouchDB.optsReplicate, null)
+		//$rootScope.dbReplicate.replicate.to($rootScope.remoteDbReplicate, settingsPouchDB.optsReplicate)
+		$rootScope.dbReplicate.replicate.to($rootScope.remoteDbReplicate, settingsPouchDB.optsReplicate)
 			.on('change', function (info) {
 				if (!info) {
 					info = {};
 				}
 				info.remoteInfo = replicateInfo;
+				$rootScope.modelDb.replicateReady = false;
 				info.status = "Change";
 				$rootScope.$emit("dbReplicChange", info);
 			})
 			.on('error', function (info) {
 				$rootScope.modelDb.replicateReady = true;
 				$rootScope.$evalAsync();
+			})
+			.on('complete', function (info) {
+				console.log(info);
 			})
 			.on('paused', function (info) {
 				if (!info) {
@@ -405,7 +418,7 @@ var setupDatabases = function ($rootScope, $q, zposService) {
 
 	//#region dbZPos
 	$rootScope.InitDBZpos = function () {
-		$rootScope.dbZPos = new PouchDB('izipos_zpos', { adapter: $rootScope.configPouchDB.typeDB });
+		$rootScope.dbZPos = new PouchDB('izipos_zpos', { adapter: settingsPouchDB.typeDB });
 
 		var zposInfo = undefined;
 
@@ -434,12 +447,13 @@ var setupDatabases = function ($rootScope, $q, zposService) {
 			});
 
 
-			$rootScope.dbZPos.replicate.to($rootScope.remoteDbZPos, $rootScope.configPouchDB.optsReplicate, null)
+			$rootScope.dbZPos.replicate.to($rootScope.remoteDbZPos, settingsPouchDB.optsReplicate)
 				.on('change', function (info) {
 					if (!info) {
 						info = {};
 					}
 					info.remoteInfo = zposInfo;
+					$rootScope.modelDb.zposReady = false;
 					info.status = "Change";
 					$rootScope.$emit("dbZposChange", info);
 				})

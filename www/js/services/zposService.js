@@ -580,6 +580,10 @@ app.service('zposService', ['$http', '$rootScope', '$q', 'posLogService',
 
     		htmlLines.push("<br />");
 
+    		htmlLines.push("<p>Rendu : " + zpos.repaid.total + "</p>");
+
+    		htmlLines.push("<br />");
+
     		htmlLines.push("<p>Nb couverts : " + zpos.cutleries.count + "</p>");
 
     		htmlLines.push("<br />");
@@ -657,7 +661,7 @@ app.service('zposService', ['$http', '$rootScope', '$q', 'posLogService',
     		var emailApiUrl = "http://" + $rootScope.IziBoxConfiguration.LocalIpIziBox + ":" + $rootScope.IziBoxConfiguration.RestPort + "/emailhtml";
     		console.log("EmailApiUrl : " + emailApiUrl);
 
-    		var subject = "Z Du : " + Date.parseExact(zpos.dateStart, "yyyymmdd").toString("dd/mm/yyyy") + (zpos.dateEnd != zpos.dateStart ? (" au " + Date.parseExact(zpos.dateEnd, "yyyymmdd").toString("dd/mm/yyyy")) : "");
+    		var subject = "Z Du : " + Date.parseExact(zpos.dateStart, "yyyyMMdd").toString("dd/mm/yyyy") + (zpos.dateEnd != zpos.dateStart ? (" au " + Date.parseExact(zpos.dateEnd, "yyyyMMdd").toString("dd/mm/yyyy")) : "");
 
     		var htmlEmailReq = {
     			Subject: subject,

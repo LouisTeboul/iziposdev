@@ -18,10 +18,8 @@
 		};
 
 		$scope.currentShoppingCart = shoppingCartModel.getCurrentShoppingCart();
-		$scope.clientUrl = $rootScope.IziBoxConfiguration.UrlSmartStoreApi.replace("/api", "");
+		$scope.clientUrl = $rootScope.IziBoxConfiguration.UrlSmartStoreApi.replace("/api", "");		
 	}
-
-
 
 	//Recherche de client par nom, prénom ou email
 	$scope.searchForCustomer = function (query) {
@@ -48,8 +46,7 @@
 					$rootScope.$emit("customerLoyaltyChanged", loyalty);
 					$rootScope.$emit("shoppingCartChanged", $scope.currentShoppingCart);                    
 					$scope.$evalAsync();
-					$scope.clientSelected = true;
-					//$uibModalInstance.close();
+					$scope.clientSelected = true;					
 				} else {
 					sweetAlert($translate.instant("Carte de fidélité introuvable !"));
 				}
@@ -58,6 +55,12 @@
 				sweetAlert($translate.instant("Le serveur de fidélité n'a pas répondu !"));
 			});
 		}
+	}
+
+	$scope.validEmail = function (strEmail) {
+	    var re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+	    var myResult = re.test(strEmail);
+	    return myResult;
 	}
 
 	//Scanne la carte du client
@@ -85,14 +88,24 @@
 		}
 	}
 
+	$scope.setBarcodeFocus = function(){
+		var test = document.getElementById("txtBarcodeCustomer");
+		test.focus();
+
+	}
     
 	$scope.changeOperation = function (strOperation){
 	    $scope.registerOperation = strOperation;
-	    console.log(strOperation);
+
+	    //Put the focus in the barcode input for a direct scan 
+	    if(strOperation=="registerFid"){
+		    setTimeout(function () {
+	    		document.getElementById("txtBarcodeCustomer").focus();
+	    	}, 0);
+		}                          
 	}
 
-	$scope.ok = function () {
-
+	$scope.validCustomer = function () {
         // Pas d'enregistrement si un client est sélectionné
 	    if ($scope.clientSelected == true) {
 	        $uibModalInstance.close();
@@ -116,17 +129,26 @@
 
 		//si la case fidélité est coché on enregistre le client    
 		if ($scope.registerOperation == "registerFid") {
-		    try {
-		       // var loyalty;
-
+		    try {	       
                 //On récupère le loyalty si il existe 
 		        if ($scope.newLoyalty.barcode.barcodeValue) {
-
 		            shoppingCartService.getLoyaltyObjectAsync($scope.newLoyalty.barcode.barcodeValue).then(function (loyalty) {
-
 		                if (!loyalty) {
 		                    loyalty = $scope.newLoyalty;
-		                } else {
+		                    return;
+		                }
+		                else {
+		                    if (!$scope.validEmail($scope.newLoyalty.CustomerEmail)) {
+		                        ngToast.create({
+		                            className: 'danger',
+		                            content: '<b>Le format de l\'email est incorrect</b>',
+		                            dismissOnTimeout: true,
+		                            timeout: 10000,
+		                            dismissOnClick: true
+		                        });
+		                        return;
+		                    }
+
 		                    //On associe le client à la carte		                    
 		                    loyalty.CustomerEmail = $scope.newLoyalty.CustomerEmail;
 		                    loyalty.CustomerFirstName = $scope.newLoyalty.CustomerFirstName;
@@ -134,12 +156,21 @@
 		                }
 
 		                //On enregistre le client 
-		                shoppingCartService.registerCustomerAsync(loyalty);
-
-		                // On ajoute la fidélité au ticket
-		                curShoppingCart.customerLoyalty = loyalty;
-		                $rootScope.$emit("customerLoyaltyChanged", $scope.newLoyalty);
-		                $rootScope.$emit("shoppingCartChanged", curShoppingCart);		                
+		                shoppingCartService.registerCustomerAsync(loyalty).then(function (loyalty) {
+		                    // On ajoute la fidélité au ticket
+		                    curShoppingCart.customerLoyalty = loyalty; 
+		                    $rootScope.$emit("customerLoyaltyChanged", $scope.newLoyalty);
+		                    $rootScope.$emit("shoppingCartChanged", curShoppingCart);
+                            //notification
+		                    ngToast.create({
+		                        className: 'info',
+		                        content: 'Le client est enregistré',
+		                        dismissOnTimeout: true,
+		                        timeout: 10000,
+		                        dismissOnClick: true
+		                    });
+		                });
+		                               
 		            });         
 		        }
 		        else {
@@ -165,14 +196,24 @@
 			}
 		}
 
-		if ($scope.registerOperation == "getEmail") {		 
+		if ($scope.registerOperation == "getEmail") {
+		    if (!$scope.validEmail($scope.newLoyalty.CustomerEmail)) {
+		        ngToast.create({
+		            className: 'danger',
+		            content: '<b>Le format de l\'email est incorrect</b>',
+		            dismissOnTimeout: true,
+		            timeout: 10000,
+		            dismissOnClick: true
+		        });
+		        return;
+		    }
 		    curShoppingCart.customerLoyalty = $scope.newLoyalty;
 		    $rootScope.$emit("customerLoyaltyChanged", $scope.newLoyalty);
 		    $rootScope.$emit("shoppingCartChanged", curShoppingCart);
 		    
 		    ngToast.create({
 		        className: 'info',
-		        content: 'le mail ' + $scope.newLoyalty.CustomerEmail + 'a été ajouté au ticket',
+		        content: 'Le mail ' + $scope.newLoyalty.CustomerEmail + 'a été ajouté au ticket',
 		        dismissOnTimeout: true,
 		        timeout: 10000,
 		        dismissOnClick: true

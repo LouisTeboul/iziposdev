@@ -1,16 +1,14 @@
 app.service('shoppingCartService', ["$http", "$rootScope", "$q","$filter", "zposService", "settingService","$translate",
 	function ($http, $rootScope, $q,$filter, zposService, settingService,$translate) {
-	    var current = this;
+		var current = this;
 
-        // Récupère les informations de fidélité 
+		// Récupère les informations de fidélité 
 		this.getLoyaltyObjectAsync = function (barcode) {
-			var loyaltyDefer = $q.defer();
-			
+			var loyaltyDefer = $q.defer();	
 			var getLoyaltyUrl = $rootScope.IziBoxConfiguration.UrlSmartStoreApi + "/RESTLoyalty/RESTLoyalty/GetLoyaltyObject?barcode=" + barcode;
 
 			//TODO for test
-		    //var getLoyaltyUrl = "http://127.0.0.1/izipos/www/datas/loyaltytest.json";     
-
+		    //var getLoyaltyUrl = "http://127.0.0.1/izipos/www/datas/loyaltytest.json";    
 			var callLoyalty = function (retry) {
 				$http({
 					url: getLoyaltyUrl,
@@ -18,32 +16,48 @@ app.service('shoppingCartService', ["$http", "$rootScope", "$q","$filter", "zpos
 					timeout: 20000
 				}).
 				then(function (response) {
-				    if (response && response.data){
-				        //On créer un guest customer pour cette fidélité pour permettre de cagnotter la carte 
-				        //Le guest customer n'est pas supprimé par la tache de maintenance
-				        if (response.data.CustomerId == 0 && response.data.AllowAnonymous && response.data.Barcodes.length!=0) {	       
+					if (response && response.data){				        
+						//On créer un guest customer pour cette fidélité pour permettre de cagnotter la carte 		        		
+						//Le guest customer n'est pas supprimé par la tache de maintenance
+						if (response.data.CustomerId == 0 && response.data.AllowAnonymous && response.data.Barcodes.length!=0) {      
+							barcodeNumber = response.data.Barcodes[0].Barcode;    							                   			        
 
-				            barcodeNumber = response.data.Barcodes[0].Barcode;                       			        
+							//On crée l'objet pour enregister un client anonyme 
+							var request ={				            
+								"Barcode": barcodeNumber                            
+							};
 
-				            //On crée l'objet pour enregister un client anonyme 
-				            var request ={				            
-				                "Barcode": barcodeNumber                            
-				            };
+				            // we don't call another method 
+				            // => https://github.com/angular/angular.js/issues/2702
+				            var getRegisterUrl = $rootScope.IziBoxConfiguration.UrlSmartStoreApi + "/RESTLoyalty/RESTLoyalty/RegisterAnonymous";
+					   
+						    $http.post(getRegisterUrl, JSON.stringify(JSON.stringify(request)), { timeout: 10000 }).
+							success(function (data, status, headers, config) {
+								response.data = data;	
+							    loyaltyDefer.resolve(response.data);
+							}).
+							error(function (data, status, headers, config) {
+								console.log(error);
+							   loyaltyDefer.reject("Error registering anonymous customer");							   
+							});	
 
-				            current.registerAnonymousCustomerAsync(request).then(function (data) {
-				                response.data = data;				           
-				                loyaltyDefer.resolve(response.data);	           
-				            }).catch(function (error) {				            
-				                console.log(error);
-				                loyaltyDefer.reject();
-				            });				        
+							return loyaltyDefer.promise;		        
 				        }
 
 				        if (response.data.CustomerId != 0) {				 
 				            Enumerable.from(response.data.Offers).forEach(function (o) { o.OfferParam = JSON.parse(o.OfferParam); });
 				            loyaltyDefer.resolve(response.data);
+				            return loyaltyDefer.promise;	
 				        }
-			    	}
+				        else {
+				            loyaltyDefer.resolve();
+				            return loyaltyDefer.promise;	
+				        }
+				    }
+				    else {				        
+				        loyaltyDefer.resolve();
+				        return loyaltyDefer.promise;	
+				    }
 				   
 				}, function (err) {
 					if (retry < 2) {
@@ -59,7 +73,6 @@ app.service('shoppingCartService', ["$http", "$rootScope", "$q","$filter", "zpos
 			return loyaltyDefer.promise;
 		}
 
-
 		this.addPassageAsync = function (obj) {            
 			//console.log(obj);
 			passagePromise = null;
@@ -74,63 +87,57 @@ app.service('shoppingCartService', ["$http", "$rootScope", "$q","$filter", "zpos
 		};
 
 
-	    //Enregistre un guest customer
-		this.registerAnonymousCustomerAsync = function (loyaltyRegisterequest) {
-		    var loyaltyDefer = $q.defer();           
-            
-		    var getLoyaltyUrl = $rootScope.IziBoxConfiguration.UrlSmartStoreApi + "/RESTLoyalty/RESTLoyalty/RegisterAnonymous";
+		//Enregistre un guest customer
+		this.registerAnonymousCustomerAsync = function (loyaltyRegisterRequest) {
+			var registerAnonymousDefer = $q.defer();                       
+			var getRegisterUrl = $rootScope.IziBoxConfiguration.UrlSmartStoreApi + "/RESTLoyalty/RESTLoyalty/RegisterAnonymous";
 
-		    // Simple POST request example (passing data) :
-		    $http.post(getLoyaltyUrl, JSON.stringify(JSON.stringify(loyaltyRegisterequest)), { timeout: 10000 }).
+			// Simple POST request example (passing data) :
+			$http.post(getRegisterUrl, JSON.stringify(JSON.stringify(loyaltyRegisterRequest)), { timeout: 10000 }).
 			success(function (data, status, headers, config) {
-			    loyaltyDefer.resolve(data);
+				registerAnonymousDefer.resolve(data);
 			}).
 			error(function (data, status, headers, config) {
-			    loyaltyDefer.reject("Error registering customer");
-			    sweetAlert($translate.instant("Erreur lors de l'enregistrement du client"));
+				registerAnonymousDefer.reject("Error registering customer");
+				sweetAlert($translate.instant("Erreur lors de l'enregistrement du client"));
 			});
-
-		    return loyaltyDefer.promise;
+			return registerAnonymousDefer.promise;
 		}
 
 		//Enregistre un utilisateur partiel
 		this.registerCustomerAsync = function (loyalty) {
-		    var loyaltyDefer = $q.defer();
+			var registerDefer = $q.defer();
+			var getRegisterAnonymousUrl = $rootScope.IziBoxConfiguration.UrlSmartStoreApi + "/RESTLoyalty/RESTLoyalty/RegisterAnonymous"; 	
+			var code;
 
-		    var code;
-
-		    if (loyalty.Barcodes) {
-		        code = loyalty.Barcodes[0].Barcode;
-		    } else {
-		        code = loyalty.barcode.barcodeValue;
-		    }
+			if (loyalty.Barcodes) {
+				code = loyalty.Barcodes[0].Barcode;
+			} else {
+				code = loyalty.barcode.barcodeValue;
+			}
 
 			var obj = {
 				"Barcode": code ,
 				"FirstName": loyalty.CustomerFirstName,
 				"LastName": loyalty.CustomerLastName,
 				"Email": loyalty.CustomerEmail
-			};
+			};		  
 
-			var getLoyaltyUrl = $rootScope.IziBoxConfiguration.UrlSmartStoreApi + "/RESTLoyalty/RESTLoyalty/RegisterAnonymous"; 	   
-			
-			// Simple POST request example (passing data) :
-			$http.post(getLoyaltyUrl,JSON.stringify(JSON.stringify(obj)), { timeout: 10000 }).
+			$http.post(getRegisterAnonymousUrl,JSON.stringify(JSON.stringify(obj)), { timeout: 10000 }).
 			success(function (data, status, headers, config) {
-				loyaltyDefer.resolve(true);
+				registerDefer.resolve(data); 
 			}).
 			error(function (data, status, headers, config) {
-			    loyaltyDefer.reject("Error registering customer");
-			    sweetAlert($translate.instant("Erreur lors de l'enregistrement du client"));
+				registerDefer.reject("Error registering customer");
+				sweetAlert($translate.instant("Erreur lors de l'enregistrement du client"));
 			});
 			
-			return loyaltyDefer.promise;
+			return registerDefer.promise;
 		}
 
-        //Recherche de client fidélité
+		//Recherche de client fidélité
 		this.searchForCustomerAsync = function (query) {
-			var searchDefer = $q.defer();
-		  
+			var searchDefer = $q.defer();		  
 			var getSearchUrl = $rootScope.IziBoxConfiguration.UrlSmartStoreApi + "/RESTLoyalty/RESTLoyalty/GetSearchCustomer?searchString=" + query;
 
 			$http({
@@ -280,7 +287,12 @@ app.service('shoppingCartService', ["$http", "$rootScope", "$q","$filter", "zpos
 					try {
 						if (!shoppingCart.Canceled) {
 
-							$rootScope.dbZPos.rel.save('ShoppingCart', shoppingCart).then(function () { }, function () { });
+							shoppingCart.rev = undefined;
+							$rootScope.dbZPos.rel.save('ShoppingCart', shoppingCart).then(function (resZpos) {
+								console.log(resZpos);
+							}, function (err) {
+								console.error(err);
+							});
 
 							var updatePayments = clone(shoppingCart.PaymentModes);
 
@@ -357,10 +369,10 @@ app.service('shoppingCartService', ["$http", "$rootScope", "$q","$filter", "zpos
 		}
 
 
-        // [TEST]impression html de ticket 
-        // TODO: rename 
-    	this.printShoppingCartAsync2 = function (shoppingCart, printerIdx, isPosTicket, printCount, ignorePrintTicket, nbNote) {
-    	    var printDefer = $q.defer();
+		// [TEST]impression html de ticket 
+		// TODO: rename 
+		this.printShoppingCartAsync2 = function (shoppingCart, printerIdx, isPosTicket, printCount, ignorePrintTicket, nbNote) {
+			var printDefer = $q.defer();
 
 			//FOR TESTING ONLY
 			this.emailShoppingCartAsync(shoppingCart);
@@ -372,13 +384,13 @@ app.service('shoppingCartService', ["$http", "$rootScope", "$q","$filter", "zpos
 				return;
 			}
 
-    	    return printDefer.promise;
-    	    
-    	}
-    
-        //Fonction  d'impression de ticket
-        this.printShoppingCartAsync = function (shoppingCart, printerIdx, isPosTicket, printCount, ignorePrintTicket, nbNote) {
-    		var printDefer = $q.defer();
+			return printDefer.promise;
+			
+		}
+	
+		//Fonction  d'impression de ticket
+		this.printShoppingCartAsync = function (shoppingCart, printerIdx, isPosTicket, printCount, ignorePrintTicket, nbNote) {
+			var printDefer = $q.defer();
 
 			if ($rootScope.IziBoxConfiguration.LoginRequired) {
 				shoppingCart.PosUserId = $rootScope.PosUserId;
@@ -641,7 +653,7 @@ app.service('shoppingCartService', ["$http", "$rootScope", "$q","$filter", "zpos
 
 					Enumerable.from(taxList).forEach(function (tax) {    	               
 						if(tax.taxAmount!=0)
-						    htmlLines.push("<p>" + (tax.TaxCode + " " + tax.TaxRate + "%") + " " + currencyFormat(roundValue(tax.TaxAmount)) + "</p>");
+							htmlLines.push("<p>" + (tax.TaxCode + " " + tax.TaxRate + "%") + " " + currencyFormat(roundValue(tax.TaxAmount)) + "</p>");
 
 					});     	         
 				}

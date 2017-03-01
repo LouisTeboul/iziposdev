@@ -29,6 +29,9 @@
 			    $scope.zheaders.push(tax.taxCode);
 			});
 
+			//Rendu
+			$scope.zheaders.push("Rendu");
+
 		    ////Headers Modes de paiement
 			Enumerable.from(resZpos.paymentModes).forEach(function (pm) {
 			    var pmTitle = pm.type;
@@ -82,6 +85,10 @@
 			        var lineTax = Enumerable.from(tax.byDate).firstOrDefault(function (value) { return value.date == line.date; });
 			        columnValues.push(lineTax ? roundValue(lineTax.total) : 0);
 			    });
+
+				//Rendu
+			    var lineRepaid = Enumerable.from(resZpos.repaid.byDate).firstOrDefault(function (value) { return value.date == line.date; });
+			    columnValues.push(lineRepaid ? roundValue(lineRepaid.total) : 0);
 
 			    //PaymentModes
 			    Enumerable.from(resZpos.paymentModes).forEach(function (pm) {
