@@ -1,4 +1,4 @@
-﻿app
+app
 
 
 .filter('PictureNameToImage', function () {
@@ -47,7 +47,7 @@
 			input = 0;
 		}
 
-		res = roundValue(input);
+		res = roundValue(input).toFixed(2);
 
 		return res;
 	}

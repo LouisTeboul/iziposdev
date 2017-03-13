@@ -1,4 +1,4 @@
-﻿app.service('taxesService', ['$rootScope', '$q','settingService',
+app.service('taxesService', ['$rootScope', '$q','settingService',
     function ($rootScope, $q) {
 
         var cacheTaxProvider = undefined;
@@ -366,8 +366,8 @@
                     calculateCartItemTotal(i, shoppingCart.DeliveryType);
                     
                     // on ajoute le total TTC et HT de la ligne au montant total 
-                    totalIT += roundValue(i.PriceIT);
-                    totalET += roundValue(i.PriceET);
+                    totalIT = roundValue(totalIT  +i.PriceIT);
+                    totalET = roundValue(totalET +i.PriceET);
     
                     // On récupère les taxes de l'article
                     Enumerable.from(i.TaxDetails).forEach(function (itemTaxDetail) {
@@ -379,7 +379,7 @@
 
                         // On ajoute le montant de la taxe 
                         if (existingTaxDetail) {
-                            existingTaxDetail.TaxAmount += roundValue(itemTaxDetail.TaxAmount);
+                            existingTaxDetail.TaxAmount = roundValue( existingTaxDetail.TaxAmount +itemTaxDetail.TaxAmount);
                         } else {
                             taxDetails.push(clone(itemTaxDetail));
                         }
@@ -400,26 +400,30 @@
                         totalDiscount = totalIT - valueDiscount;
                         var ratio = totalDiscount / totalIT;
 
-                        // Calcule la remise sur la tva total du panier
-                        Enumerable.from(taxDetails).forEach(function (i) {
-                            i.TaxAmount = roundValue(i.TaxAmount - (i.TaxAmount * ratio));
-                        });
+                      
                     }
                     // si la remise est en pourcentage
                     else {
-                        valueDiscount = (totalIT * discount.Value) / 100;
-                        totalDiscount = totalIT - valueDiscount;
-                        var ratio = totalDiscount / totalIT;
+                        valueDiscount = roundValue((totalIT * discount.Value) / 100);
+                        totalDiscount = roundValue(totalIT - valueDiscount);
+                        var ratio = roundValue(totalDiscount / totalIT);
                         
-                         // Calcule la remise sur la tva total du panier
+                        
+                    }        
+                    
+                      // Calcule la remise sur la tva total du panier
                         Enumerable.from(taxDetails).forEach(function (i) {
-                            i.TaxAmount = roundValue( i.TaxAmount-( i.TaxAmount * ratio));                         
+                            console.log("avant");
+                            console.log(i.TaxAmount);
+                            i.TaxAmount = i.TaxAmount - i.TaxAmount *(1- ratio);
+                            console.log("après");
+                            console.log(i.TaxAmount);
                         });
-                    }                   
                    
                     //On récupère la remise totale sur le Hors-taxe
-                    totalETDiscount = totalET * ratio;
-
+                    totalETDiscount =(totalET * ratio);
+                    
+   
                     totalIT = totalDiscount;
                     totalET = totalETDiscount;
 
@@ -471,11 +475,11 @@
                 }
 
                 //On prépare le ticket pour impression/validation
-                totalIT = parseFloat(totalIT);
-                totalET = parseFloat(totalET);
-                totalPayment = parseFloat(totalPayment);
-                residue = parseFloat(residue);
-                repaid = parseFloat(repaid);
+                //totalIT = parseFloat(totalIT);
+                //totalET = parseFloat(totalET);
+                //totalPayment = parseFloat(totalPayment);
+                //residue = parseFloat(residue);
+                //repaid = parseFloat(repaid);
 
                 shoppingCart.Total = roundValue(totalIT);
                 shoppingCart.TotalET = roundValue(totalET);

@@ -1365,3 +1365,10 @@ md-input-container label:not(._md-container-ignore) {
 	top: -45px;
 	right: auto;
 }
+/*---------------Bug Fix -MiniBasket display on mobile at lower zoom--------------------*/
+@media (max-width: 456px){
+    md-sidenav {
+    width:initial!important;
+   
+}
+/*---------------End -------------------------------------------------------------------*/

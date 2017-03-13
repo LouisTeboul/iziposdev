@@ -1,4 +1,4 @@
-﻿app.controller('MiniBasketController', ['$scope', '$rootScope', '$state', '$uibModal', '$timeout', '$filter', 'settingService', 'shoppingCartService', 'productService', 'shoppingCartModel', 'posUserService', 'orderShoppingCartService', 'taxesService', '$translate',
+app.controller('MiniBasketController', ['$scope', '$rootScope', '$state', '$uibModal', '$timeout', '$filter', 'settingService', 'shoppingCartService', 'productService', 'shoppingCartModel', 'posUserService', 'orderShoppingCartService', 'taxesService', '$translate',
 	function ($scope, $rootScope, $state, $uibModal, $timeout, $filter, settingService, shoppingCartService, productService, shoppingCartModel, posUserService, orderShoppingCartService, taxesService, $translate) {
 		var deliveryTypeHandler = undefined;
 		var itemsHandler = undefined;
@@ -91,7 +91,8 @@
 					updateCurrentLines();
 				});
 			}
-
+            
+            shoppingCartModel.calculateLoyalty();
 			resizeMiniBasket();
 		}
 

@@ -1,4 +1,4 @@
-﻿app.controller('ModalCashValuesController', function ($scope, $rootScope, $uibModalInstance) {
+app.controller('ModalCashValuesController', function ($scope, $rootScope, $uibModalInstance) {
     this.isCountEdit = true;
     this.currentEdit = undefined;
     this.currentText = "";
@@ -240,9 +240,9 @@
             total = total + (c.value * c.count);
         });
 
-        total = total + roundValue($scope.money.other);
+        total = total + roundValue($scope.money.other).toFixed(2);
 
-        $scope.money.total = roundValue(total);
+        $scope.money.total = roundValue(total).toFixed(2);
     }
 
     $scope.ok = function () {

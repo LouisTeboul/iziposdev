@@ -31,6 +31,8 @@ app.service('shoppingCartService', ["$http", "$rootScope", "$q","$filter", "zpos
 				            // => https://github.com/angular/angular.js/issues/2702
 				            var getRegisterUrl = $rootScope.IziBoxConfiguration.UrlSmartStoreApi + "/RESTLoyalty/RESTLoyalty/RegisterAnonymous";
 					   
+                            //Why we need to stringify 2 times ??
+						    //https://docs.angularjs.org/api/ng/service/$http
 						    $http.post(getRegisterUrl, JSON.stringify(JSON.stringify(request)), { timeout: 10000 }).
 							success(function (data, status, headers, config) {
 								response.data = data;	
@@ -49,8 +51,8 @@ app.service('shoppingCartService', ["$http", "$rootScope", "$q","$filter", "zpos
 				            loyaltyDefer.resolve(response.data);
 				            return loyaltyDefer.promise;	
 				        }
-				        else {
-				            loyaltyDefer.resolve();
+				        else {                            
+				            loyaltyDefer.reject("Error retrieving loyalty information");
 				            return loyaltyDefer.promise;	
 				        }
 				    }
@@ -59,7 +61,7 @@ app.service('shoppingCartService', ["$http", "$rootScope", "$q","$filter", "zpos
 				        return loyaltyDefer.promise;	
 				    }
 				   
-				}, function (err) {
+				}, function (err) { //response
 					if (retry < 2) {
 						callLoyalty(retry + 1);
 					} else {

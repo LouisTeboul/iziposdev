@@ -248,8 +248,6 @@
 			}
 
 			return valuesDefer.promise;
-		};
-
-		//récupération setting pour le ticket dématérialisé
+		};	
 
 	}])

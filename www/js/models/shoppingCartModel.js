@@ -1,4 +1,4 @@
-﻿app.service('shoppingCartModel', ['$rootScope', '$q', '$state','$timeout', '$uibModal', 'shoppingCartService', 'productService', 'settingService', 'posUserService','$translate','storeMapService','taxesService',
+app.service('shoppingCartModel', ['$rootScope', '$q', '$state','$timeout', '$uibModal', 'shoppingCartService', 'productService', 'settingService', 'posUserService','$translate','storeMapService','taxesService',
 	function ($rootScope, $q, $state, $timeout, $uibModal,  shoppingCartService, productService, settingService, posUserService, $translate, storeMapService, taxesService) {
 		var current = this;
 		var lastShoppingCart = undefined;
@@ -354,6 +354,7 @@
 				var qty = 1;
 				var b = parseInt(currentBarcode.barcodeValue);
 				if (b) {
+                    //Hardcoded limit for the quantity
 					if (b > 0 && b < 99) {
 						qty = b;
 						currentBarcode.barcodeValue = "";

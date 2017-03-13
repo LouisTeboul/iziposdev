@@ -569,7 +569,11 @@ app.service('zposService', ['$http', '$rootScope', '$q', 'posLogService',
 
     		htmlLines.push("<br />");
 
-    		htmlLines.push("<p>Avoir émis : " + zpos.credit.total + "</p>");
+    		htmlLines.push("<p>Rendu : -" + zpos.repaid.total + "</p>");
+
+    		htmlLines.push("<br />");
+
+    		htmlLines.push("<p>Avoir émis : -" + zpos.credit.total + "</p>");
 
     		htmlLines.push("<br />");
 
@@ -578,9 +582,7 @@ app.service('zposService', ['$http', '$rootScope', '$q', 'posLogService',
     		htmlLines.push("<p>    TTC : " + zpos.totalIT + "</p>");
     		htmlLines.push("<p>    HT  : " + zpos.totalET + "</p>");
 
-    		htmlLines.push("<br />");
-
-    		htmlLines.push("<p>Rendu : " + zpos.repaid.total + "</p>");
+    		
 
     		htmlLines.push("<br />");
 

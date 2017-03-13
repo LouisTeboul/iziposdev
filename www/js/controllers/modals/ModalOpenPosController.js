@@ -1,4 +1,4 @@
-﻿app.controller('ModalOpenPosController', function ($scope, $rootScope, $uibModal, $uibModalInstance, settingService,cashMovementService,zposService,$translate) {
+app.controller('ModalOpenPosController', function ($scope, $rootScope, $uibModal, $uibModalInstance, settingService,cashMovementService,zposService,$translate) {
 
     $scope.init = function () {
         
@@ -15,7 +15,7 @@
             if (paymentValues) {
                 var total = 0;
                 Enumerable.from(paymentValues.PaymentLines).forEach(function (l) {
-                    total = roundValue(total + l.PaymentMode.Total);
+                    total = roundValue(total + l.PaymentMode.Total).toFixed(2);
                 });
 
                 $scope.model.total = total;
@@ -76,7 +76,7 @@
         });
 
         modalInstance.result.then(function (total) {
-            $scope.openPosValues.CashMovementLines[0].PaymentMode.Total = roundValue(parseFloat(total));
+            $scope.openPosValues.CashMovementLines[0].PaymentMode.Total = roundValue(parseFloat(total)).toFixed(2);
     
         }, function () {
         
@@ -94,7 +94,7 @@
 
             var newPaymentMode = clone($scope.openPosValues.CashMovementLines[0].PaymentMode);
 
-            newPaymentMode.Total = roundValue(parseFloat(newPaymentMode.Total));
+            newPaymentMode.Total = roundValue(parseFloat(newPaymentMode.Total).toFixed(2));
 
             if (!$scope.model.motif.CashIn) {
                 newPaymentMode.Total = newPaymentMode.Total * (-1);

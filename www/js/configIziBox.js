@@ -1,4 +1,4 @@
-﻿var config = undefined;
+var config = undefined;
 var defaultConfig = undefined;
 
 app.getConfigIziBoxAsync = function ($rootScope, $q, $http, ipService, $translate, $location, $uibModal) {
@@ -235,7 +235,7 @@ var sendUdpGetConfig = function ($rootScope,udpSocket, configDefer, tryUdp, $tra
 	}, 5000);
 }
 
-
+//[OBSOLETE] 
 //Chrome UDP
 var createAndSendUdpGetConfigChrome = function ($rootScope,configDefer,$translate) {
 	var tryUdp = 0;
@@ -273,6 +273,7 @@ var createAndSendUdpGetConfigChrome = function ($rootScope,configDefer,$translat
 	});
 }
 
+//[OBSOLETE] 
 var sendUdpGetConfigChrome = function (socketId, configDefer, tryUdp,$translate) {
 	var data = new ArrayBuffer("getConfig");
 
