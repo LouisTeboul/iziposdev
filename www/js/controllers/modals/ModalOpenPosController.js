@@ -27,7 +27,7 @@ app.controller('ModalOpenPosController', function ($scope, $rootScope, $uibModal
             var paymentModesAvailable = paymentSetting;
 
             var cashPaymentMode = Enumerable.from(paymentModesAvailable).firstOrDefault(function (x) {
-                return x.PaymentType == PaymentType.ESPECE;
+                return x.PaymentType == PaymentType.ESPECE; // Attention !!!!
             });
 
             var dateOpen = new Date().toString('dd/MM/yyyy H:mm:ss');
@@ -84,8 +84,6 @@ app.controller('ModalOpenPosController', function ($scope, $rootScope, $uibModal
     }
 
     $scope.ok = function () {
-
-
         if ($scope.model.motif && $scope.model.motif != null) {
             $scope.openPosValues.MovementType_Id = $scope.model.motif.Id;
             cashMovementService.saveMovementAsync($scope.openPosValues);

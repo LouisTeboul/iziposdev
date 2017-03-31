@@ -413,10 +413,10 @@ app.service('taxesService', ['$rootScope', '$q','settingService',
                     
                       // Calcule la remise sur la tva total du panier
                         Enumerable.from(taxDetails).forEach(function (i) {
-                            console.log("avant");
+                            
                             console.log(i.TaxAmount);
                             i.TaxAmount = i.TaxAmount - i.TaxAmount *(1- ratio);
-                            console.log("après");
+                           
                             console.log(i.TaxAmount);
                         });
                    
@@ -468,25 +468,18 @@ app.service('taxesService', ['$rootScope', '$q','settingService',
                         credit = residue * -1;
                     } else {
                         repaid = residue * -1;
-                    }
-
-                    //TODO : prendre en compte rendu et avoir sur different mode de paiement 
+                    }                    
                     residue = 0;
                 }
 
-                //On prépare le ticket pour impression/validation
-                //totalIT = parseFloat(totalIT);
-                //totalET = parseFloat(totalET);
-                //totalPayment = parseFloat(totalPayment);
-                //residue = parseFloat(residue);
-                //repaid = parseFloat(repaid);
+                //On prépare le ticket pour impression/validation         
 
-                shoppingCart.Total = roundValue(totalIT);
-                shoppingCart.TotalET = roundValue(totalET);
-                shoppingCart.TotalPayment = roundValue(totalPayment);
-                shoppingCart.Residue = roundValue(residue);
-                shoppingCart.Repaid = roundValue(repaid);
-                shoppingCart.Credit = roundValue(credit);
+                shoppingCart.Total = parseFloat(totalIT.toFixed(2));
+                shoppingCart.TotalET = parseFloat(totalET.toFixed(2));
+                shoppingCart.TotalPayment = parseFloat(totalPayment.toFixed(2));
+                shoppingCart.Residue = parseFloat(residue.toFixed(2));
+                shoppingCart.Repaid = parseFloat(repaid.toFixed(2));
+                shoppingCart.Credit = parseFloat(credit.toFixed(2));
                 shoppingCart.TaxDetails = taxDetails;
                 shoppingCart.ExcludedTax = !cacheIsPricesIncludedTax;
                 shoppingCart.Digits = ROUND_NB_DIGIT;

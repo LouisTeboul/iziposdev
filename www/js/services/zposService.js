@@ -8,7 +8,28 @@ app.service('zposService', ['$http', '$rootScope', '$q', 'posLogService',
     			hardwareId = hId;
     		});
     	}
+        
+        // Extrait un ticket de caisse 
+        this.getShoppingCartByIdAsync = function (ShoppingCartId) {
+            var self = this;
+            var valueDefer = $q.defer();
+           
+            var db = $rootScope.remoteDbZPos ? $rootScope.remoteDbZPos : $rootScope.dbZPos;
 
+                db.get(ShoppingCartId).then(function (shoppingCart) {
+                    var item = shoppingCart.data;
+                    item.id = shoppingCart._id;
+                    item.rev = shoppingCart._rev;
+                    valueDefer.resolve(item);
+                }, function (err) {
+                    valueDefer.reject(err);
+                });
+           
+            return valueDefer.promise;
+        }
+
+
+        //extrait les tickets pour une période donnée 
     	this.getAllShoppingCartsAsync = function (dateStart, dateEnd) {
     		var allShoppingCartsDefer = $q.defer();
 
@@ -40,6 +61,7 @@ app.service('zposService', ['$http', '$rootScope', '$q', 'posLogService',
     		return allShoppingCartsDefer.promise;
     	}
 
+        //Retire le fonds de caisse
     	this.getPaymentValuesAsync = function () {
     		var paymentValuesDefer = $q.defer();
 
@@ -61,7 +83,8 @@ app.service('zposService', ['$http', '$rootScope', '$q', 'posLogService',
     		return paymentValuesDefer.promise;
     	}
 
-    	this.updatePaymentValuesAsync = function (newPaymentValues, oldPaymentValues) {
+    	//Met à jour le fonds de caisse
+        this.updatePaymentValuesAsync = function (newPaymentValues, oldPaymentValues) {
     		var updateDefer = $q.defer();
 
     		this.getPaymentValuesAsync().then(function (paymentValues) {
@@ -118,12 +141,14 @@ app.service('zposService', ['$http', '$rootScope', '$q', 'posLogService',
     				});
     			}
 
+
+    		    //BUG : document update conlfict
+    		    //https://github.com/pouchdb/pouchdb/issues/1691
     			$rootScope.dbZPos.rel.save('PaymentValues', paymentValues).then(function () {
     				updateDefer.resolve(paymentValues);
     			}, function (errSave) {
     				updateDefer.reject(errSave);
-    			});
-
+    			})
     		}, function (errPV) {
     			updateDefer.reject(errPV);
     		});
@@ -566,23 +591,15 @@ app.service('zposService', ['$http', '$rootScope', '$q', 'posLogService',
     		}
 
     		htmlLines.push("</table></p>");
-
     		htmlLines.push("<br />");
-
     		htmlLines.push("<p>Rendu : -" + zpos.repaid.total + "</p>");
-
     		htmlLines.push("<br />");
-
     		htmlLines.push("<p>Avoir émis : -" + zpos.credit.total + "</p>");
-
     		htmlLines.push("<br />");
-
     		//Total payment
     		htmlLines.push("<p>Recette :</p>");
     		htmlLines.push("<p>    TTC : " + zpos.totalIT + "</p>");
-    		htmlLines.push("<p>    HT  : " + zpos.totalET + "</p>");
-
-    		
+    		htmlLines.push("<p>    HT  : " + zpos.totalET + "</p>");  		
 
     		htmlLines.push("<br />");
 

@@ -348,21 +348,22 @@ app.service('shoppingCartService', ["$http", "$rootScope", "$q","$filter", "zpos
 		this.savePaymentEditAsync = function (shoppingCart, paymentEdit, oldPaymentValues) {
 			var savePaymentDefer = $q.defer();
 
-			shoppingCart.id = shoppingCart.Timestamp;
+			shoppingCart.id = Number(shoppingCart.Timestamp);
+			console.log("type de l'id " +typeof shoppingCart.id);
 
-			$rootScope.dbZPos.rel.save('ShoppingCart', shoppingCart).then(function () {
-				$rootScope.dbReplicate.rel.save('PaymentEdit', paymentEdit).then(function () {
-					zposService.updatePaymentValuesAsync(paymentEdit.PaymentModes, oldPaymentValues).then(function () {
+			$rootScope.dbZPos.rel.save('ShoppingCart', shoppingCart).then(function () { // Sauvegarder le ticket
+				$rootScope.dbReplicate.rel.save('PaymentEdit', paymentEdit).then(function () { // Envoie les modification de paiement pour intégration
+					zposService.updatePaymentValuesAsync(paymentEdit.PaymentModes, oldPaymentValues).then(function () { // Modifie le paiement
 						savePaymentDefer.resolve(paymentEdit);
 					}, function (errUpdP) {
-						savePaymentDefer.reject(errUpdP);
+						savePaymentDefer.reject(errUpdP);	//erreur d'update
 					});
 				}, function (errSave) {
-					savePaymentDefer.reject(errSave);
+					savePaymentDefer.reject(errSave); // erreur de modif poru intégration
 				});    			
 
 			}, function (err) {
-				savePaymentDefer.reject(err);
+				savePaymentDefer.reject(err); // erreur 
 			});
 
 

@@ -1,4 +1,4 @@
-﻿app.controller('ModalCustomerController', function ($scope, $rootScope,$q, $uibModalInstance, $uibModal, shoppingCartService, ngToast,  shoppingCartModel) {
+app.controller('ModalCustomerController', function ($scope, $rootScope, $q, $uibModalInstance, $uibModal, shoppingCartService, ngToast, shoppingCartModel, $translate) {
 
     var current = this;
     $scope.registerOperation = "getEmail"; // for display
@@ -10,6 +10,12 @@
 		$scope.lastName;
 		$scope.email;
 		$scope.clientSelected = false;
+
+		setTimeout(function () {
+		    document.getElementById("txtComment").focus();
+		}, 0);
+
+	
 		
 		$scope.newLoyalty = {            
 		};
@@ -34,6 +40,13 @@
 	$scope.selectCustomer = function (barcode) {        
 		barcode = barcode.trim();
 		if (barcode) {
+		    $rootScope.showLoading();
+
+		    
+
+		    //setTimeout(function () {
+		    //    $rootScope.hideLoading();
+		    //}, 500)
 			shoppingCartService.getLoyaltyObjectAsync(barcode).then(function (loyalty) {
 				if (loyalty) {
 					if ($scope.currentShoppingCart == undefined) {
@@ -46,7 +59,13 @@
 					$rootScope.$emit("customerLoyaltyChanged", loyalty);
 					$rootScope.$emit("shoppingCartChanged", $scope.currentShoppingCart);                    
 					$scope.$evalAsync();
-					$scope.clientSelected = true;					
+					$scope.clientSelected = true;
+
+
+					setTimeout(function () {
+					    $rootScope.hideLoading();
+					}, 500);
+
 				} else {
 					sweetAlert($translate.instant("Carte de fidélité introuvable !"));
 				}
@@ -105,6 +124,10 @@
 		}                          
 	}
 
+    $scope.ok= function(){        
+         $rootScope.closeKeyboard();
+    }
+    
 	$scope.validCustomer = function () {
         // Pas d'enregistrement si un client est sélectionné
 	    if ($scope.clientSelected == true) {
@@ -229,7 +252,7 @@
 		$uibModalInstance.close();
 	}
 
-	//Fid
+	//-------------------------------------------------------------------------Fid
 
 
 	/** @function containsBalanceType
@@ -250,6 +273,9 @@
 		return new Date(date);
 	};
 
+    /**
+    *  @function containsBalanceType
+    */
 	$scope.getTotalPositiveHistory = function (history, balance) {
 		var total = 0;
 		for (var i = 0; i < history.length; i++) {
@@ -258,6 +284,7 @@
 		return balance.UseToPay ? roundValue(total) : total;
 	};
 
+    //[WARNING] -> La caisse ne peut pas utiliser le addpassage il est géré à l'intégration du ticket 
 	$scope.addPassage = function () {
 		$scope.isAddingPassage = true;
 		var passageObj = createEmptyPassageObj();
@@ -271,6 +298,8 @@
 		$scope.useAction(true);
 	}
 
+
+    //[OBSOLETE]
 	$scope.useAction = function (isTiles) {
 
 		var amount = $('#orderAmountInput').val();
@@ -296,7 +325,7 @@
 							"CustomActionId": $('#actionSelect').val()
 						};
 					}
-					$log.info(passageObj);
+					//$log.info(passageObj); // BROKEN
 
 					shoppingCartService.addPassageAsync(passageObj).success(function () {
 						customAlert($translate.instant("Action exécutée"));
@@ -333,23 +362,4 @@
 			closeOnConfirm: true
 		}, callback);
 	};
-
-	var createEmptyPassageObj = function () {
-		return {
-			"Login": null,
-			"Password": null,
-			"Key": null,
-			"Barcode": $scope.currentShoppingCart.customerLoyalty.Barcodes[0].Barcode,
-			"CustomerFirstName": $scope.currentShoppingCart.customerLoyalty.CustomerFirstName,
-			"CustomerLastName": $scope.currentShoppingCart.customerLoyalty.CustomerLastName,
-			"CustomerEmail": $scope.currentShoppingCart.customerLoyalty.CustomerEmail,
-			"OrderTotalIncludeTaxes": 0,
-			"OrderTotalExcludeTaxes": 0,
-			"CurrencyCode": "EUR",
-			"Items": [],
-			"BalanceUpdate": {},
-			"OrderSpecificInfo": "2"
-		};
-	};
-
 });

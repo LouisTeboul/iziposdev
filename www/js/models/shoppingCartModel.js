@@ -135,8 +135,8 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state','$timeout', '$uib
 			}
 
 			var itemExist = undefined;
-
-			if (!cartItem.Offer && !cartItem.Isfree && !cartItem.Product.ProductAttributes.length > 0) {
+            //Ticket venant de la commande en ligne n'a pas de productattributes vide
+			if (!cartItem.Offer && !cartItem.Isfree && cartItem.Product.ProductAttributes &&  !cartItem.Product.ProductAttributes.length > 0) {
 				itemExist = Enumerable.from(shoppingCartTo.Items).firstOrDefault(function (x) {
 					return !x.Comment && !x.Offer && !x.IsFree && x.ProductId == cartItem.ProductId && x.Step == cartItem.Step;
 				});
@@ -467,9 +467,24 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state','$timeout', '$uib
 				}
 			}
 		}
-
-
+        
+        /* @openModalAction 
+        * Fenêtre du choix de mode de livraison        
+        */
+        this.openCustomActionModal = function(){            
+            var modalInstance = $uibModal.open({
+					templateUrl: 'modals/modalCustomAction.html',
+					controller: 'ModalCustomActionController',
+					backdrop: 'static',
+					size: 'lg',
+					
+				});
+        }
 		
+        
+        /* @openModalDelivery 
+        * Fenêtre du choix de mode de livraison        
+        */
 		this.openModalDelivery = function (boolValue) {		    
 
 			//Si configuré - oblige l'utilisateur à saisir un mode de livraison 
@@ -983,6 +998,24 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state','$timeout', '$uib
 				}
 			}
 		}
+
+		this.createEmptyPassageObj = function () {
+		    return {
+		        "Login": null,
+		        "Password": null,
+		        "Key": null,
+		        "Barcode": $scope.currentShoppingCart.customerLoyalty.Barcodes[0].Barcode,
+		        "CustomerFirstName": $scope.currentShoppingCart.customerLoyalty.CustomerFirstName,
+		        "CustomerLastName": $scope.currentShoppingCart.customerLoyalty.CustomerLastName,
+		        "CustomerEmail": $scope.currentShoppingCart.customerLoyalty.CustomerEmail,
+		        "OrderTotalIncludeTaxes": 0,
+		        "OrderTotalExcludeTaxes": 0,
+		        "CurrencyCode": "EUR",
+		        "Items": [],
+		        "BalanceUpdate": {},
+		        "OrderSpecificInfo": "2"
+		    };
+		};
 
 		//Apply offers / add payment mode
 		this.calculateLoyalty = function () {

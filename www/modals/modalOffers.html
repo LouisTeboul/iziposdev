@@ -1,11 +1,11 @@
 ﻿<section class="offerModal">
     <div class="modal-header">
         <h1 class="modal-title" translate>Choisir une offre</h1>
-        <button class="btn btn-rose right" style="float: right; margin-top: -40px;" ng-click="cancel()" translate>Ne rien choisir</button>        
+        <!--<button class="btn btn-rose right" style="float: right; margin-top: -40px;" ng-click="cancel()" translate>Ne rien choisir</button>-->        
     </div>
 
     <div class="form-panel modal-body" style="overflow-y:auto">
-        <div class="row rowOffer" ng-repeat="offer in offers">
+        <div class="row rowOffer" ng-repeat="offer in offers" ng-if="offer.isValid">
             <div class="col-md-2">
                 <img class="imgOffer" ng-src="{{offer.OfferImageUrl}}" />
             </div>

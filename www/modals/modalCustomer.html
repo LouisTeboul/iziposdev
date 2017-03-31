@@ -5,7 +5,37 @@
 
 	<div class="form-panel modal-body">
 		<tabset>
+
+            <tab>
+                <tab-heading>
+                    <x translate>RECHERCHE</x>
+                </tab-heading>
+                <div layout="column" layout-margin>
+
+                    <div layout="row">
+                        <label flex="30" translate>Nom, prénom ou email</label>
+                        <text-field flex="40" id="txtComment" class="flexbox" ng-model="search.query" location="center-end" type="azerty" validfunction="ok" style="width:510px;margin-right:10px;min-height:34px;"></text-field>
+                        <md-button flex="20" ng-click="searchForCustomer(search.query)" style="background-color:lightgrey;">Rechercher</md-button>
+                    </div>
+                    <md-content layout-padding style="max-height:400px">
+                        <div ng-if="searchResults && searchResults.length > 0" ng-repeat="client in searchResults" ng-click="selectCustomer(client.Barcode)" ng-style="{ 'background-color' : (client.Barcode == currentShoppingCart.Barcode) ? 'rgba(171, 242, 150, 0.42)' : 'transparent' }">
+                            <h4 style="margin-top: 0">{{client.FirstName}} {{client.LastName}}</h4>
+                            <h4>{{client.Email}}</h4>
+                            <h4 style="margin-bottom: 0">
+                                <small translate>N° de carte</small>:
+                                {{client.Barcode}}
+                            </h4>
+                            <hr />
+                        </div>
+                    </md-content>
+
+                    <div class="card error" ng-if="searchResults.length === 0" style="height:100px;">
+                        <h4 style="margin-top: 8px; text-align: center" translate>Aucun résultat</h4>
+                    </div>
+                </div>
+            </tab>
 			<tab>
+
 				<tab-heading>
 					<x translate>EMAIL</x>
 				</tab-heading>
@@ -42,37 +72,10 @@
 
 				</div>
 			</tab>
-			<tab>
-				<tab-heading>
-					<x translate>RECHERCHE</x>
-				</tab-heading>
-				<div layout="column" layout-margin>
-
-					<div layout="row">
-						<label flex="30" translate>Nom, prénom ou email</label>
-						<text-field flex="40" id="txtComment" class="flexbox" ng-model="search.query" location="center-end" type="azerty" validfunction="ok" style="width:510px;margin-right:10px;min-height:34px;"></text-field>
-						<md-button flex="20" ng-click="searchForCustomer(search.query)" style="background-color:lightgrey;">Rechercher</md-button>
-					</div>
-					<md-content layout-padding style="max-height:400px">
-						<div ng-if="searchResults && searchResults.length > 0" ng-repeat="client in searchResults"  ng-click="selectCustomer(client.Barcode)" ng-style="{ 'background-color' : (client.Barcode == currentShoppingCart.Barcode) ? 'rgba(171, 242, 150, 0.42)' : 'transparent' }" >
-							<h4 style="margin-top: 0">{{client.FirstName}} {{client.LastName}}</h4>
-							<h4>{{client.Email}}</h4>
-							<h4 style="margin-bottom: 0" >
-								<small translate>N° de carte</small>:
-								{{client.Barcode}} 
-							</h4>
-							<hr />
-						</div>
-					</md-content>
-
-					<div class="card error" ng-if="searchResults.length === 0" style="height:100px;">
-						<h4 style="margin-top: 8px; text-align: center" translate>Aucun résultat</h4>
-					</div>
-				</div>
-			</tab>
+			
 			<tab ng-if="currentShoppingCart.customerLoyalty">
 				<tab-heading>
-					<x translate>OPERATIONS</x>
+					<x translate>INFORMATIONS</x>
 				</tab-heading>
 				<div layout="column" layout-margin>
 					<!-- #region Balances -->
@@ -84,7 +87,7 @@
 						</button>
 					</div>
 
-					<div ng-if="currentShoppingCart.customerLoyalty.CustomActions && currentShoppingCart.customerLoyalty.CustomActions[0].Name && !customization.showActionsAsButtons">
+					<!--<div ng-if="currentShoppingCart.customerLoyalty.CustomActions && currentShoppingCart.customerLoyalty.CustomActions[0].Name">
 						<h3 class="text-center light" style="margin-bottom: 0; margin-top: 28px;">Actions</h3>
 						<label class="item item-input item-select" style="border: 0; margin-bottom: 10px;">
 							<div class="input-label">&nbsp;</div>
@@ -102,20 +105,22 @@
 								ng-click="!isUsingAction ? useAction() : 0">
 							Valider
 						</button>
-					</div>
+					</div>-->
 
-					<ul class="izi-balances list-unstyled" ng-if="currentShoppingCart.customerLoyalty.CustomActions && currentShoppingCart.customerLoyalty.CustomActions[0].Name && customization.showActionsAsButtons" style="margin-top: 24px;">
+					<!--<ul class="izi-balances list-unstyled" ng-if="currentShoppingCart.customerLoyalty.CustomActions && currentShoppingCart.customerLoyalty.CustomActions[0].Name && customization.showActionsAsButtons" style="margin-top: 24px;">
 						<li class="bg-accent li-unstyled waves-effect customAction" ng-repeat="action in currentShoppingCart.customerLoyalty.CustomActions"
 							ng-click="!isUsingAction ? clickAction(action.Id, true) : 0">
 							<span>{{action.Name}}</span>
 						</li>
-					</ul>
+					</ul>-->
 					<!-- #endregion -->
 					<!-- #region Offers -->
 					<ul class="izi-offers list-unstyled" ng-if="currentShoppingCart.customerLoyalty.Offers.length > 0" style="margin-top: 24px;">
-						<li class="bg-accent hvr-sink waves-effect" ng-repeat="offer in currentShoppingCart.customerLoyalty.Offers"
-							ng-click="showConfirm($event, offer)">
-							<b class="pull-right">x{{offer.Count}}</b>
+						<li class="bg-accent hvr-sink waves-effect"                             
+                            ng-repeat="offer in currentShoppingCart.customerLoyalty.Offers"
+                            ng-if="offer.isValid==true">
+							<!--ng-click="showConfirm($event, offer)"-->
+							<b class="pull-right" ng-if="offer.Count>1">x{{offer.Count}}</b>
 
 							<h3 class="text-center no-mg-vert fid-item-title">
 								{{offer.OfferClassDescription}}

@@ -1,4 +1,4 @@
-﻿app.controller('ModalEditShoppingCartController', function ($scope, $rootScope, $uibModal, $uibModalInstance, settingService,shoppingCartService, shoppingCart) {
+app.controller('ModalEditShoppingCartController', function ($scope, $rootScope, $uibModal, $uibModalInstance,ngToast, settingService,shoppingCartService, zposService, shoppingCart) {
     $scope.shoppingCart = shoppingCart;
     $scope.oldPaymentValues = clone(shoppingCart.PaymentModes);
 
@@ -52,6 +52,7 @@
             }
         });
 
+        // le total des moyens de paiement doit être égal au total avant modification
         if (newTotal == shoppingCart.TotalPayment) {
         	shoppingCart.PaymentModes = validPaymentModes;
 
@@ -60,10 +61,29 @@
         		PaymentModes: validPaymentModes
         	}
 
-        	shoppingCartService.savePaymentEditAsync(shoppingCart, paymentEdit, $scope.oldPaymentValues);
+            
+            try{
+                // we're getting a fresh shopping cart because the selected item from the component is altered
+                var tmpPaymentModes = shoppingCart.PaymentModes;
+                zposService.getShoppingCartByIdAsync(shoppingCart.id).then(function(shoppingCart){
+                    shoppingCart.PaymentModes=tmpPaymentModes;
+                    shoppingCartService.savePaymentEditAsync(shoppingCart, paymentEdit, $scope.oldPaymentValues);
+                });                     	   
+            }
+            catch(err){                
+                ngToast.create({
+                                    className: 'danger',
+                                    content: '<b>Impossible de modifier le moyen de paiement</b>',
+                                    dismissOnTimeout: true,
+                                    timeout: 10000,
+                                    dismissOnClick: true
+                                });
+                console.log(err);
+            }
 
         	$uibModalInstance.close();
         } else {
+            //TODO : traductions 
         	swal({ title: "Attention", text: "Le total des moyens de réglements saisis ne correspond pas au total encaissé.", type: "warning", showCancelButton: false, confirmButtonColor: "#d83448", confirmButtonText: "Ok", closeOnConfirm: true });
         }
 
@@ -71,7 +91,6 @@
 
     $scope.cancel = function () {
     	$rootScope.closeKeyboard();
-
         $uibModalInstance.dismiss('cancel');
     }
 });

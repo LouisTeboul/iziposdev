@@ -1,4 +1,4 @@
-﻿app.controller('BarcodeTextFieldController', function ($scope, $rootScope, $uibModal, shoppingCartModel,textFieldService) {
+app.controller('BarcodeTextFieldController', function ($scope, $rootScope, $uibModal, shoppingCartModel,textFieldService) {
 
     var txtBarcode;
 
@@ -98,8 +98,10 @@
 
                     shoppingCartModel.getLoyalty(barcode);
                     result = true;
+                    $rootScope.closeKeyboard();
                 } else {
                     sweetAlert("Le code à barres n'a pas été reconnu...");
+                    $rootScope.closeKeyboard();
                 }
             }
 

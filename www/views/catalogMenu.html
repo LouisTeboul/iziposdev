@@ -10,11 +10,11 @@
 		</div>
 		<md-divider class="vertical-divider"></md-divider>
 		<md-content layout="row" layout-align="space-between stretch" ng-show="$mdMedia('gt-sm')" style="background:transparent;">
-			<div ng-repeat="category in categories track by $index" class="itemCategory">
-				<md-button aria-label="{{category.Name}}" class="md-icon-button linkCategory" ui-sref="catalog.{{category.CategoryTemplate.ViewPath}}({id: '{{category.Id}}'})">
+			<div ng-repeat="category in categories track by $index" class="itemCategory" ui-sref="catalog.{{category.CategoryTemplate.ViewPath}}({id: '{{category.Id}}'})">
+				<md-button aria-label="{{category.Name}}" class="md-icon-button linkCategory" >
 					<img class="imgCategory" ng-src="{{category.PictureUrl}}" alt="">
 				</md-button>
-				<div class="titleCategory">{{category.Name}}</div>
+				<div class="titleCategory" style="cursor:pointer;">{{category.Name}}</div>
 			</div>
 		</md-content>
 

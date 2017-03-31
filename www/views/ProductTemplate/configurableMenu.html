@@ -42,7 +42,7 @@
                                     <span flex></span>
                                     <div class="attributeInfo-text" layout="column" layout-align="center center">
                                         <div ng-if="v.DisableBuyButton"><i class="glyphicon glyphicon-warning-sign"></i> Rupture</div>
-                                        <span ng-if="v.PriceAdjustment">+ {{v.PriceAdjustment}} €</span>
+                                        <span ng-if="v.PriceAdjustment">+ {{v.PriceAdjustment | CurrencyFormat}} </span>
                                         <span ng-if="IziBoxConfiguration.StepEnabled && v.Selected" >{{attribute.Step | StepName:stepNames}}</span>
                                         <span class="attributeInfo-comment" ng-if="v.Comment && v.Comment!=''">{{v.Comment}}</span>
                                     </div>

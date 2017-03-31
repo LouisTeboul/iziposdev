@@ -69,7 +69,8 @@ app.controller('MiniBasketController', ['$scope', '$rootScope', '$state', '$uibM
 			$scope.orders = orderShoppingCartService.orders;
 			$scope.ordersInProgress = orderShoppingCartService.ordersInProgress;
 		}
-
+        
+ 
 	$scope.setDeliveryType = function (value) {        
 		$scope.deliveryType = value;
 		$scope.$evalAsync();
@@ -338,6 +339,7 @@ app.controller('MiniBasketController', ['$scope', '$rootScope', '$state', '$uibM
 
 		$scope.selectPaymentMode = function (selectedPaymentMode) {
 
+            // Attention à la fonction d'arrondi
 			var customValue = $scope.totalDivider > 1 ? parseFloat((Math.round($scope.currentShoppingCart.Total / $scope.totalDivider * 100) / 100).toFixed(2)) : undefined;
 
 			shoppingCartModel.selectPaymentMode(selectedPaymentMode, customValue, $rootScope.IziPosConfiguration.IsDirectPayment);
@@ -403,6 +405,10 @@ app.controller('MiniBasketController', ['$scope', '$rootScope', '$state', '$uibM
 
 		$scope.openModalDelivery = function (parameter) {
 		    shoppingCartModel.openModalDelivery(parameter);
+		}
+        
+        $scope.openCustomActionModal = function () {
+		    shoppingCartModel.openCustomActionModal();
 		}
 
 		$scope.printProdShoppingCart = function () {

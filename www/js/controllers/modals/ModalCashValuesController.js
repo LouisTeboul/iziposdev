@@ -13,6 +13,8 @@ app.controller('ModalCashValuesController', function ($scope, $rootScope, $uibMo
         keypad: "partials/numeric.html"
     }
 
+    //TODO : Changer les devises
+
     $scope.init = function () {
         $scope.money = {
             "total": 0,
@@ -240,9 +242,9 @@ app.controller('ModalCashValuesController', function ($scope, $rootScope, $uibMo
             total = total + (c.value * c.count);
         });
 
-        total = total + roundValue($scope.money.other).toFixed(2);
+        total = total + roundValue($scope.money.other);
 
-        $scope.money.total = roundValue(total).toFixed(2);
+        $scope.money.total = roundValue(total);
     }
 
     $scope.ok = function () {
