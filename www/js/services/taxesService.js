@@ -341,6 +341,10 @@ app.service('taxesService', ['$rootScope', '$q','settingService',
                 }
             }
 
+            //Si il y a une remise dans l'objet cartitem on l'applique 
+            //Sinon on applique la remise global
+
+
             //Calcul le prix de l'article en fonction de la quantité 
             cartItem.PriceIT = priceIT * cartItem.Quantity;
             cartItem.PriceET = priceET * cartItem.Quantity;
@@ -388,6 +392,7 @@ app.service('taxesService', ['$rootScope', '$q','settingService',
                 });
 
 
+                //TODO : passer le calcul à la ligne
                 //On calcule la remise si il y en a -- on le calcule aussi pour chaque montant de taxe
                 var discount = Enumerable.from(shoppingCart.Discounts).firstOrDefault();
 
@@ -406,8 +411,7 @@ app.service('taxesService', ['$rootScope', '$q','settingService',
                     else {
                         valueDiscount = roundValue((totalIT * discount.Value) / 100);
                         totalDiscount = roundValue(totalIT - valueDiscount);
-                        var ratio = roundValue(totalDiscount / totalIT);
-                        
+                        var ratio = roundValue(totalDiscount / totalIT);                       
                         
                     }        
                     
@@ -454,7 +458,7 @@ app.service('taxesService', ['$rootScope', '$q','settingService',
                 }
 
                 //On calcule le rendu monnaie
-                var residue = totalIT - totalPayment;
+                var residue = parseFloat(totalIT.toFixed(2)) - totalPayment;
                 var repaid = 0;
                 var credit = 0;
 

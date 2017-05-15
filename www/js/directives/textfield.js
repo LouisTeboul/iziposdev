@@ -91,14 +91,11 @@ app.controller('TextFieldCtrl', function ($rootScope, $scope, textFieldService) 
     });
 
     /*
-     * Déterminer si le champ est visible pour éviter 
+     * Dï¿½terminer si le champ est visible pour ï¿½viter 
      * 
      */
     var isVisible = function () {
-        var el = $scope.currentElement[0];
-
-
-
+        var el = $scope.currentElement[0];      
 
         var top = el.offsetTop;
         var left = el.offsetLeft;
@@ -160,7 +157,7 @@ app.controller('TextFieldCtrl', function ($rootScope, $scope, textFieldService) 
 
 
 
-    //Détermine le champ actif de la page
+    //Dï¿½termine le champ actif de la page
     var currentElementHandler = $scope.$watch('currentElement', function () {
 
         $scope.currentElement.bind("blur", function (e) {
@@ -213,13 +210,9 @@ app.controller('TextFieldCtrl', function ($rootScope, $scope, textFieldService) 
         modelHandler();
 
         //Native Keyboard
-        if ($scope.nativekeyboard ) {
-            console.log("removing event");
+        if ($scope.nativekeyboard ) {            
             document.removeEventListener("keypress", trapkeypress);
-            document.removeEventListener("keydown", trapkeydown);            
-            //$(document).off("keypress");
-            //$(document).off("keydown");
-           
+            document.removeEventListener("keydown", trapkeydown);              
         }
     });
 
@@ -229,10 +222,8 @@ app.controller('TextFieldCtrl', function ($rootScope, $scope, textFieldService) 
     }
 
     $scope.init = function () {
-        $scope.initialized = false;
-        console.log($scope.initialized);
-     
-        
+        $scope.initialized = false;      
+
         //Native keyboard
         if ($scope.nativekeyboard && !($('#qr-canvas').length > 0)) {                   
             document.addEventListener("keypress", trapkeypress);

@@ -131,8 +131,6 @@
 			while ($scope.ztotalET.length < $scope.zheaders.length) {
 			    $scope.ztotalET.push("");
 			}
-
-
 		});
 	}
 
@@ -147,5 +145,4 @@
 	$scope.emailZPos = function () {
 		zposService.emailZPosAsync($scope.zpos);
 	}
-
 });

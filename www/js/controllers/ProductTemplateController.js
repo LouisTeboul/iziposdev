@@ -7,7 +7,6 @@
 })
 
 app.controller('ProductTemplateController', function ($scope, $rootScope, $location) {
-    $scope.init = function () {
-    
+    $scope.init = function () {    
     }
 })

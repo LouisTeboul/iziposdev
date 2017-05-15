@@ -1,4 +1,4 @@
-﻿app.service('orderShoppingCartService', ["$http", "$rootScope", "$q", "settingService","taxesService",
+app.service('orderShoppingCartService', ["$http", "$rootScope", "$q", "settingService","taxesService",
     function ($http, $rootScope, $q, settingService,taxesService) {
         var current = this;
         this.orders;
@@ -33,9 +33,7 @@
             current.ordersInProgress = [];
 
             if (current.orders.length > 0) {
-                var currentDate = new Date();
-
-                //console.log("Date : " + currentDate.toString("dd/MM/yyyy H:mm:ss"));
+                var currentDate = new Date();                
 
                 for (var i = current.orders.length - 1; i >= 0; i--) {
                     var order = current.orders[i];
@@ -47,12 +45,9 @@
 
                     orderDate.setHours(orderOptions.getHours());
                     orderDate.setMinutes(orderOptions.getMinutes());
-                    orderDate.setSeconds(orderOptions.getSeconds());
+                    orderDate.setSeconds(orderOptions.getSeconds());                 
 
-                    //console.log("Order date : " + orderDate.toString("dd/MM/yyyy H:mm:ss"));
-
-                    var diffDate = orderDate - currentDate;
-                    //console.log("Diff ms : " + diffDate);
+                    var diffDate = orderDate - currentDate;                 
 
                     var ordersPrepareMinutes = $rootScope.IziBoxConfiguration.OrdersPrepareMinutes;
                     if (!ordersPrepareMinutes) {
@@ -143,9 +138,7 @@
     		        var p = Enumerable.from(paymentModesAvailable).where('x => x.Text == item.Text').firstOrDefault();
     		        if (p) item.PaymentType = p.PaymentType;
     		    });
-
     		});
-
 
     		
     		$rootScope.dbOrder.rel.del('ShoppingCart', { id: shoppingCart.id, rev: shoppingCart.rev }).then(function (result) {

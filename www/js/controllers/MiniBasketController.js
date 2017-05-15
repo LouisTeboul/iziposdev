@@ -318,6 +318,10 @@ app.controller('MiniBasketController', ['$scope', '$rootScope', '$state', '$uibM
 			shoppingCartModel.offerItem(cartItem);
 		}
 
+		$scope.addDiscountItem = function (cartItem) {
+		    shoppingCartModel.addCartItemDiscount(cartItem);
+		}
+
 		$scope.editMenu = function (cartItem) {
 			shoppingCartModel.editMenu(cartItem);
 		}
@@ -329,8 +333,15 @@ app.controller('MiniBasketController', ['$scope', '$rootScope', '$state', '$uibM
 
 		//#region Payments
 		$scope.removePayment = function (selectedPaymentMode) {
+
+			//reset des tickets resto
+			if(selectedPaymentMode.PaymentType==4){
+				shoppingCartModel.removeTicketRestaurantFromCart();
+			}
 			selectedPaymentMode.Total = 0;
 			shoppingCartModel.setPaymentMode(selectedPaymentMode);
+
+
 		}
 
 		$scope.removeBalanceUpdate = function () {

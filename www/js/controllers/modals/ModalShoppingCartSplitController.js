@@ -8,20 +8,16 @@
     }
 
     $scope.sendToIn = function (item) {
-
         shoppingCartModel.addItemTo($scope.currentShoppingCartIn, $scope.currentShoppingCartOut, item);
-
     }
 
     $scope.sendToOut = function (item) {
-
         shoppingCartModel.addItemTo($scope.currentShoppingCartOut,$scope.currentShoppingCartIn, item);
-
     }
 
 
     $scope.ok = function () {
-
+        
     	if ($scope.currentShoppingCartIn.Items.length > 0) {
     		shoppingCartModel.setCurrentShoppingCartIn($scope.currentShoppingCartIn);
     		shoppingCartModel.setCurrentShoppingCartOut($scope.currentShoppingCartOut);

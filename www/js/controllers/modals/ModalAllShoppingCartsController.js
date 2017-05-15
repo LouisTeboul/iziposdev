@@ -90,6 +90,9 @@ app.controller('ModalAllShoppingCartsController', function ($scope, $rootScope, 
 	}
 
 	$scope.selectShopCartItem = function (selectedShoppingCart) {
+		//reformater la date 
+		selectedShoppingCart.Date = selectedShoppingCart.Date.toString('dd/MM/yyyy H/mm:ss');
+
 		shoppingCartService.printShoppingCartAsync(selectedShoppingCart, $rootScope.PrinterConfiguration.POSPrinter, true, 1).then(function (msg) {
 		}, function (err) {
 			sweetAlert("Erreur d'impression !");

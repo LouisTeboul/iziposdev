@@ -1,229 +1,231 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <!--
-	Licensed to the Apache Software Foundation (ASF) under one
-	or more contributor license agreements.  See the NOTICE file
-	distributed with this work for additional information
-	regarding copyright ownership.  The ASF licenses this file
-	to you under the Apache License, Version 2.0 (the
-	"License"); you may not use this file except in compliance
-	with the License.  You may obtain a copy of the License at
+    Licensed to the Apache Software Foundation (ASF) under one
+    or more contributor license agreements.  See the NOTICE file
+    distributed with this work for additional information
+    regarding copyright ownership.  The ASF licenses this file
+    to you under the Apache License, Version 2.0 (the
+    "License"); you may not use this file except in compliance
+    with the License.  You may obtain a copy of the License at
 
-	http://www.apache.org/licenses/LICENSE-2.0
+    http://www.apache.org/licenses/LICENSE-2.0
 
-	Unless required by applicable law or agreed to in writing,
-	software distributed under the License is distributed on an
-	"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-	 KIND, either express or implied.  See the License for the
-	specific language governing permissions and limitations
-	under the License.
+    Unless required by applicable law or agreed to in writing,
+    software distributed under the License is distributed on an
+    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+     KIND, either express or implied.  See the License for the
+    specific language governing permissions and limitations
+    under the License.
 -->
 <html>
-	<head>
-		<meta charset="utf-8" />
-		<meta name="format-detection" content="telephone=no" />
-		<meta name="msapplication-tap-highlight" content="no" />
-		<!-- WARNING: for iOS 7, remove the width=device-width and height=device-height attributes. See https://issues.apache.org/jira/browse/CB-4323 -->
-		<meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width" />
-		<!--<meta http-equiv="Content-Security-Policy" content="default-src * blob:;media-src * blob:;img-src * 'self' blob: data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline' 'unsafe-eval'" />-->
-		<meta http-equiv="Content-Security-Policy" />
-		<!-- Styles -->
-		<link href="bootstrap/css/bootstrap.css" rel="stylesheet" />
-		<!--<link href="css/lib/bootstrap-switch.min.css" rel="stylesheet" />-->
-		<link href="css/lib/angular-toggle-switch.css" rel="stylesheet" />
-		<link href="css/lib/toggle-switch.css" rel="stylesheet" />
-		<link href="css/lib/kendo.common-material.min.css" rel="stylesheet" />
-		<link href="css/lib/kendo.material.min.css" rel="stylesheet" />
-		<link href="css/lib/kendo.dataviz.min.css" rel="stylesheet" />
-		<link href="css/lib/kendo.dataviz.material.min.css" rel="stylesheet" />
-		<link href="css/lib/sweetalert.css" rel="stylesheet" />
-		<!--<link href="css/main.css" rel="stylesheet" />-->
-		<link href="css/izipos.css" rel="stylesheet" />
-		<link href="css/scrollbar.css" rel="stylesheet" />
-		<link href="css/keypad-numeric.css" rel="stylesheet" />
-		<link href="css/keypad-azerty.css" rel="stylesheet" />
-		<link href="css/lib/ngToast.min.css" rel="stylesheet" />
-		<!--<link href="css/lib/ngToast-animations.min.css" rel="stylesheet" />-->
-		<link href="css/lib/angular-material.min.css" rel="stylesheet" />
-		<link href="css/lib/fabricjs/mcColorPicker.css" rel="stylesheet" />
-		
-		<!--Admin specifics styles-->
-		<link href="js/lib/AdminLibs/fullcalendar-2.6.1/fullcalendar.min.css" rel="stylesheet" />
-		<link href="js/lib/AdminLibs/angular-material-data-table/md-data-table.min.css" rel="stylesheet" />
+<head>
+    <meta charset="utf-8" />
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="msapplication-tap-highlight" content="no" />
+    <!-- WARNING: for iOS 7, remove the width=device-width and height=device-height attributes. See https://issues.apache.org/jira/browse/CB-4323 -->
+    <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width" />
+    <!--<meta http-equiv="Content-Security-Policy" content="default-src * blob:;media-src * blob:;img-src * 'self' blob: data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline' 'unsafe-eval'" />-->
+    <meta http-equiv="Content-Security-Policy" />
+    <!-- Styles -->
+    <link href="bootstrap/css/bootstrap.css" rel="stylesheet" />
+    <!--<link href="css/lib/bootstrap-switch.min.css" rel="stylesheet" />-->
+    <link href="css/lib/angular-toggle-switch.css" rel="stylesheet" />
+    <link href="css/lib/toggle-switch.css" rel="stylesheet" />
+    <link href="css/lib/kendo.common-material.min.css" rel="stylesheet" />
+    <link href="css/lib/kendo.material.min.css" rel="stylesheet" />
+    <link href="css/lib/kendo.dataviz.min.css" rel="stylesheet" />
+    <link href="css/lib/kendo.dataviz.material.min.css" rel="stylesheet" />
+    <link href="css/lib/sweetalert.css" rel="stylesheet" />
+    <!--<link href="css/main.css" rel="stylesheet" />-->
+    <link href="css/izipos.css" rel="stylesheet" />
+    <link href="css/scrollbar.css" rel="stylesheet" />
+    <link href="css/keypad-numeric.css" rel="stylesheet" />
+    <link href="css/keypad-azerty.css" rel="stylesheet" />
+    <link href="css/lib/ngToast.min.css" rel="stylesheet" />
+    <!--<link href="css/lib/ngToast-animations.min.css" rel="stylesheet" />-->
+    <link href="css/lib/angular-material.min.css" rel="stylesheet" />
+    <link href="css/lib/fabricjs/mcColorPicker.css" rel="stylesheet" />
 
-		<!-- Libraries -->
-		<script src="js/lib/jquery.min.js"></script>
-		<script src="js/lib/angular.min.js"></script>
-		<script src="js/lib/angular-route.min.js"></script>
-		<script src="js/lib/angular-ui-router.min.js"></script>
-		<script src="js/lib/angular-animate.min.js"></script>
-		<script src="js/lib/angular-sanitize.min.js"></script>
-		<script src="js/lib/angular-aria.min.js"></script>
-		<script src="js/lib/angular-material.min.js"></script>
-		<script src="js/lib/angular-translate.js"></script>
-		<script src="js/lib/ui-bootstrap-tpls-0.14.3.min.js"></script>
-		<script src="js/lib/angular-locale_fr-fr.js"></script>
-		<script src="js/lib/linq.js"></script>
-		<script src="js/lib/pouchdb-3.6.0.min.js"></script>
-        <!--<script src="js/lib/pouchdb-6.1.2.min.js"></script>-->
-		<script src="js/lib/pouchdb.relational-pouch.min.js"></script>
-		<!--<script src="js/lib/pouchdb.relational-pouch.js"></script>-->
-		<script src="js/lib/pouchdb.load.js"></script>
-		<script src="js/lib/detect-element-resize.js"></script>
-		<script src="js/lib/date.js"></script>
-        <!--<script src="js/lib/bootstrap-switch.min.js"></script>-->
-		<script src="js/lib/angular-toggle-switch.min.js"></script>
-		<script src="js/lib/html5-qrcode.min.js"></script>
-		<script src="js/lib/kendo.all.min.js"></script>
-		<script src="js/lib/kendo.messages.fr-FR.js"></script>
-		<script src="js/lib/sweetalert.min.js"></script>
-		<script src="js/lib/utils.js"></script>
-		<script src="js/lib/angular-idle.min.js"></script>
-		<script src="js/lib/ngDraggable/ngDraggable.js"></script>
-		<script src="js/lib/ngKeypad/ngKey.js"></script>
-		<script src="js/lib/ngKeypad/ngKeypad.js"></script>
-		<script src="js/lib/ngKeypad/ngKeypadInput.js"></script>
-		<script src="js/lib/angular-md5.js"></script>
-		<script src="js/lib/fingerprint2.js"></script>
-		<script src="js/lib/ngToast.min.js"></script>
-		<script src="js/lib/jquery.scrollTo.min.js"></script>
-		<script src="js/lib/object_hash.js"></script>
-		<script src="js/lib/fabricjs/fabric.min.js"></script>
-		<script src="js/lib/fabricjs/mcColorPicker.js"></script>
-		<script src="js/lib/aes.js"></script>
-		<script src="js/lib/aes-ctr.js"></script>
-		<script src="js/lib/angular-gage.min.js"></script>
-		<script src="js/lib/fastclick.js"></script>
-		<script src="js/lib/randomColor.js"></script>
-		
+    <!--Admin specifics styles-->
+    <link href="js/lib/AdminLibs/fullcalendar-2.6.1/fullcalendar.min.css" rel="stylesheet" />
+    <link href="js/lib/AdminLibs/angular-material-data-table/md-data-table.min.css" rel="stylesheet" />
 
-		<!-- App -->
-		<script src="js/app.js"></script>
-		<script src="js/configPouchDb.js"></script>
-		<script src="js/configIziBox.js"></script>
-
-		<!-- AppDemo -->
-		<!--<script src="js/appDemo.js"></script>
-		<script src="js/configPouchDbDemo.js"></script>
-		<script src="js/configIziBoxDemo.js"></script>-->
-
-		<!-- Admin libs -->
-		<script src="js/lib/AdminLibs/adminLibs.js"></script>
-		<script src="js/lib/AdminLibs/fullcalendar-2.6.1/moment.min.js"></script>
-		<script src="js/lib/AdminLibs/fullcalendar-2.6.1/fullcalendar.min.js"></script>
-		<script src="js/lib/AdminLibs/fullcalendar-2.6.1/lang-all.js"></script>
-		<script src="js/lib/AdminLibs/angular-material-data-table/md-data-table.min.js"></script>
-		<script src="js/lib/AdminLibs/justgage-1.2.2/raphael-2.1.4.min.js"></script>
-		<script src="js/lib/AdminLibs/justgage-1.2.2/justgage.js"></script>
+    <!-- Libraries -->
+    <script src="js/lib/jquery.min.js"></script>
+    <script src="js/lib/angular.min.js"></script>
+    <script src="js/lib/angular-route.min.js"></script>
+    <script src="js/lib/angular-ui-router.min.js"></script>
+    <script src="js/lib/angular-animate.min.js"></script>
+    <script src="js/lib/angular-sanitize.min.js"></script>
+    <script src="js/lib/angular-aria.min.js"></script>
+    <script src="js/lib/angular-material.min.js"></script>
+    <script src="js/lib/angular-translate.js"></script>
+    <script src="js/lib/ui-bootstrap-tpls-0.14.3.min.js"></script>
+    <script src="js/lib/angular-locale_fr-fr.js"></script>
+    <script src="js/lib/linq.js"></script>
+    <script src="js/lib/pouchdb-3.6.0.min.js"></script>
+    <!--<script src="js/lib/pouchdb-6.1.2.min.js"></script>-->
+    <script src="js/lib/pouchdb.relational-pouch.min.js"></script>
+    <!--<script src="js/lib/pouchdb.relational-pouch.js"></script>-->
+    <script src="js/lib/pouchdb.load.js"></script>
+    <script src="js/lib/detect-element-resize.js"></script>
+    <script src="js/lib/date.js"></script>
+    <!--<script src="js/lib/bootstrap-switch.min.js"></script>-->
+    <script src="js/lib/angular-toggle-switch.min.js"></script>
+    <script src="js/lib/html5-qrcode.min.js"></script>
+    <script src="js/lib/kendo.all.min.js"></script>
+    <script src="js/lib/kendo.messages.fr-FR.js"></script>
+    <script src="js/lib/sweetalert.min.js"></script>
+    <script src="js/lib/utils.js"></script>
+    <script src="js/lib/angular-idle.min.js"></script>
+    <script src="js/lib/ngDraggable/ngDraggable.js"></script>
+    <script src="js/lib/ngKeypad/ngKey.js"></script>
+    <script src="js/lib/ngKeypad/ngKeypad.js"></script>
+    <script src="js/lib/ngKeypad/ngKeypadInput.js"></script>
+    <script src="js/lib/angular-md5.js"></script>
+    <script src="js/lib/fingerprint2.js"></script>
+    <script src="js/lib/ngToast.min.js"></script>
+    <script src="js/lib/jquery.scrollTo.min.js"></script>
+    <script src="js/lib/object_hash.js"></script>
+    <script src="js/lib/fabricjs/fabric.min.js"></script>
+    <script src="js/lib/fabricjs/mcColorPicker.js"></script>
+    <script src="js/lib/aes.js"></script>
+    <script src="js/lib/aes-ctr.js"></script>
+    <script src="js/lib/angular-gage.min.js"></script>
+    <script src="js/lib/fastclick.js"></script>
+    <script src="js/lib/randomColor.js"></script>
 
 
-		<!-- Controllers -->
-		<script src="js/controllers/AppController.js"></script>
-		<script src="js/controllers/LoadingController.js"></script>
-		<script src="js/controllers/ConfigurationController.js"></script>
-		<script src="js/controllers/CatalogController.js"></script>
-		<script src="js/controllers/CatalogMenuController.js"></script>
-		<script src="js/controllers/CategoryTemplateController.js"></script>
-		<script src="js/controllers/ProductTemplateController.js"></script>
-		<script src="js/controllers/MiniBasketController.js"></script>
-		<script src="js/controllers/CatalogDrawerMenuController.js"></script>
-		
+    <!-- App -->
+    <script src="js/app.js"></script>
+    <script src="js/configPouchDb.js"></script>
+    <script src="js/configIziBox.js"></script>
 
-		<!-- Modals Controllers -->
-		<script src="js/controllers/modals/ModalPaymentModeController.js"></script>
-		<script src="js/controllers/modals/ModalBarcodeReaderController.js"></script>
-		<script src="js/controllers/modals/ModalOffersController.js"></script>
-		<script src="js/controllers/modals/ModalPromoTextController.js"></script>
-		<script src="js/controllers/modals/ModalOneProductInCategoryController.js"></script>
-		<script src="js/controllers/modals/ModalUnfreezeShoppingCartController.js"></script>
-		<script src="js/controllers/modals/ModalShoppingCartDiscountController.js"></script>
-		<script src="js/controllers/modals/ModalTableController.js"></script>
-		<script src="js/controllers/modals/ModalAllShoppingCartsController.js"></script>
-		<script src="js/controllers/modals/ModalZPosController.js"></script>
-		<script src="js/controllers/modals/ModalManualBarcodeController.js"></script>
-		<script src="js/controllers/modals/ModalTypePriceController.js"></script>
-		<script src="js/controllers/modals/ModalLoginController.js"></script>
-		<script src="js/controllers/modals/ModalOpenPosController.js"></script>
-		<script src="js/controllers/modals/ModalClosePosController.js"></script>
-		<script src="js/controllers/modals/ModalCashValuesController.js"></script>
-		<script src="js/controllers/modals/ModalEditShoppingCartController.js"></script>
-		<script src="js/controllers/modals/ModalShoppingCartSplitController.js"></script>
-		<script src="js/controllers/modals/ModalShoppingCartNoteController.js"></script>
-		<script src="js/controllers/modals/ModalCommentController.js"></script>
-		<script src="js/controllers/modals/ModalTotalDividerController.js"></script>
-		<script src="js/controllers/modals/ModalTablePlanController.js"></script>
-		<script src="js/controllers/modals/ModalOpenAdminController.js"></script>
-		<script src="js/controllers/modals/ModalCustomerController.js"></script>
-		<script src="js/controllers/modals/ModalSelectConfigController.js"></script>
-		<script src="js/controllers/modals/ModalDeliveryChoiceController.js"></script>
-        <script src="js/controllers/modals/ModalCustomActionController.js"></script>
-        
-		<!-- Partials Controllers -->
-		<script src="js/controllers/partials/BarcodeTextFieldController.js"></script>
+    <!-- AppDemo -->
+    <!--<script src="js/appDemo.js"></script>
+    <script src="js/configPouchDbDemo.js"></script>
+    <script src="js/configIziBoxDemo.js"></script>-->
+    <!-- Admin libs -->
+    <script src="js/lib/AdminLibs/adminLibs.js"></script>
+    <script src="js/lib/AdminLibs/fullcalendar-2.6.1/moment.min.js"></script>
+    <script src="js/lib/AdminLibs/fullcalendar-2.6.1/fullcalendar.min.js"></script>
+    <script src="js/lib/AdminLibs/fullcalendar-2.6.1/lang-all.js"></script>
+    <script src="js/lib/AdminLibs/angular-material-data-table/md-data-table.min.js"></script>
+    <script src="js/lib/AdminLibs/justgage-1.2.2/raphael-2.1.4.min.js"></script>
+    <script src="js/lib/AdminLibs/justgage-1.2.2/justgage.js"></script>
 
-		<!-- CategoryTemplate Controllers -->
-		<script src="js/controllers/CategoryTemplate/IZIPASSController.js"></script>
 
-		<!-- ProductTemplate Controllers -->
-		<script src="js/controllers/ProductTemplate/ConfigurableMenuController.js"></script>
+    <!-- Controllers -->
+    <script src="js/controllers/AppController.js"></script>
+    <script src="js/controllers/LoadingController.js"></script>
+    <script src="js/controllers/ConfigurationController.js"></script>
+    <script src="js/controllers/CatalogController.js"></script>
+    <script src="js/controllers/CatalogMenuController.js"></script>
+    <script src="js/controllers/CategoryTemplateController.js"></script>
+    <script src="js/controllers/ProductTemplateController.js"></script>
+    <script src="js/controllers/MiniBasketController.js"></script>
+    <script src="js/controllers/CatalogDrawerMenuController.js"></script>
 
-		<!-- Services -->
-		<script src="js/services/categoryService.js"></script>
-		<script src="js/services/productService.js"></script>
-		<script src="js/services/pictureService.js"></script>
-		<script src="js/services/settingService.js"></script>
-		<script src="js/services/shoppingCartService.js"></script>
-		<script src="js/services/updateService.js"></script>
-		<script src="js/services/zposService.js"></script>
-		<script src="js/services/posUserService.js"></script>
-		<script src="js/services/posLogService.js"></script>
-		<script src="js/services/cashMovementService.js"></script>
-		<script src="js/services/ipService.js"></script>
-		<script src="js/services/storeMapService.js"></script>
-		<script src="js/services/authService.js"></script>
-		<script src="js/services/customerSearchService.js"></script>
-		<script src="js/services/orderShoppingCartService.js"></script>
-		<script src="js/services/taxesService.js"></script>
 
-		<!-- Models -->
-		<script src="js/models/shoppingCartModel.js"></script>
+    <!-- Modals Controllers -->
+    <script src="js/controllers/modals/ModalPaymentModeController.js"></script>
+    <script src="js/controllers/modals/ModalBarcodeReaderController.js"></script>
+    <script src="js/controllers/modals/ModalOffersController.js"></script>
+    <script src="js/controllers/modals/ModalPromoTextController.js"></script>
+    <script src="js/controllers/modals/ModalOneProductInCategoryController.js"></script>
+    <script src="js/controllers/modals/ModalUnfreezeShoppingCartController.js"></script>
+    <script src="js/controllers/modals/ModalShoppingCartDiscountController.js"></script>
+    <script src="js/controllers/modals/ModalTableController.js"></script>
+    <script src="js/controllers/modals/ModalAllShoppingCartsController.js"></script>
+    <script src="js/controllers/modals/ModalZPosController.js"></script>
+    <script src="js/controllers/modals/ModalManualBarcodeController.js"></script>
+    <script src="js/controllers/modals/ModalTypePriceController.js"></script>
+    <script src="js/controllers/modals/ModalLoginController.js"></script>
+    <script src="js/controllers/modals/ModalOpenPosController.js"></script>
+    <script src="js/controllers/modals/ModalClosePosController.js"></script>
+    <script src="js/controllers/modals/ModalCashValuesController.js"></script>
+    <script src="js/controllers/modals/ModalEditShoppingCartController.js"></script>
+    <script src="js/controllers/modals/ModalShoppingCartSplitController.js"></script>
+    <script src="js/controllers/modals/ModalShoppingCartNoteController.js"></script>
+    <script src="js/controllers/modals/ModalCommentController.js"></script>
+    <script src="js/controllers/modals/ModalTotalDividerController.js"></script>
+    <script src="js/controllers/modals/ModalTablePlanController.js"></script>
+    <script src="js/controllers/modals/ModalOpenAdminController.js"></script>
+    <script src="js/controllers/modals/ModalCustomerController.js"></script>
+    <script src="js/controllers/modals/ModalSelectConfigController.js"></script>
+    <script src="js/controllers/modals/ModalDeliveryChoiceController.js"></script>
+    <script src="js/controllers/modals/ModalCustomActionController.js"></script>
+    <script src="js/controllers/modals/ModalDiscountCartItemController.js"></script>
 
-		<!-- Directives -->
-		<script src="js/directives/directives.js"></script>
-		<script src="js/directives/filters.js"></script>
-		<script src="js/directives/textfield.js"></script>
+    <!-- Partials Controllers -->
+    <script src="js/controllers/partials/BarcodeTextFieldController.js"></script>
 
-		<!-- Core -->
-		<script src="js/core/Category.js"></script>
-		<script src="js/core/ShoppingCart.js"></script>
-		<script src="js/core/ShoppingCartItem.js"></script>
-		<script src="js/core/ShoppingCartDiscount.js"></script>
-		<script src="js/core/LoyaltyObjecBalancetUpdateModel.js"></script>
-		<script src="js/core/PaymentType.js"></script>
-		<script src="js/core/DeliveryTypes.js"></script>
+    <!-- CategoryTemplate Controllers -->
+    <script src="js/controllers/CategoryTemplate/IZIPASSController.js"></script>
 
-		<!-- Translations -->
-		<script src="js/translations/translations_en_EN.js"></script>
+    <!-- ProductTemplate Controllers -->
+    <script src="js/controllers/ProductTemplate/ConfigurableMenuController.js"></script>
 
-		<!-- Cordova -->
-		<script src="cordova.js"></script>
+    <!-- Services -->
+    <script src="js/services/categoryService.js"></script>
+    <script src="js/services/productService.js"></script>
+    <script src="js/services/pictureService.js"></script>
+    <script src="js/services/settingService.js"></script>
+    <script src="js/services/shoppingCartService.js"></script>
+    <script src="js/services/updateService.js"></script>
+    <script src="js/services/zposService.js"></script>
+    <script src="js/services/posUserService.js"></script>
+    <script src="js/services/posLogService.js"></script>
+    <script src="js/services/cashMovementService.js"></script>
+    <script src="js/services/ipService.js"></script>
+    <script src="js/services/storeMapService.js"></script>
+    <script src="js/services/authService.js"></script>
+    <script src="js/services/customerSearchService.js"></script>
+    <script src="js/services/orderShoppingCartService.js"></script>
+    <script src="js/services/taxesService.js"></script>
 
-		<title>IziPos</title>
-	</head>
-	<body id="appbody" ng-app="app" ng-controller="AppController" ng-init="init()">
-		<div class="loader" ng-show="loading > 0"></div>
-		<toast></toast>
-		<div class="keyboardContainer layout-row layout-align-{{keyboardLocation}}">
-			<div id="keyboard-decimal" ng-if="currentKeyboardType == 'decimal'" data-ng-keypad="keyboard-decimal" class="numpad relative"><!--ng-class="{'phone': $mdMedia('gt-sm') == false}">-->
-				<div ng-include="'partials/decimal.html'" layout-fill layout-padding></div>
-			</div>
-			<div id="keyboard-numeric" ng-if="currentKeyboardType == 'numeric'" data-ng-keypad="keyboard-numeric" class="numpad relative"> <!--ng-class="{'phone': $mdMedia('gt-sm') == false}">-->
-				<div ng-include="'partials/numeric.html'" layout-fill layout-padding></div>
-			</div>
-			<div id="keyboard-azerty" ng-if="currentKeyboardType == 'azerty'" data-ng-keypad="keyboard-azerty" class="azerty relative" ng-class="{'phone': $mdMedia('gt-sm') == false}">
-				<div ng-include="'partials/azerty.html'" layout-fill layout-padding></div>
-			</div>
-		</div>
-		<div layout="column" layout-fill ui-view></div>
-		<div id="loadAdmin"></div>
-	</body>
+    <!-- Models -->
+    <script src="js/models/shoppingCartModel.js"></script>
+
+    <!-- Directives -->
+    <script src="js/directives/directives.js"></script>
+    <script src="js/directives/filters.js"></script>
+    <script src="js/directives/textfield.js"></script>
+
+    <!-- Core -->
+    <script src="js/core/Category.js"></script>
+    <script src="js/core/ShoppingCart.js"></script>
+    <script src="js/core/ShoppingCartItem.js"></script>
+    <script src="js/core/ShoppingCartDiscount.js"></script>
+    <script src="js/core/LoyaltyObjecBalancetUpdateModel.js"></script>
+    <script src="js/core/PaymentType.js"></script>
+    <script src="js/core/DeliveryTypes.js"></script>
+
+    <!-- Translations -->
+    <script src="js/translations/translations_en_EN.js"></script>
+
+    <!-- Cordova -->
+    <script src="cordova.js"></script>
+
+    <title>IziPos</title>
+</head>
+<body id="appbody" ng-app="app" ng-controller="AppController" ng-init="init()">
+    <div class="loader" ng-show="loading > 0"></div>
+    <toast></toast>
+    <div class="keyboardContainer layout-row layout-align-{{keyboardLocation}}">
+        <div id="keyboard-decimal" ng-if="currentKeyboardType == 'decimal'" data-ng-keypad="keyboard-decimal" class="numpad relative">
+            <!--ng-class="{'phone': $mdMedia('gt-sm') == false}">-->
+            <div ng-include="'partials/decimal.html'" layout-fill layout-padding></div>
+        </div>
+        <div id="keyboard-numeric" ng-if="currentKeyboardType == 'numeric'" data-ng-keypad="keyboard-numeric" class="numpad relative">
+            <!--ng-class="{'phone': $mdMedia('gt-sm') == false}">-->
+            <div ng-include="'partials/numeric.html'" layout-fill layout-padding></div>
+        </div>
+        <div id="keyboard-azerty" ng-if="currentKeyboardType == 'azerty'" data-ng-keypad="keyboard-azerty" class="azerty relative" ng-class="{'phone': $mdMedia('gt-sm') == false}">
+            <div ng-include="'partials/azerty.html'" layout-fill layout-padding></div>
+        </div>
+    </div>
+    <div layout="column" layout-fill ui-view></div>
+    <div id="loadAdmin"></div>
+</body>
 </html>

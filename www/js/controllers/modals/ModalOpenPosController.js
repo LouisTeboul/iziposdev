@@ -15,9 +15,8 @@ app.controller('ModalOpenPosController', function ($scope, $rootScope, $uibModal
             if (paymentValues) {
                 var total = 0;
                 Enumerable.from(paymentValues.PaymentLines).forEach(function (l) {
-                    total = roundValue(total + l.PaymentMode.Total).toFixed(2);
+                    total = roundValue(total + l.PaymentMode.Total);
                 });
-
                 $scope.model.total = total;
             }
         });
@@ -57,8 +56,6 @@ app.controller('ModalOpenPosController', function ($scope, $rootScope, $uibModal
         }, function (err) {
             console.log(err);
         });
-
-
     }
 
     $scope.selectMotif = function (motif) {
@@ -66,8 +63,6 @@ app.controller('ModalOpenPosController', function ($scope, $rootScope, $uibModal
     }
 
     $scope.editCashValues = function () {
-
-
         var modalInstance = $uibModal.open({
             templateUrl: 'modals/modalCashValues.html',
             controller: 'ModalCashValuesController',
@@ -76,11 +71,8 @@ app.controller('ModalOpenPosController', function ($scope, $rootScope, $uibModal
         });
 
         modalInstance.result.then(function (total) {
-            $scope.openPosValues.CashMovementLines[0].PaymentMode.Total = roundValue(parseFloat(total)).toFixed(2);
-    
-        }, function () {
-        
-        });
+            $scope.openPosValues.CashMovementLines[0].PaymentMode.Total = roundValue(parseFloat(total)).toFixed(2);    
+        }, function () {});
     }
 
     $scope.ok = function () {
@@ -103,15 +95,13 @@ app.controller('ModalOpenPosController', function ($scope, $rootScope, $uibModal
             zposService.updatePaymentValuesAsync(updPaymentModes);
 
             $uibModalInstance.close();
-        } else {
-            sweetAlert({ title: $translate.instant("Veuillez renseigner le motif") }, function () {
-              
-            });            
+        } 
+        else {
+            sweetAlert({ title: $translate.instant("Veuillez renseigner le motif") }, function () {});            
         }
     }
 
-    $scope.cancel = function () {
-   
+    $scope.cancel = function () {   
         $uibModalInstance.dismiss('cancel');
     }
 });

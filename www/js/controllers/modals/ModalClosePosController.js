@@ -45,7 +45,6 @@
 				}
 			});
 
-
 		}, function (err) {
 			console.log(err);
 		});
@@ -56,7 +55,6 @@
 	}
 
 	$scope.editCashValues = function (paymentValue) {
-
 		var modalInstance = $uibModal.open({
 			templateUrl: 'modals/modalCashValues.html',
 			controller: 'ModalCashValuesController',
@@ -67,13 +65,11 @@
 		modalInstance.result.then(function (total) {
 			paymentValue.PaymentMode.Total = total;
 
-		}, function () {
-
-		});
+		}, function(){});
 	}
 
+	// Fermeture de caisse. Doit purger les tickets
 	$scope.ok = function () {
-	
 
 		swal({ title: $translate.instant("Cloturer la caisse ?"), text: "", type: "warning", showCancelButton: true, confirmButtonColor: "#d83448", confirmButtonText: $translate.instant("Oui"), cancelButtonText: $translate.instant("Non"), closeOnConfirm: true },
 			function () {
@@ -86,15 +82,10 @@
 					$rootScope.closeKeyboard();
 					$rootScope.closeKeyboard();
 				}, 500);
-
-			}, function () {
-			
-			});
+			}, function () {});
 	}
 
 	$scope.cancel = function () {
-	
-
 		$uibModalInstance.dismiss('cancel');
 
 		setTimeout(function () {

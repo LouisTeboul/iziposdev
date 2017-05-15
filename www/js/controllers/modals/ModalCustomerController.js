@@ -13,9 +13,7 @@ app.controller('ModalCustomerController', function ($scope, $rootScope, $q, $uib
 
 		setTimeout(function () {
 		    document.getElementById("txtComment").focus();
-		}, 0);
-
-	
+		}, 0);	
 		
 		$scope.newLoyalty = {            
 		};
@@ -40,13 +38,9 @@ app.controller('ModalCustomerController', function ($scope, $rootScope, $q, $uib
 	$scope.selectCustomer = function (barcode) {        
 		barcode = barcode.trim();
 		if (barcode) {
-		    $rootScope.showLoading();
+		    $rootScope.showLoading();		    
 
-		    
-
-		    //setTimeout(function () {
-		    //    $rootScope.hideLoading();
-		    //}, 500)
+		  
 			shoppingCartService.getLoyaltyObjectAsync(barcode).then(function (loyalty) {
 				if (loyalty) {
 					if ($scope.currentShoppingCart == undefined) {

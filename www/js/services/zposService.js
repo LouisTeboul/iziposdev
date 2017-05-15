@@ -156,7 +156,7 @@ app.service('zposService', ['$http', '$rootScope', '$q', 'posLogService',
     		return updateDefer.promise;
     	}
 
-        //Suppression du ZPOS
+        //Suppression du ZPOS sur la fermeture de caisse
     	this.purgeZPosAsync = function (all) {
     		var purgeZPosDefer = $q.defer();
 
@@ -310,6 +310,7 @@ app.service('zposService', ['$http', '$rootScope', '$q', 'posLogService',
 
     	    };
 
+            //Total par date
     	    Enumerable.from(countByDate).forEach(function (row) {
     	        var newLine = {
     	            date: row.key,
@@ -323,6 +324,7 @@ app.service('zposService', ['$http', '$rootScope', '$q', 'posLogService',
     	        zpos.count += newLine.count;
     	    });
 
+            //Total par moyen de paiement et par date
     	    Enumerable.from(paymentModesByDate).forEach(function(row){
     	        var type = row.key[1];
 
@@ -355,6 +357,7 @@ app.service('zposService', ['$http', '$rootScope', '$q', 'posLogService',
 
     	    });
 
+            //Total par mode de livraison par date
     	    Enumerable.from(deliveryTypeByDate).forEach(function (row) {
     	        var type = row.key[1];
 
@@ -381,6 +384,7 @@ app.service('zposService', ['$http', '$rootScope', '$q', 'posLogService',
 
     	    });
 
+            // Total par utilisateur de caisse
     	    Enumerable.from(userByDate).forEach(function (row) {
     	        var name = row.key[1];
 
@@ -391,7 +395,6 @@ app.service('zposService', ['$http', '$rootScope', '$q', 'posLogService',
     	                date: row.key[0],
     	                total: roundValue(row.value)
     	            });
-
     	        } else {
     	            newUser = {
     	                name: name,
@@ -404,9 +407,9 @@ app.service('zposService', ['$http', '$rootScope', '$q', 'posLogService',
     	            });
     	            zpos.employees.push(newUser);
     	        }
-
     	    });
 
+            //Total par taxe et par date
     	    Enumerable.from(taxByDate).forEach(function (row) {
     	        var taxCode = row.key[1];
 
@@ -433,6 +436,7 @@ app.service('zposService', ['$http', '$rootScope', '$q', 'posLogService',
 
     	    });
 
+            //Nombre de couvert par date
     	    Enumerable.from(cutleriesByDate).forEach(function (row) {
     	        zpos.cutleries.count += row.value;
     	        zpos.cutleries.byDate.push({
@@ -441,6 +445,7 @@ app.service('zposService', ['$http', '$rootScope', '$q', 'posLogService',
     	        });
     	    });
 
+            //Avoir par date
     	    Enumerable.from(creditByDate).forEach(function (row) {
     	        zpos.credit.total = roundValue(zpos.credit.total +row.value);
     	        zpos.credit.byDate.push({
@@ -449,6 +454,7 @@ app.service('zposService', ['$http', '$rootScope', '$q', 'posLogService',
     	        });
     	    });
 
+            //Rendu par date
     	    Enumerable.from(repaidByDate).forEach(function (row) {
     	        zpos.repaid.total = roundValue(zpos.repaid.total  +row.value);
     	        zpos.repaid.byDate.push({
@@ -460,11 +466,15 @@ app.service('zposService', ['$http', '$rootScope', '$q', 'posLogService',
     	    zpos.totalET = roundValue(zpos.totalET);
     	    zpos.totalIT = roundValue(zpos.totalIT);
 
-    	    zpos.totalsByDate = roundValue(zpos.totalsByDate);
-            //console.log(JSON.stringify(zpos));
+    	    zpos.totalsByDate = roundValue(zpos.totalsByDate);            
     	    zposDefer.resolve(zpos);
     	}
         //#endregion
+
+        /*
+        * Récupération des valeur du z de caisse restitué par les vues couchDb
+        * Vue stockés dans le couchDb et généré par l'application mono
+        */
     	this.getZPosValuesAsync = function (dateStartObj, dateEndObj) {
     		var zposDefer = $q.defer();
 
@@ -560,7 +570,7 @@ app.service('zposService', ['$http', '$rootScope', '$q', 'posLogService',
     		return zposDefer.promise;
     	}
 
-        //Création du Zpos pour le ticket
+        //Création du Zpos au format HTML pour l'envoi par mail
     	this.createZPosHtml = function (zpos) {
 
     		//#region Generate HTML printable
@@ -644,6 +654,7 @@ app.service('zposService', ['$http', '$rootScope', '$q', 'posLogService',
     		return html;
     	}
 
+        //Impression du z de caisse
     	this.printZPosAsync = function (zpos) {
     		var printDefer = $q.defer();
 
@@ -671,6 +682,7 @@ app.service('zposService', ['$http', '$rootScope', '$q', 'posLogService',
 
     	}
 
+        //Envoi par mail du z de caisse
     	this.emailZPosAsync = function (zpos) {
     		var emailDefer = $q.defer();
 

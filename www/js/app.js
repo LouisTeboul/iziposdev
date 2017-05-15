@@ -35,6 +35,7 @@ app.config(function ($stateProvider, $urlRouterProvider, ngToastProvider, $trans
 					// config.headers['Content-Type'] = 'application/json';//'application/x-www-form-urlencoded';
 				}
 				return $q.when(config);
+				
 			}            
 
 		};
@@ -48,7 +49,7 @@ app.run(function ($rootScope, $location, $q, $http, ipService, zposService, $tra
 	try {
 		angularLocation = $location;
 
-		$rootScope.Version = "2.1.1.31031";
+		$rootScope.Version = "2.1.1.04051";
 		$rootScope.adminMode = { state: false };
 		$rootScope.loading = 0;
 
@@ -145,16 +146,13 @@ var init = function ($rootScope, $location, $q, $http, ipService, zposService, $
 		if (navigator.userAgent.match(/(WPF)/)) {
 			try {
 				wpfKeyboard.showKeyboard();
-			} catch (err) {
-			}
+			} catch (err) {}
 		}
 
 		if (!openCordovaKeyboard) {
 			try {
 				cordova.plugins.Keyboard.show();
-			} catch (err) {
-
-			}
+			} catch (err) {}
 		}
 
 		$rootScope.keyboardVisible = true;
@@ -165,20 +163,15 @@ var init = function ($rootScope, $location, $q, $http, ipService, zposService, $
 		if (navigator.userAgent.match(/(WPF)/)) {
 			try {
 				wpfKeyboard.hideKeyboard();
-			} catch (err) {
-			}
+			} catch (err) {}
 		}
 
 		try {
 			cordova.plugins.Keyboard.close();
-		} catch (err) {
-
-		}
+		} catch (err) {}
 
 		$rootScope.keyboardVisible = false;
 	}
-
-
 	$location.path("/");
 }
 

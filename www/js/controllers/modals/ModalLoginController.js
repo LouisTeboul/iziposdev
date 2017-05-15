@@ -1,13 +1,11 @@
 ﻿app.controller('ModalLoginController', function ($scope, $rootScope, $uibModalInstance, posUserService, pictureService, Idle ,md5) {
+    
     $scope.init = function () {
-
         initializePosUsers();
         Idle.unwatch();
-
     	//  $scope.$emit(Keypad.CLOSE, "numeric");
         $rootScope.closeKeyboard();
     };
-
 
     var pouchDBChangedHandler = $rootScope.$on('pouchDBChanged', function (event, args) {
         if (args.status == "Change" && (args.id.indexOf('PosUser') == 0 || args.id.indexOf('Picture') == 0)) {
@@ -20,6 +18,9 @@
     	$rootScope.closeKeyboard();
     });
 
+    /*
+    *
+    */
     var initializePosUsers = function()
     {
         posUserService.getPosUsersAsync().then(function (posUsers) {
