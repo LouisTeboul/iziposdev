@@ -129,18 +129,25 @@ app.service('orderShoppingCartService', ["$http", "$rootScope", "$q", "settingSe
     		var unfreezeDefer = $q.defer();
     		shoppingCart.Timestamp = new Date().getTime();
     		shoppingCart.CurrentStep = 0;
-    	    /// Search payments Methods
-    		settingService.getPaymentModesAsync().then(function (paymentSetting) {
+            
+            if(shoppingCart.isPayed){
+                // Search payments Methods
+                settingService.getPaymentModesAsync().then(function (paymentSetting) {
+                    var paymentModesAvailable = paymentSetting;
 
-    		    var paymentModesAvailable = paymentSetting;
-
-    		    Enumerable.from(shoppingCart.PaymentModes).forEach(function (item) {
-    		        var p = Enumerable.from(paymentModesAvailable).where('x => x.Text == item.Text').firstOrDefault();
-    		        if (p) item.PaymentType = p.PaymentType;
-    		    });
-    		});
-
-    		
+                    Enumerable.from(shoppingCart.PaymentModes).forEach(function (item) {
+                        var p = Enumerable.from(paymentModesAvailable).where('x => x.Text == item.Text').firstOrDefault();
+                        if (p) item.PaymentType = p.PaymentType;
+                    });
+                });
+            }
+            else
+            {
+                shoppingCart.PaymentModes = undefined;
+                shoppingCart.PaymentModes = [];
+                
+            }
+            
     		$rootScope.dbOrder.rel.del('ShoppingCart', { id: shoppingCart.id, rev: shoppingCart.rev }).then(function (result) {
     			unfreezeDefer.resolve(true);
     		}, function (errDel) {

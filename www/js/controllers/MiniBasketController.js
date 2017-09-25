@@ -35,6 +35,13 @@ app.controller('MiniBasketController', ['$scope', '$rootScope', '$state', '$uibM
 				ticketOpen : true
 			}
 
+            // BUGFIX: The loyalty div was modified after the miniBasketResize()            
+            $scope.$watch(function(){ 
+                    return document.getElementById("loyaltyRow").clientHeight;                 
+                },function (){               
+                resizeMiniBasket(); 
+            });
+            
 			currentShoppingCartHandler = $scope.$watchCollection('currentShoppingCart', function () {
 				if ($scope.currentShoppingCart) {
 					$scope.filteredTaxDetails = taxesService.groupTaxDetail($scope.currentShoppingCart.TaxDetails);
@@ -498,6 +505,9 @@ app.controller('MiniBasketController', ['$scope', '$rootScope', '$state', '$uibM
 
 		//#region Misc
 		var resizeMiniBasket = function () {
+            
+           
+            
 			var miniBasketDiv = document.getElementById("miniBasket");
 
 			if (miniBasketDiv) {
@@ -521,7 +531,11 @@ app.controller('MiniBasketController', ['$scope', '$rootScope', '$state', '$uibM
 				}
 
 				if (loyaltyRowDiv) {
-					divHeight += loyaltyRowDiv.clientHeight;
+                    
+                   
+                        divHeight += loyaltyRowDiv.clientHeight;
+                   
+					
 				}
 
 				if (paymentModesDiv) {
@@ -537,7 +551,8 @@ app.controller('MiniBasketController', ['$scope', '$rootScope', '$state', '$uibM
 				if (miniBasketInfosDiv) {
 					miniBasketInfosDiv.style.maxHeight = itemsHeight + "px";
 				}
-			}
+			}               
+               
 		}
 		//#endregion
 

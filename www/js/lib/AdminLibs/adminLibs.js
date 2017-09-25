@@ -1,15 +1,15 @@
-﻿
+
 app.config(function ($mdIconProvider) {
 
     // Icone management
     $mdIconProvider
-              .iconSet("file", '/img/icons/sets/file-icons.svg', 24)
-              .iconSet("editor", '/img/icons/sets/editor-icons.svg', 24)
-              .iconSet("social", '/img/icons/sets/social-icons.svg', 24)
-              .iconSet("action", '/img/icons/sets/action-icons.svg', 24)
-              .iconSet("content", '/img/icons/sets/content-icons.svg', 24)
-              .iconSet("av", '/img/icons/sets/av-icons.svg', 24)
-              .iconSet("navigation", '/img/icons/sets/navigation-icons.svg', 24);
+              .iconSet("file", 'img/icons/sets/file-icons.svg', 24)
+              .iconSet("editor", 'img/icons/sets/editor-icons.svg', 24)
+              .iconSet("social", 'img/icons/sets/social-icons.svg', 24)
+              .iconSet("action", 'img/icons/sets/action-icons.svg', 24)
+              .iconSet("content", 'img/icons/sets/content-icons.svg', 24)
+              .iconSet("av", 'img/icons/sets/av-icons.svg', 24)
+              .iconSet("navigation", 'img/icons/sets/navigation-icons.svg', 24);
 
 
 });

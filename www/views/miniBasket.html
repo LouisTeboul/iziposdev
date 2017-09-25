@@ -28,8 +28,8 @@
                 <strong><x translate>Email : </x> {{currentShoppingCart.customerLoyalty.CustomerEmail}} </strong>
                  &nbsp;&nbsp;&nbsp;
                 <!-- If the user has signed the legal agreement -->
-                <img src="img/agreementtrue.png"  ng-if="currentShoppingCart.customerLoyalty.HasValidLegalAgreement" style="max-width: 15px;" />
-                <img src="img/agreementFalse.png"  ng-if="!currentShoppingCart.customerLoyalty.HasValidLegalAgreement" style="max-width: 15px;" />          
+                <img src="img/agreementTrue.png"  ng-if="currentShoppingCart.customerLoyalty.HasValidLegalDocument" style="max-width: 15px;" />
+                <img src="img/agreementFalse.png"  ng-if="!currentShoppingCart.customerLoyalty.HasValidLegalDocument" style="max-width: 15px;" />          
                 <span class="glyphicon glyphicon-remove" ng-click="removeLoyaltyInfo()" style="float:right;font-size: 18px; margin-top: 4px; margin-right: 4px;"></span>
             </div>
             <div ng-if="currentShoppingCart.customerLoyalty

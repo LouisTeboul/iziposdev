@@ -557,6 +557,9 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state','$timeout', '$uib
 					}
 					current.printPOSShoppingCart(toSave,ignorePrintTicket);													//Print ticket 
 
+					if ($rootScope.IziBoxConfiguration.ForcePrintProdTicket) {                                              //Print the Prod Ticket 
+					    current.printProdShoppingCart(toSave);
+					}
 				}, function (err) {
 					$rootScope.hideLoading();
 					sweetAlert($translate.instant("Erreur de sauvegarde du panier !"));
@@ -657,14 +660,20 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state','$timeout', '$uib
 		}
 		
 		//Send the ticket on the production printer
-		this.printProdShoppingCart = function () {
-			if (currentShoppingCart != undefined && currentShoppingCart.Items.length > 0) {
+		this.printProdShoppingCart = function (forceShoppingCart) {
 
-				currentShoppingCart.Date = new Date().toString('dd/MM/yyyy H:mm:ss');
+		    var shoppingCart = currentShoppingCart;
+
+		    if (forceShoppingCart != undefined && forceShoppingCart.Items.length > 0) {
+		        shoppingCart = forceShoppingCart;
+		    }
+		    if (shoppingCart != undefined && shoppingCart.Items.length > 0) {
+
+		        shoppingCart.Date = new Date().toString('dd/MM/yyyy H:mm:ss');
 
 				//Suppression des lignes à qté 0
-				var toPrint = clone(currentShoppingCart);
-				toPrint.Items = Enumerable.from(currentShoppingCart.Items).where("item => item.Quantity > 0").toArray();
+		        var toPrint = clone(shoppingCart);
+		        toPrint.Items = Enumerable.from(shoppingCart.Items).where("item => item.Quantity > 0").toArray();
 
 				
 
@@ -1044,7 +1053,7 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state','$timeout', '$uib
 
 				//Remove offers that no longer apply 
 				var offersToRemove = Enumerable.from(currentShoppingCart.customerLoyalty.Offers).where(function (o) {
-					return o.isValid && (o.OfferParam.MinOrderIncTax != undefined && o.OfferParam.MinOrderIncTax > totalCart) && o.isApplied;
+                    return o.OfferParam != null && o.isValid && (o.OfferParam.MinOrderIncTax != undefined && o.OfferParam.MinOrderIncTax > totalCart) && o.isApplied;
 				}).toArray();
 
 				if (offersToRemove.length > 0) {
@@ -1054,7 +1063,7 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state','$timeout', '$uib
 				if (!(Enumerable.from(currentShoppingCart.customerLoyalty.Offers).any("o=>o.isApplied"))) {
 					//Obtains relevant offers
 					currentShoppingCart.customerLoyalty.RelevantOffers = Enumerable.from(currentShoppingCart.customerLoyalty.Offers).where(function (o) {
-						return o.isValid && (o.OfferParam.MinOrderIncTax == undefined || (o.OfferParam.MinOrderIncTax != undefined && o.OfferParam.MinOrderIncTax <= totalCart)) && !o.isApplied;
+                        return o.OfferParam != null && o.isValid && (o.OfferParam.MinOrderIncTax == undefined || (o.OfferParam.MinOrderIncTax != undefined && o.OfferParam.MinOrderIncTax <= totalCart)) && !o.isApplied;
 					}).toArray();
 
 				} else {

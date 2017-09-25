@@ -594,9 +594,23 @@ app.service('zposService', ['$http', '$rootScope', '$q', 'posLogService',
     		//payment
     		for (var idxPM = 0; idxPM < zpos.paymentModes.length; idxPM++) {
     			htmlLines.push("<tr>");
+                
     			htmlLines.push("<td style='width:65%'>" + zpos.paymentModes[idxPM].type + " : </td>");
+                
+               
     			htmlLines.push("<td style='width:10%;text-align:center'>" + zpos.paymentModes[idxPM].count + "</td>");
-    			htmlLines.push("<td style='width:25%;text-align:right'>" + zpos.paymentModes[idxPM].total + "</td>");
+
+                if(zpos.paymentModes[idxPM].type.toUpperCase().indexOf("ESP") == 0)
+                {
+                    console.log(zpos.paymentModes[idxPM].total);
+                    htmlLines.push("<td style='width:25%;text-align:right'>" + (zpos.paymentModes[idxPM].total - zpos.repaid.total)+ "</td>");
+                }
+                else
+                {
+                    
+                    htmlLines.push("<td style='width:25%;text-align:right'>" + zpos.paymentModes[idxPM].total + "</td>");
+                }
+    			
     			htmlLines.push("</tr>");
     		}
 
@@ -665,7 +679,7 @@ app.service('zposService', ['$http', '$rootScope', '$q', 'posLogService',
     		console.log("PrinterApiUrl : " + printerApiUrl);
 
     		var htmlPrintReq = {
-    			PrinterIdx: $rootScope.PrinterConfiguration.ProdPrinter,
+    			PrinterIdx: $rootScope.PrinterConfiguration.POSPrinter,
     			Html: html
     		}
 

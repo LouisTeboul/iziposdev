@@ -1,6 +1,6 @@
 ﻿
 // Reddit constructor function to encapsulate HTTP and pagination logic
-app.factory('CustomerSearch', function ($http) {
+app.factory('CustomerSearch', function ($rootScope, $http) {
     var CustomerSearch = function (newBooking) {
         this.query = '';
         this.items = [];
@@ -38,24 +38,26 @@ app.factory('CustomerSearch', function ($http) {
         // Set the page to null so we know it is already being fetched.
         this.loadedPages[pageNumber] = null;
 
-        var url = "http://montpellier.bigsister.biz/Admin/Booking/SearchCustomer?query=" + this.query + "&pageSize=" + this.PAGE_SIZE + "&page=" + pageNumber;
+        if (this.query != undefined && this.query != '') {
+            var url = $rootScope.IziBoxConfiguration.BookingEndpoint + "/Admin/Booking/SearchCustomer?query=" + this.query + "&pageSize=" + this.PAGE_SIZE + "&page=" + pageNumber;
 
-        $http({
-            method: 'GET',
-            url: url
-        }).then(function successCallback(response) {
-            if (response.data) {
-                this.totalCount = response.data.totalCount;
-                this.loadedPages[pageNumber] = [];
-                if (response.data.items) {
-                    var ret = response.data.items;
-                    this.loadedItems = true;
-                    for (var i = 0; i < ret.length; i++) {
-                        this.loadedPages[pageNumber].push(ret[i]);
+            $http({
+                method: 'GET',
+                url: url
+            }).then(function successCallback(response) {
+                if (response.data) {
+                    this.totalCount = response.data.totalCount;
+                    this.loadedPages[pageNumber] = [];
+                    if (response.data.items) {
+                        var ret = response.data.items;
+                        this.loadedItems = true;
+                        for (var i = 0; i < ret.length; i++) {
+                            this.loadedPages[pageNumber].push(ret[i]);
+                        }
                     }
                 }
-            }
-        }.bind(this));
+            }.bind(this));
+        }
     };
 
     CustomerSearch.prototype.fetchNumItems_ = function () {

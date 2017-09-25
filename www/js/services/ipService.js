@@ -7,11 +7,27 @@
             var localIpDefer = $q.defer();
 
             try {
+                var isIpfound = false;
+                var test;
+
+                // @deprecated  GetIpAddress points to GetWifiIpAddress                    
                 networkinterface.getIPAddress(function (ip) {
+                    test = ip;
+                    if(ip!=undefined){
+                        isIpfound = true;
+                    }
                     localIpDefer.resolve({ local: ip, izibox: iziboxIp });
                 });
+                
+                if(!isIpfound){                    
+                    // TODO: reverse order - Ethernet connection is better
+                     networkinterface.getCarrierIPAddress(function (ip) {
+                        localIpDefer.resolve({ local: ip, izibox: iziboxIp });
+                    });
+                 }
+                
             } catch (errIP) {
-                try {
+                try {                    
                     window.RTCPeerConnection = window.RTCPeerConnection || window.mozRTCPeerConnection || window.webkitRTCPeerConnection;   //compatibility for firefox and chrome
                     var pc = new RTCPeerConnection({ iceServers: [] }), noop = function () { };
                     pc.createDataChannel("");    //create a bogus data channel

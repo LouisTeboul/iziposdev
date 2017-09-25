@@ -14,7 +14,11 @@
 	$rootScope.$watch('RatioConfiguration.PortraitRatio', function () { updateMeta(); });
 
 	var updateMeta = function () {
-		if ($rootScope.RatioConfiguration) {
+		
+		var body = $("body")[0];
+		body.style.zoom = "60%";
+
+		/*if ($rootScope.RatioConfiguration) {
 			var body = $("body")[0];
 
 			if ($(window).width() < $(window).height()) {
@@ -24,7 +28,7 @@
 				if ($rootScope.RatioConfiguration.LandscapeRatio < 10) $rootScope.RatioConfiguration.LandscapeRatio = 100;
 				body.style.zoom = $rootScope.RatioConfiguration.LandscapeRatio+"%";
 			}
-		}
+		}*/
 	}
 
 	$scope.keyboardLocation = "center-center";

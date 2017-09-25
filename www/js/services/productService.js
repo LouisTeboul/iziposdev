@@ -313,7 +313,15 @@
                                     return self.getProductCommentsForProductIdsAsync(linkedProductIds);
                                 })
                                 .then(function (resProductComments) {
-                                datasProducts.ProductComments = resProductComments;
+                                    if (datasProducts.ProductComments.length > 0) {
+
+                                        var newProductComments = datasProducts.ProductComments.concat(resProductComments);
+
+                                        datasProducts.ProductComments = newProductComments;
+                                    }
+                                    else {
+                                        datasProducts.ProductComments = resProductComments;
+                                    }
 
 
 

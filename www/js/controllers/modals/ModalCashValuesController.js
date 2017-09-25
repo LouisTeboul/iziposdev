@@ -75,6 +75,77 @@ app.controller('ModalCashValuesController', function ($scope, $rootScope, $uibMo
                         "count": 0
                     },
                     {
+                        "value": 0.25,
+                        "picture": "img/money/piece-20c.png",
+                        "count": 0
+                    },
+                    {
+                        "value": 0.1,
+                        "picture": "img/money/piece-10c.png",
+                        "count": 0
+                    },
+                    {
+                        "value": 0.05,
+                        "picture": "img/money/piece-5c.png",
+                        "count": 0
+                    },                   
+                    {
+                        "value": 0.01,
+                        "picture": "img/money/piece-1c.png",
+                        "count": 0
+                    }
+                ]
+        };
+
+        $scope.money2 = {
+            "total": 0,
+            "other": 0,
+            "bills":
+                [      
+                {
+                    "value": 100,
+                    "picture": "img/money/billet-100e.png",
+                    "count": 0
+                },
+                {
+                    "value": 50,
+                    "picture": "img/money/billet-50e.png",
+                    "count": 0
+                },
+                {
+                    "value": 20,
+                    "picture": "img/money/billet-20e.png",
+                    "count": 0
+                },
+                {
+                    "value": 10,
+                    "picture": "img/money/billet-10e.png",
+                    "count": 0
+                },
+                {
+                    "value": 5,
+                    "picture": "img/money/billet-5e.png",
+                    "count": 0
+                }
+                ],
+            "coins":
+                [
+                    {
+                        "value": 2,
+                        "picture": "img/money/piece-2e.png",
+                        "count": 0
+                    },
+                    {
+                        "value": 1,
+                        "picture": "img/money/piece-1e.png",
+                        "count": 0
+                    },
+                    {
+                        "value": 0.5,
+                        "picture": "img/money/piece-50c.png",
+                        "count": 0
+                    },
+                    {
                         "value": 0.2,
                         "picture": "img/money/piece-20c.png",
                         "count": 0

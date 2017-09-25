@@ -48,7 +48,7 @@ app.run(function ($rootScope, $location, $q, $http, ipService, zposService, $tra
 	try {
 		angularLocation = $location;
 
-		$rootScope.Version = "2.0.0.15 DEMO";
+		$rootScope.Version = "2.0 POS DEMO";
 		$rootScope.adminMode = { state: false };
 		$rootScope.loading = 0;
 		$rootScope.isDemo = true;
@@ -67,6 +67,13 @@ app.run(function ($rootScope, $location, $q, $http, ipService, zposService, $tra
 		$rootScope.PosUserId = -1;
 		$rootScope.PosUserName = "";
 		window.sessionStorage.clear();
+
+
+
+		//var body = $("body")[0];
+		//body.style.zoom = 75%;
+		
+
 
 		window.onerror = function myErrorHandler(errorMsg, url, lineNumber) {
 			console.log("Error occured: " + errorMsg);//or any message
@@ -96,6 +103,8 @@ var init = function ($rootScope, $location, $q, $http, ipService, zposService, $
 	//Init services
 	zposService.init();
 
+
+	
 	//IziBoxConfiguration
 	app.getConfigIziBoxAsync($rootScope, $q, $http, ipService, $translate, $location).then(function (config) {
 

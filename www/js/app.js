@@ -1,4 +1,4 @@
-var app = angular.module('app', ['ui.router', 'ngMaterial', 'ui.bootstrap', 'ngSanitize', 'toggle-switch','kendo.directives', 'ngIdle', 'ngKeypad', 'ngDraggable', 'angular-md5', 'ngToast', 'pascalprecht.translate']);
+var app = angular.module('app', ['ui.router', 'ngMaterial', 'ui.bootstrap', 'ngSanitize', 'toggle-switch', 'kendo.directives', 'ngIdle', 'ngKeypad', 'ngDraggable', 'angular-md5', 'ngToast', 'pascalprecht.translate', 'md.data.table', 'frapontillo.gage']);
 var controllerProvider = null;
 var $routeProviderReference = null;
 var angularLocation = null;
@@ -49,7 +49,7 @@ app.run(function ($rootScope, $location, $q, $http, ipService, zposService, $tra
 	try {
 		angularLocation = $location;
 
-		$rootScope.Version = "2.1.1.04051";
+		$rootScope.Version = "2.1.1.18092";
 		$rootScope.adminMode = { state: false };
 		$rootScope.loading = 0;
 

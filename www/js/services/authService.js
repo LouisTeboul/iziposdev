@@ -10,7 +10,7 @@
             if ($rootScope.PosLog && $rootScope.PosLog.HardwareId) {
                 $http({
                     method: 'POST',
-                    url: $rootScope.IziBoxConfiguration.UrlSmartStoreApi + '/login',
+                    url: $rootScope.IziBoxConfiguration.UrlSmartStoreApi + 'v2/login',
                     data: 'grant_type=password&username=HardwareId:' + $rootScope.PosLog.HardwareId + '&password='
                 }).then(function successCallback(response) {
                     console.log(response);
