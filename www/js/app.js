@@ -37,7 +37,15 @@ app.run(function ($rootScope, $location, $q, $http, ipService, zposService, $tra
 
 		$rootScope.Version = "3.0.0.15111";
 		$rootScope.adminMode = { state: false };
-		$rootScope.loading = 0;
+        $rootScope.loading = 0;
+
+        $rootScope.modelPos = {
+            posNumber: 1,
+            isPosOpen: false,
+            hardwareId: undefined,
+            iziboxConnected: false,
+            RKCounter: 0
+        };
 
 		$rootScope.showLoading = function () {
 			$rootScope.loading++;
@@ -107,15 +115,6 @@ var initServices = function ($rootScope,$injector) {
 };
 
 var init = function ($rootScope, $location, $q, $http, ipService, zposService, $translate, $uibModal) {
-
-    $rootScope.modelPos = {
-        posNumber: 1,
-        isPosOpen: false,
-        hardwareId: undefined,
-        iziboxConnected: false,
-        RKCounter: 0
-    };
-
 	// IziBoxConfiguration
 	app.getConfigIziBoxAsync($rootScope, $q, $http, ipService, $translate, $location, $uibModal).then(function (config) {
 
