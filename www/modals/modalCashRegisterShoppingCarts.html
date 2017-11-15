@@ -1,0 +1,34 @@
+﻿﻿<section class="shoppingCartModal" ng-init="init()">
+    <div class="modal-header">
+        <h1 class="modal-title">Tickets de la caisse</h1>
+    </div>
+
+    <div class="form-panel modal-body">
+
+        <div ng-hide="loading" class="row">
+
+            <label for="filterAmount" class="control-label col-md-3">Montant</label>
+        </div>
+        <div ng-hide="loading" class="row selectDate">
+            <div class="row">
+                <div class="input-group input-group-date col-md-3">
+                    <text-field id="filterAmount" ng-model="filterAmount" location="end-start" type="decimal" validfunction="filterAmountHandler" style="width: 155px;height:33px;border-color: #cecdcd;border-radius: 2px;padding-top: 1px;font-size: medium;"></text-field>
+                    <span class="input-group-btn">
+                        <button type="button" class="btn btn-default" ng-click="filterAmountHandler(); "><i class="glyphicon glyphicon-search"></i></button>
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div ng-if="loading">
+            <center><h2>Chargement...</h2></center>
+        </div>
+        <kendo-grid ng-hide="loading" k-data-source="gridDatas"
+                    k-columns="gridColumns" k-sortable="true" k-filterable="false" k-groupable="false" k-pageable="true" k-scrollable="true">
+        </kendo-grid>
+    </div>
+
+    <div class="modal-footer">
+        <button class="btn btn-success" ng-click="ok()" translate>OK</button>
+    </div>
+
+</section>

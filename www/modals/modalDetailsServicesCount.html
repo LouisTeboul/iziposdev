@@ -1,0 +1,47 @@
+﻿<section ng-init="init()" modal-location="left">
+    <div class="modal-header">
+        <h1 class="modal-title" translate>Détails du comptage des services</h1>
+    </div>
+    <tabset>
+        <tab ng-repeat="yPeriod in model.yPeriodsModels ">
+            <tab-heading>
+                <x>{{printDate(yPeriod)}}</x>
+            </tab-heading>
+
+            <div class="form-panel modal-body modal-closepos">
+                <div class="row" style="border-bottom: 1px solid lightgray;margin-bottom:10px">
+                    <div style="width:35%;float:left">
+                        <div class="title" translate>Paiements</div>
+                    </div>
+                    <div style="width:15%;float:left">
+                        <div class="title centered" translate>Nb</div>
+                    </div>
+                    <div style="width:25%;float:left">
+                        <div class="title centered" translate>Montant saisi</div>
+                    </div>
+                    <div style="width:25%;float:left">
+                        <div class="title centered" translate>Montant attendu</div>
+                    </div>
+                </div>
+
+                <div class="row" ng-repeat="l in yPeriod.YCountLines">
+                    <div style="width:35%;float:left">
+                        <div class="title">{{l.PaymentMode.Text}}</div>
+                    </div>
+                    <div style="width:15%;float:left">
+                        <div class="title centered">{{l.Count}}</div>
+                    </div>
+                    <div style="width:25%;float:left">
+                        <div class="title centered">{{l.TotalKnown | CurrencyFormat}}</div>
+                    </div>
+                    <div style="width:25%;float:left">
+                        <div class="title centered">{{l.PaymentMode.Total | CurrencyFormat}}</div>
+                    </div>
+                </div>
+            </div>
+        </tab>
+    </tabset>
+    <div class="modal-footer">
+        <button class="btn btn-danger" ng-click="cancel()" translate>Fermer</button>
+    </div>
+</section>
