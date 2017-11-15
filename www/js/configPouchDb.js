@@ -804,7 +804,7 @@ var syncUtilsDb = function ($rootScope) {
                     syncRunning = false;
 
                     $rootScope.dbUtils.sync($rootScope.remoteDbUtils, settingsPouchDB.optsSync).on('active', function () {
-                        console.log("utils_sync active");
+                        //console.log("utils_sync active");
                     }).on('change', function () {
                         console.log("utils_sync change");
                         $rootScope.$emit("dbUtilsUpdated");
@@ -817,7 +817,7 @@ var syncUtilsDb = function ($rootScope) {
                         console.log("utils_sync error");
                         runUtilsSync();
                     });
-                }, immediately ? 0 : 10000);
+                }, immediately ? 0 : 5000);
             }
         };
 

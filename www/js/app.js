@@ -35,7 +35,7 @@ app.run(function ($rootScope, $location, $q, $http, ipService, zposService, $tra
 	try {
 		angularLocation = $location;
 
-		$rootScope.Version = "3.0.0.15111";
+		$rootScope.Version = "3.0.0.15112";
 		$rootScope.adminMode = { state: false };
         $rootScope.loading = 0;
 
@@ -112,6 +112,9 @@ var initServices = function ($rootScope,$injector) {
     posService.startIziboxDaemon();
     posService.checkIziboxAsync();
     posService.initRkCounterListener();
+
+    var posPeriodService = $injector.get('posPeriodService');
+    posPeriodService.initPeriodListener();
 };
 
 var init = function ($rootScope, $location, $q, $http, ipService, zposService, $translate, $uibModal) {
