@@ -4,12 +4,11 @@
             url: '/izipass/{id}',
             templateUrl: 'views/CategoryTemplate/IZIPASS.html'
         })
-})
+});
 
 
 app.controller('IZIPASSController', function ($scope, $rootScope, $stateParams,$location,$state, categoryService, productService, pictureService) {
     var self = this;
-
 
     var pouchDBChangedHandler = $rootScope.$on('pouchDBChanged', function (event, args) {
         if (args.status == "Change" && (args.id.indexOf('Product') == 0 || args.id.indexOf('Category') == 0)) {
@@ -21,22 +20,21 @@ app.controller('IZIPASSController', function ($scope, $rootScope, $stateParams,$
         pouchDBChangedHandler();
     });
 
-    $scope.init = function () {
-        
-        //Get selected category
+    $scope.init = function () {        
+        // Get selected category
         var categoryId = $stateParams.id;
         categoryService.getCategoryByIdAsync(categoryId).then(function (category) {
             var c = new Category(category);
 
             $scope.category = category;
 
-            //Get products for this category
+            // Get products for this category
             productService.getProductForCategoryAsync(categoryId).then(function (results) {
                 if (results) {
 
                     $scope.products = Enumerable.from(results).orderBy('x => x.ProductCategory.DisplayOrder').toArray();
 
-                    //Pictures
+                    // Pictures
                     Enumerable.from($scope.products).forEach(function (p) {
                         pictureService.getPictureIdsForProductAsync(p.Id).then(function (ids) {
                             var id = Enumerable.from(ids).firstOrDefault();
@@ -49,16 +47,12 @@ app.controller('IZIPASSController', function ($scope, $rootScope, $stateParams,$
                             });
                         });
                     });
-                }
-
-                //$rootScope.hideLoading();
-
+                }              
             }, function (err) {
-               // $rootScope.hideLoading();
+                console.log(err);              
             });
         }, function (err) {
-            //$rootScope.hideLoading();
+            console.log(err);
         });
     };
-
 });

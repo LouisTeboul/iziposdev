@@ -1,4 +1,4 @@
-﻿<div class="button-wrapper" layout="row" layout-wrap layout-fill layout-align="space-around stretch">
+﻿<div class="button-wrapper" layout="row" layout-wrap layout-fill layout-align="space-around stretch" draggable>
 	<button data-ng-key="1" class="circle">1</button>
 	<button data-ng-key="2" class="circle">2</button>
 	<button data-ng-key="3" class="circle">3</button>
@@ -18,4 +18,5 @@
 	<button data-ng-key="[CLEAR]" style="margin-top:25px" class="smaller warning"><span><img style="width:30px" src="img/erase.png"></span></button>
 	<button data-ng-key="." style="margin-top:25px" class="circle">,</button>
 	<button data-ng-key="[NEXT]" style="margin-top:25px" class="smaller success">OK</button>
+	<button ng-click="closeKeyboard();" style="margin-top:15px" class="circle alert glyphicon glyphicon-remove"></button>
 </div>

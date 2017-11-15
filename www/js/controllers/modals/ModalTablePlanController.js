@@ -10,21 +10,24 @@
 	$scope.isLoading = false;
 	$scope.mapSelectedIndex = 0;
 	$scope.$mdMedia = $mdMedia;
-
 	$scope.storeMap = currentStoreMap;
-
 	$scope.freezedShoppingCarts = undefined;
-
 	$scope.tableModel = {
 		valueTable: currentTableNumber,
 		valueCutleries: currentTableCutleries,
 		criterias: undefined,
 		allCriteriasSelected: true
-	}
+	};
+    var mapSelectedIndexhandler = $scope.$watch("mapSelectedIndex", function () {
+        updateWatchers();
+    });
 
-	var mapSelectedIndexhandler = $scope.$watch("mapSelectedIndex", function () {
-		updateWatchers();
-	});
+    $scope.init = function () {
+        shoppingCartService.getFreezedShoppingCartsAsync().then(function (freezedShoppingCarts) {
+            $scope.freezedShoppingCarts = freezedShoppingCarts;
+            updateStoreMap();
+        });
+    };
 
 	var updateStoreMap = function () {
 		if ($scope.storeMap) {
@@ -64,14 +67,7 @@
 				loadAreaCriterias();
 			});
 		}
-	}
-
-	$scope.init = function () {
-		shoppingCartService.getFreezedShoppingCartsAsync().then(function (freezedShoppingCarts) {
-			$scope.freezedShoppingCarts = freezedShoppingCarts;
-			updateStoreMap();
-		});
-	}
+	};
 
 	var isCriteriaEnabled = function (table) {
 		if ($scope.tableModel.allCriteriasSelected) {
@@ -116,7 +112,6 @@
 	};
 
 	var loadAreaCriterias = function () {
-
 		$scope.tableModel.criterias = [];
 
 		if ($scope.currentArea) {
@@ -132,10 +127,8 @@
 					}
 				});
 			});
-
 		}
-
-	}
+	};
 
 	$scope.selectTable = function (table) {
 		if (table) {
@@ -153,21 +146,21 @@
 		}
 
 		$scope.$evalAsync();
-	}
+	};
 
 	$scope.toggleAllCriterias = function () {
 		$scope.tableModel.allCriteriasSelected = !$scope.tableModel.allCriteriasSelected;
 		$scope.$evalAsync();
 
 		updateStoreMap();
-	}
+	};
 
 	$scope.toggleCriteria = function (criteria) {
 		criteria.IsSelected = !criteria.IsSelected;
 		$scope.$evalAsync();
 
 		updateStoreMap();		
-	}
+	};
 
 
 	$scope.ok = function () {
@@ -190,11 +183,11 @@
 			var tableValues = {
 				tableNumber: tableNumberValue > 0 ? tableNumberValue : undefined,
 				tableCutleries: tableCutleriesValue > 0 ? tableCutleriesValue : undefined
-			}
+			};
 
 			$uibModalInstance.close(tableValues);
 		}
-	}
+	};
 
 	$scope.cancel = function () {
 		$rootScope.closeKeyboard();

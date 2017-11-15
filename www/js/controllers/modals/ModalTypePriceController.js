@@ -8,13 +8,10 @@
             if (txtPrice) {
                 txtPrice.focus();
             }
-
         }, 100);
-    }
-
+    };
 
     $scope.ok = function () {
-
         var newValue = parseFloat($scope.valuePrice);
 
         if (isNaN(newValue)) {
@@ -29,7 +26,7 @@
         	$rootScope.closeKeyboard();
         	$rootScope.closeKeyboard();
         }, 500);
-    }
+    };
 
     $scope.cancel = function () {
     	$uibModalInstance.dismiss('cancel');

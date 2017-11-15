@@ -1,4 +1,4 @@
-﻿app.controller('ModalZPosController', function ($scope, $rootScope,  $uibModalInstance, zposService, dateStart, dateEnd,$translate) {
+﻿﻿app.controller('ModalZPosController', function ($scope, $rootScope,  $uibModalInstance, zposService, dateStart, dateEnd,$translate) {
 	$scope.dateStart = dateStart;
 	$scope.dateEnd = dateEnd;
 	$scope.zheaders = [];
@@ -29,11 +29,8 @@
 			    $scope.zheaders.push(tax.taxCode);
 			});
 
-			//Rendu
-			$scope.zheaders.push("Rendu");
-
 		    ////Headers Modes de paiement
-			Enumerable.from(resZpos.paymentModes).forEach(function (pm) {
+			Enumerable.from(resZpos.paymentModes).forEach(function (pm) {// Des moyens de paiement utilise des - !!! pk?
 			    var pmTitle = pm.type;
 
 			    if (pm.type.indexOf("-") != -1) {
@@ -48,11 +45,12 @@
 			    $scope.zheaders.push(pmTitle);
 			});
 
+            $scope.zheaders.push("Cagnotte");
+
 		    //Values
 			var lineValues = [];
 			Enumerable.from(resZpos.totalsByDate).forEach(function (line) {
 			    var columnValues = [];
-
 			    columnValues.push(Date.parseExact(line.date, "yyyyMMdd").toString("dd/MM/yyyy"));//date
 			    columnValues.push(line.count);//nb
 			    columnValues.push(roundValue( line.totalIT));//total
@@ -80,31 +78,51 @@
 			    var lineCredit = Enumerable.from(resZpos.credit.byDate).firstOrDefault(function (value) { return value.date == line.date; });
 			    columnValues.push(lineCredit ? roundValue(lineCredit.total) : 0);
 
+
 			    //Taxes
 			    Enumerable.from(resZpos.taxDetails).forEach(function (tax) {
+
+
 			        var lineTax = Enumerable.from(tax.byDate).firstOrDefault(function (value) { return value.date == line.date; });
-			        columnValues.push(lineTax ? roundValue(lineTax.total) : 0);
+                    var dispTax = String(lineTax.total).substring(0,4);
+			        columnValues.push(lineTax ? roundValue(dispTax) : 0);
 			    });
+
+
 
 				//Rendu
 			    var lineRepaid = Enumerable.from(resZpos.repaid.byDate).firstOrDefault(function (value) { return value.date == line.date; });
-			    columnValues.push(lineRepaid ? roundValue(lineRepaid.total) : 0);
 
 			    //PaymentModes
 			    Enumerable.from(resZpos.paymentModes).forEach(function (pm) {
 			        var linePM = Enumerable.from(pm.byDate).firstOrDefault(function (value) { return value.date == line.date; });
-			        columnValues.push(linePM ? roundValue(linePM.total) : 0);
+                    // Pour les especes
+			        if(pm.type_id == 1) {
+                        console.log("Especes : ",linePM.total);
+                    	console.log("Rendu : ", lineRepaid.total);
+                    	// On soustrait le montant rendu au montant du paiement en especes
+                        columnValues.push(linePM ? roundValue(linePM.total - lineRepaid.total) : 0);
+                    } else {
+                        columnValues.push(linePM ? roundValue(linePM.total) : 0);
+					}
 			    });
 
-			    lineValues.push(columnValues);
+
+                //Paiement cagnotte
+                var lineBalance = Enumerable.from(resZpos.balance.byDate).firstOrDefault(function (value) { return value.date == line.date; });
+                columnValues.push(lineBalance ? roundValue(lineBalance.total) : 0);
+
+                lineValues.push(columnValues);
+
+
+
 
 			});
 
 			$scope.zlines = lineValues;
 
-
 			//TotalIT
-			$scope.ztotal.push("Total");
+			$scope.ztotal.push("Total TTC");
 			$scope.ztotal.push(resZpos.count);
 			$scope.ztotal.push(roundValue(resZpos.totalIT));
 			$scope.ztotal.push(resZpos.cutleries.count);
@@ -132,15 +150,15 @@
 			    $scope.ztotalET.push("");
 			}
 		});
-	}
+	};
 
 	$scope.cancel = function () {
 		$uibModalInstance.dismiss('cancel');
-	}
+	};
 
 	$scope.printZPos = function () {
-		zposService.printZPosAsync($scope.zpos);
-	}
+		zposService.printZPosAsync($scope.zpos, 0);
+	};
 
 	$scope.emailZPos = function () {
 		zposService.emailZPosAsync($scope.zpos);

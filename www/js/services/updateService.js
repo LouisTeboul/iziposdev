@@ -1,8 +1,8 @@
 ﻿app.service('updateService', ['$rootScope', '$q',
     function ($rootScope, $q) {
 
+        /** Get the new version info it there is one */
         this.getUpdateAsync = function () {
-            var self = this;
             var updateDefer = $q.defer();
 
             if ($rootScope.modelDb.databaseReady) {
@@ -15,7 +15,6 @@
             } else {
                 updateDefer.reject("Database isn't ready !");
             }
-
             return updateDefer.promise;
         }
-    }])
+    }]);

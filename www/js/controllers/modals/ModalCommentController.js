@@ -1,4 +1,7 @@
-﻿app.controller('ModalCommentController', function ($scope, $rootScope, $uibModalInstance,obj) {
+﻿/**
+ *  Modal for customer comment on product
+ */
+app.controller('ModalCommentController', function ($scope, $rootScope, $uibModalInstance,obj) {
 	var current = this;
 
 	$scope.model = { toast: [] };
@@ -22,24 +25,16 @@
 		$scope.ProductComments = obj.LinkedProduct.ProductComments;
 	}
 
-
-	$scope.value = '';    
-   
-	
-
+	$scope.value = '';     
 
 	$scope.init = function () {
-
 		setTimeout(function () {
 			var txtComment = document.getElementById("txtComment");
 			if (txtComment) {
 				txtComment.focus();
 			}
-
 		}, 250);
-
-	}
-
+	};
 
 	$scope.ok = function () {
 		if ($scope.value != ''){
@@ -53,28 +48,28 @@
 			var val = Enumerable.from($scope.model.toast).select("x=>x.text").toArray().join(', ');
 			$uibModalInstance.close(val);
 		}
-	}
+	};
 
 	$scope.addComment = function (item) {
 		$scope.model.toast.push({ idx: $scope.model.toast.length, text: item.Name });
 		$scope.$evalAsync();        
-	}
+	};
 
 	$scope.cancel = function () {
 		$rootScope.closeKeyboard();
 		$uibModalInstance.dismiss('cancel');
-	}
+	};
 
 	$scope.clear = function () {
 		$scope.value = '';
 		$scope.$evalAsync();
-	}
+	};
 	$scope.close = function () {
 		$scope.ok();
 		$rootScope.closeKeyboard();
 		var val = Enumerable.from($scope.model.toast).select("x=>x.text").toArray().join(', ');
 		$uibModalInstance.close(val);
-	}
+	};
 
 	$scope.delSelectedChip = function(event)
 	{

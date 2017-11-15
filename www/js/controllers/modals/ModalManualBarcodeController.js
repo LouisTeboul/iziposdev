@@ -12,12 +12,12 @@
 
         }, 250);
 
-    }
+    };
 
     $scope.ok = function () {
     	$rootScope.closeKeyboard();
         $uibModalInstance.close($scope.barcode);
-    }
+    };
 
     $scope.cancel = function () {
     	$rootScope.closeKeyboard();

@@ -2,12 +2,14 @@
     function ($rootScope, $q) {
     	var _hardwareId = undefined;
 
+        /** Get the hardware id 
+        * CAUTION : can sometimes be null and cause trouble
+        * */
         this.getHardwareIdAsync = function () {
             var self = this;
             var hIdDefer = $q.defer();
 
             try {
-
             	if (!_hardwareId) {
             		setTimeout(function () {
             			try {
@@ -30,8 +32,17 @@
             }
 
             return hIdDefer.promise;
-        }
+        };
 
+
+        // démarrage du terminal
+
+
+
+        /** Log the event from post 
+        * Events are sent to the replicate 
+        * TODO: Log in the audit event 
+        * */
         this.updatePosLogAsync = function () {
             var self = this;
             var posLogDefer = $q.defer();
@@ -53,7 +64,7 @@
                         IziboxVersion: $rootScope.IziBoxConfiguration.VersionIziBox,
                         PosVersion: $rootScope.Version,
                         PosDescription: hardwareType
-                    }
+                    };
 
                     $rootScope.dbReplicate.rel.save('PosLog', posLog).then(function () {
                         posLogDefer.resolve(posLog);
@@ -66,7 +77,6 @@
             } catch (err) {
                 posLogDefer.reject(err);
             }
-
             return posLogDefer.promise;
         }
-    }])
+    }]);

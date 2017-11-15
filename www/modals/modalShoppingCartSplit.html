@@ -8,6 +8,10 @@
 		<div id="b2" ng-include="'partials/miniShoppingCartIn.html'" flex></div>
     </div>
 
+    <div class="inp" ng-if="errorMessage" style="text-align: center; display: block;">
+        <span class="labelErr">{{errorMessage}}</span>
+    </div>
+
     <div class="modal-footer">
         <button class="btn btn-green" ng-click="ok()">OK</button>
         <button class="btn btn-rose" ng-click="cancel()" translate>Annuler</button>

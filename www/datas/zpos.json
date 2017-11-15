@@ -3,51 +3,103 @@
 	"language": "javascript",
 	"views": {
 		"paymentModesByDate": {
-			"map": "function(doc) {\n  var prefix = doc.data.Date.match(/^[^\\s]+\\s/);\n    if(prefix && doc._id.indexOf('ShoppingCart_')===0){\n\tvar splitPref = prefix[0].trim().split(\"/\");\n\tvar dateTk = splitPref[2]+ splitPref[1]+splitPref[0];\n\n        for(i=0;i<doc.data.PaymentModes.length;i++){\n          emit([dateTk,doc.data.PaymentModes[i].Value.toUpperCase()], doc.data.PaymentModes[i].Total);\n        }\n\n        if(doc.data.BalanceUpdate != undefined){\n\t  emit([doc.data.BalanceUpdate.BalanceName.toUpperCase()], doc.data.BalanceUpdate.UpdateValue);\n        }\n\n    }\n  }",
-			"reduce": "_sum"
+			"map": "function(doc) {\n  var prefix = doc.data.Date.match(/^[^\\s]+\\s/);\n    if(prefix && doc._id.indexOf('ShoppingCart_')===0){\n\tvar splitPref = prefix[0].trim().split(\"/\");\n\tvar dateTk = splitPref[2]+ splitPref[1]+splitPref[0];\n\n        for(i=0;i<doc.data.PaymentModes.length;i++){\n          emit([dateTk,doc.data.PaymentModes[i].Value.toUpperCase()], doc.data.PaymentModes[i].Total);\n        }\n\n        if(doc.data.BalanceUpdate != undefined){\n\t  emit([dateTk,doc.data.BalanceUpdate.BalanceName.toUpperCase()], doc.data.BalanceUpdate.UpdateValue||0);\n        }\n\n    }\n  }",
+			"reduce": "function (keys, values, rereduce) {\n    var res = {Total:0,Count:0};\n    if (rereduce) {\n        for (var idx in values) {\n            res.Count = res.Count + values[idx].Count;\n            res.Total = res.Total + values[idx].Total;\n        }\n    }\n    else {\n        for (var idx in values) {\n            res.Count = res.Count + 1;\n            res.Total = res.Total + values[idx];\n        }\n    }\n    return res;\n}"
 		},
 		"VATByDate": {
-			"map": "function(doc) {\n  var prefix = doc.data.Date.match(/^[^\\s]+\\s/);\n    if(prefix && doc._id.indexOf('ShoppingCart_')===0){\n\tvar splitPref = prefix[0].trim().split(\"/\");\n\tvar dateTk = splitPref[2]+ splitPref[1]+splitPref[0];\n      for(i=0;i<doc.data.TotalVAT.length;i++){\n        emit([dateTk,doc.data.TotalVAT[i].VAT], {TotalIT:doc.data.TotalVAT[i].TotalIT,TotalET:doc.data.TotalVAT[i].TotalET});\n      }\n    }\n  }",
-			"reduce": "function(keys, values, rereduce) {\n    var stats = { TotalIT: 0, TotalET: 0 };\n\n        for(var i=0; i < values.length; i++) {\n            stats.TotalIT += values[i].TotalIT;\n            stats.TotalET += values[i].TotalET;\n        }\n\n        return stats;\n}"
+			"map": "function(doc) {\n  var prefix = doc.data.Date.match(/^[^\\s]+\\s/);\n    if(prefix && doc._id.indexOf('ShoppingCart_')===0){\n\tvar splitPref = prefix[0].trim().split(\"/\");\n\tvar dateTk = splitPref[2]+ splitPref[1]+splitPref[0];\n      for(i=0;i<doc.data.TotalVAT.length;i++){\n        emit([dateTk,doc.data.TotalVAT[i].VAT], {TotalIT:doc.data.TotalVAT[i].TotalIT||0,TotalET:doc.data.TotalVAT[i].TotalET||0});\n      }\n    }\n  }",
+			"reduce": "function (keys, values, rereduce) {\n    var stats = {TotalIT:0,TotalET:0};\n    if (rereduce) {\n        for (var idx in values) {           \n            stats.TotalIT = stats.TotalIT + values[idx].TotalIT;\n            stats.TotalET = stats.TotalET + values[idx].TotalET;\n        }\n    }\n    else {\n        for (var idx in values) {          \n            stats.TotalIT = stats.TotalIT + values[idx].TotalIT;\n            stats.TotalET = stats.TotalET + values[idx].TotalET;\n        }\n    }\n    return stats;\n}\n"
 		},
 		"AltVATByDate": {
-			"map": "function(doc) {\n  var prefix = doc.data.Date.match(/^[^\\s]+\\s/);\n    if(prefix && doc._id.indexOf('ShoppingCart_')===0){\n\tvar splitPref = prefix[0].trim().split(\"/\");\n\tvar dateTk = splitPref[2]+ splitPref[1]+splitPref[0];\n\temit([dateTk,doc.data.AltVAT], doc.data.Total);\n    }\n  }",
+			"map": "function(doc) {\n  var prefix = doc.data.Date.match(/^[^\\s]+\\s/);\n    if(prefix && doc._id.indexOf('ShoppingCart_')===0){\n\tvar splitPref = prefix[0].trim().split(\"/\");\n\tvar dateTk = splitPref[2]+ splitPref[1]+splitPref[0];\n\temit([dateTk,doc.data.AltVAT], doc.data.Total||0);\n    }\n  }",
+			"reduce": "_sum"
+		},
+		"TaxByDate": {
+			"map": "function(doc) {\n  var prefix = doc.data.Date.match(/^[^\\s]+\\s/);\n    if(prefix && doc._id.indexOf('ShoppingCart_')===0){\n\tvar splitPref = prefix[0].trim().split(\"/\");\n\tvar dateTk = splitPref[2]+ splitPref[1]+splitPref[0];\n      for(i=0;i<doc.data.TaxDetails.length;i++){\n        emit([dateTk,doc.data.TaxDetails[i].TaxCode+\" \"+doc.data.TaxDetails[i].TaxRate], doc.data.TaxDetails[i].TaxAmount||0);\n      }\n    }\n  }",
 			"reduce": "_sum"
 		},
 		"DeliveryTypeByDate": {
-			"map": "function(doc) {\n  var prefix = doc.data.Date.match(/^[^\\s]+\\s/);\n    if(prefix && doc._id.indexOf('ShoppingCart_')===0){\n\tvar splitPref = prefix[0].trim().split(\"/\");\n\tvar dateTk = splitPref[2]+ splitPref[1]+splitPref[0];\n\temit([dateTk,doc.data.DeliveryType], doc.data.Total);\n    }\n  }",
+			"map": "function(doc) {\n  var prefix = doc.data.Date.match(/^[^\\s]+\\s/);\n    if(prefix && doc._id.indexOf('ShoppingCart_')===0){\n\tvar splitPref = prefix[0].trim().split(\"/\");\n\tvar dateTk = splitPref[2]+ splitPref[1]+splitPref[0];\n\temit([dateTk,doc.data.DeliveryType], doc.data.Total||0);\n    }\n  }",
 			"reduce": "_sum"
 		},
 		"repaidByDate": {
-			"map": "function(doc) {\n  var prefix = doc.data.Date.match(/^[^\\s]+\\s/);\n    if(prefix && doc._id.indexOf('ShoppingCart_')===0){\n\tvar splitPref = prefix[0].trim().split(\"/\");\n\tvar dateTk = splitPref[2]+ splitPref[1]+splitPref[0];\n\t emit(dateTk, doc.data.Repaid);\n      \n    }\n  }",
-			"reduce": "_sum"
-		},
-		"VAT": {
-			"map": "function(doc) {\n      for(i=0;i<doc.data.TotalVAT.length;i++){\n        emit(doc.data.TotalVAT[i].VAT, 1);\n      }\n  }",
-			"reduce": "_sum"
-		},
-		"paymentModes": {
-			"map": "function(doc) {\n  var prefix = doc.data.Date.match(/^[^\\s]+\\s/);\n    if(prefix && doc._id.indexOf('ShoppingCart_')===0){\n\tvar splitPref = prefix[0].trim().split(\"/\");\n\tvar dateTk = splitPref[2]+ splitPref[1]+splitPref[0];\n\n        for(i=0;i<doc.data.PaymentModes.length;i++){\n          emit([dateTk,doc.data.PaymentModes[i].Value.toUpperCase()], 1);\n        }\n\n        if(doc.data.BalanceUpdate != undefined){\n\t  emit([doc.data.BalanceUpdate.BalanceName.toUpperCase()], 1);\n        }\n\n    }\n  }",
+			"map": "function(doc) {\n  var prefix = doc.data.Date.match(/^[^\\s]+\\s/);\n    if(prefix && doc._id.indexOf('ShoppingCart_')===0){\n\tvar splitPref = prefix[0].trim().split(\"/\");\n\tvar dateTk = splitPref[2]+ splitPref[1]+splitPref[0];\n\t emit(dateTk, doc.data.Repaid||0);\n      \n    }\n  }",
 			"reduce": "_sum"
 		},
 		"countByDate": {
-			"map": "function(doc) {\n  var prefix = doc.data.Date.match(/^[^\\s]+\\s/);\n    if(prefix && doc._id.indexOf('ShoppingCart_')===0){\n\tvar splitPref = prefix[0].trim().split(\"/\");\n\tvar dateTk = splitPref[2]+ splitPref[1]+splitPref[0];\n      for(i=0;i<doc.data.TotalVAT.length;i++){\n        emit(dateTk, 1);\n      }\n    }\n  }",
-			"reduce": "_count"
+			"map": "function(doc) {\n  var prefix = doc.data.Date.match(/^[^\\s]+\\s/);function(keys,values){\n\tvar res = {TotalIT:0,TotalET:0,Count:0};\n\tfor (var i =0;i<values.length;i++){\n\t\tres.TotalIT+=values[i].TotalIT;\n\t\tres.TotalET+=values[i].TotalET;\n\t\tres.Count+=1;\t\t\n\t}\n\treturn res;\n}\n    if(prefix && doc._id.indexOf('ShoppingCart_')===0){\n\tvar splitPref = prefix[0].trim().split(\"/\");\n\tvar dateTk = splitPref[2]+ splitPref[1]+splitPref[0];\n\n\temit(dateTk, {TotalIT:doc.data.Total||0,TotalET:doc.data.TotalET||0 } );\n    }\n  }",
+			"reduce": "function (keys, values, rereduce) {\n    var res = {TotalIT:0,TotalET:0,Count:0};\n    if (rereduce) {\n        for (var idx in values) {\n            res.Count = res.Count + values[idx].Count;\n            res.TotalIT = res.TotalIT + values[idx].TotalIT;\n            res.TotalET = res.TotalET + values[idx].TotalET;\n        }\n    }\n    else {\n        for (var idx in values) {\n            res.Count = res.Count + 1;\n            res.TotalIT = res.TotalIT + values[idx].TotalIT;\n            res.TotalET = res.TotalET + values[idx].TotalET;\n        }\n    }\n    return res;\n}\n\n//corrige le compte \n\n// function(keys,values){\n// \tvar res = {TotalIT:0,TotalET:0,Count:0};\n// \tfor (var i =0;i<values.length;i++){\n// \t\tres.TotalIT+=values[i].TotalIT;\n// \t\tres.TotalET+=values[i].TotalET;\n// \t\tres.Count+=1;\t\t\n// \t}\n// \treturn res;\n// }\n"
 		},
 		"byDate": {
 			"map": "function(doc) {\n  var prefix = doc.data.Date.match(/^[^\\s]+\\s/);\n    if(prefix && doc._id.indexOf('ShoppingCart_')===0){\n\tvar splitPref = prefix[0].trim().split(\"/\");\n\tvar dateTk = splitPref[2]+ splitPref[1]+splitPref[0];\n      emit(dateTk,doc);\n    }\n  }"
 		},
 		"cutleriesByDate": {
-			"map": "function(doc) {\n  var prefix = doc.data.Date.match(/^[^\\s]+\\s/);\n    if(prefix && doc._id.indexOf('ShoppingCart_')===0){\n\tvar splitPref = prefix[0].trim().split(\"/\");\n\tvar dateTk = splitPref[2]+ splitPref[1]+splitPref[0];\n\tvar tableCutleries = doc.data.TableCutleries;\n\ttableCutleries = (tableCutleries == undefined || tableCutleries < 1) ? 0 : tableCutleries;\n\temit(dateTk, tableCutleries);\t\n    }\n  }",
+			"map": "function(doc) {\n  var prefix = doc.data.Date.match(/^[^\\s]+\\s/);\n    if(prefix && doc._id.indexOf('ShoppingCart_')===0){\n\tvar splitPref = prefix[0].trim().split(\"/\");\n\tvar dateTk = splitPref[2]+ splitPref[1]+splitPref[0];\n\tvar tableCutleries = doc.data.TableCutleries;\n\ttableCutleries = (tableCutleries == undefined || tableCutleries < 1) ? 0 : tableCutleries;\n\temit(dateTk, tableCutleries||0);\t\n    }\n  }",
 			"reduce": "_sum"
 		},
 		"creditByDate": {
-			"map": "function(doc) {\n  var prefix = doc.data.Date.match(/^[^\\s]+\\s/);\n    if(prefix && doc._id.indexOf('ShoppingCart_')===0){\n\tvar splitPref = prefix[0].trim().split(\"/\");\n\tvar dateTk = splitPref[2]+ splitPref[1]+splitPref[0];\n\temit(dateTk, doc.data.Credit);\t\n    }\n  }",
+			"map": "function(doc) {\n  var prefix = doc.data.Date.match(/^[^\\s]+\\s/);\n    if(prefix && doc._id.indexOf('ShoppingCart_')===0){\n\tvar splitPref = prefix[0].trim().split(\"/\");\n\tvar dateTk = splitPref[2]+ splitPref[1]+splitPref[0];\n\temit(dateTk, doc.data.Credit||0);\t\n    }\n  }",
 			"reduce": "_sum"
 		},
 		"userByDate": {
-			"map": "function(doc) {\n  var prefix = doc.data.Date.match(/^[^\\s]+\\s/);\n    if(prefix && doc._id.indexOf('ShoppingCart_')===0){\n\tvar splitPref = prefix[0].trim().split(\"/\");\n\tvar dateTk = splitPref[2]+ splitPref[1]+splitPref[0];\n\temit([dateTk,doc.data.PosUserName.toUpperCase()], doc.data.Total);\n    }\n  }",
+			"map": "function(doc) {\n  var prefix = doc.data.Date.match(/^[^\\s]+\\s/);\n    if(prefix && doc._id.indexOf('ShoppingCart_')===0){\n\tvar splitPref = prefix[0].trim().split(\"/\");\n\tvar dateTk = splitPref[2]+ splitPref[1]+splitPref[0];\n\temit([dateTk,doc.data.PosUserName.toUpperCase()], doc.data.Total||0);\n    }\n  }",
 			"reduce": "_sum"
+		},
+		"aliasByDate": {
+			"map": "function(doc) {\n  var prefix = doc.data.Date.match(/^[^\\s]+\\s/);\n    if(prefix && doc._id.indexOf('ShoppingCart_')===0){\n var splitPref = prefix[0].trim().split(\"/\");\n\t var dateTk = splitPref[2]+ splitPref[1]+splitPref[0];\n\t var hid = doc.data.HardwareId;\n\t var alias = doc.data.AliasCaisse;\n\t emit(dateTk, [alias, hid]||0);\n\t }\n }"
+		},
+		"byAliasDate": {
+			"map": "function(doc) {\n  var prefix = doc.data.Date.match(/^[^\\s]+\\s/);\n    if(prefix && doc._id.indexOf('ShoppingCart_')===0){\n var splitPref = prefix[0].trim().split(\"/\");\n\t var dateTk = splitPref[2]+ splitPref[1]+splitPref[0];\n\t var hid = doc.data.HardwareId;\n\t var alias = doc.data.AliasCaisse\n\t emit([alias, dateTk], doc||0);\n\t }\n }"
+		},
+		"byAmountDate": {
+			"map": "function(doc) {\n  var prefix = doc.data.Date.match(/^[^\\s]+\\s/);\n  if(prefix && doc._id.indexOf('ShoppingCart_')===0){\n   var splitPref = prefix[0].trim().split(\"/\");\n\t var dateTk = splitPref[2]+ splitPref[1]+splitPref[0];\n   var amount = doc.data.Total;\n\t emit([amount, dateTk], doc || 0);\n\t }\n }"
+		},
+		"allHid": {
+			"reduce": "_count",
+			"map": "function(doc) {\n  var prefix = doc.data.Date.match(/^[^\\s]+\\s/);\n    if(prefix && doc._id.indexOf('ShoppingCart_')===0){\n\t var hid = doc.data.HardwareId;\n\t var zpid = doc.data.zPeriodId;\n\t emit([zpid, hid], doc||0);\n\t }\n }"
+		},
+		"AltVATByPeriod": {
+			"map": "function(doc) {\n  var prefix = doc.data.Date.match(/^[^\\s]+\\s/);\n    if(prefix && doc._id.indexOf('ShoppingCart_')===0){\n  ypid = doc.data.yPeriodId;\n  zpid = doc.data.zPeriodId;\n  hid = doc.data.HardwareId;\n\temit([zpid, hid, ypid,doc.data.AltVAT], doc.data.Total||0);\n    }\n  }",
+			"reduce": "_sum"
+		},
+		"TaxByPeriod": {
+			"map": "function(doc) {\n  var prefix = doc.data.Date.match(/^[^\\s]+\\s/);\n    if(prefix && doc._id.indexOf('ShoppingCart_')===0){\n      ypid = doc.data.yPeriodId;\n      zpid = doc.data.zPeriodId;\n      hid = doc.data.HardwareId;\n      for(i=0;i<doc.data.TaxDetails.length;i++){\n        emit([zpid, hid, ypid,doc.data.TaxDetails[i].TaxCode+\" \"+doc.data.TaxDetails[i].TaxRate], doc.data.TaxDetails[i].TaxAmount||0);\n      }\n    }\n  }",
+			"reduce": "_sum"
+		},
+		"VATByPeriod": {
+			"map": "function(doc) {\n  var prefix = doc.data.Date.match(/^[^\\s]+\\s/);\n    if(prefix && doc._id.indexOf('ShoppingCart_')===0){\n      ypid = doc.data.yPeriodId;\n      zpid = doc.data.zPeriodId;\n      hid = doc.data.HardwareId;\n      for(i=0;i<doc.data.TotalVAT.length;i++){\n        emit([zpid, hid, ypid,doc.data.TotalVAT[i].VAT], {TotalIT:doc.data.TotalVAT[i].TotalIT||0,TotalET:doc.data.TotalVAT[i].TotalET||0});\n      }\n    }\n  }",
+			"reduce": "function (keys, values, rereduce) {\n    var stats = {TotalIT:0,TotalET:0};\n    if (rereduce) {\n        for (var idx in values) {           \n            stats.TotalIT = stats.TotalIT + values[idx].TotalIT;\n            stats.TotalET = stats.TotalET + values[idx].TotalET;\n        }\n    }\n    else {\n        for (var idx in values) {          \n            stats.TotalIT = stats.TotalIT + values[idx].TotalIT;\n            stats.TotalET = stats.TotalET + values[idx].TotalET;\n        }\n    }\n    return stats;\n}\n"
+		},
+		"byPeriod": {
+			"map": "function(doc) {\n  var prefix = doc.data.Date.match(/^[^\\s]+\\s/);\n    if(prefix && doc._id.indexOf('ShoppingCart_')===0){\n      ypid = doc.data.yPeriodId;\n      zpid = doc.data.zPeriodId;\n      hid = doc.data.HardwareId;\n      emit([zpid, hid, ypid],doc);\n    }\n  }"
+		},
+		"countByPeriod": {
+			"map": "function(doc) {\n  var prefix = doc.data.Date.match(/^[^\\s]+\\s/);function(keys,values){\n\tvar res = {TotalIT:0,TotalET:0,Count:0};\n\tfor (var i =0;i<values.length;i++){\n\t\tres.TotalIT+=values[i].TotalIT;\n\t\tres.TotalET+=values[i].TotalET;\n\t\tres.Count+=1;\t\t\n\t}\n\treturn res;\n}\n    if(prefix && doc._id.indexOf('ShoppingCart_')===0){\n      ypid = doc.data.yPeriodId;\n      zpid = doc.data.zPeriodId;\n      hid = doc.data.HardwareId;\n\n\temit([zpid, hid, ypid], {TotalIT:doc.data.Total||0,TotalET:doc.data.TotalET||0 } );\n    }\n  }",
+			"reduce": "function (keys, values, rereduce) {\n    var res = {TotalIT:0,TotalET:0,Count:0};\n    if (rereduce) {\n        for (var idx in values) {\n            res.Count = res.Count + values[idx].Count;\n            res.TotalIT = res.TotalIT + values[idx].TotalIT;\n            res.TotalET = res.TotalET + values[idx].TotalET;\n        }\n    }\n    else {\n        for (var idx in values) {\n            res.Count = res.Count + 1;\n            res.TotalIT = res.TotalIT + values[idx].TotalIT;\n            res.TotalET = res.TotalET + values[idx].TotalET;\n        }\n    }\n    return res;\n}\n\n//corrige le compte \n\n// function(keys,values){\n// \tvar res = {TotalIT:0,TotalET:0,Count:0};\n// \tfor (var i =0;i<values.length;i++){\n// \t\tres.TotalIT+=values[i].TotalIT;\n// \t\tres.TotalET+=values[i].TotalET;\n// \t\tres.Count+=1;\t\t\n// \t}\n// \treturn res;\n// }\n"
+		},
+		"creditByPeriod": {
+			"map": "function(doc) {\n  var prefix = doc.data.Date.match(/^[^\\s]+\\s/);\n    if(prefix && doc._id.indexOf('ShoppingCart_')===0){\n      ypid = doc.data.yPeriodId;\n      zpid = doc.data.zPeriodId;\n      hid = doc.data.HardwareId;\n\temit([zpid, hid, ypid], doc.data.Credit||0);\t\n    }\n  }",
+			"reduce": "_sum"
+		},
+		"cutleriesByPeriod": {
+			"map": "function(doc) {\n  var prefix = doc.data.Date.match(/^[^\\s]+\\s/);\n    if(prefix && doc._id.indexOf('ShoppingCart_')===0){\n  ypid = doc.data.yPeriodId;\n  zpid = doc.data.zPeriodId;\n  hid = doc.data.HardwareId;\n\tvar tableCutleries = doc.data.TableCutleries;\n\ttableCutleries = (tableCutleries == undefined || tableCutleries < 1) ? 0 : tableCutleries;\n\temit([zpid, hid, ypid], tableCutleries||0);\t\n    }\n  }",
+			"reduce": "_sum"
+		},
+		"paymentModesByPeriod": {
+			"map": "function(doc) {\n  var prefix = doc.data.Date.match(/^[^\\s]+\\s/);\n    if(prefix && doc._id.indexOf('ShoppingCart_')===0){\n      ypid = doc.data.yPeriodId;\n      zpid = doc.data.zPeriodId;\n      hid = doc.data.HardwareId;\n\n        for(i=0;i<doc.data.PaymentModes.length;i++){\n          emit([zpid, hid, ypid,doc.data.PaymentModes[i].Value.toUpperCase()], doc.data.PaymentModes[i].Total);\n        }\n\n        if(doc.data.BalanceUpdate != undefined){\n\t  emit([zpid, hid, ypid,doc.data.BalanceUpdate.BalanceName.toUpperCase()], doc.data.BalanceUpdate.UpdateValue||0);\n        }\n\n    }\n  }",
+			"reduce": "function (keys, values, rereduce) {\n    var res = {Total:0,Count:0};\n    if (rereduce) {\n        for (var idx in values) {\n            res.Count = res.Count + values[idx].Count;\n            res.Total = res.Total + values[idx].Total;\n        }\n    }\n    else {\n        for (var idx in values) {\n            res.Count = res.Count + 1;\n            res.Total = res.Total + values[idx];\n        }\n    }\n    return res;\n}"
+		},
+		"repaidByPeriod": {
+			"map": "function(doc) {\n  var prefix = doc.data.Date.match(/^[^\\s]+\\s/);\n    if(prefix && doc._id.indexOf('ShoppingCart_')===0){\n      ypid = doc.data.yPeriodId;\n      zpid = doc.data.zPeriodId;\n      hid = doc.data.HardwareId;\n\t emit([zpid, hid, ypid], doc.data.Repaid||0);\n      \n    }\n  }",
+			"reduce": "_sum"
+		},
+		"userByPeriod": {
+			"map": "function(doc) {\n  var prefix = doc.data.Date.match(/^[^\\s]+\\s/);\n    if(prefix && doc._id.indexOf('ShoppingCart_')===0){\n      ypid = doc.data.yPeriodId;\n      zpid = doc.data.zPeriodId;\n      hid = doc.data.HardwareId;\n\temit([zpid, hid, ypid,doc.data.PosUserName.toUpperCase()], doc.data.Total||0);\n    }\n  }",
+			"reduce": "_sum"
+		},
+		"DeliveryTypeByPeriod": {
+			"reduce": "_sum",
+			"map": "function(doc) {\n  var prefix = doc.data.Date.match(/^[^\\s]+\\s/);\n    if(prefix && doc._id.indexOf('ShoppingCart_')===0){\n  ypid = doc.data.yPeriodId;\n  zpid = doc.data.zPeriodId;\n  hid = doc.data.HardwareId;\n\temit([zpid, hid, ypid,doc.data.DeliveryType], doc.data.Total||0);\n    }\n  }"
 		}
 	}
 }

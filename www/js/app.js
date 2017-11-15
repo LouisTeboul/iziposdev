@@ -1,17 +1,11 @@
-var app = angular.module('app', ['ui.router', 'ngMaterial', 'ui.bootstrap', 'ngSanitize', 'toggle-switch', 'kendo.directives', 'ngIdle', 'ngKeypad', 'ngDraggable', 'angular-md5', 'ngToast', 'pascalprecht.translate', 'md.data.table', 'frapontillo.gage']);
+var app = angular.module('app', ['ui.router', 'ngMaterial', 'ui.bootstrap', 'ngSanitize', 'toggle-switch', 'kendo.directives', 'ngIdle', 'ngKeypad', 'ngDraggable', 'angular-md5', 'ngToast', 'pascalprecht.translate', 'md.data.table', 'frapontillo.gage','angularUUID2']);
 var controllerProvider = null;
 var $routeProviderReference = null;
 var angularLocation = null;
 app.config(function ($stateProvider, $urlRouterProvider, ngToastProvider, $translateProvider, $httpProvider, $sceDelegateProvider, $controllerProvider, $mdIconProvider) {
 
-
 	controllerProvider = $controllerProvider;
 	$routeProviderReference = $stateProvider;
-	//$stateProvider
-	//.state("booking", {
-	//    url: "/booking",
-	//    templateUrl: 'http://montpellier.bigsister.biz/PosAdminV2/Booking/Page1',
-	//})
 	$sceDelegateProvider.resourceUrlWhitelist(['**']);
 
 	$urlRouterProvider
@@ -22,57 +16,51 @@ app.config(function ($stateProvider, $urlRouterProvider, ngToastProvider, $trans
 		animation: 'slide' // or 'fade'
 	});
 
-	$translateProvider.translations('fr_FR', {});
-
-
-	// Auth custom content
+	// Auth custom content - used for booking
 	$httpProvider.interceptors.push(function ($q, $rootScope, $injector) {
 		return {
 			request: function (config) {
 				var authService = $injector.get('authService');                
 				if (authService && authService.getToken()) {
 					config.headers['Authorization'] = 'bearer ' + authService.getToken().access_token;
-					// config.headers['Content-Type'] = 'application/json';//'application/x-www-form-urlencoded';
 				}
-				return $q.when(config);
-				
+				return $q.when(config);				
 			}            
-
 		};
 	});
-
-
-})
+});
 
 app.run(function ($rootScope, $location, $q, $http, ipService, zposService, $translate, $uibModal) {
 
 	try {
 		angularLocation = $location;
 
-		$rootScope.Version = "2.1.1.18092";
+		$rootScope.Version = "3.0.0.15111";
 		$rootScope.adminMode = { state: false };
 		$rootScope.loading = 0;
 
 		$rootScope.showLoading = function () {
 			$rootScope.loading++;
 			$rootScope.$evalAsync();
-		}
+		};
 		$rootScope.hideLoading = function () {
 			$rootScope.loading--;
 			if ($rootScope.loading < 0) {
 				$rootScope.loading = 0;
 			}
 			$rootScope.$evalAsync();
-		}
+        };
+
 		$rootScope.PosUserId = -1;
 		$rootScope.PosUserName = "";
 		window.sessionStorage.clear();
 
 		window.onerror = function myErrorHandler(errorMsg, url, lineNumber) {
-			console.log("Error occured: " + errorMsg);//or any message
+			console.error("Error occured: " + errorMsg);//or any message
 			return false;
-		}
+		};
 
+		// Langage configuration
 		var codeLng = window.localStorage.getItem("CurrentLanguage");
 
 		if (codeLng) {
@@ -81,6 +69,7 @@ app.run(function ($rootScope, $location, $q, $http, ipService, zposService, $tra
 			$translate.use('fr_FR');
 		}
 
+		// Display configuration
 		$rootScope.RatioConfiguration = { Enabled: true };
 
 		if (navigator.userAgent.match(/(iPhone|iPod|iPad|Android|BlackBerry|IEMobile)/)) {
@@ -96,33 +85,43 @@ app.run(function ($rootScope, $location, $q, $http, ipService, zposService, $tra
 			$rootScope.isBrowser = true;
 			init($rootScope, $location, $q, $http, ipService, zposService, $translate, $uibModal); //this is the browser
 		}
-		//debugger;
-		//$http({
-		//    method: 'POST',
-		//    url: 'http://montpellier.bigsister.biz/apiV2/login',
-		//    data: 'grant_type=password&username=stephen.tissot@bigsister.fr&password=potiron9'
-		//}).then(function successCallback(response) {
-		//    console.log(response);
-
-		//}, function errorCallback(response) {
-		//    console.log(response);
-		//});
-
-	} catch (exAll) {
-		console.log(exAll);
 	}
-})
+	catch (exAll) 
+	{
+		console.error(exAll);
+	}
+});
+
+var initServices = function ($rootScope,$injector) {
+
+    syncValidatePoolDb($rootScope);
+    syncUtilsDb($rootScope);
+
+    var zposService = $injector.get('zposService');
+    zposService.init();
+
+    var posService = $injector.get('posService');
+    posService.startIziboxDaemon();
+    posService.checkIziboxAsync();
+    posService.initRkCounterListener();
+};
 
 var init = function ($rootScope, $location, $q, $http, ipService, zposService, $translate, $uibModal) {
 
-	//Init services
-	zposService.init();
+    $rootScope.modelPos = {
+        posNumber: 1,
+        isPosOpen: false,
+        hardwareId: undefined,
+        iziboxConnected: false,
+        RKCounter: 0
+    };
 
-	//IziBoxConfiguration
+	// IziBoxConfiguration
 	app.getConfigIziBoxAsync($rootScope, $q, $http, ipService, $translate, $location, $uibModal).then(function (config) {
 
 		$rootScope.IziBoxConfiguration = config;
 
+		// Convert settings from 'string' to 'boolean'
 		for (var prop in config) {
 			if (config[prop] == "true") {
 				config[prop] = true;
@@ -132,16 +131,17 @@ var init = function ($rootScope, $location, $q, $http, ipService, zposService, $
 				config[prop] = false;
 			}
 		}
-		//CouchDb
-		//app.configPouchDb($rootScope);
 
-		//BackButton
+		// BackButton
 		app.configHWButtons($rootScope, $translate);
 		
-	})
+	});
 
 
-	//Keyboard wpf
+	/**
+	 * Use for displaying the wpf keyboard on windows system
+	 * @deprecated
+	 * */
 	$rootScope.showWPFKeyboard = function (openCordovaKeyboard) {
 		if (navigator.userAgent.match(/(WPF)/)) {
 			try {
@@ -156,7 +156,7 @@ var init = function ($rootScope, $location, $q, $http, ipService, zposService, $
 		}
 
 		$rootScope.keyboardVisible = true;
-	}
+	};
 
 	$rootScope.hideWPFKeyboard = function () {
 
@@ -171,9 +171,9 @@ var init = function ($rootScope, $location, $q, $http, ipService, zposService, $
 		} catch (err) {}
 
 		$rootScope.keyboardVisible = false;
-	}
+	};
 	$location.path("/");
-}
+};
 
 app.configHWButtons = function ($rootScope, $translate) {
 	document.addEventListener("backbutton", function () {
@@ -196,6 +196,6 @@ app.configHWButtons = function ($rootScope, $translate) {
 		}
 
 	}, false);
-}
+};
 
 

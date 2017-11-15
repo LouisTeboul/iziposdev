@@ -1,3 +1,6 @@
+/**
+ *  This Module is mostly used for using the POS as a showcase
+ */
 var app = angular.module('app', ['ui.router', 'ngMaterial', 'ui.bootstrap', 'ngSanitize', 'toggle-switch', 'kendo.directives', 'ngIdle', 'ngKeypad', 'ngDraggable', 'angular-md5', 'ngToast', 'pascalprecht.translate']);
 var controllerProvider = null;
 var $routeProviderReference = null;
@@ -29,26 +32,26 @@ app.config(function ($stateProvider, $urlRouterProvider, ngToastProvider, $trans
 	$httpProvider.interceptors.push(function ($q, $rootScope, $injector) {
 		return {
 			request: function (config) {
-				var authService = $injector.get('authService');                
+				var authService = $injector.get('authService');
 				if (authService && authService.getToken()) {
 					config.headers['Authorization'] = 'bearer ' + authService.getToken().access_token;
 					// config.headers['Content-Type'] = 'application/json';//'application/x-www-form-urlencoded';
 				}
 				return $q.when(config);
-			}            
+			}
 
 		};
 	});
 
 
-})
+});
 
 app.run(function ($rootScope, $location, $q, $http, ipService, zposService, $translate) {
 
 	try {
 		angularLocation = $location;
 
-		$rootScope.Version = "2.0 POS DEMO";
+		$rootScope.Version = "2.0.0.15 DEMO";
 		$rootScope.adminMode = { state: false };
 		$rootScope.loading = 0;
 		$rootScope.isDemo = true;
@@ -56,29 +59,22 @@ app.run(function ($rootScope, $location, $q, $http, ipService, zposService, $tra
 		$rootScope.showLoading = function () {
 			$rootScope.loading++;
 			$rootScope.$evalAsync();
-		}
+		};
 		$rootScope.hideLoading = function () {
 			$rootScope.loading--;
 			if ($rootScope.loading < 0) {
 				$rootScope.loading = 0;
 			}
 			$rootScope.$evalAsync();
-		}
+		};
 		$rootScope.PosUserId = -1;
 		$rootScope.PosUserName = "";
 		window.sessionStorage.clear();
 
-
-
-		//var body = $("body")[0];
-		//body.style.zoom = 75%;
-		
-
-
 		window.onerror = function myErrorHandler(errorMsg, url, lineNumber) {
 			console.log("Error occured: " + errorMsg);//or any message
 			return false;
-		}
+		};
 
 		var codeLng = window.localStorage.getItem("CurrentLanguage");
 
@@ -96,15 +92,14 @@ app.run(function ($rootScope, $location, $q, $http, ipService, zposService, $tra
 	} catch (exAll) {
 		console.log(exAll);
 	}
-})
+});
+
 
 var init = function ($rootScope, $location, $q, $http, ipService, zposService, $translate) {
 
 	//Init services
 	zposService.init();
 
-
-	
 	//IziBoxConfiguration
 	app.getConfigIziBoxAsync($rootScope, $q, $http, ipService, $translate, $location).then(function (config) {
 
@@ -125,7 +120,7 @@ var init = function ($rootScope, $location, $q, $http, ipService, zposService, $
 		//BackButton
 		app.configHWButtons($rootScope, $translate);
 		
-	})
+	});
 
 
 	//Keyboard wpf
@@ -146,7 +141,7 @@ var init = function ($rootScope, $location, $q, $http, ipService, zposService, $
 		}
 
 		$rootScope.keyboardVisible = true;
-	}
+	};
 
 	$rootScope.hideWPFKeyboard = function () {
 
@@ -164,11 +159,11 @@ var init = function ($rootScope, $location, $q, $http, ipService, zposService, $
 		}
 
 		$rootScope.keyboardVisible = false;
-	}
+	};
 
 
 	$location.path("/loading");
-}
+};
 
 app.configHWButtons = function ($rootScope, $translate) {
 	document.addEventListener("backbutton", function () {
@@ -191,6 +186,6 @@ app.configHWButtons = function ($rootScope, $translate) {
 		}
 
 	}, false);
-}
+};
 
 

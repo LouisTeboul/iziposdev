@@ -7,7 +7,7 @@
     $scope.init = function () {
         $scope.initFreezed();
         $scope.initOrder();
-    }
+    };
 
     $scope.initFreezed = function () {
         $scope.shoppingCarts = [];
@@ -26,14 +26,12 @@
             }
         });
         $scope.$evalAsync();
-    }
+    };
 
     $scope.initOrder = function () {
         $scope.orders = orderShoppingCartService.orders;
         $scope.ordersInProgress = orderShoppingCartService.ordersInProgress;
-    }
-
-
+    };
 
     var dbFreezeChangedHandler = $rootScope.$on('dbFreezeReplicate', function (event, args) {
         $scope.initFreezed();
@@ -42,7 +40,6 @@
     var orderServiceHandler = $rootScope.$on('orderShoppingCartChanged', function () {
         $scope.initOrder();
     });
-
 
 
     $scope.$on("$destroy", function () {
@@ -59,7 +56,7 @@
         });
 
         return itemCount;
-    }
+    };
 
     $scope.checkShoppingCart = function (shoppingCart, event) {
         if (event.toElement.checked) {
@@ -70,7 +67,7 @@
                 $scope.selectedShoppingCarts.splice(index, 1);
             }
         }
-    }
+    };
 
     $scope.removeShoppingCart = function (shoppingCart) {
         swal({ title: $translate.instant("Supprimer le ticket ?"), text: "", type: "warning", showCancelButton: true, confirmButtonColor: "#d83448", confirmButtonText: $translate.instant("Oui"), cancelButtonText: $translate.instant("Non"), closeOnConfirm: true },
@@ -81,7 +78,7 @@
                 swal($translate.instant("Erreur !"), $translate.instant("Le ticket n'a pas été supprimé."), "error");
             });
         });
-    }
+    };
 
     $scope.select = function (shoppingCart) {
         shoppingCartService.unfreezeShoppingCartAsync(shoppingCart).then(function () {
@@ -89,14 +86,19 @@
         }, function () {
         	swal($translate.instant("Erreur !"), $translate.instant("Le ticket n'a pas été supprimé."), "error");
         });
-    }
+    };
 
     $scope.selectOrder = function (order) {
         orderShoppingCartService.loadOrderShoppingCartAsync(order).then(function () {
             $uibModalInstance.close(order);
         });
-    }
+    };
 
+    //ATTENTION
+    //Comportement avec les dailyticket, et RKCompteur
+    //DT : il faut que le ticket produit par la fusion soit indexé a la suite des autres
+    //RKC : Il faut que les entrées des deux ticket combiné soit décrémenté
+    //Il ne faut pas que les entrées soit groupé non plus
     $scope.join = function () {
         swal({ title: $translate.instant("Joindre les tickets sélectionnés ?"), text: "", type: "warning", showCancelButton: true, confirmButtonColor: "#d83448", confirmButtonText: $translate.instant("Oui"), cancelButtonText: $translate.instant("Non"), closeOnConfirm: true },
         function () {
@@ -120,7 +122,7 @@
             $uibModalInstance.close(joinedShoppingCart);
 
             });
-    }
+    };
 
     $scope.cancel = function () {
         $uibModalInstance.dismiss('cancel');

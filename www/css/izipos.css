@@ -72,6 +72,22 @@ html{
 	/*overflow-x: hidden;
 	overflow-y:hidden;*/
 }
+.center {
+	text-align : center;
+}
+
+.green {
+	background-color : green;
+}
+
+.activeButton, .activeButton:focus, .activeButton:hover {
+	border : #0a9ec7 3px solid;
+}
+
+
+.closedPeriod, .closedPeriod:focus, .closedPeriod:hover  {
+	background-color : #69ff5d;
+}
 
 .loader {
   position: fixed;
@@ -687,7 +703,16 @@ text-field.flexbox div{
 	font-weight: bold;
 	font-family: 'LEDCalculator';
 	text-align: right;
-	line-height: 40px;
+	/*line-height: 40px;*/
+}
+
+.panel-total .repaid{
+    font-size: 15px;
+}
+
+.panel-total .repaidtitle {
+    font-size: 11px;
+    margin-right: 10px;
 }
 
 .panel-total .btnTable{
@@ -905,16 +930,16 @@ text-field.flexbox div{
 
 /*-----------------OFFER MODAL-----------------------------*/
 .offerModal .rowOffer {
-	height:50px;
+	height:70px;
 	margin-bottom:5px;
 }
 
 .offerModal .imgOffer{
-	height:50px;
+	height:70px;
 }
 
 .offerModal .dataRowOffer{
-	line-height:50px;
+	line-height:70px;
 	vertical-align:middle;
 }
 /*-----------------END OFFER MODAL-------------------------*/
@@ -1106,11 +1131,6 @@ text-field.flexbox div{
 	margin-right:0 !important;
 }
 
-.zpostable{
-	width : 100%;
-	border : 0;
-}
-
 td.zvalue {
 	border: 1px solid;
 }
@@ -1217,6 +1237,10 @@ td.zvalue {
 
 .modal-closepos .title{
 	font-size: 20px;
+}
+
+.modal-closepos .titlereduce {
+    font-size: 18px;
 }
 
 .modal-closepos .centered{
@@ -1368,7 +1392,8 @@ md-input-container label:not(._md-container-ignore) {
 /*---------------Bug Fix -MiniBasket display on mobile at lower zoom--------------------*/
 @media (max-width: 456px){
     md-sidenav {
-    width:initial!important;
+		width: initial !important;
+	}
    
 }
 /*---------------End -------------------------------------------------------------------*/

@@ -11,6 +11,7 @@
             }
         });
 
+        /** Get a picture */
         this.getPictureByIdAsync = function (idStr) {
             var self = this;
             var pictureDefer = $q.defer();
@@ -35,7 +36,6 @@
             } else {
                 pictureDefer.reject("Database isn't ready !");
             }
-
             return pictureDefer.promise;
         }
 
@@ -75,7 +75,6 @@
         }
 
         this.getPictureUrlAsync = function (pictureId) {
-
             var pictureUrlDefer = $q.defer();
 
             var pictureUrl = window.sessionStorage.getItem("Image"+pictureId);
@@ -104,31 +103,10 @@
                             }
                             byteArrays[sliceIndex] = new Uint8Array(bytes);
                         }
-                        var blob = new Blob(byteArrays, { type: contentType });
-
-                        //contentType = contentType || '';
-                        //var sliceSize = 512;
-
-                        //var byteCharacters = atob(base64Data);
-                        //var byteArrays = [];
-
-                        //for (var offset = 0; offset < byteCharacters.length; offset += sliceSize) {
-                        //    var slice = byteCharacters.slice(offset, offset + sliceSize);
-
-                        //    var byteNumbers = new Array(slice.length);
-                        //    for (var i = 0; i < slice.length; i++) {
-                        //        byteNumbers[i] = slice.charCodeAt(i);
-                        //    }
-
-                        //    var byteArray = new Uint8Array(byteNumbers);
-
-                        //    byteArrays.push(byteArray);
-                        //}
-
-                        //var blob = new Blob(byteArrays, { type: contentType });
+                        var blob = new Blob(byteArrays, { type: contentType });                
 
                         pictureUrl = URL.createObjectURL(blob);
-
+                        
                         window.sessionStorage.setItem("Image" + pictureId, pictureUrl);
 
                     }

@@ -15,14 +15,14 @@ app.controller('BarcodeTextFieldController', function ($scope, $rootScope, $uibM
         		});
         	}
         });
-    }
+    };
 
     $scope.showKeyboard = function () {
-
     	if ($rootScope.isKeyboardOpen("decimal")) {
     		$rootScope.closeKeyboard();
-    	} else {
-
+    	} 
+        else 
+        {
     		focusTextField();
 
     		var location = "end-center";
@@ -34,20 +34,18 @@ app.controller('BarcodeTextFieldController', function ($scope, $rootScope, $uibM
     		$rootScope.openKeyboard("decimal", location);
     		$rootScope.openKeyboard("decimal", location);
     	}
-    }
+    };
 
-    var focusTextField = function () {
-        
+    var focusTextField = function () {        
         if (txtBarcode) {
             txtBarcode.focus();
         }
-    }
-    
+    };
 
     $scope.clearTextField = function () {
         $scope.barcode.barcodeValue = '';
         $scope.$evalAsync();
-    }
+    };
 
     $scope.validTextField = function (scanned) {
         var result = false;
@@ -55,8 +53,7 @@ app.controller('BarcodeTextFieldController', function ($scope, $rootScope, $uibM
             var barcode = $scope.barcode.barcodeValue.trim();
             barcode = barcode.replace(/.+\//, '');
             var barcodeLength = barcode.length;
-            //console.log(barcode + " / " + barcodeLength);
-
+          
             if (barcodeLength > 0) {
                 if /* Freezed shoppingCart */ (barcode.indexOf("TK") == 0) {
                     var id = barcode.replace("TK", "");
@@ -95,6 +92,9 @@ app.controller('BarcodeTextFieldController', function ($scope, $rootScope, $uibM
                     shoppingCartModel.addToCartBySku(barcode);
                     result = true;
                 } else /* Fid */ if ($rootScope.IziBoxConfiguration.UseFID) {
+                    // Si on detecte une carte de fidelité, on verifie si le client a un ticket en attente
+                    //Si oui, on le defreeze
+                    shoppingCartModel.unfreezeShoppingCartByBarcode(barcode);
 
                     shoppingCartModel.getLoyalty(barcode);
                     result = true;
@@ -108,17 +108,17 @@ app.controller('BarcodeTextFieldController', function ($scope, $rootScope, $uibM
             $scope.clearTextField();
         }
         return result;
-    }
+    };
 
     $scope.scanBarcode = function () {
         try {
             cordova.plugins.barcodeScanner.scan(
-            function (result) {
-                $scope.barcode.barcodeValue = result.text;
-                $scope.validTextField();
-            },
-            function (error) {
-            }
+                function (result) {
+                    $scope.barcode.barcodeValue = result.text;
+                    $scope.validTextField();
+                },
+                function (error) {
+                }
             );
         } catch (err) {
             var modalInstance = $uibModal.open({

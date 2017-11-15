@@ -44,7 +44,6 @@ app.controller('CatalogController', function ($scope, $rootScope, $state, $uibMo
         		$rootScope.PosLog = posLog;
         		$rootScope.hideLoading();
         	}, function (errPosLog) {
-
         		$rootScope.hideLoading();
         		swal({ title: "Critique", text: "Erreur d'identification, veuillez relancer l'application.", showConfirmButton: false });
         	});
@@ -83,28 +82,27 @@ app.controller('CatalogController', function ($scope, $rootScope, $state, $uibMo
         if (!product.DisableBuyButton) {
             shoppingCartModel.addToCart(product);
         }
-    }
+    };
     //#endregion
 
     //#region Drawer menu
     $scope.onDrawerMenuClick = function () {
         $scope.toggleDrawerMenu();
-    }
+    };
 
     $scope.toggleDrawerMenu = function () {
     	$mdSidenav('drawerMenuDiv').toggle();
-    }
+    };
 
     $scope.openDrawerMenu = function () {
     	$mdSidenav('drawerMenuDiv').open();
-    }
+    };
 
     $scope.closeDrawerMenu = function () {
         $mdSidenav('drawerMenuDiv').close();
-    }
+    };
 
     $scope.showLogin = function () {
-
         var modalInstance = $uibModal.open({
             templateUrl: 'modals/modalLogin.html',
             controller: 'ModalLoginController',
@@ -119,7 +117,7 @@ app.controller('CatalogController', function ($scope, $rootScope, $state, $uibMo
             backdrop: 'static',
             keyboard: false
         });        
-    }
+    };
     $scope.started = false;
 
     function closeModals() {
@@ -167,7 +165,5 @@ app.controller('CatalogController', function ($scope, $rootScope, $state, $uibMo
         $scope.started = false;
 
     };
-
     //#endregion
-
 });

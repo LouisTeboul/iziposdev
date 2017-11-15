@@ -29,7 +29,7 @@
             }
 
             return categoriesDefer.promise;
-        }
+        };
 
         this.getCategoryByIdAsync = function (idStr) {
             var self = this;
@@ -57,7 +57,7 @@
             }
 
             return categoryDefer.promise;
-        }
+        };
 
         this.composeCategories = function (values) {
 
@@ -93,7 +93,7 @@
             }
 
             return categories;
-        }
+        };
 
         this.getCategoryIdsFromOfferParam = function (offerParam) {
             var categoryIds = [];
@@ -113,4 +113,4 @@
             return categoryIds;
         }
 
-    }])
+    }]);

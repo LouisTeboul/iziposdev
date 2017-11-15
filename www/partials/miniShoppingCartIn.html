@@ -8,6 +8,10 @@
 
 			<div class="panel-body itemsPanel">
 				<div style="margin-top: -1px;">
+					<div ng-show="currentShoppingCartOut.TableCutleries" class="row">
+						<label for="nbCouvertSplit"> Nb Couvert</label>
+						<text-field id="nbCouvertSplit" ng-model="result.nb" location="end-start" type="numeric" validfunction="closeKeyboard" style="width: 155px;height:33px;border-color: #cecdcd;border-radius: 2px;padding-top: 1px;font-size: medium;"></text-field>
+					</div>
 					<div ng-repeat="item in currentShoppingCartIn.Discounts" class="itemRow">
 						<div class="productLine col-md-8">
 							<strong translate>REMISE</strong>
@@ -44,8 +48,15 @@
 									<strong>{{item.Product.Name}}</strong>
 
 									<div style="margin-left:10px" layout="row" ng-if="item.Quantity > 0">
-										<strong ng-show="item.Quantity > 1">x {{item.Quantity}}</strong>
-										<span>( {{item.PriceIT | CurrencyFormat}} )</span>
+										<strong ng-show="item.Quantity > 1 && !item.isPartSplitItem">x {{item.Quantity}}</strong>
+										<strong ng-show="item.isPartSplitItem">x {{(item.Product.Price + item.splittedAmount)/item.Product.Price | RoundedValue}}</strong>
+										<span>( </span>
+										<span ng-if="item.IsFree"> {{0 | CurrencyFormat}}</span>
+										<span ng-if="!item.IsFree">
+											{{(item.Product.Price * item.Quantity) + item.splittedAmount | CurrencyFormat}}
+										</span>
+										<span ng-if="(item.DiscountIT && item.DiscountIT!=0)"> - {{ item.DiscountIT | CurrencyFormat }} </span>
+										<span>)</span>
 									</div>
 
 								</div>

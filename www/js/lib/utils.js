@@ -25,4 +25,26 @@ var clone = function (objToClone) {
     }
 
     return newObj;
-}
+};
+
+
+var dateFormat = function (date) {
+    /*
+    console.log(tmpDate.toLocaleDateString());
+    console.log(tmpDate.toLocaleTimeString());
+    */
+    var ts = Date.parse(date);
+    if(!isNaN(ts)){
+
+        var tmpDate = new Date(date);
+        return tmpDate.toLocaleDateString() + " - " + tmpDate.toLocaleTimeString();
+    } else {
+        return date;
+    }
+};
+
+var uniq = function (a) {
+    return a.sort().filter(function(item, pos, ary) {
+        return !pos || item != ary[pos - 1];
+    })
+};

@@ -7,10 +7,8 @@
         	if (txtDivider) {
         		txtDivider.focus();
             }
-
         }, 500);
-    }
-
+    };
 
     $scope.ok = function () {
     	$rootScope.closeKeyboard();
@@ -21,7 +19,7 @@
         } else {
         	$uibModalInstance.close(totalDividerValue);
         }
-    }
+    };
 
     $scope.cancel = function () {
     	$rootScope.closeKeyboard();

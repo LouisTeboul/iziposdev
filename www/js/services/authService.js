@@ -1,11 +1,16 @@
-﻿app.service('authService', ['$rootScope', '$q','$http',
+﻿/**
+ * Service used for application authentification
+ * used for booking
+ */
+app.service('authService', ['$rootScope', '$q','$http',
     function ($rootScope, $q,$http) {
 
-        //$rootScope.PosLog.HardwareId
         var token = null;
         var logged = false;
 
-        // HarwareId found event
+        /**
+         * Event : If we have an hardwareId we can log
+         */
         $rootScope.$watch('PosLog.HardwareId', function () {
             if ($rootScope.PosLog && $rootScope.PosLog.HardwareId) {
                 $http({
@@ -23,13 +28,25 @@
             }
         });
 
+        /**
+         * Get Authentification token
+         * @returns {*}
+         */
         this.getToken = function (){
             return token;
-        }
+        };
+
+        /**
+         * Is the application logged
+         * @returns {boolean}
+         */
         this.isLogged = function () {
             return logged;
-        }
+        };
 
+        /**
+         * Log the application
+         */
         this.login = function () {
             if ($rootScope.PosLog && $rootScope.PosLog.HardwareId) {                
                 $http({

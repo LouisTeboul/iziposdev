@@ -1,11 +1,13 @@
 ﻿<section ng-init="init()">
     <div class="modal-header">
-        <h1 class="modal-title" translate>Fonds de caisse</h1>
+        <h1 class="modal-title" translate ng-if="openPosParameters.isOpenPos && !openPosParameters.previousYPeriod">Fonds de caisse</h1>
+        <h1 class="modal-title" translate ng-if="openPosParameters.isOpenPos && openPosParameters.previousYPeriod">Ouverture de service</h1>
+        <h1 class="modal-title" translate ng-if="!openPosParameters.isOpenPos">Gestion des espèces</h1>
     </div>
-
     <div class="modal-body">
         <div class="modal-openpos">
-            <div class="row">
+            <div class="row" ng-if="model.message != undefined && model.message != ''"><p translate>{{model.message}}</p></div>
+            <div class="row" ng-if="!openPosParameters.isOpenPos">
                 <div style="width:40%;float:left">
                     <div class="title"><x translate>Motif</x> :</div>
                 </div>
@@ -23,17 +25,19 @@
             </div>
 
             <div class="row">
-                <div style="width:40%;float:left">
-                    <div class="title"><x translate>Montant en caisse</x> :</div>
+                <div style="width:50%;float:left">
+                    <div class="title" ng-if="!openPosParameters.previousYPeriod"><x translate>Montant en caisse</x> :</div>
+                    <div class="title" ng-if="openPosParameters.previousYPeriod"><x translate>Montant théorique en caisse</x> :</div>
                 </div>
-                <div style="width:60%;float:left">
+                <div style="width:50%;float:left">
                     <div class="title">{{model.total | CurrencyFormat}}</div>
                 </div>
             </div>
 
-            <div class="row">
+            <div class="row" >
                 <div style="width:40%;float:left">
-                    <div class="title"><x translate>Montant du mouvement</x> :</div>
+                    <div class="title" ng-if="!openPosParameters.previousYPeriod"><x translate>Montant du mouvement</x> :</div>
+                    <div class="title" ng-if="openPosParameters.previousYPeriod"><x translate>Montant en caisse</x> :</div>
                 </div>
                 <div style="width:230px;float:left">
                    <!-- <input type="tel" id="txtAmount" ng-model="openPosValues.CashMovementLines[0].PaymentMode.Total" style="line-height: 29px; vertical-align: middle; width: 100%;font-size: 18px" ng-keypress="$event.stopPropagation();" />-->
@@ -49,6 +53,8 @@
     </div>
 
     <div class="modal-footer">
+        <button class="btn btn-info" ng-click="openDrawer()" translate>Ouvrir le tiroir</button>
+        <button class="btn btn-green" ng-if="!openPosParameters.isOpenPos" ng-click="openRecap()" translate>Mouvements d'espèces</button>
         <button class="btn btn-green" ng-click="ok()">OK</button>
         <button class="btn btn-rose" ng-click="cancel()" translate>Annuler</button>
     </div>

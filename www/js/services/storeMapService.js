@@ -1,6 +1,10 @@
 ﻿app.service('storeMapService', ['$rootScope', '$q',
     function ($rootScope, $q) {
 
+        /**
+         * Retrieve a store map information
+         * used for booking
+         */
         this.getStoreMapAsync = function () {
             var self = this;
             var valueDefer = $q.defer();
@@ -17,4 +21,4 @@
 
             return valueDefer.promise;
         }
-    }])
+    }]);

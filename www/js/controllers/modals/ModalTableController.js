@@ -8,9 +8,8 @@
             if (txtTable) {
                 txtTable.focus();                
             }
-
         }, 200);
-    }
+    };
 
 
     $scope.ok = function () {
@@ -33,11 +32,11 @@
             var tableValues = {
                 tableNumber: tableNumberValue > 0 ? tableNumberValue : undefined,
                 tableCutleries: tableCutleriesValue > 0 ? tableCutleriesValue : undefined
-            }
+            };
 
             $uibModalInstance.close(tableValues);
         }
-    }
+    };
 
     $scope.cancel = function () {
     	$rootScope.closeKeyboard();

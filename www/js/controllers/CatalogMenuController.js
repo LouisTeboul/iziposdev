@@ -6,46 +6,30 @@
 		})
 })
 
-app.controller('CatalogMenuController', function ($scope, $rootScope, $state, categoryService, pictureService,$http,$timeout) {
+app.controller('CatalogMenuController', function ($scope, $rootScope, $state, categoryService, pictureService, posPeriodService,posService,$http,$timeout) {
 	$scope.$state = $state;
 	$scope.$rootScope = $rootScope;
-	var isEnabled = false;
 
 	$scope.init = function () {
-		initializeCategories();
-		$scope.IziBoxConnected = false;
-		isEnabled = true;
-		observeIzibox(true);
+        initializeCategories();
+        initializePosPeriod();
 	};
 
-	var observeIzibox = function (force) {
-		if ($rootScope.IziBoxConfiguration.LocalIpIziBox) {
-			var pingApiUrl = "http://" + $rootScope.IziBoxConfiguration.LocalIpIziBox + ":" + $rootScope.IziBoxConfiguration.RestPort + "/ping";
-			var timeout = force ? 0 : 5000;
 
-			setTimeout(function () {
-				$http.get(pingApiUrl, {timeout:1000}).then(function (data) {
-					$scope.IziBoxConnected = true;
-					$scope.$evalAsync();
-					if (isEnabled) observeIzibox();
-				}).catch(function (err) {
-					$scope.IziBoxConnected = false;
-					$scope.$evalAsync();
-					if (isEnabled) observeIzibox();
-				});
-			}, timeout);
-		}
-	}
+    var initializePosPeriod = function () {
+        posPeriodService.getYPeriodAsync($rootScope.modelPos.hardwareId, $rootScope.PosUserId,false);
+    };
+
+
 
 	var pouchDBChangedHandler = $rootScope.$on('pouchDBChanged', function (event, args) {
 		if (args.status == "Change" && (args.id.indexOf('Category') == 0 || args.id.indexOf('Picture') == 0)) {
-			initializeCategories();
+            initializeCategories();
 		}
 	});
 
 	$scope.$on("$destroy", function () {
 		pouchDBChangedHandler();
-		isEnabled = false;
 	});
 
 	var initializeCategories = function()
@@ -66,6 +50,5 @@ app.controller('CatalogMenuController', function ($scope, $rootScope, $state, ca
 		}, function (err) {
 			console.log(err);
 		});
-	}
-		
+	}		
 });

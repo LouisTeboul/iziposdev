@@ -11,12 +11,12 @@
         deliveryTypeHandler = $scope.$watch('deliveryType', function () {
             shoppingCartModel.setDeliveryType($scope.deliveryType);
         });
-    }  
+    };
 
     $scope.setDeliveryType = function (value) {
         $scope.deliveryType = value;       
         $scope.$evalAsync();
-    } 
+    };
 
     $scope.close = function () {
         if ($scope.parameter) {
@@ -27,7 +27,7 @@
             shoppingCartModel.setDeliveryType(0);
         }
         $uibModalInstance.close();
-    }
+    };
 
     $scope.$on("$destroy", function () {
         if (deliveryTypeHandler) deliveryTypeHandler();    

@@ -1,9 +1,7 @@
-﻿app.controller('ModalLoginController', function ($scope, $rootScope, $uibModalInstance, posUserService, pictureService, Idle ,md5) {
-    
+﻿app.controller('ModalLoginController', function ($scope, $rootScope, $uibModalInstance, posUserService, pictureService, Idle ,md5) {    
     $scope.init = function () {
         initializePosUsers();
-        Idle.unwatch();
-    	//  $scope.$emit(Keypad.CLOSE, "numeric");
+        Idle.unwatch();    	 // mise en veille 
         $rootScope.closeKeyboard();
     };
 
@@ -18,9 +16,6 @@
     	$rootScope.closeKeyboard();
     });
 
-    /*
-    *
-    */
     var initializePosUsers = function()
     {
         posUserService.getPosUsersAsync().then(function (posUsers) {
@@ -48,8 +43,7 @@
         $scope.password += "*";
         if (md5.createHash($scope.listenedString) == $rootScope.PosUser.Password)
         {
-            // Login successfull
-            
+            // Login successfull            
             $rootScope.PosUserId = $rootScope.PosUser.Id;
             $rootScope.PosUserName = $rootScope.PosUser.Name;
             posUserService.saveEventAsync("Login", 0, 0);
@@ -75,26 +69,9 @@
 
 
     $scope.login = function (posUser) {
-
-
         $scope.listenedString = "";
         $rootScope.PosUser = posUser;
         Idle.watch();
-
-        //var params = {
-        //    position: {
-        //        x: 0,
-        //        y: 0
-        //    }
-        //}
-
-        //params.position.x = ($(window).width() / 2) + 310;
-        //params.position.y = 5;
-
-    	//$scope.$emit(Keypad.OPEN, "numeric", params);
-
-
         $rootScope.openKeyboard("numeric", "end-start");
     }
-
 });

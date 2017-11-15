@@ -4,19 +4,16 @@
             url: '/configurablemenu/{id}',
             templateUrl: 'views/ProductTemplate/configurableMenu.html'
         })
-})
+});
 
 
 app.controller('ConfigurableMenuController', function ($scope, $rootScope, $stateParams, $location, categoryService, settingService, productService, pictureService, shoppingCartModel) {
     $scope.init = function () {
-
-       
         if ($rootScope.IziBoxConfiguration.StepEnabled) {
             settingService.getStepNamesAsync().then(function (stepNames) {
                 $scope.stepNames = stepNames;
             });
         }
-         
     };
 
     var currentProductHandler = $rootScope.$watch('currentConfigurableProduct', function () {
@@ -39,8 +36,7 @@ app.controller('ConfigurableMenuController', function ($scope, $rootScope, $stat
         currentProductHandler();
     });
 
-    var loadProduct = function (selectedProduct) {        
-
+    var loadProduct = function (selectedProduct) {
         // Init Step
         if ($rootScope.IziBoxConfiguration.StepEnabled) {            
             $scope.currentStep = 0;
@@ -83,13 +79,13 @@ app.controller('ConfigurableMenuController', function ($scope, $rootScope, $stat
                 }
             });
         });
-    }
+    };
 
     //#region Actions
     $scope.addToCart = function (product) {
         shoppingCartModel.addToCart(product, true);
         loadProduct($scope.initialProduct);
-    }
+    };
     //#endregion
     $scope.moveStep = function (i) {
         if($scope.currentStep+i>=0) $scope.currentStep += i;
@@ -97,7 +93,7 @@ app.controller('ConfigurableMenuController', function ($scope, $rootScope, $stat
 
     // Select (unselect) Attribute value
     $scope.selectAttributeValue = function (productAttributeId, id,reload) {
-                
+
         var Attribute = Enumerable.from($scope.product.ProductAttributes).firstOrDefault("x => x.Id ==" + productAttributeId);
         if (!reload)
         {
@@ -156,9 +152,10 @@ app.controller('ConfigurableMenuController', function ($scope, $rootScope, $stat
         $scope.$evalAsync();
     };
 
-    // Test if all required attributes are selected
+    /**
+     * Test if all required attributes are selected
+     */
     $scope.productIsValid = function () {
-
         $scope.canAddToCart = true;
         var retval = true;
         var attributes = Enumerable.from($scope.product.ProductAttributes).where("x => x.IsRequired").toArray();
@@ -173,15 +170,8 @@ app.controller('ConfigurableMenuController', function ($scope, $rootScope, $stat
     $scope.scrollTo = function (elementId) {
         var updatedItemElem = document.getElementById(elementId);
         if (updatedItemElem) {
-            //updatedItemElem.scrollIntoView(false);
-
             $("#attributes").scrollTo(updatedItemElem);
-            //var divAttr = document.getElementById("attributes")
-            //if (divAttr) {
-            //    divAttr.scrollTo(updatedItemElem);
-            //}
         }
     }
-
 });
 

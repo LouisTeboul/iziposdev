@@ -1,13 +1,16 @@
-﻿app.configPouchDb = function ($rootScope, $q, zposService) {
-	//new PouchDB('izipos_datas', { adapter: settingsPouchDB.typeDB }).destroy();
-	//new PouchDB('izipos_replicate', { adapter: settingsPouchDB.typeDB }).destroy();
-	//new PouchDB('izipos_zpos', { adapter: settingsPouchDB.typeDB }).destroy();
-	//new PouchDB('izipos_freeze', { adapter: settingsPouchDB.typeDB }).destroy();
+﻿/**
+ * TODO : Exclude this documents
+ * @param $rootScope
+ * @param $q
+ * @param zposService
+ */
+app.configPouchDb = function ($rootScope, $q, zposService) {
+
 	setTimeout(function () {
 		console.log("Datas destroyed");
 		setupDatabases($rootScope, $q, zposService);
 	}, 5000);
-}
+};
 
 var settingsPouchDB = {
 	typeDB: 'websql',
@@ -16,11 +19,9 @@ var settingsPouchDB = {
 	//optsReplicate : { live: true, retry: true, batch_size: 100, batches_limit: 4 },
 	opts: { live: true, retry: true, batch_size: 50, batches_limit: 100 },
 	optsReplicate: { live: true, retry: true, batch_size: 10, batches_limit: 8 }
-}
+};
 
 var setupDatabases = function ($rootScope, $q, zposService) {
-
-
 	//Instantiate PouchDB
 	$rootScope.dbInstance = new PouchDB('izipos_datas', { adapter: settingsPouchDB.typeDB });
 	$rootScope.dbOrder = new PouchDB('izipos_order', { adapter: settingsPouchDB.typeDB });
@@ -205,7 +206,11 @@ var setupDatabases = function ($rootScope, $q, zposService) {
 		{
 			singular: 'PaymentEdit',
 			plural: 'PaymentEdits'
-		}
+        },
+        {
+            singular: 'PaymentEditWithHistory',
+            plural: 'PaymentEditWithHistorys'
+        }
 		]);
 	}
 
@@ -235,9 +240,6 @@ var setupDatabases = function ($rootScope, $q, zposService) {
 
 
 	$rootScope.InitDBZpos();
-	//Create map and reduce for Z
-	//Fait par l'izibox en 2.0.0.13
-	//setupZPos($rootScope);
 
 	if ($rootScope.noIzibox) {
 		$rootScope.modelDb.zposReady = true;
@@ -245,11 +247,8 @@ var setupDatabases = function ($rootScope, $q, zposService) {
 
 	//#endregion
 
-	//if (remoteDbInstance) remoteDbInstance.compact().then(function (res) { console.log("remoteDbInstanceCompact OK"); }).catch(function (err) { console.log("remoteDbInstanceCompact ERROR"); });
-	//if (remoteDbReplicate) remoteDbReplicate.compact().then(function (res) { console.log("remoteDbReplicateCompact OK"); }).catch(function (err) { console.log("remoteDbReplicateCompact ERROR"); });
-	//if (remoteDbZPos) remoteDbZPos.compact().then(function (res) { console.log("remoteDbZPosCompact OK"); }).catch(function (err) { console.log("remoteDbZPosCompact ERROR"); });
-	//if (remoteDbFreeze) remoteDbFreeze.compact().then(function (res) { console.log("remoteDbFreezeCompact OK"); }).catch(function (err) { console.log("remoteDbFreezeCompact ERROR"); });
-}
+
+};
 
 var setupReplicationIzibox = function ($rootScope, $q) {
 	var urlReplicator = "http://" + $rootScope.IziBoxConfiguration.LocalIpIziBox + ":5984/_replicator";
@@ -259,14 +258,14 @@ var setupReplicationIzibox = function ($rootScope, $q) {
 		source: $rootScope.IziBoxConfiguration.UrlCouchDb + "/" + $rootScope.IziBoxConfiguration.IdxCouchDb,
 		target: "http://127.0.0.1:5984/" + $rootScope.IziBoxConfiguration.IdxCouchDb,
 		continuous: true
-	}
+	};
 
 	var replicFrom = {
 		_id: "replicFrom",
 		source: $rootScope.IziBoxConfiguration.UrlCouchDb + "/" + $rootScope.IziBoxConfiguration.IdxCouchDb + "_replicate",
 		target: "http://127.0.0.1:5984/" + $rootScope.IziBoxConfiguration.IdxCouchDb + "_replicate",
 		continuous: true
-	}
+	};
 
 	var replicTo = {
 		_id: "replicTo",
@@ -274,14 +273,14 @@ var setupReplicationIzibox = function ($rootScope, $q) {
 		target: $rootScope.IziBoxConfiguration.UrlCouchDb + "/" + $rootScope.IziBoxConfiguration.IdxCouchDb + "_replicate",
 
 		continuous: true
-	}
+	};
 
 	var orderFrom = {
 		_id: "orderFrom",
 		source: $rootScope.IziBoxConfiguration.UrlCouchDb + "/" + $rootScope.IziBoxConfiguration.IdxCouchDb + "_order",
 		target: "http://127.0.0.1:5984/" + $rootScope.IziBoxConfiguration.IdxCouchDb + "_order",
 		continuous: true
-	}
+	};
 
 	var orderTo = {
 		_id: "orderTo",
@@ -289,7 +288,7 @@ var setupReplicationIzibox = function ($rootScope, $q) {
 		target: $rootScope.IziBoxConfiguration.UrlCouchDb + "/" + $rootScope.IziBoxConfiguration.IdxCouchDb + "_order",
 
 		continuous: true
-	}
+	};
 
 	var addFuncAsync = function () {
 		var addFuncDefer = $q.defer();
@@ -324,7 +323,7 @@ var setupReplicationIzibox = function ($rootScope, $q) {
 		});
 
 		return addFuncDefer.promise;
-	}
+	};
 
 	var removeFuncAsync = function () {
 		var removeFuncDefer = $q.defer();
@@ -345,7 +344,7 @@ var setupReplicationIzibox = function ($rootScope, $q) {
 		});
 
 		return removeFuncDefer.promise;
-	}
+	};
 
 	if ($rootScope.IziBoxConfiguration.deleteCouchDb) {
 		removeFuncAsync().then(function () {
@@ -354,7 +353,7 @@ var setupReplicationIzibox = function ($rootScope, $q) {
 	} else {
 		addFuncAsync();
 	}
-}
+};
 
 var addReplicationAsync = function ($q, replicator, name, obj) {
 	var replicDefer = $q.defer();
@@ -373,7 +372,7 @@ var addReplicationAsync = function ($q, replicator, name, obj) {
 	});
 
 	return replicDefer.promise;
-}
+};
 
 var removeReplicationAsync = function ($q, replicator, name) {
 	var replicDefer = $q.defer();
@@ -389,7 +388,7 @@ var removeReplicationAsync = function ($q, replicator, name) {
 	});
 
 	return replicDefer.promise;
-}
+};
 
 var setupZPos = function ($rootScope) {
 
@@ -402,13 +401,12 @@ var setupZPos = function ($rootScope) {
 			db.get("_design/zpos").then(function (resDoc) {
 				data._rev = resDoc._rev;
 				db.put(data).then(function (response) {
-					//console.log("ZPOS map created !");
+
 				}).catch(function (errPut) {
 					console.log("ZPOS map error !");
 				});
 			}).catch(function (err) {
 				db.put(data).then(function (response) {
-					//console.log("ZPOS map created !");
 				}).catch(function (errPut) {
 					console.log("ZPOS map error !");
 				});
@@ -417,4 +415,4 @@ var setupZPos = function ($rootScope) {
 
 		});
 	}
-}
+};

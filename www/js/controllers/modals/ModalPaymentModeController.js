@@ -26,17 +26,17 @@
 			}
 
 		}, 100);
-	}
+	};
 
 	$scope.removeTicketResto = function (tkResto) {
 		shoppingCartModel.removeTicketRestaurant(tkResto);
 		$scope.value = paymentMode.Total + "";
-	}
+	};
 
 	$scope.remove = function () {
 		$scope.value = 0;
 		$scope.ok();
-	}
+	};
 
 	$scope.calculate = function () {
 		try {
@@ -48,7 +48,7 @@
 		} catch (err) {
 			console.error(err);
 		}
-	}
+	};
 
 	$scope.ok = function () {
 		$scope.calculate();
@@ -68,7 +68,7 @@
 
 				setTimeout(function () {
 					$rootScope.closeKeyboard();
-					$rootScope.closeKeyboard();
+					//$rootScope.closeKeyboard();
 				}, 500);
 
 				$scope.$evalAsync();
@@ -79,7 +79,7 @@
 		}
 
 		$scope.$evalAsync();
-	}
+	};
 
 	var runPaymentProcessAsync = function () {
 		var processDefer = $q.defer();
@@ -111,7 +111,7 @@
 		}
 
 		return processDefer.promise;
-	}
+	};
 
 	$scope.cancel = function () {
 		$uibModalInstance.dismiss('cancel');

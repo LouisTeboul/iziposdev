@@ -4,11 +4,11 @@ app.service('orderShoppingCartService', ["$http", "$rootScope", "$q", "settingSe
         this.orders;
         this.ordersInProgress;
 
-        var dbOrderChangedHandler = $rootScope.$on('dbOrderReplicate', function (event, args) {
+        var dbOrderChangedHandler = $rootScope.$on('dbOrderReplicate', function () {
             initOrders();
         });
 
-        //récupérations des orders et tri par horaire
+        /** Get order */
         var initOrders = function () {
             this.orders = [];
             current.getOrderShoppingCartsAsync().then(function (shoppingCarts) {
@@ -20,14 +20,15 @@ app.service('orderShoppingCartService', ["$http", "$rootScope", "$q", "settingSe
                     setTimeout(function () { initOrders(); }, 3000);
                 }
             });
-        }
+        };
 
+        // What's the difference with this.init ??
         var orderInProgressDaemon = function () {
             setTimeout(function () {
                 initOrders();
                 orderInProgressDaemon();
             }, 5000);
-        }
+        };
 
         var refreshOrdersInProgress = function () {
             current.ordersInProgress = [];
@@ -58,22 +59,22 @@ app.service('orderShoppingCartService', ["$http", "$rootScope", "$q", "settingSe
                         current.ordersInProgress.push(order);
                         current.orders.splice(i, 1);
                     }
-
                 }
             }
 
             $rootScope.$emit("orderShoppingCartChanged");
-        }
+        };
 
         //Initialisation du service
         this.init = function () {
             initOrders();
             orderInProgressDaemon();
-        }
+        };
 
     	this.getOrderShoppingCartsAsync = function () {
     		var shoppingCartsDefer = $q.defer();
 
+    		// Look for order in the couchDb
     		$rootScope.dbOrder.rel.find('ShoppingCart').then(function (resShoppingCarts) {
     			var shoppingCarts = resShoppingCarts.ShoppingCarts;
 
@@ -100,9 +101,7 @@ app.service('orderShoppingCartService', ["$http", "$rootScope", "$q", "settingSe
     			});
 
     			taxesService.getTaxCategoriesAsync().then(function (taxCategories) {
-
     				Enumerable.from(shoppingCartsToReturn).forEach(function (r) {
-
     					r.Timestamp = r.OrderId;
     					r.id = r.OrderId;
     	
@@ -121,15 +120,15 @@ app.service('orderShoppingCartService', ["$http", "$rootScope", "$q", "settingSe
     		}, function (err) {
     			shoppingCartsDefer.reject(err);
     		});
-
     		return shoppingCartsDefer.promise;
-    	}
+    	};
 
     	this.loadOrderShoppingCartAsync = function (shoppingCart) {
     		var unfreezeDefer = $q.defer();
     		shoppingCart.Timestamp = new Date().getTime();
     		shoppingCart.CurrentStep = 0;
-            
+
+    		// TODO check ex trotekala
             if(shoppingCart.isPayed){
                 // Search payments Methods
                 settingService.getPaymentModesAsync().then(function (paymentSetting) {
@@ -144,10 +143,10 @@ app.service('orderShoppingCartService', ["$http", "$rootScope", "$q", "settingSe
             else
             {
                 shoppingCart.PaymentModes = undefined;
-                shoppingCart.PaymentModes = [];
-                
+                shoppingCart.PaymentModes = [];                
             }
-            
+
+            // Delete the order from database
     		$rootScope.dbOrder.rel.del('ShoppingCart', { id: shoppingCart.id, rev: shoppingCart.rev }).then(function (result) {
     			unfreezeDefer.resolve(true);
     		}, function (errDel) {
@@ -158,4 +157,4 @@ app.service('orderShoppingCartService', ["$http", "$rootScope", "$q", "settingSe
     	}
 
     }
-])
+]);
