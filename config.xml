@@ -21,7 +21,7 @@
 	<plugin name="cordova-plugin-x-toast" spec="https://github.com/EddyVerbruggen/Toast-PhoneGap-Plugin.git" />
 	<plugin name="fr._46cl.focus" spec="https://github.com/46cl/cordova-android-focus-plugin" />
 	<plugin name="cordova-plugin-device" spec="~1.1.2" />
-	<plugin name="com.borismus.webintent" spec="https://github.com/InQBarna/WebIntent.git" />
+	<plugin name="cmt-cordova-plugin-webintent" spec="~1.0.0-cmt" />
 	<plugin name="cordova-plugin-networkinterface" spec="~1.0.8" />
 	<plugin name="cordova-plugin-whitelist" spec="~1.2.2" />
 	<plugin name="phonegap-plugin-barcodescanner" spec="~6.0.1" />
