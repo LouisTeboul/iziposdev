@@ -91,7 +91,7 @@ app.controller('TextFieldCtrl', function ($rootScope, $scope, textFieldService) 
     });
 
     /*
-     * Dï¿½terminer si le champ est visible pour ï¿½viter 
+     * Déterminer si le champ est visible pour éviter 
      * 
      */
     var isVisible = function () {
@@ -157,7 +157,7 @@ app.controller('TextFieldCtrl', function ($rootScope, $scope, textFieldService) 
 
 
 
-    //Dï¿½termine le champ actif de la page
+    //Détermine le champ actif de la page
     var currentElementHandler = $scope.$watch('currentElement', function () {
 
         $scope.currentElement.bind("blur", function (e) {

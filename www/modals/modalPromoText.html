@@ -7,10 +7,14 @@
         <div>
             {{offerPromoText.OfferObjectDescription}}
         </div>
+        <div ng-if="offerPromoText.DateOfValidity!=undefined">
+            <span translate>Date limite d'utilisation : </span>{{offerPromoText.DateOfValidity | date:"dd/MM/yyyy"}}
+        </div>
     </div>
 
     <div class="modal-footer">
-        <button class="btn btn-green" ng-click="ok()">Ok</button>
+        <button class="btn btn-green" ng-click="useOfferText(offerPromoText)" translate>Utiliser l'offre</button>
+        <button class="btn btn-rose" ng-click="cancel()" translate>Annuler</button>
     </div>
 
 </section>

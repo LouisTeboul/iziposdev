@@ -905,16 +905,16 @@ text-field.flexbox div{
 
 /*-----------------OFFER MODAL-----------------------------*/
 .offerModal .rowOffer {
-	height:50px;
+	height:70px;
 	margin-bottom:5px;
 }
 
 .offerModal .imgOffer{
-	height:50px;
+	height:70px;
 }
 
 .offerModal .dataRowOffer{
-	line-height:50px;
+	line-height:70px;
 	vertical-align:middle;
 }
 /*-----------------END OFFER MODAL-------------------------*/

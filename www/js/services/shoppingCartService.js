@@ -75,17 +75,20 @@ app.service('shoppingCartService', ["$http", "$rootScope", "$q","$filter", "zpos
 			return loyaltyDefer.promise;
 		}
 
-		this.addPassageAsync = function (obj) {            
-			//console.log(obj);
-			passagePromise = null;
-			if (!passagePromise) {
-				passagePromise = $http.post(methods.get.callableUrl("AddPassage"), JSON.stringify(JSON.stringify(obj))).success(function (data) {
-					return data;
-				}).error(function (e) {
-					vars.debug ? $log.error(e) : 0;
-				});
-				return passagePromise;
-			}
+		this.addPassageAsync = function (loyaltyRequest) {            
+		    //console.log(loyaltyRequest);
+			var addPassageDefer = $q.defer();
+			var addPassageUrl = $rootScope.IziBoxConfiguration.UrlSmartStoreApi + "/RESTLoyalty/RESTLoyalty/AddPassageJson";
+
+		    $http.post(addPassageUrl, loyaltyRequest, { timeout: 10000 }).
+			success(function (data, status, headers, config) {
+			    addPassageDefer.resolve(data);
+			}).
+			error(function (data, status, headers, config) {
+			    addPassageDefer.reject("Error addPassage");
+			    sweetAlert($translate.instant("Erreur lors de l'enregistrement de l'utilisation de l'offre"));
+			});
+		    return addPassageDefer.promise;
 		};
 
 

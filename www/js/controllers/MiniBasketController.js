@@ -131,7 +131,7 @@ app.controller('MiniBasketController', ['$scope', '$rootScope', '$state', '$uibM
 
 					Enumerable.from($scope.currentShoppingCart.Items).forEach(function (item) {
 						//Formule
-						if(item.Attributes){
+					    if (item.Attributes && item.Attributes.length > 0) {
 							Enumerable.from(item.Attributes).forEach(function (attr) {
 								addItemToStep(item, attr.Step);
 							});

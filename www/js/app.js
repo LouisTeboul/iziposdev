@@ -22,9 +22,6 @@ app.config(function ($stateProvider, $urlRouterProvider, ngToastProvider, $trans
 		animation: 'slide' // or 'fade'
 	});
 
-	$translateProvider.translations('fr_FR', {});
-
-
 	// Auth custom content
 	$httpProvider.interceptors.push(function ($q, $rootScope, $injector) {
 		return {
@@ -49,7 +46,7 @@ app.run(function ($rootScope, $location, $q, $http, ipService, zposService, $tra
 	try {
 		angularLocation = $location;
 
-		$rootScope.Version = "2.1.1.18092";
+		$rootScope.Version = "2.1.1.27091";
 		$rootScope.adminMode = { state: false };
 		$rootScope.loading = 0;
 

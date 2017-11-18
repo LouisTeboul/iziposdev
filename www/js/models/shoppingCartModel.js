@@ -429,7 +429,8 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state','$timeout', '$uib
 						cartItem.TaxCategoryId = product.TaxCategoryId;
 						cartItem.Offer = offer;
 						if (product.ProductAttributes.length > 0) {
-							cartItem.Step = Enumerable.from(product.ProductAttributes).min("attr=>attr.Step");
+						    var stepMainProduct = Enumerable.from(product.ProductAttributes).min("attr=>attr.Step");
+						    cartItem.Step = stepMainProduct != undefined ? stepMainProduct : cartItem.Step;
 							cartItem.Attributes = [];
 							for (var i = 0; i < product.ProductAttributes.length; i++) {
 								var attribute = product.ProductAttributes[i];
@@ -1029,21 +1030,27 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state','$timeout', '$uib
 		}
 
 		this.createEmptyPassageObj = function () {
-		    return {
-		        "Login": null,
-		        "Password": null,
-		        "Key": null,
-		        "Barcode": $scope.currentShoppingCart.customerLoyalty.Barcodes[0].Barcode,
-		        "CustomerFirstName": $scope.currentShoppingCart.customerLoyalty.CustomerFirstName,
-		        "CustomerLastName": $scope.currentShoppingCart.customerLoyalty.CustomerLastName,
-		        "CustomerEmail": $scope.currentShoppingCart.customerLoyalty.CustomerEmail,
-		        "OrderTotalIncludeTaxes": 0,
-		        "OrderTotalExcludeTaxes": 0,
-		        "CurrencyCode": "EUR",
-		        "Items": [],
-		        "BalanceUpdate": {},
-		        "OrderSpecificInfo": "2"
-		    };
+		    if (currentShoppingCart != null && currentShoppingCart.customerLoyalty!=null && currentShoppingCart.customerLoyalty.Barcodes.length > 0) {
+		        return {
+		            "Login": null,
+		            "Password": null,
+		            "Key": null,
+		            "Barcode": currentShoppingCart.customerLoyalty.Barcodes[0].Barcode,
+		            "CustomerFirstName": currentShoppingCart.customerLoyalty.CustomerFirstName,
+		            "CustomerLastName": currentShoppingCart.customerLoyalty.CustomerLastName,
+		            "CustomerEmail": currentShoppingCart.customerLoyalty.CustomerEmail,
+		            "OrderTotalIncludeTaxes": 0,
+		            "OrderTotalExcludeTaxes": 0,
+		            "CurrencyCode": "EUR", // TODO: This is hardcoded and should be changed
+		            "Items": [],
+		            "BalanceUpdate": {},
+		            "OrderSpecificInfo": "2",
+		            "Offer": {}
+		        };
+		    }
+		    else {
+		        return {};
+		    }
 		};
 
 		//Apply offers / add payment mode
@@ -1063,7 +1070,8 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state','$timeout', '$uib
 				if (!(Enumerable.from(currentShoppingCart.customerLoyalty.Offers).any("o=>o.isApplied"))) {
 					//Obtains relevant offers
 					currentShoppingCart.customerLoyalty.RelevantOffers = Enumerable.from(currentShoppingCart.customerLoyalty.Offers).where(function (o) {
-                        return o.OfferParam != null && o.isValid && (o.OfferParam.MinOrderIncTax == undefined || (o.OfferParam.MinOrderIncTax != undefined && o.OfferParam.MinOrderIncTax <= totalCart)) && !o.isApplied;
+					    //return o.OfferParam != null && o.isValid && (o.OfferParam.MinOrderIncTax == undefined || (o.OfferParam.MinOrderIncTax != undefined && o.OfferParam.MinOrderIncTax <= totalCart)) && !o.isApplied;
+					    return o.isValid && (o.OfferTypeName == "PromoText" || (o.OfferParam != null && (o.OfferParam.MinOrderIncTax == undefined || (o.OfferParam.MinOrderIncTax != undefined && o.OfferParam.MinOrderIncTax <= totalCart)))) && !o.isApplied;
 					}).toArray();
 
 				} else {
@@ -1143,7 +1151,6 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state','$timeout', '$uib
 				case "PromoText":
 					offer.isApplied = true;
 					this.offerPromoText(offer);
-					this.calculateLoyalty();
 					break;
 				case "OneProductInCategory":
 					offer.isApplied = true;
@@ -1201,6 +1208,18 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state','$timeout', '$uib
 		this.removeBalanceUpdate = function () {
 			currentShoppingCart.BalanceUpdate = undefined;
 		}
+
+		this.useOfferText = function (offerText) {
+		    //console.log(offerText);
+
+		    var passageObj = this.createEmptyPassageObj();
+		    passageObj.Offer = offerText;
+		    shoppingCartService.addPassageAsync(passageObj).then(function (res) {
+		        sweetAlert($translate.instant("L'offre a été utilisé"));
+		        current.calculateLoyalty();
+		    });
+		}
+
 		//#endregion
 
 		//#region Discount

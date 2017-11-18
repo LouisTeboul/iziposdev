@@ -44,7 +44,7 @@
                 </div>    
                 <div layout="row">
                     <div flex="50">
-                        <div  layout-wrap ng-if="currentShoppingCart.customerLoyalty" ng-repeat="balance in currentShoppingCart.customerLoyalty.Balances | filter: { UseToPay: true }">                       
+                        <div  layout-wrap ng-if="currentShoppingCart.customerLoyalty" ng-repeat="balance in currentShoppingCart.customerLoyalty.Balances ">                       
                                 <strong>{{balance.BalanceName}} </strong> : {{balance.Value}}  {{balance.BalanceType}} <br />                        
                         </div>
                     </div>

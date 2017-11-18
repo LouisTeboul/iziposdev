@@ -250,9 +250,7 @@ exports.setSchema = function (schema) {
     var pouchDoc;
     return Promise.resolve().then(function () {
       pouchDoc = toRawDoc(typeInfo, obj);
-      return db.put(pouchDoc).catch(function (err) {
-          console.log(err);
-      });
+      return db.put(pouchDoc);
     }).then(function (pouchRes) {
       var res = {};
       res[typeInfo.plural] = [extend(true, obj, {
