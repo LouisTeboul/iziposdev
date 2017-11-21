@@ -1,0 +1,53 @@
+﻿<md-toolbar class="catalogMenu" ng-controller="CatalogMenuController" ng-init="init()">
+	<md-content class="tools" layout="row" layout-align="space-between stretch">
+		<div layout="column" layout-align="center center" ng-click="onDrawerMenuClick()">
+			<md-button class="md-icon-button logo" aria-label="drawerMenu">
+				<img class="imgLogo" src="img/fonctions.png" />
+			</md-button>
+			<div class="clock">
+				<horloge format="HH:mm"></horloge>
+			</div>
+            <div class="version" layout="row" layout-align="end center">
+                <horloge format="dd-MM-yyyy"></horloge>
+            </div>
+		</div>
+		<md-divider class="vertical-divider"></md-divider>
+		<md-content layout="row" layout-align="space-between stretch" ng-show="$mdMedia('gt-sm')" style="background:transparent;">
+			<div ng-repeat="category in categories track by $id(category)" class="itemCategory" ui-sref="catalog.{{category.CategoryTemplate.ViewPath}}({id: '{{category.Id}}'})">
+				<md-button aria-label="{{category.Name}}" class="md-icon-button linkCategory">
+					<img class="imgCategory" ng-src="{{category.PictureUrl}}" alt="">
+				</md-button>
+				<div class="titleCategory" style="cursor:pointer;">{{category.Name}}</div>
+			</div>
+		</md-content>
+
+		<div layout="column" layout-align="center center" ng-hide="$mdMedia('gt-sm')">
+			<md-button class="md-icon-button logo" aria-label="categories" ng-click="$state.go('catalog.Categories')">
+				<img class="imgLogo" src="img/categories.png" />
+			</md-button>
+		</div>
+
+		<div layout="column" layout-align="center center" ng-hide="$mdMedia('gt-sm')">
+			<md-button class="md-icon-button logo" aria-label="categories" ng-click="$rootScope.showShoppingCart = !$rootScope.showShoppingCart">
+				<img class="imgLogo" src="img/cart-drawer.png" />
+			</md-button>
+		</div>
+
+		<div layout="column" flex style="min-width:160px;">
+			<div class="version" layout="column">
+				<span>{{PosUserName}}</span>
+				<div layout="row" layout-align="end center">
+					<span>{{Version}}</span>
+					<span class="izibox" ng-class="{'connected':modelPos.iziboxConnected}"></span>
+
+				</div>
+                <span>{{CashMachineName}}</span>
+
+			</div>
+			<div ng-if="!modelPos.isPosOpen && IziBoxConfiguration.UseCashMovement" class="infoCashMovement">
+				<span class="glyphicon glyphicon-warning-sign"></span>&nbsp;
+				<span translate>Veuillez renseigner le fonds de caisse</span>
+			</div>
+		</div>
+	</md-content>
+</md-toolbar>

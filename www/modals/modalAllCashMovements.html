@@ -1,0 +1,63 @@
+<section ng-init="init()">
+    <div class="modal-header">
+        <h1 class="modal-title" translate>Tous les mouvements d'espèces</h1>
+
+    </div>
+    <div class="modal-body">
+
+
+
+        <table class="table table-striped" ng-if="model.closingEnable">
+            <thead>
+                <tr>
+                    <th translate> Date </th>
+                    <th translate> Type </th>
+                    <th translate> Montant </th>
+                    <th translate> Utilisateur </th>
+                </tr>
+            </thead>
+
+            <tbody ng-repeat=" periodMovements in model.allCashMovements">
+                <tr>
+                    <td class="center" colspan="4">{{periodMovements[0].alias}}</td>
+                </tr>
+                    <tr ng-repeat="movement in periodMovements track by $index">
+                        <td>{{movement.Date}}</td>
+                        <td>{{getMovementName(movement.MovementType_Id)}}</td>
+                        <td>{{movement.CashMovementLines[0].Total | CurrencyFormat}}</td>
+                        <td>{{getPosUserName(movement.PosUserId)}}</td>
+                    </tr>
+
+                </tr>
+            </tbody>
+        </table>
+
+
+        <table class="table table-striped" ng-if="!model.closingEnable">
+            <thead>
+            <tr>
+                <th translate> Date </th>
+                <th translate> Type </th>
+                <th translate> Montant </th>
+                <th translate> Utilisateur </th>
+            </tr>
+            </thead>
+
+            <tbody>
+            <tr ng-repeat=" cashMovement in model.allCashMovements">
+                <td>{{cashMovement.Date}}</td>
+                <td>{{getMovementName(cashMovement.MovementType_Id)}}</td>
+                <td>{{cashMovement.CashMovementLines[0].Total | CurrencyFormat}}</td>
+                <td>{{getPosUserName(cashMovement.PosUserId)}}</td>
+            </tr>
+            </tbody>
+        </table>
+
+
+    </div>
+
+    <div class="modal-footer">
+        <button class="btn btn-rose" ng-click="cancel()" translate>Fermer</button>
+    </div>
+
+</section>

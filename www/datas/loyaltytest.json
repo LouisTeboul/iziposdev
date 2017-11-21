@@ -1,0 +1,212 @@
+﻿
+{
+  "Barcodes": [
+    {
+      "Barcode": "0536934837",
+      "BarcodeUrl": "/Barcode/77u_UXJCYXJjb2RlWzAsMCw1LDNdOjA1MzY5MzQ4Mzc6Njk1Njc1NDk50",
+      "BarcodeType": "QrCode",
+      "CreationDate": "2015-03-12T11:06:54.933",
+      "LastUseDate": null,
+      "LastBipDate": null
+    }
+  ],
+  "LoyaltyObjectId": 1376,
+  "LoyaltyPictureUrl": null,
+  "CustomerId": 376578,
+  "LoyaltyClass": "Ma Cagnotte",
+  "CustomerFirstName": "Stephen",
+  "CustomerLastName": "TISSOT",
+  "CustomerEmail": "toto88@toto.com",
+  "Balances": [
+    {
+      "Id": 1392,
+      "BalanceName": "Nb de passages",
+      "BalanceType": "Passages",
+      "BalanceType_Id": 2,
+      "Value": 4.0,
+      "ValidForTenant": "URBUN MONTPELLIER",
+      "UseToPay": false,
+      "MinOrderTotalIncVAT": 0.00,
+      "MinOrderTotalWitoutLoyalty": 0.00
+    },
+    {
+      "Id": 1393,
+      "BalanceName": "Ma cagnotte après 5 commandes",
+      "BalanceType": "Euros",
+      "BalanceType_Id": 3,
+      "Value": 8.99,
+      "ValidForTenant": "URBUN MONTPELLIER",
+      "UseToPay": false,
+      "MinOrderTotalIncVAT": 0.00,
+      "MinOrderTotalWitoutLoyalty": 0.00
+    },
+    {
+      "Id": 1394,
+      "BalanceName": "Cagnotte disponible",
+      "BalanceType": "Euros",
+      "BalanceType_Id": 4,
+      "Value": 5.37,
+      "ValidForTenant": "URBUN MONTPELLIER",
+      "UseToPay": true,
+      "MinOrderTotalIncVAT": 0.00,
+      "MinOrderTotalWitoutLoyalty": 0.00
+    }
+  ],
+  "Offers": [
+    {
+      "OfferObjectId": 20548,
+      "Barcode": "0023609519",
+      "OfferObjectDescription": "Offre de bienvenue",
+      "OfferClassDescription": "Offre de bienvenue",
+      "OfferImageUrl": "http://montpellier.bigsister.biz/Media/Thumbs/0001/0001985.jpg",
+      "OfferTypeId": 2,
+      "OfferTypeName": "AddProduct",
+      "isValid": true,
+      "OfferParam": "{\"ProductId\":[\"1658-Coca-Cola 33 cl\"],\"Price\":0,\"MinOrderIncTax\":9.5}"
+    },
+    {
+      "OfferObjectId": 20623,
+      "Barcode": "0406490847",
+      "OfferObjectDescription": "Une boisson offerte",
+      "OfferClassDescription": "Une boisson offerte",
+      "OfferImageUrl": "http://montpellier.bigsister.biz/Media/Thumbs/0001/0001986.jpg",
+      "OfferTypeId": 3,
+      "OfferTypeName": "OneProductInCategory",
+      "isValid": true,
+      "OfferParam": "{\"CategoryId\":[\"63-BOISSONS\"],\"Price\":0,\"MinOrderIncTax\":0}"
+    },
+    {
+      "OfferObjectId": 20629,
+      "Barcode": "0477107905",
+      "OfferObjectDescription": "Enfin, vous êtes un champion ! Pour vous remercier, la caissière doit vous faire un bisou !",
+      "OfferClassDescription": "Vous êtes un champion",
+      "OfferImageUrl": "http://montpellier.bigsister.biz/Media/Thumbs/0001/0001991.png",
+      "OfferTypeId": 1,
+      "OfferTypeName": "PromoText",
+      "isValid": true,
+      "OfferParam": "{\"Value\":\"Enfin, vous êtes un champion ! Pour vous remercier, la caissière doit vous faire un bisou !\"}"
+    }
+  ],
+  "History": [
+    {
+      "date": "2015-04-01T08:56:53.523",
+      "Description": "Enfin, vous êtes un champion ! Pour vous remercier, la caissière doit vous faire un bisou !",
+      "BalanceName": null,
+      "Value": 1.0
+    },
+    {
+      "date": "2015-04-01T08:37:29.05",
+      "Description": "Une boisson offerte",
+      "BalanceName": null,
+      "Value": 1.0
+    },
+    {
+      "date": "2015-04-01T08:36:15.33",
+      "Description": "Une boisson offerte",
+      "BalanceName": null,
+      "Value": 1.0
+    },
+    {
+      "date": "2015-04-01T08:30:42.23",
+      "Description": "Une boisson offerte",
+      "BalanceName": null,
+      "Value": 1.0
+    },
+    {
+      "date": "2015-04-01T06:56:53.453",
+      "Description": "Ajouter 1 passage",
+      "BalanceName": null,
+      "Value": 1.0
+    },
+    {
+      "date": "2015-04-01T06:56:53.437",
+      "Description": "Gagner des €",
+      "BalanceName": null,
+      "Value": 2.03
+    },
+    {
+      "date": "2015-04-01T06:37:29.02",
+      "Description": "Ajouter 1 passage",
+      "BalanceName": null,
+      "Value": 1.0
+    },
+    {
+      "date": "2015-04-01T06:37:29.003",
+      "Description": "Gagner des €",
+      "BalanceName": null,
+      "Value": 2.90
+    },
+    {
+      "date": "2015-04-01T06:36:15.297",
+      "Description": "Ajouter 1 passage",
+      "BalanceName": null,
+      "Value": 1.0
+    },
+    {
+      "date": "2015-04-01T06:36:15.283",
+      "Description": "Gagner des €",
+      "BalanceName": null,
+      "Value": 2.61
+    },
+    {
+      "date": "2015-04-01T06:30:42.027",
+      "Description": "Ajouter 1 passage",
+      "BalanceName": null,
+      "Value": 1.0
+    },
+    {
+      "date": "2015-04-01T06:30:42.003",
+      "Description": "Gagner des €",
+      "BalanceName": null,
+      "Value": 1.45
+    },
+    {
+      "date": "2015-03-12T11:20:04.707",
+      "Description": "Init nb de passages",
+      "BalanceName": null,
+      "Value": -5.0
+    },
+    {
+      "date": "2015-03-12T11:20:04.69",
+      "Description": "Et vide la cagnotte non dispo",
+      "BalanceName": null,
+      "Value": -5.37
+    },
+    {
+      "date": "2015-03-12T11:20:04.673",
+      "Description": "Ajouter à la cagnotte dispo",
+      "BalanceName": null,
+      "Value": 5.37
+    },
+    {
+      "date": "2015-03-12T11:20:04.653",
+      "Description": "Ajouter 1 passage",
+      "BalanceName": null,
+      "Value": 1.0
+    },
+    {
+      "date": "2015-03-12T11:20:04.64",
+      "Description": "Gagner des €",
+      "BalanceName": null,
+      "Value": 0.87
+    },
+    {
+      "date": "2015-03-12T11:18:20.267",
+      "Description": "Ajouter 1 passage",
+      "BalanceName": null,
+      "Value": 1.0
+    },
+    {
+      "date": "2015-03-12T11:18:20.25",
+      "Description": "Gagner des €",
+      "BalanceName": null,
+      "Value": 1.74
+    },
+    {
+      "date": "2015-03-12T11:17:47.323",
+      "Description": "Ajouter 1 passage",
+      "BalanceName": null,
+      "Value": 1.0
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+﻿<section class="CustomerActionModal">
+    <div ng-init="init()" class="modal-header">
+        <h1 class="modal-title" translate>Choisissez votre offre</h1>
+    </div>
+
+    <div layout="row"
+         layout-align="center center"
+         ng-if="currentShoppingCart.customerLoyalty.CustomActions && currentShoppingCart.customerLoyalty.CustomActions[0].Name"
+         class="ng-scope modal-body">
+
+
+        <label layout-margin flex="25" 
+               class="item item-input item-select btn btn-info"              
+               style="border: 0; margin-bottom: 10px;"
+               value="{{action}}"
+               ng-click="selectAction(action)"
+               ng-repeat="action in currentShoppingCart.customerLoyalty.CustomActions">
+            <strong>{{action.Name}}</strong>  
+        </label>
+    </div>
+
+    <div class="modal-footer">
+        <button class="btn btn-rose" ng-click="clearCustomAction()" translate>Annuler</button>
+    </div>
+</section>

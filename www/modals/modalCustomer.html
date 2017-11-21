@@ -1,0 +1,219 @@
+﻿<section class="customerModal" ng-init="init()">
+	<div class="modal-header">
+		<h1 class="modal-title" translate>Client</h1>
+	</div>
+
+	<div class="form-panel modal-body">
+		<tabset>
+
+            <tab>
+                <tab-heading>
+                    <x translate>RECHERCHE</x>
+                </tab-heading>
+                <div layout="column" layout-margin>
+
+                    <div layout="row">
+                        <label flex="30" translate>Nom, prénom ou email</label>
+                        <text-field flex="40" id="txtComment" class="flexbox" ng-model="search.query" location="center-end" type="azerty" validfunction="ok" style="width:510px;margin-right:10px;min-height:34px;"></text-field>
+                        <md-button flex="20" ng-click="searchForCustomer(search.query)" style="background-color:lightgrey;">Rechercher</md-button>
+                    </div>
+                    <md-content layout-padding style="max-height:400px">
+                        <div ng-if="searchResults && searchResults.length > 0" ng-repeat="client in searchResults" ng-click="selectCustomer(client.Barcode)" ng-style="{ 'background-color' : (client.Barcode == currentShoppingCart.Barcode) ? 'rgba(171, 242, 150, 0.42)' : 'transparent' }">
+                            <h4 style="margin-top: 0">{{client.FirstName}} {{client.LastName}}</h4>
+                            <h4>{{client.Email}}</h4>
+                            <h4 style="margin-bottom: 0">
+                                <small translate>N° de carte</small>:
+                                {{client.Barcode}}
+                            </h4>
+                            <hr />
+                        </div>
+                    </md-content>
+
+                    <div class="card error" ng-if="searchResults.length === 0" style="height:100px;">
+                        <h4 style="margin-top: 8px; text-align: center" translate>Aucun résultat</h4>
+                    </div>
+                </div>
+            </tab>
+			<tab>
+
+				<tab-heading>
+					<x translate>EMAIL</x>
+				</tab-heading>
+				<div layout="column" layout-margin>
+
+					<div layout="row">
+						<label flex="10" translate>Email</label>
+						<text-field flex="70" class="flexbox" id="email" ng-model="newLoyalty.CustomerEmail" location="center-end" type="azerty" validfunction="ok" style="width:510px;margin-right:10px;min-height:34px;"></text-field>
+					</div>
+
+					<div layout="row" ng-if="registerOperation=='registerFid'">
+						<label flex="10" translate>Nom</label>
+						<text-field flex="70" id="firstName" class="flexbox" ng-model="newLoyalty.CustomerFirstName" location="center-end" type="azerty" validfunction="ok" style="width:510px;margin-right:10px;min-height:34px;"></text-field>
+					</div>
+
+					<div layout="row" ng-if="registerOperation=='registerFid'">
+						<label flex="10" translate>Prénom</label>
+						<text-field flex="70" id="lastName" class="flexbox" ng-model="newLoyalty.CustomerLastName" location="center-end" type="azerty" validfunction="ok" style="width:510px;margin-right:10px;min-height:34px;"></text-field>
+					</div>
+
+					<div class="barcodeTextField"  layout="row" ng-if="registerOperation=='registerFid'">
+						<label flex="10" translate>No Carte</label>
+						<text-field flex="70" id="txtBarcodeCustomer"  class="flexbox" ng-model="newLoyalty.barcode.barcodeValue" location="center-end" type="azerty" validfunction="ok" style="width:510px;margin-right:10px;min-height:34px;"></text-field>                        
+						<md-button aria-label="scanBarcode" class="btnAction double" ng-click="scanBarcode()"><span class="glyphicon glyphicon-camera"></span></md-button>
+					</div>
+
+					<div layout="row">
+						<!--<div flex="10" class="dummy"></div><md-checkbox ng-model="isLoyaltyEnabled.value" ng-true-value="'Fid'" ng-false-value="'NoFid'" flex="70">Créer un compte fidélité OU Récupérer l'email pour le ticket</md-checkbox>-->
+                        <md-radio-group ng-model="registerOperation">
+                            <md-radio-button  ng-model="registerOperation" value="getEmail" ng-click="changeOperation('getEmail')">Enregistrer l'email pour le ticket</md-radio-button>
+                            <md-radio-button  ng-model="registerOperation" value="registerFid" ng-click="changeOperation('registerFid')"> Enregistrer le client  </md-radio-button>                           
+                        </md-radio-group>
+					</div>
+
+				</div>
+			</tab>
+			
+			<tab ng-if="currentShoppingCart.customerLoyalty">
+				<tab-heading>
+					<x translate>INFORMATIONS</x>
+				</tab-heading>
+				<div layout="column" layout-margin>
+					<!-- #region Balances -->
+					<div class="text-center"
+							ng-if="containsBalanceType('Passages') && (currentShoppingCart.customerLoyalty.CustomerEmail || currentShoppingCart.customerLoyalty.AnonymousCustomer) && (!currentShoppingCart.customerLoyalty.OneRuleWithOrderAmount || currentShoppingCart.customerLoyalty.ForceDisplayAddPassage) && !currentShoppingCart.customerLoyalty.PartialCustomer"
+							style="margin-top: 16px;">
+						<button class="btn btn-lg bg-accent no-radius hvr-sink activated waves-effect" ng-click="addPassage()">
+							<i translate class="icon ion-plus">AJOUTER UN PASSAGE</i>
+						</button>
+					</div>
+
+					<!--<div ng-if="currentShoppingCart.customerLoyalty.CustomActions && currentShoppingCart.customerLoyalty.CustomActions[0].Name">
+						<h3 class="text-center light" style="margin-bottom: 0; margin-top: 28px;">Actions</h3>
+						<label class="item item-input item-select" style="border: 0; margin-bottom: 10px;">
+							<div class="input-label">&nbsp;</div>
+							<select name="actionSelect" id="actionSelect"
+									class="center-block"
+									style="max-width: 100%; width: 100%; direction: ltr; font-size: 1.22em; height: 56px; padding-right: 30px; padding-top: 5px; background: #f8f8f8">
+								<option ng-attr-selected="$index === 0" value="{{action.Id}}"
+										ng-repeat="action in currentShoppingCart.customerLoyalty.CustomActions">
+									{{action.Name}}
+								</option>
+							</select>
+						</label>
+
+						<button translate class="btn btn-lg center-block hvr-grow no-radius ink"
+								ng-click="!isUsingAction ? useAction() : 0">
+							Valider
+						</button>
+					</div>-->
+
+					<!--<ul class="izi-balances list-unstyled" ng-if="currentShoppingCart.customerLoyalty.CustomActions && currentShoppingCart.customerLoyalty.CustomActions[0].Name && customization.showActionsAsButtons" style="margin-top: 24px;">
+						<li class="bg-accent li-unstyled waves-effect customAction" ng-repeat="action in currentShoppingCart.customerLoyalty.CustomActions"
+							ng-click="!isUsingAction ? clickAction(action.Id, true) : 0">
+							<span>{{action.Name}}</span>
+						</li>
+					</ul>-->
+					<!-- #endregion -->
+					<!-- #region Offers -->
+					<ul class="izi-offers list-unstyled" ng-if="currentShoppingCart.customerLoyalty.Offers.length > 0" style="margin-top: 24px;">
+						<li class="bg-accent hvr-sink waves-effect"                             
+                            ng-repeat="offer in currentShoppingCart.customerLoyalty.Offers"
+                            ng-if="offer.isValid==true">
+							<!--ng-click="showConfirm($event, offer)"-->
+							<b class="pull-right" ng-if="offer.Count>1">x{{offer.Count}}</b>
+
+							<h3 class="text-center no-mg-vert fid-item-title">
+								{{offer.OfferClassDescription}}
+							</h3>
+
+							<div class="text-center">
+								<b>{{offer.OfferObjectDescription}}</b><br />
+							</div>
+						</li>
+					</ul>
+					<hr />
+					<ul class="izi-balances list-unstyled" style="margin-top: 24px;">
+						<li data-ng-repeat="balance in currentShoppingCart.customerLoyalty.Balances"
+							class="{{balance.Value > 0 ? 'bg-accent' : 'bg-rouge'}}">
+							<h3 class="text-center no-mg-vert fid-item-title">{{balance.BalanceName}}</h3>
+
+							<div class="text-center">
+								<b style="font-size: 1.6em;">
+									{{"Solde disponible" | translate}}: {{balance.Value}} {{balance.BalanceType === 'Dollar' ? '$' : balance.BalanceType}}
+								</b>
+							</div>
+						</li>
+					</ul>
+
+
+					<div class="card">
+						<div class="row">
+							<div class="col-sm-3 hidden-xs">
+								<div class="barcode-container center-block">
+									<img class="img-responsive center-block barcode-img"
+											data-ng-src="{{clientUrl}}/{{currentShoppingCart.customerLoyalty.Barcodes[0].BarcodeUrl}}"
+											alt=""
+											onerror="$('.barcode-container').slideUp(); $('.onMissingQR').fadeIn('slow')" />
+
+									<div class="text-center">
+										<small class="blanc">{{"Carte n°" | translate}} {{currentShoppingCart.Barcode}}</small>
+									</div>
+								</div>
+							</div>
+
+							<div class="col-sm-9">
+								<h4 class="no-mg-vert" ng-if="currentShoppingCart.customerLoyalty.CustomerFirstName">
+									<b translate>Prénom</b> :
+									{{currentShoppingCart.customerLoyalty.CustomerFirstName}}
+								</h4>
+								<h4 class="no-mg-vert" ng-if="currentShoppingCart.customerLoyalty.CustomerLastName"><b translate>Nom</b> : {{currentShoppingCart.customerLoyalty.CustomerLastName}}</h4>
+								<h4 class="no-mg-vert" ng-if="currentShoppingCart.customerLoyalty.CustomerEmail">
+									<b translate>Email</b> :
+									<a data-ng-href="mailto:{{currentShoppingCart.customerLoyalty.CustomerEmail}}">{{currentShoppingCart.customerLoyalty.CustomerEmail}}</a>
+								</h4>
+								<h4 class="no-mg-vert" ng-if="currentShoppingCart.customerLoyalty.CustomerPhone">
+									<b translate>Téléphone</b> :
+									<a data-ng-href="tel:{{currentShoppingCart.customerLoyalty.CustomerPhone}}">{{currentShoppingCart.customerLoyalty.CustomerPhone}}</a>
+								</h4>
+								<h4 class="no-mg-vert" ng-if="currentShoppingCart.customerLoyalty.Barcodes[0].LastBipDate"
+									ng-init="bipDate = getDate(currentShoppingCart.customerLoyalty.Barcodes[0].LastBipDate)">
+									<b translate>Dernier passage</b> : {{bipDate.toString("dd/MM/yyyy")}}
+								</h4>
+								<!--3 differents Balances can be diplay -->
+								<h4 class="no-mg-vert" ng-if="currentShoppingCart.customerLoyalty.History && currentShoppingCart.customerLoyalty.Balances[0] != undefined">
+									<b translate>Cumul depuis la création</b> :{{getTotalPositiveHistory(currentShoppingCart.customerLoyalty.History, currentShoppingCart.customerLoyalty.Balances[0])}} {{currentShoppingCart.customerLoyalty.Balances[0].BalanceType === 'Dollars' ? '$':currentShoppingCart.customerLoyalty.Balances[0].BalanceType}}
+								</h4>
+								<h4 class="no-mg-vert" ng-if="currentShoppingCart.customerLoyalty.History && currentShoppingCart.customerLoyalty.Balances[1] != undefined">
+									<b translate>Cumul depuis la création</b> :{{getTotalPositiveHistory(currentShoppingCart.customerLoyalty.History, currentShoppingCart.customerLoyalty.Balances[1])}} {{currentShoppingCart.customerLoyalty.Balances[1].BalanceType === 'Dollars' ? '$':currentShoppingCart.customerLoyalty.Balances[1].BalanceType}}
+								</h4>
+								<h4 class="no-mg-vert" ng-if="currentShoppingCart.customerLoyalty.History && currentShoppingCart.customerLoyalty.Balances[2] != undefined">
+									<b translate>Cumul depuis la création</b> :{{getTotalPositiveHistory(currentShoppingCart.customerLoyalty.History, currentShoppingCart.customerLoyalty.Balances[2])}} {{currentShoppingCart.customerLoyalty.Balances[2].BalanceType === 'Dollars' ? '$':currentShoppingCart.customerLoyalty.Balances[2].BalanceType}}
+								</h4>
+
+								<h2 translate class="no-mg-vert" ng-if="currentShoppingCart.customerLoyalty.AllowAnonymous && currentShoppingCart.customerLoyalty.AnonymousCustomer">Utilisateur anonyme</h2>
+
+								<div class="barcode-container visible-xs" ng-if="currentShoppingCart.customerLoyalty.AllowAnonymous && currentShoppingCart.customerLoyalty.AnonymousCustomer">
+									<img class="img-responsive barcode-img"
+											data-ng-src="{{clientUrl}}/{{currentShoppingCart.customerLoyalty.Barcodes[0].BarcodeUrl}}"
+											alt=""
+											onerror="$('.barcode-container').slideUp(); $('.onMissingQR').fadeIn('slow')" />
+
+									<div style="padding-left: 5px;">
+										<small class="blanc">{{"Carte n°" | translate}} {{barcode}}</small>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<!-- #endregion -->
+				</div>
+			</tab>
+		</tabset>
+	</div>
+
+	<div class="modal-footer">
+		<button class="btn btn-green" ng-click="validCustomer()">OK</button>
+		<button class="btn btn-rose" ng-click="close()" translate>Annuler</button>
+	</div>
+
+</section>

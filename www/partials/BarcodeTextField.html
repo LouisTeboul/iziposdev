@@ -1,0 +1,10 @@
+﻿<div class="barcodeTextField" ng-controller="BarcodeTextFieldController" ng-init="init()" layout="row">
+    <button class="btnClear" ng-click="clearTextField()"><span class="glyphicon glyphicon-remove"></span></button>
+    <text-field tostring="true" id="txtBarcode" ng-model="barcode.barcodeValue" location="end-center" type="decimal"
+                validfunction="validTextField" nativekeyboard="true" flex></text-field>
+    <md-button aria-label="validTextField" class="btnAction" ng-click="validTextField()"><span
+            class="glyphicon glyphicon-ok"></span></md-button>
+    <md-button aria-label="scanBarcode" class="btnAction double" ng-click="scanBarcode()"><span
+            class="glyphicon glyphicon-camera"></span></md-button>
+
+</div>

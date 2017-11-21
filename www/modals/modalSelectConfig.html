@@ -1,0 +1,16 @@
+﻿<section>
+	<div ng-init="init()" class="modal-header">
+		<h1 class="modal-title" translate>Izibox</h1>
+	</div>
+
+	<div class="form-panel modal-body">
+		<md-radio-group ng-model="model.selectedConfig">
+			<md-radio-button ng-repeat="config in model.configs" value="{{config}}">{{config._id}}&nbsp;({{config.LocalIpIziBox}})</md-radio-button>
+		</md-radio-group>
+	</div>
+
+	<div class="modal-footer">
+		<button ng-if="model.selectedConfig" class="btn btn-green" ng-click="ok()">OK</button>
+	</div>
+
+</section>
