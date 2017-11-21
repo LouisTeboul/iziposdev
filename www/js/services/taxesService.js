@@ -8,11 +8,17 @@ app.service('taxesService', ['$rootScope', '$q','settingService',
     	var self = this;
 
         $rootScope.$on('pouchDBChanged', function (event, args) {
-            if (args.status == "Change" &&  args.id.indexOf('Setting') == 0) {
-                cacheTaxCategories = undefined;
+            if (args.status == "Change" && args.id.indexOf('Setting') == 0) {
                 cacheTaxProvider = undefined;
+                cacheTaxCategories = undefined;
                 cacheTaxDisplay = undefined;
                 cacheIsPricesIncludedTax = undefined;
+                // Reset cache
+                cacheTaxProvider = self.getTaxProviderAsync().then(function (results) {
+                    cacheTaxCategories = self.getTaxCategoriesAsync();
+                });
+                cacheTaxDisplay = self.getTaxDisplayTypeAsync();
+                cacheIsPricesIncludedTax = self.getPricesIncludedTaxAsync();
             }
         });
 

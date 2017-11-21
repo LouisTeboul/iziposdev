@@ -405,8 +405,9 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
 
 
                 posPeriodService.getYPeriodAsync($rootScope.PosLog.HardwareId, $rootScope.PosUserId).then(function (yPeriod) {
-                    currentShoppingCart.zPeriodId = yPeriod.zPeriodId;
-                    currentShoppingCart.yPeriodId = yPeriod.id;
+                    //Associate period on validate
+                    //currentShoppingCart.zPeriodId = yPeriod.zPeriodId;
+                    //currentShoppingCart.yPeriodId = yPeriod.id;
                 }, function () {
                     if ($rootScope.modelPos.iziboxConnected) {
                         //Si l'izibox est connectée, alors on refuse la création d'un ticket sans Y/ZPeriod
@@ -430,7 +431,9 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
             currentShoppingCartIn.Items = new Array();
             currentShoppingCartIn.Timestamp = timestamp;
             currentShoppingCartIn.id = timestamp;
-            currentShoppingCartIn.AliasCaisse = $rootScope.modelPos.aliasCaisse
+            currentShoppingCartIn.AliasCaisse = $rootScope.modelPos.aliasCaisse;
+            currentShoppingCartIn.yPeriodId = currentShoppingCart.yPeriodId;
+            currentShoppingCartIn.zPeriodId = currentShoppingCart.zPeriodId;
             currentShoppingCartIn.HardwareId = $rootScope.PosLog.HardwareId;
             currentShoppingCartIn.PosUserId = $rootScope.PosUserId;
             currentShoppingCartIn.PosUserName = $rootScope.PosUserName;
@@ -444,7 +447,32 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
                 item.Total = 0;
             });
 
+            var hdid = $rootScope.modelPos.hardwareId;
+
+            //association period / shoppingCart
+
+
+            // Pb asyncronisme pour les deux promesses
+
+            posPeriodService.getYPeriodAsync($rootScope.PosLog.HardwareId, $rootScope.PosUserId).then(function (yPeriod) {
+                //Asociate periods on validate
+                //currentShoppingCartIn.zPeriodId = yPeriod.zPeriodId;
+                //currentShoppingCartIn.yPeriodId = yPeriod.id;
+            }, function () {
+                if ($rootScope.modelPos.iziboxConnected) {
+                    //Si l'izibox est connectée, alors on refuse la création d'un ticket sans Y/ZPeriod
+                    current.cancelShoppingCart();
+                }
+            });
+
+            posService.getUpdDailyTicketValueAsync(hdid, 1).then(function (cashRegisterTicketId) {
+                currentShoppingCart.dailyTicketId = cashRegisterTicketId;
+            }).then(function () {
+                $rootScope.$emit("shoppingCartChanged", currentShoppingCartIn);
+            });
+
             return currentShoppingCartIn;
+
         };
 
         // Set the receiving ticket for the split
@@ -477,29 +505,38 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
                 currentShoppingCartOut.StoreId = $rootScope.IziBoxConfiguration.StoreId;
                 currentShoppingCartOut.CompanyInformation = settingService.getCompanyInfo();
 
-                var hdid = currentShoppingCartOut.HardwareId;
-                var cashRegisterTicketId;
+                var hdid = $rootScope.modelPos.hardwareId;
+
+                //association period / shoppingCart
+
+
+                posPeriodService.getYPeriodAsync($rootScope.PosLog.HardwareId, $rootScope.PosUserId).then(function (yPeriod) {
+                    //Associate periods on validate
+                    //currentShoppingCartOut.zPeriodId = yPeriod.zPeriodId;
+                    //currentShoppingCartOut.yPeriodId = yPeriod.id;
+                }, function () {
+                    if ($rootScope.modelPos.iziboxConnected) {
+                        //Si l'izibox est connectée, alors on refuse la création d'un ticket sans Y/ZPeriod
+                        current.cancelShoppingCart();
+                    }
+                });
 
                 posService.getUpdDailyTicketValueAsync(hdid, 1).then(function (value) {
-                    currentShoppingCartOut.dailyTicketId = cashRegisterTicketId;
+                    currentShoppingCartOut.dailyTicketId = value;
                 }).then(function () {
-                    $rootScope.$emit("shoppingCartChanged", currentShoppingCart);
+                    $rootScope.$emit("shoppingCartChanged", currentShoppingCartOut);
                 });
             }
             else {
                 currentShoppingCartOut = clone(currentShoppingCart);
 
                 var hdid = currentShoppingCartOut.HardwareId;
-                var cashRegisterTicketId;
 
                 posService.getUpdDailyTicketValueAsync(hdid, 1).then(function (value) {
-                    currentShoppingCartOut.dailyTicketId = cashRegisterTicketId;
+                    currentShoppingCartOut.dailyTicketId = value;
                 }).then(function () {
-
+                    $rootScope.$emit("shoppingCartChanged", currentShoppingCart);
                 });
-
-                $rootScope.$emit("shoppingCartChanged", currentShoppingCart);
-
 
                 var cloneItemsArray = [];
 
@@ -752,51 +789,63 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
         this.validShoppingCart = function (ignorePrintTicket) {
             if (currentShoppingCart != undefined && currentShoppingCart.Items.length > 0) {
                 $rootScope.showLoading();
+                //On verifie si les periode du ticket qu'on veut valider sont ouverte
+                // Si ce n'est pas le cas, on en ouvre une nouvelle
 
                 if (!currentShoppingCart.Residue == 0) {																	//The ticket must be paid
                     $rootScope.hideLoading();
                     sweetAlert($translate.instant("Le ticket n'est pas soldé"));
                     return;
                 }
-                var currentDate = new Date();
-                currentShoppingCart.Date = currentDate.toString('dd/MM/yyyy H:mm:ss');
-                if (!currentShoppingCart.DateProd) {
-                    currentShoppingCart.DateProd = currentShoppingCart.Date;
-                }
-                var toSave = clone(currentShoppingCart);
+                console.log(currentShoppingCart);
+                // On recupere les periodes courantes et on les affecte au ticket
+                // Si besoin est, on demande a l'utilisateur de renseigner le fond de caisse
+                // Pour a nouvelle periode
+                posPeriodService.getYPeriodAsync(currentShoppingCart.HardwareId, currentShoppingCart.PosUserId, true, false).then(function(yp){
+
+                    currentShoppingCart.yPeriodId = yp.id;
+                    currentShoppingCart.zPeriodId = yp.zPeriodId;
+                    var currentDate = new Date();
+                    currentShoppingCart.Date = currentDate.toString('dd/MM/yyyy H:mm:ss');
+                    if (!currentShoppingCart.DateProd) {
+                        currentShoppingCart.DateProd = currentShoppingCart.Date;
+                    }
+                    var toSave = clone(currentShoppingCart);
 
 
-                //TODO : Add the posuser to create a ticket from an online order
-                // Suppressing line with zero for quantity
-                toSave.Items = Enumerable.from(currentShoppingCart.Items).where("item => item.Quantity > 0").toArray();
+                    //TODO : Add the posuser to create a ticket from an online order
+                    // Suppressing line with zero for quantity
+                    toSave.Items = Enumerable.from(currentShoppingCart.Items).where("item => item.Quantity > 0").toArray();
 
-                lastShoppingCart = toSave;
+                    lastShoppingCart = toSave;
 
-                //shoppingCartService.updatePaymentShoppingCartAsync(toSave).then(function (result) {
-                $rootScope.hideLoading();
+                    //shoppingCartService.updatePaymentShoppingCartAsync(toSave).then(function (result) {
+                    $rootScope.hideLoading();
 
-                // Once the ticket saved we delete the splitting ticket
-                currentShoppingCartIn = undefined;
+                    // Once the ticket saved we delete the splitting ticket
+                    currentShoppingCartIn = undefined;
 
-                if (currentShoppingCartOut) {
-                    currentShoppingCart = clone(currentShoppingCartOut);
-                    deliveryType = currentShoppingCart.DeliveryType;
-                    currentShoppingCartOut = undefined;
-                    $rootScope.$emit("shoppingCartChanged", currentShoppingCart);
+                    if (currentShoppingCartOut) {
+                        currentShoppingCart = clone(currentShoppingCartOut);
+                        deliveryType = currentShoppingCart.DeliveryType;
+                        currentShoppingCartOut = undefined;
+                        $rootScope.$emit("shoppingCartChanged", currentShoppingCart);
 
-                }
-                else {
+                    }
+                    else {
+                        current.clearShoppingCart();
+                    }
+
+                    // Print Ticket
+                    current.printPOSShoppingCart(toSave, ignorePrintTicket);
+
+                }, function(){
+                    //Dans le cas ou le fetch / creation yPeriod echoue, on supprime le panier
+                    $rootScope.hideLoading();
                     current.clearShoppingCart();
-                }
+                });
 
-                // Print Ticket
-                current.printPOSShoppingCart(toSave, ignorePrintTicket);
 
-                //}, function (err) {
-                //    $rootScope.hideLoading();
-                //    sweetAlert($translate.instant("Erreur de sauvegarde du panier !"));
-                //    console.log(err);
-                //});
             }
 
         };

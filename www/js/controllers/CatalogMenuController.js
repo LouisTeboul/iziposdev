@@ -13,6 +13,15 @@ app.controller('CatalogMenuController', function ($scope, $rootScope, $state, ca
 	$scope.init = function () {
         initializeCategories();
         initializePosPeriod();
+        if ($rootScope.modelPos) {
+            if ($rootScope.modelPos.aliasCaisse) {
+                $scope.CashMachineName = $rootScope.modelPos.aliasCaisse;
+            }
+            else {
+                $scope.CashMachineName = $rootScope.modelPos.hardwareId;
+            }
+
+        }
 	};
 
 

@@ -157,7 +157,8 @@
 
         "Gestion des espèces": "Cash management",
         "Vous devez d&eacute;finir un mouvement de caisse de type fonds de caisse dans le BO, merci": "You have to define a cash movement of cash funds in the BO, thanks",
-        "Vous devez d&eacute;finir au moins un mouvement de caisse d'entrée, sortie dans le BO, merci": "You must define at least one cash movement (in or out) in the BO, thank you"
+        "Vous devez d&eacute;finir au moins un mouvement de caisse d'entrée, sortie dans le BO, merci": "You must define at least one cash movement (in or out) in the BO, thank you",
+        "Compteur" : "Count"
 
 	});
 

@@ -13,7 +13,6 @@ app.controller('ModalStatsPeriodController', function ($scope, $rootScope,  $uib
     $scope.zpos = undefined;
 
     $scope.init = function () {
-        $rootScope.showStats = true;
         if ($scope.closePosParameters.mode && ($scope.closePosParameters.mode.idMode == 1 || $scope.closePosParameters.mode.idMode == 2 || $scope.closePosParameters.mode.idMode == 3)) {
             $scope.closePosText = $scope.closePosParameters.mode.text;
             $scope.titleText = $scope.closePosParameters.mode.title;
@@ -27,6 +26,7 @@ app.controller('ModalStatsPeriodController', function ($scope, $rootScope,  $uib
 
         zposService.getZPosValuesAsync_v2($scope.closePosParameters.zperiod.id, yperiodId, $scope.closePosParameters.hid).then(function (resZpos) {
             $scope.zpos = resZpos;
+            console.log(resZpos);
 
             //Headers && total
             $scope.zheaders.push("Date début");
@@ -64,7 +64,7 @@ app.controller('ModalStatsPeriodController', function ($scope, $rootScope,  $uib
 
             //Values
             var lineValues = [];
-            Enumerable.from(resZpos.totalsByDate).forEach(function (line) {
+            Enumerable.from(resZpos.totalsByPeriod).forEach(function (line) {
                 var columnValues = [];
 
                 var dateStartDisp = dateFormat(line.start);
@@ -127,8 +127,11 @@ app.controller('ModalStatsPeriodController', function ($scope, $rootScope,  $uib
                 });
 
                 //Cagnotte
+                console.log(resZpos.balance.byPeriod);
+                console.log(line.start);
                 var lineBalance = Enumerable.from(resZpos.balance.byPeriod).firstOrDefault(function (value) {
-                    return value.start == line.start; });
+                    return value.start == line.start;
+                });
                 columnValues.push(lineBalance ? roundValue(lineBalance.total) : 0);
 
                 lineValues.push(columnValues);
@@ -180,6 +183,7 @@ app.controller('ModalStatsPeriodController', function ($scope, $rootScope,  $uib
             size: 'lg',
             resolve: {
                 closePosParameters: function () {
+                    console.log($scope.closePosParameters);
                     return $scope.closePosParameters;
 
                 },
@@ -193,6 +197,12 @@ app.controller('ModalStatsPeriodController', function ($scope, $rootScope,  $uib
 
     $scope.cancel = function () {
         $uibModalInstance.dismiss('cancel');
+        $uibModal.open({
+            templateUrl: 'modals/modalYperiodPick.html',
+            controller: 'ModalYperiodPickController',
+            size: 'lg',
+            backdrop: 'static'
+        });
     };
 
     $scope.printZPos = function () {

@@ -1,12 +1,14 @@
-app.controller('ModalAllCashMovementsController', function ($scope, $rootScope, $uibModal, $uibModalInstance, cashMovementService, posLogService, posPeriodService, posUserService) {
+app.controller('ModalAllCashMovementsController', function ($scope, $rootScope, $uibModal, $uibModalInstance, cashMovementService, posLogService, posPeriodService, posUserService, posService) {
     $scope.model = {
-        allCashMovements : undefined,
+        allCashMovements : [],
         allCashMovementsTypes : undefined,
-        allCashMovementsTypes : undefined,
-        allPosUsers : undefined
+        allPosUsers : undefined,
+        closingEnable: posUserService.isEnable('CLOS', true)
     };
 
     $scope.init = function () {
+
+        console.log($scope.model.closingEnable);
 
         cashMovementService.getAllMovementTypesAsync().then(function (cm) {
             $scope.model.allCashMovementsTypes = cm;
@@ -16,12 +18,35 @@ app.controller('ModalAllCashMovementsController', function ($scope, $rootScope, 
             $scope.model.allPosUsers = pu;
         });
         // get Y
-        posPeriodService.getYPeriodAsync($rootScope.modelPos.hardwareId, null, false).then(function (yp) {
-            // Query couchdb et recupere tout les cash movement lines
-            posPeriodService.getYPaymentValuesAsync(yp.id).then(function (p) {
-                $scope.model.allCashMovements = p.CashMovements;
+        // Si c'est le gérant on recup toutes les YPeriod du Z
+        if($scope.model.closingEnable){
+            console.log('all');
+            posPeriodService.getAllYPeriodAsync('*').then(function(yperiods){
+                console.log(yperiods);
+                Enumerable.from(yperiods).forEach(function(yp){
+                    posPeriodService.getYPaymentValuesAsync(yp.id).then(function (p) {
+                        posService.getPosNameAsync(p.hardwareId).then(function(alias){
+                            console.log(p);
+                            p.CashMovements[0].alias = alias ? alias : p.hardwareId;
+                            $scope.model.allCashMovements.push(p.CashMovements);
+                            console.log($scope.model.allCashMovements)
+                        });
+
+                    });
+                });
+
             });
-        });
+        } else {
+            console.log('Pas all');
+            posPeriodService.getYPeriodAsync($rootScope.modelPos.hardwareId, null, false).then(function (yp) {
+                // Query couchdb et recupere tout les cash movement lines
+                posPeriodService.getYPaymentValuesAsync(yp.id).then(function (p) {
+                    console.log(p);
+                    $scope.model.allCashMovements = p.CashMovements;
+                });
+            });
+        }
+
     };
 
     // Match l'id du mouvement avec son nom

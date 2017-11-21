@@ -10,33 +10,48 @@
 
             <div class="form-panel modal-body modal-closepos">
                 <div class="row" style="border-bottom: 1px solid lightgray;margin-bottom:10px">
-                    <div style="width:35%;float:left">
+                    <div style="width:30%;float:left">
                         <div class="title" translate>Paiements</div>
                     </div>
                     <div style="width:15%;float:left">
                         <div class="title centered" translate>Nb</div>
                     </div>
-                    <div style="width:25%;float:left">
+                    <div style="width:20%;float:left">
                         <div class="title centered" translate>Montant saisi</div>
                     </div>
-                    <div style="width:25%;float:left">
+                    <div style="width:20%;float:left">
                         <div class="title centered" translate>Montant attendu</div>
+                    </div>
+                    <div style="width:15%;float:left">
+                        <div class="title centered" translate>Ecart</div>
                     </div>
                 </div>
 
                 <div class="row" ng-repeat="l in yPeriod.YCountLines">
-                    <div style="width:35%;float:left">
-                        <div class="title">{{l.PaymentMode.Text}}</div>
+                    <div style="width:30%;float:left;">
+                        <p class="title">{{l.PaymentMode.Text}}</p>
                     </div>
-                    <div style="width:15%;float:left">
-                        <div class="title centered">{{l.Count}}</div>
+                    <div style="width:15%;float:left;min-height:60px;">
+                        <div class="title centered">
+                            <p ng-if="l.PaymentMode.PaymentType != 99">{{l.Count}}</p>
+                        </div>
                     </div>
-                    <div style="width:25%;float:left">
-                        <div class="title centered">{{l.TotalKnown | CurrencyFormat}}</div>
+                    <div style="width:20%;float:left;min-height:60px;">
+                        <div class="title centered">
+                            <p class="title centered" ng-if="l.PaymentMode.PaymentType != 99">{{l.PaymentMode.Total | CurrencyFormat}}</p>
+                        </div>
                     </div>
-                    <div style="width:25%;float:left">
-                        <div class="title centered">{{l.PaymentMode.Total | CurrencyFormat}}</div>
+                    <div style="width:20%;float:left;min-height:60px;">
+                        <div class="title centered">
+                            <p class="title centered">{{l.TotalKnown | CurrencyFormat}}</p>
+                        </div>
                     </div>
+                    <div style="width:15%;float:left;min-height:60px;">
+                        <div class="title centered">
+                            <p class="title centered green" ng-if="l.PaymentMode.PaymentType != 99" ng-class="{ red : l.cashDiscrepancy !== 0}">{{l.cashDiscrepancy | CurrencyFormat}}</p>
+                        </div>
+                    </div>
+                    
                 </div>
             </div>
         </tab>

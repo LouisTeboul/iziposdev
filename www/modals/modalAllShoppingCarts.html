@@ -27,9 +27,13 @@
                     </span>
 				</div>
 				<div class="input-group input-group-date col-md-3">
-					<select ng-disabled="filterAliasDisabled" id="filterCaisse" class="form-control" ng-model="filterAlias">
-						<option value="0">Toutes les caisses</option>
-						<option ng-repeat="alias in listAliases track by $index" value="{{alias}}"> {{alias}} </option>
+					<select ng-disabled="filterAliasDisabled" id="filterCaisse" class="form-control large" ng-model="filterAlias">
+						<optgroup>
+							<option value="0">Toutes les caisses</option>
+						</optgroup>
+						<optgroup ng-repeat="alias in listAliases track by $index">
+							<option value="{{alias}}"> {{alias}} </option>
+						</optgroup>
 					</select>
 				</div>
 				<div class="input-group input-group-date col-md-3" ng-hide="filterAmountDisabled">

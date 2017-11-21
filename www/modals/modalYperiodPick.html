@@ -28,8 +28,8 @@
 
             <!-- Cette div est peuplé dans on selectionne une caisse -->
 
-            <button class="btn btn-default" ng-repeat="yperiod in yperiods track by $index" ng-click="setYPeriod(yperiod.id, $index)"
-                    ng-class="{activeButton : activeYpidBtn == $index, closedPeriod : yperiod.endDate}"
+            <button class="btn btn-default" ng-repeat="yperiod in yperiods track by $index" ng-click="setYPeriod(yperiod, $index)"
+                    ng-class="{activeButton : activeYpidBtn == $index, closedPeriod : yperiod.endDate, emptyPeriod: yperiod.isEmpty}"
                     style="margin: 5px">
                 {{printDate(yperiod)}}
             </button>
@@ -47,6 +47,7 @@
     </div>
 
     <div class="modal-footer">
+        <button class="btn btn-green" ng-click="closePos(model.mode)" ng-if="isClosingEnabled"> Fermeture </button>
         <button class="btn btn-green"
                 ng-click="openZ()" translate>Afficher le Z</button>
         <button class="btn btn-rose" ng-click="cancel()" translate>Annuler</button>

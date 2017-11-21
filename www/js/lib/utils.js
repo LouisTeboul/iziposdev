@@ -29,10 +29,7 @@ var clone = function (objToClone) {
 
 
 var dateFormat = function (date) {
-    /*
-    console.log(tmpDate.toLocaleDateString());
-    console.log(tmpDate.toLocaleTimeString());
-    */
+
     var ts = Date.parse(date);
     if(!isNaN(ts)){
 

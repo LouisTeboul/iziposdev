@@ -14,7 +14,7 @@
         }
 
 
-        $scope.closable = navigator.userAgent.match(/(WPF)/);
+        $scope.closable = $rootScope.isWindowsContainer;
 
         if (!$rootScope.IziPosConfiguration) {
             $rootScope.IziPosConfiguration = {};
@@ -184,27 +184,10 @@
             });
         }
     };
+
     /**
 	 * Open the view for 'closing' the POS
      */
-    /*
-    $scope.closePos = function () {
-        $scope.closeDrawerMenu();
-
-        posPeriodService.getYPeriodAsync($rootScope.modelPos.hardwareId, undefined, false).then(function (yPeriod) {
-            posPeriodService.closeYPeriodAsync(yPeriod);
-        });
-    };
-
-    $scope.closeZPos = function () {
-        $scope.closeDrawerMenu();
-
-        posPeriodService.getZPeriodAsync().then(function (zPeriod) {
-            posPeriodService.closeZPeriodAsync(zPeriod);
-        });
-    };
-    */
-
     $scope.pickClose = function () {
         $scope.closeDrawerMenu();
 
@@ -241,7 +224,7 @@
 	 * Close the application - only available for windows platforms
      */
     $scope.exit = function () {
-        if (navigator.userAgent.match(/(WPF)/)) {
+        if ($rootScope.isWindowsContainer) {
             try {
                 wpfCloseApp.shutdownApp();
             } catch (err) {

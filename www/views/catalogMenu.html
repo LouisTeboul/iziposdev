@@ -1,17 +1,20 @@
 ﻿<md-toolbar class="catalogMenu" ng-controller="CatalogMenuController" ng-init="init()">
 	<md-content class="tools" layout="row" layout-align="space-between stretch">
-		<div layout="column" layout-align="center center">
-			<md-button class="md-icon-button logo" aria-label="drawerMenu" ng-click="onDrawerMenuClick()">
+		<div layout="column" layout-align="center center" ng-click="onDrawerMenuClick()">
+			<md-button class="md-icon-button logo" aria-label="drawerMenu">
 				<img class="imgLogo" src="img/fonctions.png" />
 			</md-button>
 			<div class="clock">
-				<horloge format="HH:mm" style="color:#B6B4B4;"></horloge>
+				<horloge format="HH:mm"></horloge>
 			</div>
+            <div class="version" layout="row" layout-align="end center">
+                <horloge format="dd-MM-yyyy"></horloge>
+            </div>
 		</div>
 		<md-divider class="vertical-divider"></md-divider>
 		<md-content layout="row" layout-align="space-between stretch" ng-show="$mdMedia('gt-sm')" style="background:transparent;">
-			<div ng-repeat="category in categories track by $id(category)" class="itemCategory">
-				<md-button aria-label="{{category.Name}}" class="md-icon-button linkCategory" ui-sref="catalog.{{category.CategoryTemplate.ViewPath}}({id: '{{category.Id}}'})" >
+			<div ng-repeat="category in categories track by $id(category)" class="itemCategory" ui-sref="catalog.{{category.CategoryTemplate.ViewPath}}({id: '{{category.Id}}'})">
+				<md-button aria-label="{{category.Name}}" class="md-icon-button linkCategory">
 					<img class="imgCategory" ng-src="{{category.PictureUrl}}" alt="">
 				</md-button>
 				<div class="titleCategory" style="cursor:pointer;">{{category.Name}}</div>
@@ -38,14 +41,12 @@
 					<span class="izibox" ng-class="{'connected':modelPos.iziboxConnected}"></span>
 
 				</div>
-				<div layout="row" layout-align="end center">
-					<horloge format="dd-MM-yyyy" style="color:#B6B4B4;"></horloge>
-				</div>
+                <span>{{CashMachineName}}</span>
 
 			</div>
 			<div ng-if="!modelPos.isPosOpen && IziBoxConfiguration.UseCashMovement" class="infoCashMovement">
 				<span class="glyphicon glyphicon-warning-sign"></span>&nbsp;
-				<span translate>Veuillez renseigner le fond de caisse</span>
+				<span translate>Veuillez renseigner le fonds de caisse</span>
 			</div>
 		</div>
 	</md-content>

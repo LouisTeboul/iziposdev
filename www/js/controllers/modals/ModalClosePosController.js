@@ -1,7 +1,4 @@
-﻿/**
- * Modal for managing the customer information
- * We can search a customer - display the customer loyalty information - register a customer - set the mail address for sending ticket by mail
- */
+﻿
 app.controller('ModalClosePosController', function ($scope, $rootScope, $uibModal, $uibModalInstance, settingService, eventService, cashMovementService, zposService, $translate, posPeriodService, closePosParameters, modalStats, posUserService, posService) {
     $scope.closePosParameters = closePosParameters;
 
@@ -10,7 +7,8 @@ app.controller('ModalClosePosController', function ($scope, $rootScope, $uibModa
 
         $scope.model = {
             hardwareIdModels: [],
-            emptyCash: false
+            emptyCash: false,
+            zRecap: []
         };
 
 
@@ -45,8 +43,22 @@ app.controller('ModalClosePosController', function ($scope, $rootScope, $uibModa
                     TotalKnown: 0
                 };
                 $scope.closePosValues.CashMovementLines.push(lineClosePos);
+                $scope.model.zRecap.push(lineClosePos);
             });
-
+            var lineBalance = {
+                PaymentMode: {
+                    PaymentType : 9,
+                    Value : "Cagnotte",
+                    Text : "Cagnotte",
+                    Total: 0,
+                    IsBalance : true,
+                },
+                Count: 0,
+                TotalKnown: 0
+            };
+            $scope.closePosValues.CashMovementLines.push(lineBalance);
+            $scope.model.zRecap.push(lineBalance);
+            //Ajouter le paiement cagnotte
 
             switch ($scope.closePosParameters.mode.idMode) {
                 case 1:
@@ -68,7 +80,10 @@ app.controller('ModalClosePosController', function ($scope, $rootScope, $uibModa
 
                         posPeriodService.getYPaymentValuesAsync($scope.closePosParameters.yperiod.id).then(function (paymentValues) {
                             if (paymentValues) {
+                                console.log(paymentValues.PaymentLines);
                                 Enumerable.from(paymentValues.PaymentLines).forEach(function (l) {
+                                    console.log(l);
+
                                     var lineClose = Enumerable.from(newHidModel.CashMovementLines).firstOrDefault(function (x) {
                                         return x.PaymentMode.Value == l.PaymentMode.Value && x.PaymentMode.PaymentType == l.PaymentMode.PaymentType;
                                     });
@@ -89,7 +104,6 @@ app.controller('ModalClosePosController', function ($scope, $rootScope, $uibModa
 
                 case 2:
                     //Fermeture de la caisse
-                    // Foreach pour tout les hId de closePosParameters
                     posService.getPosNameAsync($scope.closePosParameters.hid).then(function(alias){
                         var newHidModel = {
                             hid: $scope.closePosParameters.hid,
@@ -102,7 +116,7 @@ app.controller('ModalClosePosController', function ($scope, $rootScope, $uibModa
                             newHidModel.CashMovementLines.push(clone(line));
                         });
 
-                        posPeriodService.getZPaymentValuesAsync($scope.closePosParameters.zperiod.id, $scope.closePosParameters.hid).then(function (paymentValues) {
+                        posPeriodService.getZPaymentValuesByHidAsync($scope.closePosParameters.zperiod.id, $scope.closePosParameters.hid).then(function (paymentValues) {
                             if (paymentValues) {
                                 Enumerable.from(paymentValues.PaymentLines).forEach(function (l) {
                                     var lineClose = Enumerable.from(newHidModel.CashMovementLines).firstOrDefault(function (x) {
@@ -153,22 +167,70 @@ app.controller('ModalClosePosController', function ($scope, $rootScope, $uibModa
                                         lineClose.PaymentMode.Total = l.PaymentMode.Total;
                                         lineClose.TotalKnown = l.PaymentMode.Total;
                                     }
+
+                                    var lineCloseRecap = Enumerable.from($scope.model.zRecap).firstOrDefault(function (x) {
+                                        return x.PaymentMode.Value == l.PaymentMode.Value && x.PaymentMode.PaymentType == l.PaymentMode.PaymentType;
+                                    });
+                                    if (lineCloseRecap) {
+                                        // Pré-renseigner le nombre attendu
+                                        lineCloseRecap.Count += l.Count;
+                                        if (lineCloseRecap.PaymentMode.Total) {
+                                            lineCloseRecap.PaymentMode.Total += l.PaymentMode.Total;
+                                        }
+                                        else {
+                                            lineCloseRecap.PaymentMode.Total = l.PaymentMode.Total;
+                                        }
+                                        if (lineCloseRecap.TotalKnown) {
+                                            lineCloseRecap.TotalKnown += l.PaymentMode.Total;
+                                        }
+                                        else {
+                                            lineCloseRecap.TotalKnown = l.PaymentMode.Total;
+                                        }
+                                    }
+                                    else {
+                                        $scope.model.zRecap.push(l);
+                                    }
                                 });
                             }
                         });
 
                         // Renseigner ce que le ou les utilisateurs on déjà renseigné lors de la fermeture du(des) services 
                             posPeriodService.getYCountLinesByHidAsync($scope.closePosParameters.zperiod.id, cashmachine.hid).then(function (yPeriodCash) {
-                                Enumerable.from(yPeriodCash.YCountLines).forEach(function (l) {
-                                var lineClose = Enumerable.from(newHidModel.CashMovementLines).firstOrDefault(function (x) {
-                                    return x.PaymentMode.Value == l.PaymentMode.Value && x.PaymentMode.PaymentType == l.PaymentMode.PaymentType;
-                                });
+                                if (yPeriodCash) {
+                                    newHidModel.nbY = yPeriodCash.nbY;
+                                    Enumerable.from(yPeriodCash.YCountLines).forEach(function (l) {
+                                        var lineClose = Enumerable.from(newHidModel.CashMovementLines).firstOrDefault(function (x) {
+                                            return x.PaymentMode.Value == l.PaymentMode.Value && x.PaymentMode.PaymentType == l.PaymentMode.PaymentType;
+                                        });
 
-                                if (lineClose) {
-                                    // Renseigner du montant affiché précédement
-                                    lineClose.PaymentMode.TotalYs = l.PaymentMode.Total;
+                                        if (lineClose) {
+                                            // Renseigner du montant renseigné précédement (somme des services)
+                                            lineClose.PaymentMode.TotalYs = l.PaymentMode.Total;
+                                            lineClose.PaymentMode.cashDiscrepancyYs = l.TotalKnown - l.PaymentMode.Total;
+                                        }
+                                        var lineCloseRecap = Enumerable.from($scope.model.zRecap).firstOrDefault(function (x) {
+                                            return x.PaymentMode.Value == l.PaymentMode.Value && x.PaymentMode.PaymentType == l.PaymentMode.PaymentType;
+                                        });
+
+                                        if (lineCloseRecap) {
+                                            // Renseigner du montant renseigné précédement (somme des services)
+                                            if (lineCloseRecap.PaymentMode.TotalYs) {
+                                                lineCloseRecap.PaymentMode.TotalYs += l.PaymentMode.Total;
+                                            }
+                                            else {
+                                                lineCloseRecap.PaymentMode.TotalYs = l.PaymentMode.Total;
+                                            }
+                                            if (lineCloseRecap.PaymentMode.cashDiscrepancyYs) {
+                                                lineCloseRecap.PaymentMode.cashDiscrepancyYs += l.TotalKnown - l.PaymentMode.Total;
+                                            }
+                                            else {
+                                                lineCloseRecap.PaymentMode.cashDiscrepancyYs = l.TotalKnown - l.PaymentMode.Total;
+                                            }
+                                        }
+                                    });
+
+                                    console.log($scope.model.zRecap);
                                 }
-                            });
                         });
                     });
                     });
@@ -245,6 +307,21 @@ app.controller('ModalClosePosController', function ($scope, $rootScope, $uibModa
             var configApiUrl = "http://" + $rootScope.IziBoxConfiguration.LocalIpIziBox + ":" + $rootScope.IziBoxConfiguration.RestPort + "/open/" + $rootScope.PrinterConfiguration.POSPrinter;
             $http.get(configApiUrl, { timeout: 10000 });
         }
+    };
+
+    $scope.openZ = function () {
+        $uibModalInstance.close();
+
+        $uibModal.open({
+            templateUrl: 'modals/modalStatsPeriod.html',
+            controller: 'ModalStatsPeriodController',
+            size: 'max',
+            resolve: {
+                closePosParameters: function () {
+                    return $scope.closePosParameters;
+                }
+            }
+        });
     };
 
     // Fermeture de caisse. Doit purger les tickets
@@ -350,11 +427,17 @@ app.controller('ModalClosePosController', function ($scope, $rootScope, $uibModa
             },
             backdrop: 'static'
         });
-    }
+    };
+
     $scope.cancel = function () {
-        //Restore la visibilité de la modal de stats
-        $rootScope.showStats = true;
         $uibModalInstance.dismiss('cancel');
+
+        $uibModal.open({
+            templateUrl: 'modals/modalYperiodPick.html',
+            controller: 'ModalYperiodPickController',
+            size: 'lg',
+            backdrop: 'static'
+        });
 
         setTimeout(function () {
             $rootScope.closeKeyboard();

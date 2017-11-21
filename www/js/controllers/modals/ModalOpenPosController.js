@@ -136,58 +136,19 @@ app.controller('ModalOpenPosController', function ($scope, $rootScope, $uibModal
                     if (previousYperiodButClosed) {
 
                         // Crééer le motif négatif isSytem "Fin de service" du montant espèce du précédent yPeriod dans le yPeriod précédent
-                        posPeriodService.emptyCashYPeriod(previousYperiodButClosed, previousYperiodButClosed.YCountLines);
+                        posPeriodService.emptyCashYPeriod(previousYperiodButClosed, previousYperiodButClosed.YCountLines).then(function (paymentValues) {
+                            //Appel après la création de la fermeture du service précédent pour que la date du motif de l'ouverture du service soit après le motif de fermeture du service précédent
+                            openCashMachine();
+                        });
 
+
+                        
                     }
                 }
-
-                // Send to BO
-                $scope.openPosValues.Date = new Date().toString('dd/MM/yyyy H:mm:ss');
-                cashMovementService.saveMovementAsync($scope.openPosValues);
-
-                var updPaymentModes = [];
-
-                var newPaymentMode = clone($scope.openPosValues.CashMovementLines[0].PaymentMode);
-
-                newPaymentMode.Total = roundValue(parseFloat(newPaymentMode.Total).toFixed(2));
-
-                if (!$scope.model.motif.CashIn && !$scope.model.motif.IsCashFunds) {
-                    newPaymentMode.Total = newPaymentMode.Total * (-1);
-                }
-
-                updPaymentModes.push(newPaymentMode);
-
-                // Pour stoker l'historique des mouvements
-                var cashMovement = {
-                    CashMovementLines: updPaymentModes,
-                    Date: $scope.openPosValues.Date,
-                    MovementType_Id: $scope.openPosValues.MovementType_Id,
-                    PosUserId: $scope.openPosValues.PosUserId
-                };
-
-                if ($scope.model.motif.IsCashFunds) {
-
-                    posPeriodService.replacePaymentValuesAsync($scope.openPosParameters.yPeriodId, $scope.openPosParameters.zPeriodId, $rootScope.PosLog.HardwareId, updPaymentModes, cashMovement);
-                }
                 else {
-
-                    posPeriodService.updatePaymentValuesAsync($scope.openPosParameters.yPeriodId, $scope.openPosParameters.zPeriodId, $rootScope.PosLog.HardwareId, updPaymentModes, undefined, cashMovement);
-
+                    openCashMachine();
                 }
 
-                // Logging the event
-                if ($scope.model.motif.IsCashFunds) {
-                    var event = {
-                        Code: 170,
-                        Description: "Ouverture de caisse",
-                        OperatorCode: $rootScope.PosUserId,
-                        Type: "Fonds de caisse",
-                        TerminalCode: $rootScope.PosLog.HardwareId,
-                        Informations: ["todo", "todo2"]
-                    };
-
-                    eventService.sendEvent(event);
-                }
                 $uibModalInstance.close();
             }
             else {
@@ -211,5 +172,55 @@ app.controller('ModalOpenPosController', function ($scope, $rootScope, $uibModal
 
     $scope.cancel = function () {   
         $uibModalInstance.dismiss('cancel');
+    }
+
+    var openCashMachine = function () {
+        // Send to BO
+        $scope.openPosValues.Date = new Date().toString('dd/MM/yyyy H:mm:ss');
+        cashMovementService.saveMovementAsync($scope.openPosValues);
+
+        var updPaymentModes = [];
+
+        var newPaymentMode = clone($scope.openPosValues.CashMovementLines[0].PaymentMode);
+
+        newPaymentMode.Total = roundValue(parseFloat(newPaymentMode.Total).toFixed(2));
+
+        if (!$scope.model.motif.CashIn && !$scope.model.motif.IsCashFunds) {
+            newPaymentMode.Total = newPaymentMode.Total * (-1);
+        }
+
+        updPaymentModes.push(newPaymentMode);
+
+        // Pour stoker l'historique des mouvements
+        var cashMovement = {
+            CashMovementLines: updPaymentModes,
+            Date: $scope.openPosValues.Date,
+            MovementType_Id: $scope.openPosValues.MovementType_Id,
+            PosUserId: $scope.openPosValues.PosUserId
+        };
+
+        if ($scope.model.motif.IsCashFunds) {
+
+            posPeriodService.replacePaymentValuesAsync($scope.openPosParameters.yPeriodId, $scope.openPosParameters.zPeriodId, $rootScope.PosLog.HardwareId, updPaymentModes, cashMovement);
+        }
+        else {
+
+            posPeriodService.updatePaymentValuesAsync($scope.openPosParameters.yPeriodId, $scope.openPosParameters.zPeriodId, $rootScope.PosLog.HardwareId, updPaymentModes, undefined, cashMovement);
+
+        }
+
+        // Logging the event
+        if ($scope.model.motif.IsCashFunds) {
+            var event = {
+                Code: 170,
+                Description: "Ouverture de caisse",
+                OperatorCode: $rootScope.PosUserId,
+                Type: "Fonds de caisse",
+                TerminalCode: $rootScope.PosLog.HardwareId,
+                Informations: ["todo", "todo2"]
+            };
+
+            eventService.sendEvent(event);
+        }
     }
 });

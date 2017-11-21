@@ -2,8 +2,8 @@
   * @function zposService
   * @description This is a service to manage the zpos data
   */
-app.service('zposService', ['$http', '$rootScope', '$q', 'posLogService', 'posPeriodService',
-    function ($http, $rootScope, $q, posLogService, posPeriodService) {
+app.service('zposService', ['$http', '$rootScope', '$q', 'posLogService', 'posPeriodService', 'posService',
+    function ($http, $rootScope, $q, posLogService, posPeriodService, posService) {
         var current = this;
         var hardwareId = undefined;
 
@@ -655,7 +655,7 @@ app.service('zposService', ['$http', '$rootScope', '$q', 'posLogService', 'posPe
                 totalIT: 0,
                 totalET: 0,
                 count: 0,
-                totalsByDate: [],//{date,totalIT,totalET,count}
+                totalsByPeriod: [],//{date,totalIT,totalET,count}
                 paymentModes: [], //{type,total/date[],total}
                 deliveryValues: [], //{type,total/date[],total}
                 employees: [], //{nom,total/date[],total}
@@ -679,26 +679,30 @@ app.service('zposService', ['$http', '$rootScope', '$q', 'posLogService', 'posPe
                 }
             };
 
-            // Total by date
+            // Total by period
             countByPeriod.sort(function(a,b){
                 return new Date(a.period.start) - new Date(b.period.start);
             });
+            console.log(countByPeriod);
             Enumerable.from(countByPeriod).forEach(function (row) {
-                var newLine = {
-                    start : row.period.start,
-                    end : row.period.end,
-                    totalIT: roundValue(row.value.TotalIT),
-                    totalET: roundValue(row.value.TotalET),
-                    count: row.value.Count
-                };
-                zpos.totalsByDate.push(newLine);
-                zpos.totalIT = roundValue(zpos.totalIT + newLine.totalIT);
-                zpos.totalET = roundValue(zpos.totalET + newLine.totalET);
-                zpos.count += newLine.count;
+                    var newLine = {
+                        id : row.key[2],
+                        hid : row.key[1],
+                        start : row.period.start,
+                        end : row.period.end,
+                        totalIT: roundValue(row.value.TotalIT),
+                        totalET: roundValue(row.value.TotalET),
+                        count: row.value.Count
+                    };
+                    zpos.totalsByPeriod.push(newLine);
+                    zpos.totalIT = roundValue(zpos.totalIT + newLine.totalIT);
+                    zpos.totalET = roundValue(zpos.totalET + newLine.totalET);
+                    zpos.count += newLine.count;
+
+
             });
 
             // Total by payment modes and by period
-            console.log(paymentModesByPeriod);
             Enumerable.from(paymentModesByPeriod).forEach(function (row) {
                 var type = row.key[3];
                 var type_id = row.key[4];
@@ -867,7 +871,7 @@ app.service('zposService', ['$http', '$rootScope', '$q', 'posLogService', 'posPe
             zpos.totalET = roundValue(zpos.totalET);
             zpos.totalIT = roundValue(zpos.totalIT);
 
-            zpos.totalsByDate = roundValue(zpos.totalsByDate);
+            //zpos.totalsByPeriod = roundValue(zpos.totalsByPeriod);
             zposDefer.resolve(zpos);
         };
 
@@ -896,25 +900,45 @@ app.service('zposService', ['$http', '$rootScope', '$q', 'posLogService', 'posPe
                 var dbStartKey = [];
                 var dbEndKey = [];
 
+                var bsk = [];
+                var bek = [];
+
                 //Genere les startkey et endkey en fonction des parametre existant
                 if(!jQuery.isEmptyObject(zpid)){
                     dbStartKey.push(zpid);
                     dbEndKey.push(zpid);
+
+                    bsk.push(zpid);
+                    bek.push(zpid);
+
                     if (!jQuery.isEmptyObject(hid)){
                         dbStartKey.push(hid);
                         dbEndKey.push(hid);
+
                         if (!jQuery.isEmptyObject(ypid)){
                             dbStartKey.push(ypid);
                             dbEndKey.push(ypid);
+
+                            bsk.push(ypid);
+                            bek.push(ypid);
+
                         } else {
                             dbEndKey.push({}); // ypid
+
+                            bek.push({});
+
                         }
                     } else {
+
                         dbEndKey.push({}); // hid
                         dbEndKey.push({}); // ypid
+
+                        bek.push({});
                     }
                 }
 
+                console.log(dbStartKey);
+                console.log(dbEndKey);
                 // Obtains all VAT
                 $rootScope.remoteDbZPos.query("zpos/TaxByPeriod", {
                     startkey: dbStartKey,
@@ -1031,15 +1055,16 @@ app.service('zposService', ['$http', '$rootScope', '$q', 'posLogService', 'posPe
                                                 });
                                                 // Obtains totalByEmployees
                                                 $rootScope.remoteDbZPos.query("zpos/balanceByPeriod", {
-                                                    startkey: dbStartKey,
-                                                    endkey: dbEndKey,
+                                                    startkey: bsk,
+                                                    endkey: bek,
                                                     reduce: true,
                                                     group: true
                                                 }).then(function(resBalance){
+                                                    console.log(resBalance);
                                                     var balanceByPeriod = resBalance.rows;
                                                     console.log(balanceByPeriod);
                                                     Enumerable.from(balanceByPeriod).forEach(function(bp) {
-                                                        posPeriodService.getDateYPeriodAsync(bp.key[0], bp.key[2]).then(function (dates) {
+                                                        posPeriodService.getDateYPeriodAsync(bp.key[0], bp.key[1]).then(function (dates) {
                                                             bp.period = dates;
                                                         });
                                                     });
@@ -1056,7 +1081,7 @@ app.service('zposService', ['$http', '$rootScope', '$q', 'posLogService', 'posPe
                                                             })
                                                         }
 
-                                                        posPeriodService.getAllYPeriodAsync(hid, undefined, false).then(function (yp) {
+                                                        posPeriodService.getAllYPeriodAsync(hid).then(function (yp) {
                                                             if (yp) {
                                                                 startDate = [];
                                                                 endDate = [];
@@ -1116,7 +1141,7 @@ app.service('zposService', ['$http', '$rootScope', '$q', 'posLogService', 'posPe
                         reduce: true,
                         group: true
                     }).then(function (resPM) {
-                        console.log()
+                        console.log(resPM);
 
                         var paymentModesByDate = resPM.rows;
 
@@ -1210,6 +1235,13 @@ app.service('zposService', ['$http', '$rootScope', '$q', 'posLogService', 'posPe
             Enumerable.from($rootScope.IziBoxConfiguration.ShopName.split("\\r\\n")).forEach(function (part) {
                 htmlLines.push("<center>" + part + "</center>");
             });
+            //Alias de caisse ou HID
+            if($rootScope.modelPos.aliasCaisse){
+                htmlLines.push("<center>" + $rootScope.modelPos.aliasCaisse + "</center>");
+
+            } else {
+                htmlLines.push("<center>" + hardwareId + "</center>");
+            }
 
             htmlLines.push("<br />");
             htmlLines.push("<center><strong>Du : " + Date.parseExact(zpos.dateStart, "yyyyMMdd").toString("dd/MM/yyyy") + (zpos.dateEnd != zpos.dateStart ? (" au " + Date.parseExact(zpos.dateEnd, "yyyyMMdd").toString("dd/MM/yyyy")) : "") + "</strong></center>");
@@ -1306,18 +1338,27 @@ app.service('zposService', ['$http', '$rootScope', '$q', 'posLogService', 'posPe
          */
         this.createZPosHtml_v2 = function (zpos, printY) {
             console.log(zpos);
+            console.log(printY);
             //#region Generate HTML printable
             var htmlLines = [];
             // If printY, on boucle dans la fonction autant de fois qu'il y a de Y
             // avant d'imprimer le Z
             if(printY){
-                console.log(zpos.totalsByDate);
-                Enumerable.from(zpos.totalsByDate).forEach(function(y, index){
+                console.log(zpos.totalsByPeriod);
+                Enumerable.from(zpos.totalsByPeriod).forEach(function(y){
                     htmlLines.push("<center><strong>Service</strong></center>");
                     htmlLines.push("<br />");
                     Enumerable.from($rootScope.IziBoxConfiguration.ShopName.split("\\r\\n")).forEach(function (part) {
                         htmlLines.push("<center>" + part + "</center>");
                     });
+
+                    //Alias de caisse ou HID
+                    if(y.alias){
+                        htmlLines.push("<center>" + y.alias + "</center>");
+
+                    } else {
+                        htmlLines.push("<center>" + y.hid + "</center>");
+                    }
 
                     htmlLines.push("<br />");
                     htmlLines.push("<center><strong> Pour la periode :</strong></center>");
@@ -1378,7 +1419,17 @@ app.service('zposService', ['$http', '$rootScope', '$q', 'posLogService', 'posPe
                     htmlLines.push("<br />");
                     htmlLines.push("<p>Rendu : -" + matchRP.total + "</p>");
                     htmlLines.push("<br />");
-                    htmlLines.push("<p>Avoir émis : -" + zpos.credit.byPeriod[index].total + "</p>");
+
+                    //Utilise enumerable first or default pour match
+                    // la periode actuelle avec la periode de credit a afficher
+                    var matchCR = Enumerable.from(zpos.credit.byPeriod).firstOrDefault(function(a){
+                        return a.start == y.start;
+                    });
+
+                    if(matchCR) {
+                        htmlLines.push("<p>Avoir émis : -" + matchCR.total + "</p>");
+                    }
+
                     htmlLines.push("<br />");
                     //Total payment
                     htmlLines.push("<p>Recette :</p>");
@@ -1387,29 +1438,66 @@ app.service('zposService', ['$http', '$rootScope', '$q', 'posLogService', 'posPe
 
                     htmlLines.push("<br />");
 
-                    htmlLines.push("<p>Nb couverts : " + zpos.cutleries.byPeriod[index].count + "</p>");
+                    var matchCTL = Enumerable.from(zpos.cutleries.byPeriod).firstOrDefault(function(a){
+                        return a.start == y.start;
+                    });
+                    if(matchCTL){
+
+                        htmlLines.push("<p>Nb couverts : " + matchCTL.count + "</p>");
+                    }
+
 
                     htmlLines.push("<br />");
+                    htmlLines.push("<p>Dont (TTC) :</p>");
 
                     var lineForHere = Enumerable.from(zpos.deliveryValues).firstOrDefault(function (value) { return value.type == DeliveryTypes.FORHERE; });
                     var lineTakeOut = Enumerable.from(zpos.deliveryValues).firstOrDefault(function (value) { return value.type == DeliveryTypes.TAKEOUT; });
                     var lineDelivery = Enumerable.from(zpos.deliveryValues).firstOrDefault(function (value) { return value.type == DeliveryTypes.DELIVERY; });
-                    var valueForHere = lineForHere ? lineForHere.byPeriod[index].total : 0;
-                    var valueTakeOut = lineTakeOut ? lineTakeOut.byPeriod[index].total : 0;
-                    var valueDelivery = lineDelivery ? lineDelivery.byPeriod[index].total : 0;
 
-                    htmlLines.push("<p>Dont (TTC) :</p>");
-                    htmlLines.push("<p>    Sur place  : " + valueForHere.toString() + "</p>");
-                    htmlLines.push("<p>    Emporté    : " + valueTakeOut.toString() + "</p>");
-                    htmlLines.push("<p>    Livré      : " + valueDelivery.toString() + "</p>");
+                    if(lineForHere){
+                        var matchForHere = Enumerable.from(lineForHere.byPeriod).firstOrDefault(function(a){
+                            return a.start == y.start;
+                        });
+
+                        var valueForHere = matchForHere ? matchForHere.total : 0;
+                        htmlLines.push("<p>    Sur place  : " + valueForHere.toString() + "</p>");
+                    }
+
+
+                    if(lineTakeOut){
+                        var matchTakeOut = Enumerable.from(lineTakeOut.byPeriod).firstOrDefault(function(a){
+                            return a.start == y.start;
+                        });
+
+                        var valueTakeOut = matchTakeOut ? matchTakeOut.total : 0;
+                        htmlLines.push("<p>    Emporté    : " + valueTakeOut.toString() + "</p>");
+                    }
+
+
+                    if(lineDelivery){
+                        var matchDelivery = Enumerable.from(lineDelivery.byPeriod).firstOrDefault(function(a){
+                            return a.start == y.start;
+                        });
+                        var valueDelivery = matchDelivery ? matchDelivery.total : 0;
+                        htmlLines.push("<p>    Livré      : " + valueDelivery.toString() + "</p>");
+                    }
+
+
+
+
+
+
 
                     htmlLines.push("<br />");
 
                     console.log(zpos.taxDetails);
                     Enumerable.from(zpos.taxDetails).forEach(function (tax) {
-                        console.log(index);
-                        if(tax.byPeriod[index]) {
-                            htmlLines.push("<p>" + tax.taxCode + " : " + roundValue(String(tax.byPeriod[index].total).substring(0,4)) + "</p>");
+                        console.log(y);
+                        var matchTax = Enumerable.from(tax.byPeriod).firstOrDefault(function(a){
+                            return a.start == y.start;
+                        });
+                        if(matchTax) {
+                            htmlLines.push("<p>" + tax.taxCode + " : " + roundValue(String(matchTax.total).substring(0,4)) + "</p>");
                         }
                     });
 
@@ -1417,9 +1505,83 @@ app.service('zposService', ['$http', '$rootScope', '$q', 'posLogService', 'posPe
                         htmlLines.push("<br />");
                         htmlLines.push("<p>Par employés (TTC) :</p>");
                         Enumerable.from(zpos.employees).forEach(function (employee) {
-                            htmlLines.push("<p>" + employee.name + " : " + employee.byPeriod[index].total + "</p>");
+                            var matchEmployee = Enumerable.from(employee.byPeriod).firstOrDefault(function(a){
+                                return a.start == y.start;
+                            });
+                            if(matchEmployee){
+                                htmlLines.push("<p>" + employee.name + " : " + matchEmployee.total + "</p>");
+                            }
+
                         });
                     }
+
+                    //Ajouter les mouvements d'especes de la periodes
+                    //On fetch l'id y.id
+                    console.log(y.id);
+
+                    /*
+                    var allCashMovementsTypes ;
+                    var allPosUsers;
+                    var allCashMovements;
+                    //On recupere les mouvement d'espece de cette periode
+                    cashMovementService.getAllMovementTypesAsync().then(function (cm) {
+                        allCashMovementsTypes = cm;
+                        console.log(allCashMovementsTypes);
+
+                        posUserService.getPosUsersAsync().then(function (pu){
+                            allPosUsers = pu;
+                            console.log(allPosUsers);
+
+                            // get Y
+                            posPeriodService.getYPeriodAsync($rootScope.modelPos.hardwareId, null, false).then(function (yp) {
+                                // Query couchdb et recupere tout les cash movement lines
+                                posPeriodService.getYPaymentValuesAsync(yp.id).then(function (p) {
+                                    allCashMovements = p.CashMovements;
+
+
+                                    htmlLines.push("<p><table>");
+                                    htmlLines.push("<tr>");
+                                    htmlLines.push("<th> Date </th>");
+                                    htmlLines.push("<th> Type </th>");
+                                    htmlLines.push("<th> Montant </th>");
+                                    htmlLines.push("<th> Utilisateur </th>");
+                                    htmlLines.push("</tr>");
+
+                                    Enumerable.from(allCashMovements).forEach(function(cashMovement){
+
+                                        htmlLines.push("<td>" + cashMovement.Date + "</td>");
+                                        htmlLines.push("<td>" + getMovementName(cashMovement.MovementType_Id)+"</td>");
+                                        htmlLines.push("<td>" + cashMovement.CashMovementLines[0].Total + "</td>");
+                                        htmlLines.push("<td>" + getPosUserName(cashMovement.PosUserId) + "</td>");
+                                        htmlLines.push("</tr>");
+                                        htmlLines.push("</table></p>");
+                                    });
+
+                                    //On les imprimes
+                                });
+                            });
+                        });
+                    });
+
+
+
+
+                    var getMovementName = function(movementType){
+                        var matchMvt = Enumerable.from(allCashMovementsTypes).firstOrDefault(function(cmt){
+                            return cmt.Id == movementType
+                        });
+                        return matchMvt.Name;
+                    };
+
+                    // Match l'id de l'utilisateur avec son nom
+                    var getPosUserName = function(userId){
+                        var matchPu = Enumerable.from(allPosUsers).firstOrDefault(function(pu){
+                            return pu.Id == userId;
+                        });
+                        return matchPu.Name;
+                    };
+
+                    */
 
                     htmlLines.push("<br />");
                     htmlLines.push("<br />");
@@ -1525,6 +1687,7 @@ app.service('zposService', ['$http', '$rootScope', '$q', 'posLogService', 'posPe
             //#endregion
 
             var html = htmlLines.join("");
+            console.log(html);
 
             return html;
         };
@@ -1552,6 +1715,7 @@ app.service('zposService', ['$http', '$rootScope', '$q', 'posLogService', 'posPe
 
                 var html = this.createZPosHtml_v2(zpos, printY);
             }
+
 
 
             //print

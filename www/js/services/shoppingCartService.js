@@ -271,7 +271,7 @@ app.service('shoppingCartService', ["$http", "$rootScope", "$q", "$filter", "zpo
 
 			shoppingCart.id = Number(shoppingCart.Timestamp);
 
-			$rootScope.dbZPos.rel.save('ShoppingCart', shoppingCart).then(function () { 									// Save the ticket
+			$rootScope.remoteDbZPos.rel.save('ShoppingCart', shoppingCart).then(function () { 									// Save the ticket
                 $rootScope.dbReplicate.rel.save('PaymentEditWithHistory', paymentEdit).then(function () { 					// Send the event to the BO
                     posPeriodService.updatePaymentValuesAsync(shoppingCart.yPeriodId, shoppingCart.zPeriodId, shoppingCart.HardwareId, paymentEdit.PaymentModes, oldPaymentValues).then(function () {		// Modify the payment
 						savePaymentDefer.resolve(paymentEdit);

@@ -124,6 +124,7 @@
         /// <returns>Current YPeriod</returns>
         this.getYPeriodAsync = function (hardwareId, userId, create, forceOpenPopupEditMode) {
             var retDefer = $q.defer();
+            var isOwnPeriod = hardwareId == $rootScope.modelPos.hardwareId ? true : false;
 
             this.getZPeriodAsync(create).then(function (zPeriod) {
 
@@ -185,21 +186,29 @@
 
                             modalInstance.result.then(function () {
                                 $rootScope.remoteDbUtils.rel.save('YPeriod', currentYPeriod).then(function (resSave) {
-                                    $rootScope.modelPos.isPosOpen = true;
+                                    if(isOwnPeriod) {
+                                        $rootScope.modelPos.isPosOpen = true;
+                                    }
                                     console.log("Pos opened");
                                     retDefer.resolve(currentYPeriod);
                                 }, function (errSave) {
-                                    $rootScope.modelPos.isPosOpen = false;
+                                    if(isOwnPeriod) {
+                                        $rootScope.modelPos.isPosOpen = false;
+                                    }
                                     console.log("Pos closed : error save yPeriod");
                                     retDefer.reject(errSave);
                                 });
                             }, function () {
-                                $rootScope.modelPos.isPosOpen = false;
+                                if(isOwnPeriod) {
+                                    $rootScope.modelPos.isPosOpen = false;
+                                }
                                 console.log("Pos closed : cancelled");
                                 retDefer.reject();
                             });
                         } else {
-                            $rootScope.modelPos.isPosOpen = false;
+                            if(isOwnPeriod) {
+                                $rootScope.modelPos.isPosOpen = false;
+                            }
                             console.log("Pos closed : yperiod not exist or closed");
                             retDefer.reject();
                         }
@@ -223,17 +232,23 @@
                         });
                     }
                     else {
-                        $rootScope.modelPos.isPosOpen = true;
+                        if(isOwnPeriod) {
+                            $rootScope.modelPos.isPosOpen = true;
+                        }
                         console.log("Pos opened");
                         retDefer.resolve(currentYPeriod);
                     }
                 }, function (errGet) {
-                    $rootScope.modelPos.isPosOpen = false;
+                    if(isOwnPeriod) {
+                        $rootScope.modelPos.isPosOpen = false;
+                    }
                     console.log("Pos closed : forceopen cancelled");
                     retDefer.reject(errGet);
                 });
             }, function (errGet) {
-                $rootScope.modelPos.isPosOpen = false;
+                if(isOwnPeriod) {
+                    $rootScope.modelPos.isPosOpen = false;
+                }
                 console.log("Pos closed : error read yPeriod");
                 retDefer.reject(errGet);
             });
@@ -242,6 +257,8 @@
 
         this.closeYPeriodAsync = function (yPeriod, CashMovementLines, emptyCash) {
             var funcDefer = $q.defer();
+            console.log(yPeriod);
+            var isOwnPeriod = yPeriod.HardwareId == $rootScope.modelPos.hardwareId ? true : false;
 
             if (!yPeriod.endDate) {
                 $rootScope.remoteDbUtils.rel.find('YPeriod', yPeriod.id).then(function (resYPeriod) {
@@ -251,7 +268,9 @@
                         currentYPeriod.YCountLines = CashMovementLines;
                         currentYPeriod.emptyCash = emptyCash;
                         $rootScope.remoteDbUtils.rel.save('YPeriod', currentYPeriod).then(function () {
-                            $rootScope.modelPos.isPosOpen = false;
+                            if(isOwnPeriod){
+                                $rootScope.modelPos.isPosOpen = false;
+                            }
                             funcDefer.resolve(currentYPeriod);
                         }, function (errSave) {
                             funcDefer.reject(errSave);
@@ -267,8 +286,19 @@
             return funcDefer.promise;
         };
 
+        this.purgeZPeriodAsync = function (zPeriod) {
+            this.getYperiodFromZperiodAsync(zPeriod.zPeriodId).then(function (yPeriods) {
+                Enumerable.from(yPeriods).forEach(function (yPeriod) {
+                    $rootScope.remoteDbUtils.rel.del('YPeriod', yPeriod);
+                });
+                $rootScope.remoteDbUtils.rel.del('ZPeriod', zPeriod);
+            });
+        };
+
         this.closeZPeriodAsync = function (zPeriod) {
             var funcDefer = $q.defer();
+
+            var isOwnPeriod = zPeriod.HardwareId == $rootScope.modelPos.hardwareId ? true : false;
 
             if (!zPeriod.endDate) {
                 $rootScope.remoteDbUtils.rel.find('ZPeriod', zPeriod.id).then(function (resZPeriod) {
@@ -280,11 +310,14 @@
                             ZPeriodRep.rev = undefined;
                             $rootScope.dbReplicate.rel.save('ZPeriod', ZPeriodRep).then(function () {
                                 console.log("Replicate Close ZPeriod : success");
+                                current.purgeZPeriodAsync(currentZPeriod);
                             }, function (errRep) {
                                 console.error("Replicate Close ZPeriod : " + errRep)
                             });
-                            
-                            $rootScope.modelPos.isPosOpen = false;
+
+                            if(isOwnPeriod){
+                                $rootScope.modelPos.isPosOpen = false;
+                            }
                             funcDefer.resolve(currentZPeriod);
                         }, function (errSave) {
                             funcDefer.reject(errSave);
@@ -386,11 +419,15 @@
             db.rel.find('YPeriod').then(function (resYPeriods) {
                 var yPeriodCash = {
                     zPeriodId: zPeriodId,
-                    YCountLines: []
+                    YCountLines: [],
+                    nbY: 0
                 };
 
                 Enumerable.from(resYPeriods.YPeriods).forEach(function (yPeriod) {
                     if (yPeriod.zPeriodId == zPeriodId && yPeriod.hardwareId == hardwareId) {
+
+                        ++yPeriodCash.nbY;
+
                         Enumerable.from(yPeriod.YCountLines).forEach(function (cm) {
                             var line = Enumerable.from(yPeriodCash.YCountLines).firstOrDefault(function (l) {
                                 return l.PaymentMode.Value == cm.PaymentMode.Value && l.PaymentMode.PaymentType == cm.PaymentMode.PaymentType;
@@ -398,10 +435,12 @@
 
                             if (line) {
                                 line.Count = line.Count + cm.Count;
+                                line.TotalKnown = line.TotalKnown + cm.TotalKnown;
                                 line.PaymentMode.Total = roundValue(line.PaymentMode.Total + cm.PaymentMode.Total);
                             } else {
                                 line = {
                                     Count: cm.Count,
+                                    TotalKnown: cm.TotalKnown,
                                     PaymentMode: clone(cm.PaymentMode)
                                 };
 
@@ -477,7 +516,28 @@
                     }
                 });
 
-                paymentValuesDefer.resolve(zPaymentValues);
+                // Recuperer les montants cagnottes dans la vue pour le z et le Hid
+                $rootScope.remoteDbZPos.query("zpos/balanceByzPeriodAndHid", {
+                    startkey: [zPeriodId, hardwareId],
+                    endkey: [zPeriodId, hardwareId],
+                    reduce: true,
+                    group: true
+                }).then(function (resBalance) {
+                    var balanceByPeriod = {
+                        PaymentMode: {
+                            PaymentType: 9,
+                            Text: "Cagnotte",
+                            Total: resBalance.rows[0] ? resBalance.rows[0].value : 0,
+                            Value: "Cagnotte",
+                        }
+
+                    };
+                    if (zPaymentValues) {
+                        zPaymentValues.PaymentLines.push(balanceByPeriod);
+                    }
+                    paymentValuesDefer.resolve(zPaymentValues);
+                    });
+
             }, function (errPV) {
                 paymentValuesDefer.reject(errPV);
             });
@@ -519,6 +579,7 @@
                 });
 
                 paymentValuesDefer.resolve(zPaymentValues);
+
             }, function (errPV) {
                 paymentValuesDefer.reject(errPV);
             });
@@ -533,14 +594,38 @@
             var paymentValuesDefer = $q.defer();
 
             var db = $rootScope.remoteDbZPos;
+            current.getZPeriodAsync(false).then(function(zp){
+                db.rel.find('PaymentValues', yPeriodId).then(function (resPaymentValues) {
+                    console.log(resPaymentValues);
+                    var paymentValues = Enumerable.from(resPaymentValues.AllPaymentValues).firstOrDefault();
+                    // Recuperer les montant cagnotte dans la vue
+                    console.log(zp.id, yPeriodId);
+                    $rootScope.remoteDbZPos.query("zpos/balanceByPeriod", {
+                        startkey: [zp.id, yPeriodId],
+                        endkey: [zp.id, yPeriodId],
+                        reduce: true,
+                        group: true
+                    }).then(function(resBalance){
+                        var balanceByPeriod = {
+                            PaymentMode: {
+                                PaymentType : 9,
+                                Text : "Cagnotte",
+                                Total : resBalance.rows[0] ?resBalance.rows[0].value : 0,
+                                Value: "Cagnotte",
+                            }
 
-            db.rel.find('PaymentValues', yPeriodId).then(function (resPaymentValues) {
-                var paymentValues = Enumerable.from(resPaymentValues.AllPaymentValues).firstOrDefault();
+                        };
+                        if(paymentValues){
+                            paymentValues.PaymentLines.push(balanceByPeriod);
+                        }
+                        paymentValuesDefer.resolve(paymentValues);
+                    });
 
-                paymentValuesDefer.resolve(paymentValues);
-            }, function (errPV) {
-                paymentValuesDefer.reject(errPV);
+                }, function (errPV) {
+                    paymentValuesDefer.reject(errPV);
+                });
             });
+
 
             return paymentValuesDefer.promise;
         };

@@ -51,7 +51,7 @@
                 var dateInfo = new Date().toString('dd/MM/yyyy H:mm:ss');
                 var hardwareType = "BROWSER";
 
-                if (navigator.userAgent.match(/(WPF)/)) {
+                if ($rootScope.isWindowsContainer) {
                     hardwareType = "WINDOWS";
                 } else if (navigator.userAgent.match(/(iPhone|iPod|iPad|Android|BlackBerry|IEMobile)/)) {
                     hardwareType = "TABLET";

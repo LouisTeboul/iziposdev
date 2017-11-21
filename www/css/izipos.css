@@ -80,6 +80,14 @@ html{
 	background-color : green;
 }
 
+.large option{
+	padding:5px 0;
+}
+
+.red {
+    background-color: red;
+}
+
 .activeButton, .activeButton:focus, .activeButton:hover {
 	border : #0a9ec7 3px solid;
 }
@@ -87,6 +95,10 @@ html{
 
 .closedPeriod, .closedPeriod:focus, .closedPeriod:hover  {
 	background-color : #69ff5d;
+}
+
+.emptyPeriod, .emptyPeriod:focus, .emptyPeriod:hover  {
+	background-color : #ff5f55;
 }
 
 .loader {
@@ -831,7 +843,7 @@ text-field.flexbox div{
 }
 
 .catalogMenu .clock{
-	font-size: 18px;
+	font-size: 15px;
 	color: #cecece;
 }
 

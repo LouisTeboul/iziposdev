@@ -35,7 +35,7 @@ app.run(function ($rootScope, $location, $q, $http, ipService, zposService, $tra
 	try {
 		angularLocation = $location;
 
-		$rootScope.Version = "3.0.0.15112";
+		$rootScope.Version = "3.0.0.21111";
 		$rootScope.adminMode = { state: false };
         $rootScope.loading = 0;
 
@@ -81,7 +81,8 @@ app.run(function ($rootScope, $location, $q, $http, ipService, zposService, $tra
 		$rootScope.RatioConfiguration = { Enabled: true };
 
 		if (navigator.userAgent.match(/(iPhone|iPod|iPad|Android|BlackBerry|IEMobile)/)) {
-			$rootScope.isBrowser = false;
+            $rootScope.isBrowser = false;
+            $rootScope.isWindowsContainer = false;
 			document.addEventListener("deviceready", function () {
 				init($rootScope, $location, $q, $http, ipService, zposService, $translate, $uibModal);
 			}, false);
@@ -89,10 +90,15 @@ app.run(function ($rootScope, $location, $q, $http, ipService, zposService, $tra
 			if (navigator.userAgent.match(/(iPhone|iPod|iPad)/)) {
 				FastClick.attach(document.body);                
 			}
-		} else {
-			$rootScope.isBrowser = true;
-			init($rootScope, $location, $q, $http, ipService, zposService, $translate, $uibModal); //this is the browser
-		}
+        } else if(navigator.userAgent.match(/(WPF)/)){
+            $rootScope.isBrowser = false;
+            $rootScope.isWindowsContainer = true;
+			init($rootScope, $location, $q, $http, ipService, zposService, $translate, $uibModal); 
+        } else {
+            $rootScope.isBrowser = true;
+            $rootScope.isWindowsContainer = false;
+            init($rootScope, $location, $q, $http, ipService, zposService, $translate, $uibModal); //this is the browser
+        }
 	}
 	catch (exAll) 
 	{
@@ -144,8 +150,8 @@ var init = function ($rootScope, $location, $q, $http, ipService, zposService, $
 	 * Use for displaying the wpf keyboard on windows system
 	 * @deprecated
 	 * */
-	$rootScope.showWPFKeyboard = function (openCordovaKeyboard) {
-		if (navigator.userAgent.match(/(WPF)/)) {
+    $rootScope.showWPFKeyboard = function (openCordovaKeyboard) {
+        if ($rootScope.isWindowsContainer) {
 			try {
 				wpfKeyboard.showKeyboard();
 			} catch (err) {}
@@ -162,7 +168,7 @@ var init = function ($rootScope, $location, $q, $http, ipService, zposService, $
 
 	$rootScope.hideWPFKeyboard = function () {
 
-		if (navigator.userAgent.match(/(WPF)/)) {
+        if ($rootScope.isWindowsContainer) {
 			try {
 				wpfKeyboard.hideKeyboard();
 			} catch (err) {}

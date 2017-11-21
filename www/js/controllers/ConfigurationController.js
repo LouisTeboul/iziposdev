@@ -73,7 +73,7 @@ app.controller('ConfigurationController', function ($scope, $rootScope, $locatio
 			$scope.validConfig();
 		}
 
-		$scope.closable = navigator.userAgent.match(/(WPF)/);
+        $scope.closable = $rootScope.isWindowsContainer;
 	};
 
 
@@ -171,7 +171,7 @@ app.controller('ConfigurationController', function ($scope, $rootScope, $locatio
 	 * Exit the application - only appears and works on windows system
      */
 	$scope.exit = function () {
-		if (navigator.userAgent.match(/(WPF)/)) {
+        if ($rootScope.isWindowsContainer) {
 			try {
 				wpfCloseApp.shutdownApp();
 			} catch (err) {

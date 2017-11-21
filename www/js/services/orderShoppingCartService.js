@@ -146,6 +146,10 @@ app.service('orderShoppingCartService', ["$http", "$rootScope", "$q", "settingSe
                 shoppingCart.PaymentModes = [];                
             }
 
+            // Orders that come from the web, we have to set with the current pos HardwareId
+            if (!shoppingCart.HardwareId) {
+                shoppingCart.HardwareId = $rootScope.PosLog.HardwareId;
+            }
             // Delete the order from database
     		$rootScope.dbOrder.rel.del('ShoppingCart', { id: shoppingCart.id, rev: shoppingCart.rev }).then(function (result) {
     			unfreezeDefer.resolve(true);

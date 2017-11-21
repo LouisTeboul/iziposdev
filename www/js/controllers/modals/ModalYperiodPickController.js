@@ -11,13 +11,6 @@ app.controller('ModalYperiodPickController', function ($scope, $rootScope, $uibM
             closingEnable: posUserService.isEnable('CLOS', true)
         };
 
-        //Si on trouve l'HID de la caisse dans hids, on le selectionne par defaut
-
-
-        posPeriodService.getAllYPeriodAsync('*').then(function (y) {
-            $scope.yperiods = y;
-        });
-
         $scope.activeHidBtn = undefined;
         $scope.activeYpidBtn = undefined;
 
@@ -29,28 +22,31 @@ app.controller('ModalYperiodPickController', function ($scope, $rootScope, $uibM
             $scope.zp = z;
             console.log(z.id);
             //Recupere la liste de tout les HID associés a un tickets dans zpos
-            $rootScope.remoteDbZPos.query("zpos/allHid", {
-                startkey : [z.id],
-                endkey : [z.id, {}],
-                reduce: true,
-                group: true
-            }).then(function (resAllHid) {
-                console.log(resAllHid);
-                Enumerable.from(resAllHid.rows).forEach(function (row) {
-                    posService.getPosNameAsync(row.key[1]).then(function(alias){
+            //Il faut recup toutes les caisse associé à une periode Y
+            posPeriodService.getAllYPeriodAsync('*').then(function(yp){
+                console.log(yp);
+                var index = -1;
+                Enumerable.from(yp).forEach(function (row) {
+                    console.log(row);
+                    posService.getPosNameAsync(row.hardwareId).then(function(alias){
 
-                        if ($scope.model.closingEnable || row.key[1] == $rootScope.PosLog.HardwareId) {
-                            $scope.model.hids.push({ hid: row.key[1], alias: alias });
+                        if ($scope.model.closingEnable || row.hardwareId == $rootScope.PosLog.HardwareId) {
+
+                            var hidExist = Enumerable.from($scope.model.hids).firstOrDefault(function(x){
+                                return row.hardwareId == x.hid;
+                            });
+                            if(!hidExist){
+                                $scope.model.hids.push({ hid: row.hardwareId, alias: alias });
+                                index++;
+                                if (row.hardwareId == $rootScope.PosLog.HardwareId) {
+                                    $scope.setHid(row.hardwareId, index);
+                                }
+                            }
                         }
-                        /*
-                        if(row.key[1] == $rootScope.PosLog.HardwareId) {
-                            $scope.setHid(row.key[1], undefined);
-                        }
-                        */
                     });
-
                 });
-            })
+                console.log(yp);
+            });
         }).catch(function(err){
             console.log(err);
         });
@@ -59,19 +55,53 @@ app.controller('ModalYperiodPickController', function ($scope, $rootScope, $uibM
 
 
     };
+    var getYperiods = function(hid, currentyPeriod){
+        if (hid == '*') {
+            $scope.model.chosenHid = undefined;
+            $scope.model.chosenYpid = undefined;
+        } else {
+            $scope.model.chosenHid = hid;
+            posPeriodService.getAllYPeriodAsync(hid).then(function (ys) {
+                console.log(ys);
+                $scope.yperiods = ys;
+                dateFormat(ys[0].startDate);
+
+                // Préselectionner du YPeriod Courant :
+                var indexY = -1;
+                Enumerable.from(ys).forEach(function (y) {
+                    /*
+                    posPeriodService.getYPaymentValuesAsync(y.id).then(function(p){
+
+                        console.log(p.PaymentLines);
+                        y.isEmpty = p ? false : true;
+                        */
+                        indexY++;
+                        if (currentyPeriod && y.id == currentyPeriod.id) {
+                            $scope.setYPeriod(y, indexY);
+                        }
+                        /*
+                    });
+                    */
+
+                });
+
+
+            });
+        }
+
+    };
 
     $scope.setHid = function (hid, index) {
+        console.log(index);
         $scope.activeHidBtn = index;
+        $scope.activeYpidBtn = undefined;
         $scope.yperiods = [];
 
-        posPeriodService.getAllYPeriodAsync(hid, null, false).then(function (y) {
-            $scope.yperiods = y;
-            dateFormat(y[0].startDate);
-            if (hid == '*') {
-                $scope.model.chosenHid = undefined;
-            } else {
-                $scope.model.chosenHid = hid;
-            }
+        posPeriodService.getYPeriodAsync(hid, undefined, false, false).then(function(currentyPeriod) {
+            getYperiods(hid, currentyPeriod);
+
+        }, function(err){
+            getYperiods(hid, undefined);
         });
     };
 
@@ -80,21 +110,32 @@ app.controller('ModalYperiodPickController', function ($scope, $rootScope, $uibM
     };
 
 
-    $scope.setYPeriod = function (ypid, index) {
+    $scope.setYPeriod = function (yp, index) {
 
         $scope.activeYpidBtn = index;
-        if (ypid == '*') {
+        $scope.isZdisabled = yp.isEmpty;
+
+        if (yp == '*') {
+            //Si il n'y a aucune periode ouverte pour cette caisse, on empeche la fermeture
+            var atLeastOneOpenPeriod = Enumerable.from($scope.yperiods).firstOrDefault(function(x){
+                return !x.endDate;
+            });
+            if(atLeastOneOpenPeriod){
+                $scope.isClosingEnabled = true;
+            } else {
+                $scope.isClosingEnabled = false;
+            }
             $scope.model.chosenYpid = undefined;
         } else {
-            $scope.model.chosenYpid = ypid;
+            $scope.isClosingEnabled = yp.endDate ? false : true;
+            $scope.model.chosenYpid = yp.id;
+            //Verifié si la periode contient des ticket,
+            //Si non, il faut bloquer l'affichage du Z
         }
 
 
     };
-
-    $scope.openZ = function () {
-        $uibModalInstance.close();
-
+    $scope.determineMode = function(){
         /** Il faut set le mode
          *  Mode 1 : Fermeture Service = Une caisse une periode
          *  Mode 2 : Fermeture Caisse = Une caisse toutes les periodes
@@ -121,9 +162,14 @@ app.controller('ModalYperiodPickController', function ($scope, $rootScope, $uibM
                 $scope.model.mode = { idMode: 1, text: "Fermeture de service", title: "Z de service" };
             }
         }
-        //
+    };
 
-        var currentYPeriod = $scope.model.chosenYpid ? Enumerable.from($scope.yperiods).firstOrDefault(function (yP) { return yP.id == $scope.model.chosenYpid; }) : undefined;
+    $scope.openZ = function () {
+        $uibModalInstance.close();
+
+        $scope.determineMode();
+
+        $scope.currentYPeriod = $scope.model.chosenYpid ? Enumerable.from($scope.yperiods).firstOrDefault(function (yP) { return yP.id == $scope.model.chosenYpid; }) : undefined;
 
         $uibModal.open({
             templateUrl: 'modals/modalStatsPeriod.html',
@@ -136,22 +182,50 @@ app.controller('ModalYperiodPickController', function ($scope, $rootScope, $uibM
                         hid: $scope.model.chosenHid,
                         zperiod: $scope.zp,
                         yperiods: $scope.yperiods,
-                        yperiod: currentYPeriod,
+                        yperiod: $scope.currentYPeriod,
                         mode: $scope.model.mode
 
                     }
                 }
             }
         });
-
-
     };
 
 
-    $scope.ok = function () {
+    $scope.closePos = function () {
+        $uibModalInstance.close();
 
 
+        $scope.determineMode();
+        $scope.currentYPeriod = $scope.model.chosenYpid ? Enumerable.from($scope.yperiods).firstOrDefault(function (yP) { return yP.id == $scope.model.chosenYpid; }) : undefined;
+        console.log($scope.currentYPeriod);
+
+        $uibModal.open({
+            templateUrl: 'modals/modalClosePos.html',
+            controller: 'ModalClosePosController',
+            size: 'lg',
+            resolve: {
+                closePosParameters: function () {
+                    var closePosParameters = {
+                        hid: $scope.model.chosenHid,
+                        hidList: $scope.model.hids,
+                        mode : $scope.model.mode,
+                        yperiod:$scope.currentYPeriod,
+                        yperiods: $scope.model.yperiods,
+                        zperiod: $scope.zp
+                    };
+                    return closePosParameters;
+
+                },
+                modalStats : function(){
+                    return $uibModalInstance
+                }
+            },
+            backdrop: 'static'
+        });
     };
+
+
 
     $scope.cancel = function () {
         $uibModalInstance.dismiss('cancel');
