@@ -88,19 +88,19 @@ var setupDatabases = function ($rootScope, $q, zposService, posService) {
                 info.status = "Change";
                 $rootScope.$emit("dbFreezeChange", info);
             })
-            .on('paused', function (info) {
-                if (!info) {
-                    info = {};
+            .on('paused', function (err) {
+                if (!err) {
+                    if ($rootScope.modelDb.databaseReady) {
+                        posService.getPosNameAsync($rootScope.modelPos.hardwareId).then(function (alias) {
+                            $rootScope.modelPos.aliasCaisse = alias;
+                        });
+                        $rootScope.$emit("dbFreezeReplicate", {});
+                    }
+                    $rootScope.modelDb.freezeReady = true;
+                    $rootScope.$evalAsync();
+                } else {
+                    console.error(err);
                 }
-
-                if ($rootScope.modelDb.databaseReady) {
-                    posService.getPosNameAsync($rootScope.modelPos.hardwareId).then(function (alias) {
-                        $rootScope.modelPos.aliasCaisse = alias;
-                    });
-                    $rootScope.$emit("dbFreezeReplicate", info);
-                }
-                $rootScope.modelDb.freezeReady = true;
-                $rootScope.$evalAsync();
             })
             .on('error', function () {
                 console.log("error replication");
@@ -163,26 +163,24 @@ var setupDatabases = function ($rootScope, $q, zposService, posService) {
             info.remoteInfo = datasRemoteInfo;
             info.status = "Change";
             $rootScope.$emit("dbDatasReplicate", info);
-        }).on('paused', function (info) {
-            if (!info) {
-                info = {};
-            }
-
-            $rootScope.dbInstance.info().then(function (dbInstanceInfo) {
-                if (datasRemoteInfo) {
-                    if (dbInstanceInfo.doc_count >= datasRemoteInfo.doc_count) {
+        }).on('paused', function (err) {
+            if (!err) {
+                $rootScope.dbInstance.info().then(function (dbInstanceInfo) {
+                    if (datasRemoteInfo) {
+                        if (dbInstanceInfo.doc_count >= datasRemoteInfo.doc_count) {
+                            $rootScope.modelDb.dataReady = true;
+                            $rootScope.$evalAsync();
+                            $rootScope.$emit("dbDatasReplicate", { status:"UpToDate"});
+                        }
+                    } else {
                         $rootScope.modelDb.dataReady = true;
                         $rootScope.$evalAsync();
-                        info.status = "UpToDate";
-                        $rootScope.$emit("dbDatasReplicate", info);
+                        $rootScope.$emit("dbDatasReplicate", { status: "UpToDate"});
                     }
-                } else {
-                    $rootScope.modelDb.dataReady = true;
-                    $rootScope.$evalAsync();
-                    info.status = "UpToDate";
-                    $rootScope.$emit("dbDatasReplicate", info);
-                }
-            });
+                });
+            } else {
+                console.error(err);
+            }
         }).on('error', function (info) {
             if (!info) {
                 info = {};
@@ -310,16 +308,17 @@ var setupDatabases = function ($rootScope, $q, zposService, posService) {
         $rootScope.dbOrder.replicate.to(remoteDbOrder, settingsPouchDB.opts, null);
         $rootScope.dbOrderFrom = $rootScope.dbOrder.replicate.from(remoteDbOrder, settingsPouchDB.opts, null);
         $rootScope.dbOrderFrom
-            .on('paused', function (info) {
-                if (!info) {
-                    info = {};
-                }
+            .on('paused', function (err) {
+                if (!err) {
 
-                if ($rootScope.modelDb.databaseReady) {
-                    $rootScope.$emit("dbOrderReplicate", info);
+                    if ($rootScope.modelDb.databaseReady) {
+                        $rootScope.$emit("dbOrderReplicate", {});
+                    }
+                    $rootScope.modelDb.orderReady = true;
+                    $rootScope.$evalAsync();
+                } else {
+                    console.error(err);
                 }
-                $rootScope.modelDb.orderReady = true;
-                $rootScope.$evalAsync();
             })
             .on('change', function (change) {
                 change.remoteInfo = orderRemoteInfo;
@@ -379,22 +378,20 @@ var setupDatabases = function ($rootScope, $q, zposService, posService) {
                 $rootScope.modelDb.replicateReady = true;
                 $rootScope.$evalAsync();
             })
-            .on('complete', function (info) {
-                //console.log(info);
-            })
-            .on('paused', function (info) {
-                if (!info) {
-                    info = {};
-                }
+            .on('paused', function (err) {
+                if (!err) {
 
-                if (!$rootScope.modelDb.replicateReady) {
-                    $rootScope.modelDb.replicateReady = true;
-                    $rootScope.dbReplicate.destroy().then(function () {
-                        $rootScope.InitDBReplicate();
-                    });
-                }
+                    if (!$rootScope.modelDb.replicateReady) {
+                        $rootScope.modelDb.replicateReady = true;
+                        $rootScope.dbReplicate.destroy().then(function () {
+                            $rootScope.InitDBReplicate();
+                        });
+                    }
 
-                $rootScope.$evalAsync();
+                    $rootScope.$evalAsync();
+                } else {
+                    console.error(err);
+                }
             });
 
 
@@ -489,23 +486,24 @@ var setupDatabases = function ($rootScope, $q, zposService, posService) {
                     $rootScope.modelDb.zposReady = true;
                     $rootScope.$evalAsync();
                 })
-                .on('complete', function () {
-                    $rootScope.modelDb.zposReady = true;
-                    $rootScope.$evalAsync();
-                })
-                .on('paused', function (info) {
-                    if (!info) {
-                        info = {};
-                    }
+                //.on('complete', function () {
+                //    $rootScope.modelDb.zposReady = true;
+                //    $rootScope.$evalAsync();
+                //})
+                .on('paused', function (err) {
+                    if (!err) {
 
-                    if (!$rootScope.modelDb.zposReady) {
-                        $rootScope.modelDb.zposReady = true;
-                        $rootScope.dbZPos.destroy().then(function () {
-                            $rootScope.InitDBZpos();
-                        });
-                    }
+                        if (!$rootScope.modelDb.zposReady) {
+                            $rootScope.modelDb.zposReady = true;
+                            $rootScope.dbZPos.destroy().then(function () {
+                                $rootScope.InitDBZpos();
+                            });
+                        }
 
-                    $rootScope.$evalAsync();
+                        $rootScope.$evalAsync();
+                    } else {
+                        console.error(err);
+                    }
                 });
         } else {
             $rootScope.modelDb.zposReady = true;

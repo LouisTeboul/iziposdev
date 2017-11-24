@@ -8,7 +8,10 @@ app.controller('ModalClosePosController', function ($scope, $rootScope, $uibModa
         $scope.model = {
             hardwareIdModels: [],
             emptyCash: false,
-            zRecap: []
+            zRecap: [],
+            hasAtLeastOneCashMachineWithSeveralService: false,
+            closingEnable: posUserService.isEnable('CLOS', true),
+            showCloseButton: true
         };
 
 
@@ -34,7 +37,8 @@ app.controller('ModalClosePosController', function ($scope, $rootScope, $uibModa
                     Value: p.Value,
                     Text: p.Text,
                     Total: 0,
-                    IsBalance: p.IsBalance
+                    IsBalance: p.IsBalance ? true : false,
+                    cashDiscrepancyYs : 0
                 };
 
                 var lineClosePos = {
@@ -51,7 +55,8 @@ app.controller('ModalClosePosController', function ($scope, $rootScope, $uibModa
                     Value : "Cagnotte",
                     Text : "Cagnotte",
                     Total: 0,
-                    IsBalance : true,
+                    IsBalance: true,
+                    cashDiscrepancyYs: 0
                 },
                 Count: 0,
                 TotalKnown: 0
@@ -80,9 +85,8 @@ app.controller('ModalClosePosController', function ($scope, $rootScope, $uibModa
 
                         posPeriodService.getYPaymentValuesAsync($scope.closePosParameters.yperiod.id).then(function (paymentValues) {
                             if (paymentValues) {
-                                console.log(paymentValues.PaymentLines);
+
                                 Enumerable.from(paymentValues.PaymentLines).forEach(function (l) {
-                                    console.log(l);
 
                                     var lineClose = Enumerable.from(newHidModel.CashMovementLines).firstOrDefault(function (x) {
                                         return x.PaymentMode.Value == l.PaymentMode.Value && x.PaymentMode.PaymentType == l.PaymentMode.PaymentType;
@@ -114,6 +118,19 @@ app.controller('ModalClosePosController', function ($scope, $rootScope, $uibModa
                         $scope.model.hardwareIdModels.push(newHidModel);
                         Enumerable.from($scope.closePosValues.CashMovementLines).forEach(function (line) {
                             newHidModel.CashMovementLines.push(clone(line));
+                        });
+
+                        //Vérification si il y a une yPeriod a fermer
+                        posPeriodService.getYPeriodAsync($scope.closePosParameters.hid, $rootScope.PosUserId, false).then(function (yPeriod) {
+
+                            if (!yPeriod) {
+                                $scope.model.showCloseButton = false;
+                                sweetAlert({ title: $translate.instant("Toutes les services de cette caisse sont fermés") }, function () { });
+                            }
+
+                        }, function () {
+                            $scope.model.showCloseButton = false;
+                            sweetAlert({ title: $translate.instant("Toutes les services de cette caisse sont fermés") }, function () { });
                         });
 
                         posPeriodService.getZPaymentValuesByHidAsync($scope.closePosParameters.zperiod.id, $scope.closePosParameters.hid).then(function (paymentValues) {
@@ -196,8 +213,13 @@ app.controller('ModalClosePosController', function ($scope, $rootScope, $uibModa
 
                         // Renseigner ce que le ou les utilisateurs on déjà renseigné lors de la fermeture du(des) services 
                             posPeriodService.getYCountLinesByHidAsync($scope.closePosParameters.zperiod.id, cashmachine.hid).then(function (yPeriodCash) {
+
                                 if (yPeriodCash) {
                                     newHidModel.nbY = yPeriodCash.nbY;
+                                    if (!$scope.model.hasAtLeastOneCashMachineWithSeveralService) {
+                                        $scope.model.hasAtLeastOneCashMachineWithSeveralService = yPeriodCash.nbY !== 1;
+                                    }
+
                                     Enumerable.from(yPeriodCash.YCountLines).forEach(function (l) {
                                         var lineClose = Enumerable.from(newHidModel.CashMovementLines).firstOrDefault(function (x) {
                                             return x.PaymentMode.Value == l.PaymentMode.Value && x.PaymentMode.PaymentType == l.PaymentMode.PaymentType;
@@ -206,7 +228,7 @@ app.controller('ModalClosePosController', function ($scope, $rootScope, $uibModa
                                         if (lineClose) {
                                             // Renseigner du montant renseigné précédement (somme des services)
                                             lineClose.PaymentMode.TotalYs = l.PaymentMode.Total;
-                                            lineClose.PaymentMode.cashDiscrepancyYs = l.TotalKnown - l.PaymentMode.Total;
+                                            lineClose.PaymentMode.cashDiscrepancyYs = l.PaymentMode.Total - l.TotalKnown;
                                         }
                                         var lineCloseRecap = Enumerable.from($scope.model.zRecap).firstOrDefault(function (x) {
                                             return x.PaymentMode.Value == l.PaymentMode.Value && x.PaymentMode.PaymentType == l.PaymentMode.PaymentType;
@@ -221,15 +243,13 @@ app.controller('ModalClosePosController', function ($scope, $rootScope, $uibModa
                                                 lineCloseRecap.PaymentMode.TotalYs = l.PaymentMode.Total;
                                             }
                                             if (lineCloseRecap.PaymentMode.cashDiscrepancyYs) {
-                                                lineCloseRecap.PaymentMode.cashDiscrepancyYs += l.TotalKnown - l.PaymentMode.Total;
+                                                lineCloseRecap.PaymentMode.cashDiscrepancyYs += l.PaymentMode.Total - l.TotalKnown ;
                                             }
                                             else {
-                                                lineCloseRecap.PaymentMode.cashDiscrepancyYs = l.TotalKnown - l.PaymentMode.Total;
+                                                lineCloseRecap.PaymentMode.cashDiscrepancyYs = l.PaymentMode.Total - l.TotalKnown;
                                             }
                                         }
                                     });
-
-                                    console.log($scope.model.zRecap);
                                 }
                         });
                     });
@@ -298,6 +318,43 @@ app.controller('ModalClosePosController', function ($scope, $rootScope, $uibModa
         });
     };
 
+    /**
+     * Open the view to manage cash
+     */
+    $scope.cashManagement = function (hid) {
+
+        if (posUserService.isEnable('CASH')) {
+
+            posPeriodService.getYPeriodAsync(hid, $rootScope.PosUserId, $scope.model.closingEnable, false, true).then(function (yPeriod) {
+
+                if (yPeriod && !yPeriod.endDate) {
+                    var modalInstance = $uibModal.open({
+                        templateUrl: 'modals/modalOpenPos.html',
+                        controller: 'ModalOpenPosController',
+                        resolve: {
+                            openPosParameters: function () {
+                                return {
+                                    isOpenPos: false,
+                                    zPeriodId: yPeriod.zPeriodId,
+                                    yPeriodId: yPeriod.id
+                                }
+                            }
+                        },
+                        backdrop: 'static'
+                    });
+                    modalInstance.result.then(function () {
+                        $scope.init();
+                    }, function () {
+                    });
+                }
+                else if (yPeriod && yPeriod.endDate) {
+                    $scope.init();
+                }
+            }, function () {
+                sweetAlert({ title: $translate.instant("Veuillez renseigner le fond de caisse") }, function () { });
+            });
+        }
+    };
 
     $scope.openDrawer = function () {
         /**
@@ -329,6 +386,91 @@ app.controller('ModalClosePosController', function ($scope, $rootScope, $uibModa
         //Ferme la modal de stats, qui etait invisible
         modalStats.dismiss();
 
+        var hasGapGlobal = false;
+        var hardwareIdModelsWithGap = [];
+        Enumerable.from($scope.model.hardwareIdModels).forEach(function (hidModel) {
+            var hasGapHid = false;
+            Enumerable.from(hidModel.CashMovementLines).forEach(function (lines) {
+
+                if (!hasGapGlobal) {
+                    hasGapGlobal = lines.TotalKnown !== lines.PaymentMode.Total;
+                }
+                if (!hasGapHid) {
+                    hasGapHid = lines.TotalKnown !== lines.PaymentMode.Total;
+                    if (hasGapHid) {
+                        hardwareIdModelsWithGap.push(hidModel);
+                    }
+                }
+            })
+
+        });
+        if (hasGapGlobal) {
+            var modalInstance = $uibModal.open({
+                templateUrl: 'modals/modalClosePosJustification.html',
+                controller: 'ModalClosePosJustificationController',
+                size: 'lg',
+                resolve: {
+                    justificationParameters: function () {
+                        return {
+                            closePosParameters: $scope.closePosParameters,
+                            hardwareIdModelsWithGap: hardwareIdModelsWithGap
+                        }
+                    }
+                }
+            });
+            modalInstance.result.then(function (ret) {
+
+                if (ret && ret.refresh) {
+                    $scope.init()
+                }
+                else {
+                    closeCashMachine();
+                }
+                
+            }, function () {
+            });
+        }
+        else {
+
+            closeCashMachine();
+            
+        }
+    };
+
+    $scope.detailsServices = function (hid) {
+        var modalInstance = $uibModal.open({
+            templateUrl: 'modals/modalDetailsServicesCount.html',
+            controller: 'ModalDetailsServicesCountController',
+            size: 'lg',
+            resolve: {
+                detailsServicesParameters: function () {
+                    return {
+                        hid: hid,
+                        zPeriodId: closePosParameters.zperiod.id
+                    }
+                }
+            },
+            backdrop: 'static'
+        });
+    };
+
+    $scope.cancel = function () {
+        $uibModalInstance.dismiss('cancel');
+
+        $uibModal.open({
+            templateUrl: 'modals/modalYperiodPick.html',
+            controller: 'ModalYperiodPickController',
+            size: 'lg',
+            backdrop: 'static'
+        });
+
+        setTimeout(function () {
+            $rootScope.closeKeyboard();
+            $rootScope.closeKeyboard();
+        }, 500);
+    }
+
+    var closeCashMachine = function () {
         swal({ title: $translate.instant($scope.closePosParameters.mode.text), text: "", type: "warning", showCancelButton: true, confirmButtonColor: "#d83448", confirmButtonText: $translate.instant("Oui"), cancelButtonText: $translate.instant("Non"), closeOnConfirm: true },
             function () {
 
@@ -343,11 +485,11 @@ app.controller('ModalClosePosController', function ($scope, $rootScope, $uibModa
                         posPeriodService.closeYPeriodAsync($scope.closePosParameters.yperiod, hardwareIdModel.CashMovementLines, $scope.model.emptyCash).then(function () {
                             // Si vider le cash, création d'un mouvement fermeture
                             if ($scope.model.emptyCash) {
-                                posPeriodService.emptyCashYPeriod($scope.closePosParameters.yperiod, hardwareIdModel.CashMovementLines);
+                                posPeriodService.emptyCashYPeriodAsync($scope.closePosParameters.yperiod, hardwareIdModel.CashMovementLines);
                             }
                         });
 
-                        
+
                         break;
                     case 2:
                         //Fermeture de caisse
@@ -363,11 +505,11 @@ app.controller('ModalClosePosController', function ($scope, $rootScope, $uibModa
                             posPeriodService.closeYPeriodAsync(yPeriod, hardwareIdModel.CashMovementLines, $scope.model.emptyCash).then(function () {
                                 // Si vider le cash, création d'un mouvement fermeture
                                 if ($scope.model.emptyCash) {
-                                    posPeriodService.emptyCashYPeriod(yPeriod, hardwareIdModel.CashMovementLines);
+                                    posPeriodService.emptyCashYPeriodAsync(yPeriod, hardwareIdModel.CashMovementLines);
                                 }
                             });
                         }
-                        
+
                         break;
                     case 3:
                         //Fermeture de Z
@@ -410,39 +552,5 @@ app.controller('ModalClosePosController', function ($scope, $rootScope, $uibModa
                     $rootScope.closeKeyboard();
                 }, 500);
             }, function () { });
-    };
-
-    $scope.detailsServices = function (hid) {
-        var modalInstance = $uibModal.open({
-            templateUrl: 'modals/modalDetailsServicesCount.html',
-            controller: 'ModalDetailsServicesCountController',
-            size: 'lg',
-            resolve: {
-                detailsServicesParameters: function () {
-                    return {
-                        hid: hid,
-                        zPeriodId: closePosParameters.zperiod.id
-                    }
-                }
-            },
-            backdrop: 'static'
-        });
-    };
-
-    $scope.cancel = function () {
-        $uibModalInstance.dismiss('cancel');
-
-        $uibModal.open({
-            templateUrl: 'modals/modalYperiodPick.html',
-            controller: 'ModalYperiodPickController',
-            size: 'lg',
-            backdrop: 'static'
-        });
-
-        setTimeout(function () {
-            $rootScope.closeKeyboard();
-            $rootScope.closeKeyboard();
-        }, 500);
     }
-
 });

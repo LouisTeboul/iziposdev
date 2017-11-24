@@ -6,13 +6,13 @@ app.controller('ModalOpenPosController', function ($scope, $rootScope, $uibModal
         $scope.model = {
             motif: null,
             total: 0,
+            totalKnown: 0,
             message: null
         };
 
         cashMovementService.getMovementTypesAsync($scope.openPosParameters).then(function (motifs) {
-            $scope.motifs = motifs;
 
-            console.log($scope.openPosParameters.previousYPeriod);
+            $scope.motifs = motifs;
 
             if ($scope.motifs.length == 0) {
                 if ($scope.openPosParameters.isOpenPos) {
@@ -24,7 +24,7 @@ app.controller('ModalOpenPosController', function ($scope, $rootScope, $uibModal
                     }
                 }
                 else {
-                    $scope.model.message = "Vous devez d&eacute;finir au moins un mouvement de caisse d'entrï¿½e, sortie dans le BO, merci";
+                    $scope.model.message = "Vous devez d&eacute;finir au moins un mouvement de caisse d'entr&eacute;e, sortie dans le BO, merci";
                 }
             } else if ($scope.openPosParameters.isOpenPos) {
                 $scope.model.motif = motifs[0];
@@ -35,14 +35,17 @@ app.controller('ModalOpenPosController', function ($scope, $rootScope, $uibModal
 
         if ($scope.openPosParameters.previousYPeriod && !$scope.openPosParameters.previousYPeriod.emptyCash && !$scope.openPosParameters.editMode) {
             var total = 0;
+            var totalKnown = 0;
             // Get the amout "cash" count in the previous yPeriod
             Enumerable.from($scope.openPosParameters.previousYPeriod.YCountLines).forEach(function (l) {
                 // Cash only
                 if (l.PaymentMode && l.PaymentMode.PaymentType == 1) {
                     total = roundValue(total + l.PaymentMode.Total);
+                    totalKnown = roundValue(totalKnown + l.TotalKnown);
                 }
             });
             $scope.model.total = total;
+            $scope.model.totalKnown = totalKnown;
         }
         else {
             posPeriodService.getYPaymentValuesAsync($scope.openPosParameters.yPeriodId).then(function (paymentValues) {
@@ -55,6 +58,7 @@ app.controller('ModalOpenPosController', function ($scope, $rootScope, $uibModal
                         }
                     });
                     $scope.model.total = total;
+                    $scope.model.totalKnown = total;
                 }
             });
         }
@@ -136,20 +140,17 @@ app.controller('ModalOpenPosController', function ($scope, $rootScope, $uibModal
                     if (previousYperiodButClosed) {
 
                         // Crééer le motif négatif isSytem "Fin de service" du montant espèce du précédent yPeriod dans le yPeriod précédent
-                        posPeriodService.emptyCashYPeriod(previousYperiodButClosed, previousYperiodButClosed.YCountLines).then(function (paymentValues) {
+                        posPeriodService.emptyCashYPeriodAsync(previousYperiodButClosed, previousYperiodButClosed.YCountLines).then(function (paymentValues) {
                             //Appel après la création de la fermeture du service précédent pour que la date du motif de l'ouverture du service soit après le motif de fermeture du service précédent
+                            $scope.openPosValues.CashMovementLines[0].PaymentMode.Total = $scope.model.totalKnown;
+
                             openCashMachine();
                         });
-
-
-                        
                     }
                 }
                 else {
                     openCashMachine();
                 }
-
-                $uibModalInstance.close();
             }
             else {
                 sweetAlert({ title: $translate.instant("Veuillez renseigner le motif") }, function () { });
@@ -201,11 +202,15 @@ app.controller('ModalOpenPosController', function ($scope, $rootScope, $uibModal
 
         if ($scope.model.motif.IsCashFunds) {
 
-            posPeriodService.replacePaymentValuesAsync($scope.openPosParameters.yPeriodId, $scope.openPosParameters.zPeriodId, $rootScope.PosLog.HardwareId, updPaymentModes, cashMovement);
+            posPeriodService.replacePaymentValuesAsync($scope.openPosParameters.yPeriodId, $scope.openPosParameters.zPeriodId, $rootScope.PosLog.HardwareId, updPaymentModes, cashMovement).then(function (paymentMode) {
+                $uibModalInstance.close();
+            });
         }
         else {
 
-            posPeriodService.updatePaymentValuesAsync($scope.openPosParameters.yPeriodId, $scope.openPosParameters.zPeriodId, $rootScope.PosLog.HardwareId, updPaymentModes, undefined, cashMovement);
+            posPeriodService.updatePaymentValuesAsync($scope.openPosParameters.yPeriodId, $scope.openPosParameters.zPeriodId, $rootScope.PosLog.HardwareId, updPaymentModes, undefined, cashMovement).then(function (paymentMode) {
+                $uibModalInstance.close();
+            });
 
         }
 

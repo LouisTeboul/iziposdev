@@ -1,0 +1,20 @@
+﻿<section ng-init="init()">
+    <div class="modal-header">
+        <h1 class="modal-title" translate>Vous avez des écarts sur les caisses suivantes</h1>
+    </div>
+    <tabset>
+        <tab ng-repeat="hidMdl in justificationParameters.hardwareIdModelsWithGap ">
+            <tab-heading>
+                <x>{{hidMdl.alias ? hidMdl.alias : hidMdl.hid}}</x>
+            </tab-heading>
+            <div class="form-panel modal-body modal-closepos">
+                <button class="btn btn-success" ng-click="correctTickets(hidMdl.hid)" translate>Correction des tickets</button>
+                <button class="btn btn-success" ng-click="cashManagement(hidMdl.hid)" translate>Gestion des espèces</button>
+            </div>
+        </tab>
+    </tabset>
+    <div class="modal-footer">
+        <button class="btn btn-danger" ng-click="ok()" translate>Fermer quand même</button>
+        <button class="btn btn-danger" ng-click="cancel()" translate>Annuler</button>
+    </div>
+</section>

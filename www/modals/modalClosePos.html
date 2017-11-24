@@ -10,51 +10,51 @@
 
             <div class="form-panel modal-body modal-closepos">
                 <div class="row" style="border-bottom: 1px solid lightgray;margin-bottom:10px">
-                    <div style="width:30%;float:left">
+                    <div style="width:30%;float:left;">
                         <div class="title" translate>Paiements</div>
                     </div>
-                    <div style="width:10%;float:left">
+                    <div style="width:10%;float:left;">
                         <div class="title centered" translate>Nb</div>
                     </div>
-                    <div style="width:20%;float:left">
+                    <div style="width:20%;float:left;">
                         <div class="title centered" translate>Montant</div>
                     </div>
                     
                     <div ng-if="closePosParameters.mode.idMode == 3">
-                        <div style="width:10%;float:left">
+                        <div style="width:10%;float:left;">
                             <div class="title centered" translate>Attendu</div>
                         </div>
-                        <div style="width:20%;float:left">
+                        <div style="width:20%;float:left;">
                             <div class="titlereduce centered" translate>Comptage service(s)</div>
                         </div>
-                        <div style="width:10%;float:left">
+                        <div style="width:10%;float:left;">
                             <div class="titlereduce centered" translate>Ecart</div>
                         </div>
                     </div>
                     <div ng-if="closePosParameters.mode.idMode != 3">
-                        <div style="width:40%;float:left">
+                        <div style="width:40%;float:left;">
                             <div class="title centered" translate>Attendu</div>
                         </div>
                     </div>
                 </div>
                 <div class="row" ng-if="closePosParameters.mode.idMode == 3 && hidMdl.nbY !== 1" >
-                    <div style="width:70%;float:left">&nbsp;</div>
-                    <div style="width:20%;float:left" class="centered">
+                    <div style="width:70%;float:left;">&nbsp;</div>
+                    <div style="width:20%;float:left;" class="centered">
                         <button class="btn btn-info" ng-click="detailsServices(hidMdl.hid)" translate>Détails</button>
                     </div>
-                    <div style="width:10%;float:left">&nbsp;</div>
+                    <div style="width:10%;float:left;">&nbsp;</div>
                 </div>
                 <div class="row" ng-repeat="p in hidMdl.CashMovementLines">
-                    <div style="width:30%;float:left">
+                    <div style="width:30%;float:left;">
                         <div class="title">{{p.PaymentMode.Text}}</div>
                     </div>
-                    <div style="width:10%;float:left;min-height:60px">
+                    <div style="width:10%;float:left;min-height:60px;">
                         <div class="title centered">
                             <!--<input ng-if="p.PaymentMode.PaymentType != 1" type="tel" id="txtNb" ng-model="p.Count" style="line-height: 29px; vertical-align: middle; width: 60%;font-size: 18px; text-align:center" ng-keypress="$event.stopPropagation();" />-->
                             <text-field ng-if="p.PaymentMode.PaymentType != 1 && p.PaymentMode.PaymentType != 99 " id="txtNb" ng-model="p.Count" location="end-start" type="numeric" validfunction="ok" style="line-height: 29px; vertical-align: middle; width: 60%;font-size: 18px; text-align:center"></text-field>
                         </div>
                     </div>
-                    <div style="width:20%;float:left">
+                    <div style="width:20%;float:left;">
                         <div class="title centered" layout="row">
                             <!--<input ng-style="p.PaymentMode.PaymentType == 1 && {'width':'60%'} || {'width':'80%'}" type="tel" id="txtAmount" ng-model="p.PaymentMode.Total" style="line-height: 29px; vertical-align: middle; width: 60%;font-size: 18px; text-align:center" ng-keypress="$event.stopPropagation();" />-->
                             <p ng-if="p.PaymentMode.PaymentType ==99"> {{p.PaymentMode.Total | CurrencyFormat}}</p>
@@ -65,14 +65,14 @@
                         </div>
                     </div>
                     <div ng-if="closePosParameters.mode.idMode == 3">
-                        <div style="width:10%;float:left;">
-                            <div class="title centered" ng-if="p.PaymentMode.PaymentType !== 99">{{p.TotalKnown | CurrencyFormat}}</div>
+                        <div style="width:10%;float:left;min-height:60px;">
+                            <div class="title centered" ng-model="p.TotalKnown" ng-if="p.PaymentMode.PaymentType !== 99">{{p.TotalKnown | CurrencyFormat}}</div>
                         </div>
-                        <div style="width:20%;float:left;">
-                            <div class="title centered" ng-if="(p.PaymentMode.PaymentType !== 1 || hidMdl.nbY == 1) && p.PaymentMode.PaymentType !== 99">{{p.PaymentMode.TotalYs | CurrencyFormat}}</div>
+                        <div style="width:20%;float:left;min-height:60px;">
+                            <div class="title centered" ng-if="p.PaymentMode.PaymentType !== 99">{{p.PaymentMode.TotalYs | CurrencyFormat}}</div>
                         </div>
                         <div style="width:10%;float:left;">
-                            <div class="title centered green" ng-class="{ red : p.PaymentMode.cashDiscrepancyYs !== 0}" ng-if="(p.PaymentMode.PaymentType !== 1 || hidMdl.nbY == 1) && p.PaymentMode.PaymentType !== 99">{{p.PaymentMode.cashDiscrepancyYs | CurrencyFormat}}</div>
+                            <div class="title centered green" ng-class="{ red : p.PaymentMode.cashDiscrepancyYs !== 0}" ng-if="p.PaymentMode.PaymentType !== 99">{{p.PaymentMode.cashDiscrepancyYs | CurrencyFormat}}</div>
                         </div>
                     </div>
                     <div ng-if="closePosParameters.mode.idMode !== 3">
@@ -81,25 +81,27 @@
                         </div>
                     </div>
                 </div>
-                <button class="btn btn-success" ng-click="correctTickets(hidMdl.hid, hidMdl.ypid)" translate>Correction des tickets</button>
+                <button class="btn btn-success" ng-click="correctTickets(hidMdl.hid)" translate>Correction des tickets</button>
+                <button class="btn btn-success" ng-click="cashManagement(hidMdl.hid)" translate>Gestion des espèces</button>
             </div>
         </tab>
-        <tab ng-if="closePosParameters.mode.idMode == 3 && model.hardwareIdModels.length > 1">
+        <!--<tab ng-if="closePosParameters.mode.idMode == 3 && model.hardwareIdModels.length > 1">-->
+        <tab ng-if="closePosParameters.mode.idMode == 3">
             <tab-heading>
                 <x>Récapitulatif toutes caisses</x>
             </tab-heading>
             <div class="form-panel modal-body modal-closepos">
                 <div class="row" style="border-bottom: 1px solid lightgray;margin-bottom:10px">
-                    <div style="width:30%;float:left">
+                    <div style="width:30%;float:left;">
                         <div class="title" translate>Paiements</div>
                     </div>
-                    <div style="width:25%;float:left">
+                    <div style="width:25%;float:left;">
                         <div class="title centered" translate>Attendu</div>
                     </div>
-                    <div style="width:25%;float:left">
+                    <div style="width:25%;float:left;">
                         <div class="titlereduce centered" translate>Comptage service(s)</div>
                     </div>
-                    <div style="width:20%;float:left">
+                    <div style="width:20%;float:left;">
                         <div class="titlereduce centered" translate>Ecart</div>
                     </div>
                 </div>
@@ -108,9 +110,9 @@
                         <div class="title">{{p.PaymentMode.Text}}</div>
                     </div>
                     <div style="width:25%;float:left;min-height:60px;">
-                        <div class="title centered" ng-if="p.PaymentMode.PaymentType != 99" >{{p.PaymentMode.Total | CurrencyFormat}}</div>
+                        <div class="title centered" ng-if="p.PaymentMode.PaymentType !== 99" >{{p.PaymentMode.Total | CurrencyFormat}}</div>
                     </div>
-                    <div style="width:25%;float:left;">
+                    <div style="width:25%;float:left;min-height:60px;">
                         <div class="title centered" >{{p.PaymentMode.TotalYs | CurrencyFormat}}</div>
                     </div>
                     <div style="width:20%;float:left;">
@@ -121,7 +123,7 @@
         </tab>
 </tabset>
     <div class="modal-footer">
-        <div class="form-check hidden" ng-if="closePosParameters.mode.idMode == 1 || closePosParameters.mode.idMode == 2">
+        <div class="form-check hidden" ng-if="closePosParameters.mode.idMode === 1 || closePosParameters.mode.idMode === 2">
             <label class="form-check-label">
                 <input class="form-check-input" type="checkbox" ng-model="model.emptyCash">Vider le fond de caisse
             </label>
@@ -130,7 +132,7 @@
         <button class="btn btn-info" ng-click="openDrawer()" translate>Ouvrir le tiroir</button>
         <button class="btn btn-green"
                 ng-click="openZ()" translate>Afficher le Z</button>
-        <button class="btn btn-success" ng-click="ok()" translate>{{closePosParameters.mode.text}}</button>
+        <button class="btn btn-success" ng-if="model.showCloseButton" ng-click="ok()" translate>{{closePosParameters.mode.text}}</button>
         <button class="btn btn-danger" ng-click="cancel()" translate>Annuler</button>
     </div>
 </section>

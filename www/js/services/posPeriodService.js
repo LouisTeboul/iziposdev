@@ -1,5 +1,5 @@
-﻿app.service('posPeriodService', ['$http', '$rootScope', '$q', '$uibModal', 'posLogService', 'uuid2', 'cashMovementService',
-    function ($http, $rootScope, $q, $uibModal, posLogService, uuid2, cashMovementService) {
+﻿app.service('posPeriodService', ['$http', '$rootScope', '$q', '$uibModal', 'posLogService', 'uuid2', 'cashMovementService', 'settingService',
+    function ($http, $rootScope, $q, $uibModal, posLogService, uuid2, cashMovementService, settingService) {
         var current = this;
 
         this.initPeriodListener = function () {
@@ -122,7 +122,7 @@
         /// <param name="userId">UserId for creation</param>
         /// <param name="create">If true, YPeriod is created if not exists</param>
         /// <returns>Current YPeriod</returns>
-        this.getYPeriodAsync = function (hardwareId, userId, create, forceOpenPopupEditMode) {
+        this.getYPeriodAsync = function (hardwareId, userId, create, forceOpenPopupEditMode, forceOpenService) {
             var retDefer = $q.defer();
             var isOwnPeriod = hardwareId == $rootScope.modelPos.hardwareId ? true : false;
 
@@ -168,43 +168,87 @@
                                 userId: userId
                             };
 
-                            var modalInstance = $uibModal.open({
-                                templateUrl: 'modals/modalOpenPos.html',
-                                controller: 'ModalOpenPosController',
-                                resolve: {
-                                    openPosParameters: function () {
-                                        return {
-                                            isOpenPos: true,
-                                            previousYPeriod: previousYperiodButClosed,
-                                            zPeriodId: zPeriod.id,
-                                            yPeriodId: currentYPeriod.id
-                                        }
-                                    }
-                                },
-                                backdrop: 'static'
-                            });
-
-                            modalInstance.result.then(function () {
+                            // Ouverture forcée de service avec montant théorique du service précédent si il y en a un
+                            if (forceOpenService) {
                                 $rootScope.remoteDbUtils.rel.save('YPeriod', currentYPeriod).then(function (resSave) {
-                                    if(isOwnPeriod) {
+                                    if (isOwnPeriod) {
                                         $rootScope.modelPos.isPosOpen = true;
                                     }
                                     console.log("Pos opened");
-                                    retDefer.resolve(currentYPeriod);
+
+
+                                    var totalKnown = 0;
+                                    if (previousYperiodButClosed && !previousYperiodButClosed.emptyCash) {
+
+                                        var cashPaymentModePrevious = Enumerable.from(previousYperiodButClosed.YCountLines).firstOrDefault(function (x) {
+                                            return x.PaymentMode.PaymentType == PaymentType.ESPECE; 
+                                        });
+                                        if (cashPaymentModePrevious) {
+                                            totalKnown = cashPaymentModePrevious.TotalKnown;
+                                        }
+                                        // Crééer le motif négatif isSytem "Fin de service" du montant espèce du précédent yPeriod dans le yPeriod précédent
+                                        current.emptyCashYPeriodAsync(previousYperiodButClosed, previousYperiodButClosed.YCountLines).then(function (paymentValues) {
+                                            //Appel après la création de la fermeture du service précédent pour que la date du motif de l'ouverture du service soit après le motif de fermeture du service précédent
+                                            current.forceOpenCashMachineAsync(currentYPeriod, totalKnown).then(function (yPeriod) {
+                                                retDefer.resolve(yPeriod);
+                                            });
+                                        });
+                                    }
+                                    else {
+                                        current.forceOpenCashMachineAsync(currentYPeriod, totalKnown).then(function (yPeriod) {
+                                            retDefer.resolve(yPeriod);
+                                        });
+                                    }
                                 }, function (errSave) {
-                                    if(isOwnPeriod) {
+                                    if (isOwnPeriod) {
                                         $rootScope.modelPos.isPosOpen = false;
                                     }
                                     console.log("Pos closed : error save yPeriod");
                                     retDefer.reject(errSave);
                                 });
-                            }, function () {
-                                if(isOwnPeriod) {
-                                    $rootScope.modelPos.isPosOpen = false;
-                                }
-                                console.log("Pos closed : cancelled");
-                                retDefer.reject();
-                            });
+
+
+                            }
+                            else {
+
+                                var modalInstance = $uibModal.open({
+                                    templateUrl: 'modals/modalOpenPos.html',
+                                    controller: 'ModalOpenPosController',
+                                    resolve: {
+                                        openPosParameters: function () {
+                                            return {
+                                                isOpenPos: true,
+                                                previousYPeriod: previousYperiodButClosed,
+                                                zPeriodId: zPeriod.id,
+                                                yPeriodId: currentYPeriod.id
+                                            }
+                                        }
+                                    },
+                                    backdrop: 'static'
+                                });
+
+                                modalInstance.result.then(function () {
+                                    $rootScope.remoteDbUtils.rel.save('YPeriod', currentYPeriod).then(function (resSave) {
+                                        if (isOwnPeriod) {
+                                            $rootScope.modelPos.isPosOpen = true;
+                                        }
+                                        console.log("Pos opened");
+                                        retDefer.resolve(resSave);
+                                    }, function (errSave) {
+                                        if (isOwnPeriod) {
+                                            $rootScope.modelPos.isPosOpen = false;
+                                        }
+                                        console.log("Pos closed : error save yPeriod");
+                                        retDefer.reject(errSave);
+                                    });
+                                }, function () {
+                                    if (isOwnPeriod) {
+                                        $rootScope.modelPos.isPosOpen = false;
+                                    }
+                                    console.log("Pos closed : cancelled");
+                                    retDefer.reject();
+                                });
+                            }
                         } else {
                             if(isOwnPeriod) {
                                 $rootScope.modelPos.isPosOpen = false;
@@ -333,7 +377,7 @@
             return funcDefer.promise;
         };
 
-        this.emptyCashYPeriod = function (yPeriod, cashMovementLines) {
+        this.emptyCashYPeriodAsync = function (yPeriod, cashMovementLines) {
             var funcDefer = $q.defer();
 
             if (yPeriod) {
@@ -353,15 +397,17 @@
 
                             var newPaymentModePrevious = clone(paymentCash);
 
+                            newPaymentModePrevious.PaymentMode.Total = newPaymentModePrevious.TotalKnown;
+
                             updPaymentModesPrevious.push(newPaymentModePrevious);
 
-                            // Négatif seulement pour les infos du couchDB
+                            // Négatif seulement pour les infos du couchDB en partant du théorique
                             var newCashMovementPrevious = clone(newPaymentModePrevious.PaymentMode);
                             newCashMovementPrevious.Total = newCashMovementPrevious.Total * (-1);
 
                             updCashMovementPrevious.push(newCashMovementPrevious);
 
-                            var dateOpen = new Date().toString('dd/MM/yyyy H:mm:ss');
+                            var dateOpen = yPeriod.endDate ? new Date(yPeriod.endDate).toString('dd/MM/yyyy H:mm:ss') : new Date().toString('dd/MM/yyyy H:mm:ss');
 
                             var openPosValuesPrevious = {
                                 HardwareId: yPeriod.hardwareId,
@@ -375,9 +421,6 @@
                             };
 
 
-                            // Send to BO
-                            cashMovementService.saveMovementAsync(openPosValuesPrevious);
-
                             // Pour stoker l'historique des mouvements
                             var cashMovementPrevious = {
                                 CashMovementLines: updCashMovementPrevious,
@@ -388,7 +431,13 @@
 
                             // Mise a jour du PaymentValue du yPeriod 
                             current.updatePaymentValuesAsync(openPosValuesPrevious.yPeriodId, openPosValuesPrevious.zPeriodId, openPosValuesPrevious.HardwareId, updCashMovementPrevious, undefined, cashMovementPrevious).then(function (paymentValues) {
-                                funcDefer.resolve(paymentValues);
+
+                                // Send to BO
+                                cashMovementService.saveMovementAsync(openPosValuesPrevious).then(function (cashmovement) {
+                                    funcDefer.resolve(cashmovement);
+                                }, function (errSave) {
+                                    funcDefer.reject(errSave);
+                                });
                             }, function (errSave) {
                                 funcDefer.reject(errSave);
                             });
@@ -423,12 +472,27 @@
                     nbY: 0
                 };
 
-                Enumerable.from(resYPeriods.YPeriods).forEach(function (yPeriod) {
+                var yPeriodTotals = Enumerable.from(resYPeriods.YPeriods).orderBy("x => x.startDate").toArray();
+                var yPeriods = [];
+                var nbYPeriodCosed = 0;
+                Enumerable.from(yPeriodTotals).forEach(function (yPeriod) {
                     if (yPeriod.zPeriodId == zPeriodId && yPeriod.hardwareId == hardwareId) {
+                        if (yPeriod.endDate) {
+                            ++nbYPeriodCosed;
+                        }
+                        yPeriods.push(yPeriod);
+                    }
+                });
+                var indexYPeriod = 0;
+                Enumerable.from(yPeriods).forEach(function (yPeriod) {
 
-                        ++yPeriodCash.nbY;
+                    ++yPeriodCash.nbY;
+                    ++indexYPeriod;
 
-                        Enumerable.from(yPeriod.YCountLines).forEach(function (cm) {
+                    Enumerable.from(yPeriod.YCountLines).forEach(function (cm) {
+
+                        // For cash payment we only take the last yPeriod
+                        if (cm.PaymentMode.PaymentType !== 1 || indexYPeriod == nbYPeriodCosed) {
                             var line = Enumerable.from(yPeriodCash.YCountLines).firstOrDefault(function (l) {
                                 return l.PaymentMode.Value == cm.PaymentMode.Value && l.PaymentMode.PaymentType == cm.PaymentMode.PaymentType;
                             });
@@ -446,8 +510,8 @@
 
                                 yPeriodCash.YCountLines.push(line);
                             }
-                        });
-                    }
+                        }
+                    });
                 });
 
                 yCountLinesDefer.resolve(yPeriodCash);
@@ -832,4 +896,203 @@
             return ypzDefer.promise ;
         };
 
+
+        this.forceOpenCashMachineAsync = function (currentYPeriod, totalKnown) {
+
+            var forceDefert = $q.defer();
+            settingService.getPaymentModesAsync().then(function (paymentSetting) {
+
+                var paymentModesAvailable = paymentSetting;
+
+                var cashPaymentMode = Enumerable.from(paymentModesAvailable).firstOrDefault(function (x) {
+                    return x.PaymentType == PaymentType.ESPECE; 
+                });
+
+                if (cashPaymentMode) {
+                    // Crééer le motif positif isSytem "Ouverture de service" du montant espèce yPeriod
+                    cashMovementService.getMovementTypeOpenServiceAsync().then(function (motif) {
+
+                        var dateOpen = new Date().toString('dd/MM/yyyy H:mm:ss');
+
+                        var openPosValues = {
+                            HardwareId: currentYPeriod.hardwareId,
+                            PosUserId: $rootScope.PosUserId,
+                            Date: dateOpen,
+                            MovementType_Id: motif.id,
+                            zPeriodId: currentYPeriod.zPeriodId,
+                            yPeriodId: currentYPeriod.yPeriodId,
+                            StoreId: $rootScope.IziBoxConfiguration.StoreId,
+                            CashMovementLines: []
+                        };
+
+                        var addPaymentMode = {
+                            PaymentType: cashPaymentMode.PaymentType,
+                            Value: cashPaymentMode.Value,
+                            Text: cashPaymentMode.Text,
+                            Total: totalKnown,
+                            IsBalance: cashPaymentMode.IsBalance
+                        };
+
+                        var lineOpenPos = {
+                            PaymentMode: addPaymentMode
+                        };
+
+                        openPosValues.CashMovementLines.push(lineOpenPos);
+
+                        // Send to BO
+                        cashMovementService.saveMovementAsync(openPosValues);
+
+                        var updPaymentModes = [];
+
+                        var newPaymentMode = clone(openPosValues.CashMovementLines[0].PaymentMode);
+
+                        newPaymentMode.Total = roundValue(parseFloat(newPaymentMode.Total).toFixed(2));
+
+                        updPaymentModes.push(newPaymentMode);
+
+                        // Pour stoker l'historique des mouvements
+                        var cashMovement = {
+                            CashMovementLines: updPaymentModes,
+                            Date: openPosValues.Date,
+                            MovementType_Id: openPosValues.MovementType_Id,
+                            PosUserId: openPosValues.PosUserId
+                        };
+
+
+                        current.updatePaymentValuesAsync(currentYPeriod.yPeriodId, currentYPeriod.zPeriodId, currentYPeriod.hardwareId, updPaymentModes, undefined, cashMovement).then(function (paymentMode) {
+
+                            // Ouverture de la modale OpenPos en mode "Gestion des espèces"
+                            var modalInstance = $uibModal.open({
+                                templateUrl: 'modals/modalOpenPos.html',
+                                controller: 'ModalOpenPosController',
+                                resolve: {
+                                    openPosParameters: function () {
+                                        return {
+                                            isOpenPos: false,
+                                            previousYPeriod: undefined,
+                                            zPeriodId: currentYPeriod.zPeriodId,
+                                            yPeriodId: currentYPeriod.yPeriodId,
+                                            forceOpen : true
+                                        }
+                                    }
+                                },
+                                backdrop: 'static'
+                            });
+
+                            modalInstance.result.then(function () {
+
+                                console.log("on force la fermeture");
+                                current.forceCloseYPeriodAsync(currentYPeriod).then(function (yPeriod) {
+
+                                    forceDefert.resolve(yPeriod);
+                                }, function () {
+
+                                    console.log("Erreur après ouverture Forcé");
+                                    forceDefert.reject(errSave);
+                                });
+                            }, function () {
+
+                                console.log("Erreur après ouverture Forcé");
+                                forceDefert.reject(errSave);
+                            });
+                        });
+
+                    }, function (errSave) {
+
+                        console.log("Force Open : No cashMovement type 'Ouverture de service' ");
+                        forceDefert.reject(errSave);
+                    });
+                }
+                else {
+                    console.log("Force Open : No paymentsMode Cash");
+                    forceDefert.reject(errSave);
+                }
+            }, function (errSave) {
+
+                console.log("Force Open : No paymentsMode");
+                forceDefert.reject(errSave);
+            });
+
+            return forceDefert.promise;
+
+        }
+
+        this.forceCloseYPeriodAsync = function (currentYPeriod) {
+
+            var forceCloseDefert = $q.defer();
+
+            var CashMovementLines = [];
+
+            settingService.getPaymentModesAsync().then(function (paymentSetting) {
+
+                Enumerable.from(paymentSetting).forEach(function (p) {
+                    var addPaymentMode = {
+                        PaymentType: p.PaymentType,
+                        Value: p.Value,
+                        Text: p.Text,
+                        Total: 0,
+                        IsBalance: p.IsBalance ? true : false,
+                        cashDiscrepancyYs: 0
+                    };
+
+                    var lineClosePos = {
+                        PaymentMode: addPaymentMode,
+                        Count: 0,
+                        TotalKnown: 0
+                    };
+
+                    CashMovementLines.push(lineClosePos);
+                });
+
+                // Get the PaymentValue of the yPeriod
+                current.getYPaymentValuesAsync(currentYPeriod.yPeriodId).then(function (paymentValues) {
+                    if (paymentValues) {
+
+                        Enumerable.from(paymentValues.PaymentLines).forEach(function (l) {
+
+                            var lineClose = Enumerable.from(CashMovementLines).firstOrDefault(function (x) {
+                                return x.PaymentMode.Value == l.PaymentMode.Value && x.PaymentMode.PaymentType == l.PaymentMode.PaymentType;
+                            });
+
+                            if (lineClose) {
+                                // Renseigner le nombre attendu
+                                lineClose.Count = l.Count;
+                                // Renseigné du montant attendu
+                                lineClose.PaymentMode.Total = l.PaymentMode.Total;
+                                lineClose.TotalKnown = l.PaymentMode.Total;
+                            }
+                        });
+                        current.closeYPeriodAsync(currentYPeriod, CashMovementLines, false).then(function (yPeriod) {
+                            // Si vider le cash, création d'un mouvement fermeture
+                            //posPeriodService.emptyCashYPeriodAsync($scope.closePosParameters.yperiod, hardwareIdModel.CashMovementLines).then(function () {
+
+                            //});
+
+                            forceCloseDefert.resolve(yPeriod);
+
+                        }, function (errSave) {
+
+                            console.log("Force close service : Error durring yClose");
+                            forceCloseDefert.reject(errSave);
+                        });
+
+                    }
+                    else {
+                        console.log("Force close service : No PaymentValue for the yPeriod");
+                        forceCloseDefert.reject(errSave);
+                    }
+                }, function (errSave) {
+
+                    console.log("Force close service : Error when Get the PaymentValue of the yPeriod");
+                    forceCloseDefert.reject(errSave);
+                });
+            }, function (errSave) {
+
+                console.log("Force close service : No paymentMode");
+                forceCloseDefert.reject(errSave);
+            });
+
+            return forceCloseDefert.promise;
+
+        }
     }]);
