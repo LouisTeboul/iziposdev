@@ -797,7 +797,7 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
                     sweetAlert($translate.instant("Le ticket n'est pas soldé"));
                     return;
                 }
-                console.log(currentShoppingCart);
+                //console.log(currentShoppingCart);
                 // On recupere les periodes courantes et on les affecte au ticket
                 // Si besoin est, on demande a l'utilisateur de renseigner le fond de caisse
                 // Pour a nouvelle periode

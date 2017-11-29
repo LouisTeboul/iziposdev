@@ -149,6 +149,9 @@ app.service('orderShoppingCartService', ["$http", "$rootScope", "$q", "settingSe
             // Orders that come from the web, we have to set with the current pos HardwareId
             if (!shoppingCart.HardwareId) {
                 shoppingCart.HardwareId = $rootScope.PosLog.HardwareId;
+                if ($rootScope.modelPos && $rootScope.modelPos.aliasCaisse) {
+                    shoppingCart.AliasCaisse = $rootScope.modelPos.aliasCaisse;
+                }
             }
             // Delete the order from database
     		$rootScope.dbOrder.rel.del('ShoppingCart', { id: shoppingCart.id, rev: shoppingCart.rev }).then(function (result) {

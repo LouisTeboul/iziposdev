@@ -4,6 +4,7 @@ app.controller('ModalDetailsServicesCountController', function ($scope, $rootSco
     $scope.model = {
         yPeriodsModels: []
     };
+    $scope.paymentType = PaymentType;
 
     $scope.init = function () {
         

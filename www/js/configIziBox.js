@@ -67,7 +67,9 @@ app.getConfigIziBoxAsync = function ($rootScope, $q, $http, ipService, $translat
 							ips.push(newIp);
 						}
 					}
-				}
+                } else if (ip.izibox) {
+                    ips.push(ip.izibox);
+                }
 
 				// Get Settings and store them in the browser cache
 				searchRestConfigurationAsync($rootScope, $q, $http, ips, $translate, existingConfig).then(function (configs) {

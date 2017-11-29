@@ -7,6 +7,10 @@
             var localIp = undefined;
             var localIpDefer = $q.defer();
 
+            if (typeof IsOnIzibox != "undefined") {
+                localIpDefer.resolve({ izibox: window.location.host });
+            }
+
             try {
                 networkinterface.getIPAddress(function (ip) {
                     localIpDefer.resolve({ local: ip, izibox: iziboxIp });

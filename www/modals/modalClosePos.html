@@ -51,33 +51,34 @@
                     <div style="width:10%;float:left;min-height:60px;">
                         <div class="title centered">
                             <!--<input ng-if="p.PaymentMode.PaymentType != 1" type="tel" id="txtNb" ng-model="p.Count" style="line-height: 29px; vertical-align: middle; width: 60%;font-size: 18px; text-align:center" ng-keypress="$event.stopPropagation();" />-->
-                            <text-field ng-if="p.PaymentMode.PaymentType != 1 && p.PaymentMode.PaymentType != 99 " id="txtNb" ng-model="p.Count" location="end-start" type="numeric" validfunction="ok" style="line-height: 29px; vertical-align: middle; width: 60%;font-size: 18px; text-align:center"></text-field>
+                            <p ng-model="p.Count" ng-if="p.PaymentMode.PaymentType === paymentType.FIDELITE || p.PaymentMode.PaymentType === paymentType.INTERNET"> {{p.Count}}</p>
+                            <text-field ng-if="p.PaymentMode.PaymentType !== paymentType.ESPECE && p.PaymentMode.PaymentType !== paymentType.FIDELITE && p.PaymentMode.PaymentType !== paymentType.INTERNET" id="txtNb" ng-model="p.Count" location="end-start" type="numeric" validfunction="ok" style="line-height: 29px; vertical-align: middle; width: 60%;font-size: 18px; text-align:center"></text-field>
                         </div>
                     </div>
                     <div style="width:20%;float:left;">
                         <div class="title centered" layout="row">
                             <!--<input ng-style="p.PaymentMode.PaymentType == 1 && {'width':'60%'} || {'width':'80%'}" type="tel" id="txtAmount" ng-model="p.PaymentMode.Total" style="line-height: 29px; vertical-align: middle; width: 60%;font-size: 18px; text-align:center" ng-keypress="$event.stopPropagation();" />-->
-                            <p ng-if="p.PaymentMode.PaymentType ==99"> {{p.PaymentMode.Total | CurrencyFormat}}</p>
-                            <text-field ng-if="p.PaymentMode.PaymentType !=99" ng-style="p.PaymentMode.PaymentType == 1 && {'width':'60%'} || {'width':'80%'}" id="txtAmount" ng-model="p.PaymentMode.Total" location="end-start" type="decimal" validfunction="ok" style="line-height: 29px; vertical-align: middle; width: 60%;font-size: 18px; text-align:center"></text-field>
-                            <a ng-if="p.PaymentMode.PaymentType == 1" class="btn btn-xs btn-default" style="padding:5px" ng-click="$event.stopPropagation();editCashValues(p)">
+                            <p ng-model="p.PaymentMode.Total" ng-if="p.PaymentMode.PaymentType === paymentType.FIDELITE || p.PaymentMode.PaymentType === paymentType.INTERNET"> {{p.PaymentMode.Total | CurrencyFormat}}</p>
+                            <text-field ng-if="p.PaymentMode.PaymentType !== paymentType.FIDELITE && p.PaymentMode.PaymentType !== paymentType.INTERNET" ng-style="p.PaymentMode.PaymentType === paymentType.ESPECE && {'width':'60%'} || {'width':'80%'}" id="txtAmount" ng-model="p.PaymentMode.Total" location="end-start" type="decimal" validfunction="ok" style="line-height: 29px; vertical-align: middle; width: 60%;font-size: 18px; text-align:center"></text-field>
+                            <a ng-if="p.PaymentMode.PaymentType === paymentType.ESPECE" class="btn btn-xs btn-default" style="padding:5px" ng-click="$event.stopPropagation();editCashValues(p)">
                                 <img class="itemAction" src="img/coins.png"/>
                             </a>
                         </div>
                     </div>
                     <div ng-if="closePosParameters.mode.idMode == 3">
                         <div style="width:10%;float:left;min-height:60px;">
-                            <div class="title centered" ng-model="p.TotalKnown" ng-if="p.PaymentMode.PaymentType !== 99">{{p.TotalKnown | CurrencyFormat}}</div>
+                            <div class="title centered" ng-model="p.TotalKnown" ng-show="p.PaymentMode.PaymentType !== paymentType.FIDELITE && p.PaymentMode.PaymentType !== paymentType.INTERNET">{{p.TotalKnown | CurrencyFormat}}</div>
                         </div>
                         <div style="width:20%;float:left;min-height:60px;">
-                            <div class="title centered" ng-if="p.PaymentMode.PaymentType !== 99">{{p.PaymentMode.TotalYs | CurrencyFormat}}</div>
+                            <div class="title centered" ng-if="p.PaymentMode.PaymentType !== paymentType.FIDELITE && p.PaymentMode.PaymentType !== paymentType.INTERNET">{{p.PaymentMode.TotalYs | CurrencyFormat}}</div>
                         </div>
                         <div style="width:10%;float:left;">
-                            <div class="title centered green" ng-class="{ red : p.PaymentMode.cashDiscrepancyYs !== 0}" ng-if="p.PaymentMode.PaymentType !== 99">{{p.PaymentMode.cashDiscrepancyYs | CurrencyFormat}}</div>
+                            <div class="title centered green" ng-class="{ red : p.PaymentMode.cashDiscrepancyYs !== 0}" ng-if="p.PaymentMode.PaymentType !== paymentType.FIDELITE && p.PaymentMode.PaymentType !== paymentType.INTERNET">{{p.PaymentMode.cashDiscrepancyYs | CurrencyFormat}}</div>
                         </div>
                     </div>
                     <div ng-if="closePosParameters.mode.idMode !== 3">
                         <div style="width:35%;float:left;">
-                            <div class="title centered" ng-if="p.PaymentMode.PaymentType !== 99">{{p.TotalKnown | CurrencyFormat}}</div>
+                            <div class="title centered" ng-model="p.TotalKnown" ng-show="p.PaymentMode.PaymentType !== paymentType.FIDELITE && p.PaymentMode.PaymentType !== paymentType.INTERNET">{{p.TotalKnown | CurrencyFormat}}</div>
                         </div>
                     </div>
                 </div>
@@ -110,7 +111,7 @@
                         <div class="title">{{p.PaymentMode.Text}}</div>
                     </div>
                     <div style="width:25%;float:left;min-height:60px;">
-                        <div class="title centered" ng-if="p.PaymentMode.PaymentType !== 99" >{{p.PaymentMode.Total | CurrencyFormat}}</div>
+                        <div class="title centered" >{{p.PaymentMode.Total | CurrencyFormat}}</div>
                     </div>
                     <div style="width:25%;float:left;min-height:60px;">
                         <div class="title centered" >{{p.PaymentMode.TotalYs | CurrencyFormat}}</div>

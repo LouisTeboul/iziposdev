@@ -35,7 +35,7 @@ app.run(function ($rootScope, $location, $q, $http, ipService, zposService, $tra
 	try {
 		angularLocation = $location;
 
-		$rootScope.Version = "3.0.0.24111";
+		$rootScope.Version = "3.0.0.29111";
 		$rootScope.adminMode = { state: false };
         $rootScope.loading = 0;
 
@@ -83,9 +83,12 @@ app.run(function ($rootScope, $location, $q, $http, ipService, zposService, $tra
 		if (navigator.userAgent.match(/(iPhone|iPod|iPad|Android|BlackBerry|IEMobile)/)) {
             $rootScope.isBrowser = false;
             $rootScope.isWindowsContainer = false;
-			document.addEventListener("deviceready", function () {
-				init($rootScope, $location, $q, $http, ipService, zposService, $translate, $uibModal);
-			}, false);
+
+			//document.addEventListener("deviceready", function () {
+			//	init($rootScope, $location, $q, $http, ipService, zposService, $translate, $uibModal);
+            //}, false);
+
+            init($rootScope, $location, $q, $http, ipService, zposService, $translate, $uibModal);
 
 			if (navigator.userAgent.match(/(iPhone|iPod|iPad)/)) {
 				FastClick.attach(document.body);                

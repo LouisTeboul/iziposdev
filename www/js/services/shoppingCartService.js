@@ -271,8 +271,20 @@ app.service('shoppingCartService', ["$http", "$rootScope", "$q", "$filter", "zpo
 
 			shoppingCart.id = Number(shoppingCart.Timestamp);
 
-			$rootScope.remoteDbZPos.rel.save('ShoppingCart', shoppingCart).then(function () { 									// Save the ticket
-                $rootScope.dbReplicate.rel.save('PaymentEditWithHistory', paymentEdit).then(function () { 					// Send the event to the BO
+            // Enlever le mode de règlement "Cagnotte" il est déjà pris en compte dans BalanceUpdate
+            var PaymentModesWithoutLoyalty = []
+            Enumerable.from(shoppingCart.PaymentModes).forEach(function (p) {
+                if (p.PaymentType !== PaymentType.FIDELITE) {
+                    PaymentModesWithoutLoyalty.push(p);
+                }
+            });
+
+            shoppingCart.PaymentModes = PaymentModesWithoutLoyalty;
+
+			$rootScope.remoteDbZPos.rel.save('ShoppingCart', shoppingCart).then(function () { 				// Save the ticket
+                $rootScope.dbReplicate.rel.save('PaymentEditWithHistory', paymentEdit).then(function () { 	// Send the event to the BO
+                    paymentEdit.PaymentModes = shoppingCart.PaymentModes;
+
                     posPeriodService.updatePaymentValuesAsync(shoppingCart.yPeriodId, shoppingCart.zPeriodId, shoppingCart.HardwareId, paymentEdit.PaymentModes, oldPaymentValues).then(function () {		// Modify the payment
 						savePaymentDefer.resolve(paymentEdit);
 					}, function (errUpdP) {
@@ -440,7 +452,7 @@ app.service('shoppingCartService', ["$http", "$rootScope", "$q", "$filter", "zpo
                     }
                     else {
                         if (!retry) retry = 1;
-                        if (retry < 3) {
+                        if (retry < 2) {
                             console.log("Retry print"); // * c'est la box qui fait les retry'
                             current.printShoppingCartPOST(printerApiUrl, shoppingCartPrinterReq, printDefer, retry + 1);
                         } else {

@@ -130,6 +130,9 @@
                             if (PosSetting.SettingKey =='TaxNumber') {
                                 companyInfo.NafCode = PosSetting.SettingValue;
                             }
+                            if (PosSetting.SettingKey == 'VatId') {
+                                companyInfo.VatNumber = PosSetting.SettingValue;
+                            }
                         }
 
                         cacheCompanyInfo = companyInfo;

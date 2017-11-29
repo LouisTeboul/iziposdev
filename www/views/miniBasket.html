@@ -194,7 +194,7 @@
                                     <span>{{paymentModeRow.Total | CurrencyFormat}}</span>
                                 </div>
                                 <div>
-                                    <a class="btn" ng-click="$event.stopPropagation(); removePayment(paymentModeRow);">
+                                    <a class="btn" ng-click="$event.stopPropagation(); removePayment(paymentModeRow);" ng-if="!currentShoppingCart.isPayed">
                                         <span class="glyphicon glyphicon-trash"></span>
                                     </a>
                                 </div>
@@ -217,7 +217,7 @@
 
                                         <md-button aria-label="removeDiscount"
                                                    class="itemAction md-fab md-mini"
-                                                   ng-click="removeShoppingCartDiscount(item)">
+                                                   ng-click="removeShoppingCartDiscount(item)" ng-if="!currentShoppingCart.isPayed">
                                             <span class="glyphicon glyphicon-trash"></span>
                                         </md-button>
 
@@ -472,7 +472,7 @@
             <a class="shoppingCartAction btn btn-info" ng-click="printProdShoppingCart()" flex>
                 <span style="white-space:normal"><img style="width:35px" alt="Image" src="img/printProd.png"></span>
             </a>
-            <a class="shoppingCartAction btn btn-danger" ng-click="cancelShoppingCart()" flex>
+            <a class="shoppingCartAction btn btn-danger" ng-click="cancelShoppingCart()" flex ng-if="!currentShoppingCart.isPayed">
                 <span style="white-space:normal"><img class="btn-action-image" alt="Image" src="img/trash.png"></span>
             </a>
         </div>

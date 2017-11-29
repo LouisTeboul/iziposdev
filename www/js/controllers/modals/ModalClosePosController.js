@@ -1,7 +1,7 @@
 ﻿
-app.controller('ModalClosePosController', function ($scope, $rootScope, $uibModal, $uibModalInstance, settingService, eventService, cashMovementService, zposService, $translate, posPeriodService, closePosParameters, modalStats, posUserService, posService) {
+app.controller('ModalClosePosController', function ($scope, $rootScope, $uibModal, $uibModalInstance, settingService, eventService, cashMovementService, zposService, $translate, posPeriodService, closePosParameters, modalStats, posUserService, posService, $http) {
     $scope.closePosParameters = closePosParameters;
-
+    $scope.paymentType = PaymentType;
 
     $scope.init = function () {
 
@@ -51,9 +51,9 @@ app.controller('ModalClosePosController', function ($scope, $rootScope, $uibModa
             });
             var lineBalance = {
                 PaymentMode: {
-                    PaymentType : 9,
-                    Value : "Cagnotte",
-                    Text : "Cagnotte",
+                    PaymentType: PaymentType.FIDELITE,
+                    Value : "Ma Cagnotte",
+                    Text : "Ma Cagnotte",
                     Total: 0,
                     IsBalance: true,
                     cashDiscrepancyYs: 0
@@ -98,6 +98,10 @@ app.controller('ModalClosePosController', function ($scope, $rootScope, $uibModa
                                     // Pré-renseigné du montant attendu
                                     lineClose.PaymentMode.Total = l.PaymentMode.Total;
                                     lineClose.TotalKnown = l.PaymentMode.Total;
+                                }
+                                else {
+                                    l.TotalKnown = l.PaymentMode.Total;
+                                    newHidModel.CashMovementLines.push(l);
                                 }
                             });
                         }
@@ -147,6 +151,10 @@ app.controller('ModalClosePosController', function ($scope, $rootScope, $uibModa
                                     lineClose.PaymentMode.Total = l.PaymentMode.Total;
                                     lineClose.TotalKnown = l.PaymentMode.Total;
                                 }
+                                else {
+                                    l.TotalKnown = l.PaymentMode.Total;
+                                    newHidModel.CashMovementLines.push(l);
+                                }
                             });
                         }
                         });
@@ -157,7 +165,7 @@ app.controller('ModalClosePosController', function ($scope, $rootScope, $uibModa
                     // Foreach pour tout les hId de closePosParameters
                     Enumerable.from($scope.closePosParameters.hidList).forEach(function (cashmachine) {
 
-                        posService.getPosNameAsync(cashmachine.hid).then(function(alias){
+                        posService.getPosNameAsync(cashmachine.hid).then(function(alias) {
                             var newHidModel = {
                                 hid: cashmachine.hid,
                                 alias: alias,
@@ -184,7 +192,10 @@ app.controller('ModalClosePosController', function ($scope, $rootScope, $uibModa
                                         lineClose.PaymentMode.Total = l.PaymentMode.Total;
                                         lineClose.TotalKnown = l.PaymentMode.Total;
                                     }
-
+                                    else {
+                                        l.TotalKnown = l.PaymentMode.Total;
+                                        newHidModel.CashMovementLines.push(l);
+                                    }
                                     var lineCloseRecap = Enumerable.from($scope.model.zRecap).firstOrDefault(function (x) {
                                         return x.PaymentMode.Value == l.PaymentMode.Value && x.PaymentMode.PaymentType == l.PaymentMode.PaymentType;
                                     });
@@ -204,53 +215,56 @@ app.controller('ModalClosePosController', function ($scope, $rootScope, $uibModa
                                             lineCloseRecap.TotalKnown = l.PaymentMode.Total;
                                         }
                                     }
-                                    else {
-                                        $scope.model.zRecap.push(l);
-                                    }
-                                });
-                            }
-                        });
+                                    
+                                    });
+                                    // Renseigner ce que le ou les utilisateurs on déjà renseigné lors de la fermeture du(des) services 
+                                    posPeriodService.getYCountLinesByHidAsync($scope.closePosParameters.zperiod.id, cashmachine.hid).then(function (yPeriodCash) {
 
-                        // Renseigner ce que le ou les utilisateurs on déjà renseigné lors de la fermeture du(des) services 
-                            posPeriodService.getYCountLinesByHidAsync($scope.closePosParameters.zperiod.id, cashmachine.hid).then(function (yPeriodCash) {
-
-                                if (yPeriodCash) {
-                                    newHidModel.nbY = yPeriodCash.nbY;
-                                    if (!$scope.model.hasAtLeastOneCashMachineWithSeveralService) {
-                                        $scope.model.hasAtLeastOneCashMachineWithSeveralService = yPeriodCash.nbY !== 1;
-                                    }
-
-                                    Enumerable.from(yPeriodCash.YCountLines).forEach(function (l) {
-                                        var lineClose = Enumerable.from(newHidModel.CashMovementLines).firstOrDefault(function (x) {
-                                            return x.PaymentMode.Value == l.PaymentMode.Value && x.PaymentMode.PaymentType == l.PaymentMode.PaymentType;
-                                        });
-
-                                        if (lineClose) {
-                                            // Renseigner du montant renseigné précédement (somme des services)
-                                            lineClose.PaymentMode.TotalYs = l.PaymentMode.Total;
-                                            lineClose.PaymentMode.cashDiscrepancyYs = l.PaymentMode.Total - l.TotalKnown;
-                                        }
-                                        var lineCloseRecap = Enumerable.from($scope.model.zRecap).firstOrDefault(function (x) {
-                                            return x.PaymentMode.Value == l.PaymentMode.Value && x.PaymentMode.PaymentType == l.PaymentMode.PaymentType;
-                                        });
-
-                                        if (lineCloseRecap) {
-                                            // Renseigner du montant renseigné précédement (somme des services)
-                                            if (lineCloseRecap.PaymentMode.TotalYs) {
-                                                lineCloseRecap.PaymentMode.TotalYs += l.PaymentMode.Total;
+                                        if (yPeriodCash) {
+                                            newHidModel.nbY = yPeriodCash.nbY;
+                                            if (!$scope.model.hasAtLeastOneCashMachineWithSeveralService) {
+                                                $scope.model.hasAtLeastOneCashMachineWithSeveralService = yPeriodCash.nbY !== 1;
                                             }
-                                            else {
-                                                lineCloseRecap.PaymentMode.TotalYs = l.PaymentMode.Total;
-                                            }
-                                            if (lineCloseRecap.PaymentMode.cashDiscrepancyYs) {
-                                                lineCloseRecap.PaymentMode.cashDiscrepancyYs += l.PaymentMode.Total - l.TotalKnown ;
-                                            }
-                                            else {
-                                                lineCloseRecap.PaymentMode.cashDiscrepancyYs = l.PaymentMode.Total - l.TotalKnown;
-                                            }
+
+                                            Enumerable.from(yPeriodCash.YCountLines).forEach(function (l) {
+                                                var lineClose = Enumerable.from(newHidModel.CashMovementLines).firstOrDefault(function (x) {
+                                                    return x.PaymentMode.Value == l.PaymentMode.Value && x.PaymentMode.PaymentType == l.PaymentMode.PaymentType;
+                                                });
+
+                                                if (lineClose) {
+                                                    // Renseigner du montant saisi précédement (somme des services)
+                                                    lineClose.PaymentMode.TotalYs = l.PaymentMode.Total;
+                                                    lineClose.PaymentMode.cashDiscrepancyYs = l.PaymentMode.Total - l.TotalKnown;
+                                                }
+                                                
+                                                var lineCloseRecap = Enumerable.from($scope.model.zRecap).firstOrDefault(function (x) {
+                                                    return x.PaymentMode.Value == l.PaymentMode.Value && x.PaymentMode.PaymentType == l.PaymentMode.PaymentType;
+                                                });
+
+                                                if (lineCloseRecap) {
+                                                    // Renseigner du montant saisi précédement (somme des services)
+                                                    if (lineCloseRecap.PaymentMode.TotalYs) {
+                                                        lineCloseRecap.PaymentMode.TotalYs += l.PaymentMode.Total;
+                                                    }
+                                                    else {
+                                                        lineCloseRecap.PaymentMode.TotalYs = l.PaymentMode.Total;
+                                                    }
+                                                    if (lineCloseRecap.PaymentMode.cashDiscrepancyYs) {
+                                                        lineCloseRecap.PaymentMode.cashDiscrepancyYs += l.PaymentMode.Total - l.TotalKnown;
+                                                    }
+                                                    else {
+                                                        lineCloseRecap.PaymentMode.cashDiscrepancyYs = l.PaymentMode.Total - l.TotalKnown;
+                                                    }
+                                                }
+                                                else {
+                                                    l.PaymentMode.TotalYs = l.PaymentMode.Total;
+                                                    l.PaymentMode.cashDiscrepancyYs = l.PaymentMode.Total - l.TotalKnown;
+                                                    $scope.model.zRecap.push(l);
+                                                }
+                                            });
                                         }
                                     });
-                                }
+                            }
                         });
                     });
                     });

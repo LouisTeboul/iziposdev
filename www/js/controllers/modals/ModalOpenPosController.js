@@ -39,7 +39,7 @@ app.controller('ModalOpenPosController', function ($scope, $rootScope, $uibModal
             // Get the amout "cash" count in the previous yPeriod
             Enumerable.from($scope.openPosParameters.previousYPeriod.YCountLines).forEach(function (l) {
                 // Cash only
-                if (l.PaymentMode && l.PaymentMode.PaymentType == 1) {
+                if (l.PaymentMode && l.PaymentMode.PaymentType == PaymentType.ESPECE) {
                     total = roundValue(total + l.PaymentMode.Total);
                     totalKnown = roundValue(totalKnown + l.TotalKnown);
                 }
@@ -53,7 +53,7 @@ app.controller('ModalOpenPosController', function ($scope, $rootScope, $uibModal
                     var total = 0;
                     Enumerable.from(paymentValues.PaymentLines).forEach(function (l) {
                         // Cash only
-                        if (l.PaymentMode && l.PaymentMode.PaymentType == 1) {
+                        if (l.PaymentMode && l.PaymentMode.PaymentType == PaymentType.ESPECE) {
                             total = roundValue(total + l.PaymentMode.Total);
                         }
                     });
@@ -68,7 +68,7 @@ app.controller('ModalOpenPosController', function ($scope, $rootScope, $uibModal
             var paymentModesAvailable = paymentSetting;
 
             var cashPaymentMode = Enumerable.from(paymentModesAvailable).firstOrDefault(function (x) {
-                return x.PaymentType == PaymentType.ESPECE; // Attention !!!!
+                return x.PaymentType == PaymentType.ESPECE;
             });
 
             var dateOpen = new Date().toString('dd/MM/yyyy H:mm:ss'); //TODO: bug formatage

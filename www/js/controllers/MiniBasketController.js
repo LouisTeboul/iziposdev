@@ -330,7 +330,7 @@ app.controller('MiniBasketController', ['$scope', '$rootScope', '$state', '$uibM
 		$scope.removePayment = function (selectedPaymentMode) {
 
 			//reset des tickets resto
-			if (selectedPaymentMode.PaymentType == 4) {
+            if (selectedPaymentMode.PaymentType == PaymentType.TICKETRESTAURANT) {
 				shoppingCartModel.removeTicketRestaurantFromCart();
 			}
 			selectedPaymentMode.Total = 0;

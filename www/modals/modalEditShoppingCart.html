@@ -20,8 +20,8 @@
 			<div style="width:35%;float:left">
 				<div class="title centered">
 					<!--<input type="tel" id="txtAmount" ng-model="p.Total" style="line-height: 29px; vertical-align: middle; width: 60%;font-size: 18px; text-align:center" ng-keypress="$event.stopPropagation();" />-->
-					<text-field ng-if="!p.IsBalance" ng-model="p.Total" location="end-start" type="decimal" validfunction="ok" style="line-height: 29px; vertical-align: middle; width: 60%;font-size: 18px;"></text-field>
-                    <input ng-if="p.IsBalance" ng-model="p.Total" readonly style="line-height: 29px; vertical-align: middle; width: 60%;font-size: 18px;"/>
+					<text-field ng-if="!p.IsBalance && p.PaymentType !== paymentType.INTERNET" ng-model="p.Total" location="end-start" type="decimal" validfunction="ok" style="line-height: 29px; vertical-align: middle; width: 60%;font-size: 18px;"></text-field>
+                    <input ng-if="p.IsBalance || p.PaymentType === paymentType.INTERNET" ng-model="p.Total" readonly style="line-height: 29px; vertical-align: middle; width: 60%;font-size: 18px;"/>
 				</div>
 			</div>
 		</div>
