@@ -162,7 +162,7 @@ var searchRestConfigurationAsync = function ($rootScope,$q, $http, ips, $transla
                 success(function (data, status, headers, config) {
 
                     getRestConfigurationAsync($q, $http, ip, 8080).then(function (config) {
-
+                        config.LocalIpIziBox = ip;
                         configs.push(config);
                         if (i === 0 && existingConfig) {
                             searchDefer.resolve(configs);

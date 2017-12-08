@@ -4,7 +4,7 @@
 
         this.initPeriodListener = function () {
             $rootScope.$on('dbUtilsUpdated', function (event, args) {
-                current.getYPeriodAsync($rootScope.modelPos.hardwareId,undefined,false,false);
+                current.getYPeriodAsync($rootScope.modelPos.hardwareId, undefined, false, false);
             });
         };
 
@@ -72,7 +72,7 @@
         this.getAllYPeriodAsync = function (hardwareId) {
             var retDefer = $q.defer();
 
-            if(jQuery.isEmptyObject(hardwareId)){
+            if (jQuery.isEmptyObject(hardwareId)) {
                 retDefer.resolve(false);
                 return retDefer.promise;
             }
@@ -88,20 +88,20 @@
                         var isValidYPeriod = false;
 
 
-                        if(hardwareId == "*"){
+                        if (hardwareId == "*") {
                             isValidYPeriod = dateNow > new Date(yPeriod.startDate) && yPeriod.zPeriodId === zPeriod.id;
                         } else {
                             isValidYPeriod = yPeriod.hardwareId === hardwareId && dateNow > new Date(yPeriod.startDate) && yPeriod.zPeriodId === zPeriod.id;
                         }
 
-                        if(isValidYPeriod) {
+                        if (isValidYPeriod) {
                             allYPeriod.push(yPeriod);
                         }
 
                     });
 
                     //Trier les periodes par date croissante
-                    allYPeriod.sort(function(a,b){
+                    allYPeriod.sort(function (a, b) {
                         // Turn your strings into dates, and then subtract them
                         // to get a value that is either negative, positive, or zero.
                         return new Date(a.startDate) - new Date(b.startDate);
@@ -186,7 +186,7 @@
                                     if (previousYperiodButClosed && !previousYperiodButClosed.emptyCash) {
 
                                         var cashPaymentModePrevious = Enumerable.from(previousYperiodButClosed.YCountLines).firstOrDefault(function (x) {
-                                            return x.PaymentMode.PaymentType == PaymentType.ESPECE; 
+                                            return x.PaymentMode.PaymentType == PaymentType.ESPECE;
                                         });
                                         if (cashPaymentModePrevious) {
                                             totalKnown = cashPaymentModePrevious.TotalKnown;
@@ -257,7 +257,7 @@
                                 });
                             }
                         } else {
-                            if(isOwnPeriod) {
+                            if (isOwnPeriod) {
                                 $rootScope.modelPos.isPosOpen = false;
                             }
                             console.log("Pos closed : yperiod not exist or closed");
@@ -283,14 +283,14 @@
                         });
                     }
                     else {
-                        if(isOwnPeriod) {
+                        if (isOwnPeriod) {
                             $rootScope.modelPos.isPosOpen = true;
                         }
                         console.log("Pos opened");
                         retDefer.resolve(currentYPeriod);
                     }
                 }, function (errGet) {
-                    if(isOwnPeriod) {
+                    if (isOwnPeriod) {
                         $rootScope.modelPos.isPosOpen = false;
                     }
                     console.log("Pos closed : forceopen cancelled");
@@ -325,7 +325,7 @@
                         currentYPeriod.YCountLines = CashMovementLines;
                         currentYPeriod.emptyCash = emptyCash;
                         $rootScope.remoteDbUtils.rel.save('YPeriod', currentYPeriod).then(function () {
-                            if(isOwnPeriod){
+                            if (isOwnPeriod) {
                                 $rootScope.modelPos.isPosOpen = false;
                             }
                             funcDefer.resolve(currentYPeriod);
@@ -367,13 +367,13 @@
                             ZPeriodRep.rev = undefined;
                             $rootScope.dbReplicate.rel.save('ZPeriod', ZPeriodRep).then(function () {
                                 console.log("Replicate Close ZPeriod : success");
-                                current.purgeZPeriodAsync(currentZPeriod);
+                                //current.purgeZPeriodAsync(currentZPeriod);
                             }, function (errRep) {
                                 console.error("Replicate Close ZPeriod : ");
                                 console.error(errRep);
                             });
 
-                            if(isOwnPeriod){
+                            if (isOwnPeriod) {
                                 $rootScope.modelPos.isPosOpen = false;
                             }
                             funcDefer.resolve(currentZPeriod);
@@ -561,7 +561,7 @@
             return yCountLinesDefer.promise;
         };
 
-        this.getZPaymentValuesByHidAsync = function (zPeriodId,hardwareId) {
+        this.getZPaymentValuesByHidAsync = function (zPeriodId, hardwareId) {
             var paymentValuesDefer = $q.defer();
 
             var db = $rootScope.remoteDbZPos;
@@ -614,7 +614,7 @@
                         zPaymentValues.PaymentLines.push(balanceByPeriod);
                     }
                     paymentValuesDefer.resolve(zPaymentValues);
-                    });
+                });
 
             }, function (errPV) {
                 paymentValuesDefer.reject(errPV);
@@ -672,28 +672,26 @@
             var paymentValuesDefer = $q.defer();
 
             var db = $rootScope.remoteDbZPos;
-            current.getZPeriodAsync(false).then(function(zp){
+            current.getZPeriodAsync(false).then(function (zp) {
                 db.rel.find('PaymentValues', yPeriodId).then(function (resPaymentValues) {
-                    console.log(resPaymentValues);
                     var paymentValues = Enumerable.from(resPaymentValues.AllPaymentValues).firstOrDefault();
                     // Recuperer les montant cagnotte dans la vue
-                    console.log(zp.id, yPeriodId);
                     $rootScope.remoteDbZPos.query("zpos/balanceByPeriod", {
                         startkey: [zp.id, yPeriodId],
                         endkey: [zp.id, yPeriodId],
                         reduce: true,
                         group: true
-                    }).then(function(resBalance){
+                    }).then(function (resBalance) {
                         var balanceByPeriod = {
                             PaymentMode: {
                                 PaymentType: PaymentType.FIDELITE,
-                                Text : "Ma Cagnotte",
-                                Total : resBalance.rows[0] ?resBalance.rows[0].value : 0,
+                                Text: "Ma Cagnotte",
+                                Total: resBalance.rows[0] ? resBalance.rows[0].value : 0,
                                 Value: "Ma Cagnotte",
                             }
 
                         };
-                        if (paymentValues && !notAddLoyalty){
+                        if (paymentValues && !notAddLoyalty) {
                             paymentValues.PaymentLines.push(balanceByPeriod);
                         }
                         paymentValuesDefer.resolve(paymentValues);
@@ -709,7 +707,7 @@
         };
 
         /**
-		 * Update the cash in hand value
+         * Update the cash in hand value
          * @param newPaymentValues New values
          * @param oldPaymentValues Previous values
          */
@@ -796,7 +794,7 @@
         };
 
         /**
-		 * Replace the cash in hand value, From Open Pos
+         * Replace the cash in hand value, From Open Pos
          * @param newPaymentValues New values
          */
         this.replacePaymentValuesAsync = function (yPeriodId, zPeriodId, hardwareId, newPaymentValues, cashMovement) {
@@ -862,8 +860,7 @@
         };
 
 
-
-        this.getDateYPeriodAsync = function (zpid, ypid){
+        this.getDateYPeriodAsync = function (zpid, ypid) {
             var datePeriodDefer = $q.defer();
             var datePeriod = {};
             $rootScope.remoteDbUtils.rel.find('YPeriod').then(function (res) {
@@ -872,7 +869,7 @@
                 Enumerable.from(res.YPeriods).firstOrDefault(function (yPeriod) {
                     var isValidYPeriod = false;
                     isValidYPeriod = yPeriod.id == ypid && dateNow > new Date(yPeriod.startDate) && yPeriod.zPeriodId == zpid;
-                    if(isValidYPeriod){
+                    if (isValidYPeriod) {
                         datePeriod.start = yPeriod.startDate;
                         datePeriod.end = yPeriod.endDate;
                     }
@@ -887,7 +884,7 @@
         };
 
 
-        this.getYperiodFromZperiodAsync = function(zpid){
+        this.getYperiodFromZperiodAsync = function (zpid) {
 
             var ypzDefer = $q.defer();
             var ypz = [];
@@ -899,7 +896,7 @@
                     var isValidYPeriod = false;
                     isValidYPeriod = dateNow > new Date(yPeriod.startDate) && yPeriod.zPeriodId === zpid;
 
-                    if(isValidYPeriod){
+                    if (isValidYPeriod) {
                         ypz.push(yPeriod);
                     }
                 });
@@ -907,7 +904,7 @@
                 ypzDefer.resolve(ypz);
             });
 
-            return ypzDefer.promise ;
+            return ypzDefer.promise;
         };
 
 
@@ -919,7 +916,7 @@
                 var paymentModesAvailable = paymentSetting;
 
                 var cashPaymentMode = Enumerable.from(paymentModesAvailable).firstOrDefault(function (x) {
-                    return x.PaymentType == PaymentType.ESPECE; 
+                    return x.PaymentType == PaymentType.ESPECE;
                 });
 
                 if (cashPaymentMode) {
@@ -986,7 +983,7 @@
                                             previousYPeriod: undefined,
                                             zPeriodId: currentYPeriod.zPeriodId,
                                             yPeriodId: currentYPeriod.yPeriodId,
-                                            forceOpen : true
+                                            forceOpen: true
                                         }
                                     }
                                 },

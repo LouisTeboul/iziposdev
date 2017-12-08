@@ -1,4 +1,4 @@
-﻿app.controller('ModalShoppingCartNoteController', function ($scope, $rootScope, $uibModalInstance,$translate) {
+﻿app.controller('ModalShoppingCartNoteController', function ($scope, $rootScope, $uibModalInstance, $translate) {
     var current = this;
 
     $scope.valueKeyboard = "";
@@ -7,17 +7,17 @@
 
     $scope.init = function () {
 
-    	setTimeout(function () {
-    		var txtNbNote = document.getElementById("txtNbNote");
-    		if (txtNbNote) {
-    			txtNbNote.focus();
-    		}
+        setTimeout(function () {
+            var txtNbNote = document.getElementById("txtNbNote");
+            if (txtNbNote) {
+                txtNbNote.focus();
+            }
 
-    	}, 1000);
-    }
+        }, 1000);
+    };
 
     $scope.ok = function () {
-    	$rootScope.closeKeyboard();
+        $rootScope.closeKeyboard();
         var nbNote = parseInt($scope.value);
 
         if (isNaN(nbNote)) {
@@ -26,10 +26,10 @@
             $scope.errorMessage = undefined;
             $uibModalInstance.close(nbNote);
         }
-    }
+    };
 
     $scope.cancel = function () {
-    	$rootScope.closeKeyboard();
+        $rootScope.closeKeyboard();
         $uibModalInstance.dismiss('cancel');
     }
 

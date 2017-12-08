@@ -302,7 +302,7 @@ app.controller('MiniBasketController', ['$scope', '$rootScope', '$state', '$uibM
                     }
 
 				}
-                shoppingCartModel.calculateTotalFor();
+                shoppingCartModel.calculateTotal();
                 shoppingCartModel.calculateLoyalty();
                 resizeMiniBasket();
             }, function () {
@@ -314,6 +314,8 @@ app.controller('MiniBasketController', ['$scope', '$rootScope', '$state', '$uibM
         	console.log(cartItem);
         	cartItem.DiscountET = 0;
         	cartItem.DiscountIT = 0;
+            shoppingCartModel.calculateTotal();
+            shoppingCartModel.calculateLoyalty();
 		};
 
 

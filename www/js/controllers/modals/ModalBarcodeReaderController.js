@@ -6,10 +6,10 @@
 
     $scope.init = function () {
         $('#reader').html5_qrcode(function (data) {
-            //localMediaStream.getTracks()[0].stop();
-            current.stopReader();
-        	$uibModalInstance.close(data);
-        	$rootScope.closeKeyboard();
+                //localMediaStream.getTracks()[0].stop();
+                current.stopReader();
+                $uibModalInstance.close(data);
+                $rootScope.closeKeyboard();
             },
             function (error) {
                 //console.log(error);

@@ -127,11 +127,13 @@ app.controller('ModalEditShoppingCartController', function ($scope, $rootScope, 
 
         var newTotal = 0;
         Enumerable.from($scope.newPaymentValues.PaymentValues).forEach(function (p) {
+            console.log(p);
         	p.Total = parseFloat(p.Total);
         	newTotal = roundValue(p.Total + newTotal);
 
             if (isNaN(p.Total)) {
                 p.Total = 0;
+                validPaymentModes.push(p);
             }
 
             if (p.Total > 0) {
@@ -139,7 +141,7 @@ app.controller('ModalEditShoppingCartController', function ($scope, $rootScope, 
             }
         });
 
-        var totalPayment = shoppingCart.TotalPayment
+        var totalPayment = shoppingCart.TotalPayment;
         if (shoppingCart.Repaid && shoppingCart.Repaid > 0) {
             totalPayment -= parseFloat(shoppingCart.Repaid);
         }
@@ -149,6 +151,8 @@ app.controller('ModalEditShoppingCartController', function ($scope, $rootScope, 
 
         // le total des moyens de paiement doit être égal au total avant modification
         if (newTotal == totalPayment) {
+            console.log('Nouveau total ok!');
+            console.log(validPaymentModes);
         	shoppingCart.PaymentModes = validPaymentModes;
 
         	var paymentEdit = {

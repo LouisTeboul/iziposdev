@@ -1,7 +1,7 @@
-app.controller('ModalOpenPosController', function ($scope, $rootScope, $uibModal,$http, $uibModalInstance, settingService, eventService, cashMovementService, posPeriodService,posUserService,$translate,openPosParameters) {
+app.controller('ModalOpenPosController', function ($scope, $rootScope, $uibModal, $http, $uibModalInstance, settingService, eventService, cashMovementService, posPeriodService, posUserService, $translate, openPosParameters) {
     $scope.openPosParameters = openPosParameters;
 
-    $scope.init = function () {  
+    $scope.init = function () {
 
         $scope.model = {
             motif: null,
@@ -16,7 +16,7 @@ app.controller('ModalOpenPosController', function ($scope, $rootScope, $uibModal
 
             if ($scope.motifs.length == 0) {
                 if ($scope.openPosParameters.isOpenPos) {
-                    if ($scope.openPosParameters.previousYPeriod){
+                    if ($scope.openPosParameters.previousYPeriod) {
                         $scope.model.message = "Vous devez d&eacute;finir un mouvement de caisse de type ouverture de service dans le BO, merci";
                     }
                     else {
@@ -30,7 +30,6 @@ app.controller('ModalOpenPosController', function ($scope, $rootScope, $uibModal
                 $scope.model.motif = motifs[0];
             }
         });
-
 
 
         if ($scope.openPosParameters.previousYPeriod && !$scope.openPosParameters.previousYPeriod.emptyCash && !$scope.openPosParameters.editMode) {
@@ -116,8 +115,9 @@ app.controller('ModalOpenPosController', function ($scope, $rootScope, $uibModal
         });
 
         modalInstance.result.then(function (total) {
-            $scope.openPosValues.CashMovementLines[0].PaymentMode.Total = roundValue(parseFloat(total)).toFixed(2);    
-        }, function () {});
+            $scope.openPosValues.CashMovementLines[0].PaymentMode.Total = roundValue(parseFloat(total)).toFixed(2);
+        }, function () {
+        });
     };
 
     $scope.openRecap = function () {
@@ -135,13 +135,13 @@ app.controller('ModalOpenPosController', function ($scope, $rootScope, $uibModal
             if ($scope.model.motif && $scope.model.motif != null) {
                 $scope.openPosValues.MovementType_Id = $scope.model.motif.Id;
 
-                if ($scope.openPosParameters.previousYPeriod && !$scope.openPosParameters.previousYPeriod.emptyCash ) {
+                if ($scope.openPosParameters.previousYPeriod && !$scope.openPosParameters.previousYPeriod.emptyCash) {
                     var previousYperiodButClosed = $scope.openPosParameters.previousYPeriod;
                     if (previousYperiodButClosed) {
 
-                        // Crééer le motif négatif isSytem "Fin de service" du montant espèce du précédent yPeriod dans le yPeriod précédent
+                        // Crï¿½ï¿½er le motif nï¿½gatif isSytem "Fin de service" du montant espï¿½ce du prï¿½cï¿½dent yPeriod dans le yPeriod prï¿½cï¿½dent
                         posPeriodService.emptyCashYPeriodAsync(previousYperiodButClosed, previousYperiodButClosed.YCountLines).then(function (paymentValues) {
-                            //Appel après la création de la fermeture du service précédent pour que la date du motif de l'ouverture du service soit après le motif de fermeture du service précédent
+                            //Appel aprï¿½s la crï¿½ation de la fermeture du service prï¿½cï¿½dent pour que la date du motif de l'ouverture du service soit aprï¿½s le motif de fermeture du service prï¿½cï¿½dent
                             $scope.openPosValues.CashMovementLines[0].PaymentMode.Total = $scope.model.totalKnown;
 
                             openCashMachine();
@@ -153,25 +153,27 @@ app.controller('ModalOpenPosController', function ($scope, $rootScope, $uibModal
                 }
             }
             else {
-                sweetAlert({ title: $translate.instant("Veuillez renseigner le motif") }, function () { });
+                sweetAlert({title: $translate.instant("Veuillez renseigner le motif")}, function () {
+                });
             }
         }
         else {
-            sweetAlert({ title: $translate.instant("Impossible de modifier le fonds de caisse, periode en cours, utilisez le menu gestion des especes") }, function () { });
+            sweetAlert({title: $translate.instant("Impossible de modifier le fonds de caisse, periode en cours, utilisez le menu gestion des especes")}, function () {
+            });
         }
     };
 
     $scope.openDrawer = function () {
         /**
-		 * TODO: Log this event
+         * TODO: Log this event
          */
         if (posUserService.isEnable('ODRAW')) {
             var configApiUrl = "http://" + $rootScope.IziBoxConfiguration.LocalIpIziBox + ":" + $rootScope.IziBoxConfiguration.RestPort + "/open/" + $rootScope.PrinterConfiguration.POSPrinter;
-            $http.get(configApiUrl, { timeout: 10000 });
+            $http.get(configApiUrl, {timeout: 10000});
         }
     };
 
-    $scope.cancel = function () {   
+    $scope.cancel = function () {
         $uibModalInstance.dismiss('cancel');
     }
 

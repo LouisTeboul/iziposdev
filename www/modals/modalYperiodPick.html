@@ -7,11 +7,12 @@
 
         <div id="caisseContainer">
 
-            <button class="btn btn-default" ng-repeat="line in model.hids" ng-click="setHid(line.hid, $index); " ng-class="{true:'activeButton'}[activeHidBtn == $index]" style="margin: 5px">
-                {{line.alias ?  line.alias : line.hid}}
+            <button class="btn btn-default" ng-repeat="line in model.hids" ng-click="setHid(line.hid, $index); "
+                    ng-class="{true:'activeButton'}[activeHidBtn == $index]" style="margin: 5px">
+                {{line.alias ? line.alias : line.hid}}
             </button>
 
-            
+
             <button class="btn btn-default" ng-if="model.closingEnable" ng-click="setHid('*', $index)"
                     ng-class="{true:'activeButton'}[activeHidBtn == $index]"
                     style="margin: 5px" translate>
@@ -23,12 +24,12 @@
         </div>
 
 
-
         <div id="yperiodContainer" ng-if="model.chosenHid">
 
             <!-- Cette div est peuplé dans on selectionne une caisse -->
 
-            <button class="btn btn-default" ng-repeat="yperiod in yperiods track by $index" ng-click="setYPeriod(yperiod, $index)"
+            <button class="btn btn-default" ng-repeat="yperiod in yperiods track by $index"
+                    ng-click="setYPeriod(yperiod, $index)"
                     ng-class="{activeButton : activeYpidBtn == $index, closedPeriod : yperiod.endDate, emptyPeriod: yperiod.isEmpty}"
                     style="margin: 5px">
                 {{printDate(yperiod)}}
@@ -43,12 +44,11 @@
         </div>
 
 
-
     </div>
 
     <div class="modal-footer">
-        <button class="btn btn-green" ng-click="closePos(model.mode)" ng-if="isClosingEnabled"> Fermeture </button>
-        <button class="btn btn-green"ng-click="openZ()" translate ng-if="isDisplayZEnabled">Afficher le Z</button>
+        <button class="btn btn-green" ng-click="closePos(model.mode)" ng-if="isClosingEnabled"> Fermeture</button>
+        <button class="btn btn-green" ng-click="openZ()" translate ng-if="isDisplayZEnabled">Afficher le Z</button>
         <button class="btn btn-rose" ng-click="cancel()" translate>Annuler</button>
     </div>
 

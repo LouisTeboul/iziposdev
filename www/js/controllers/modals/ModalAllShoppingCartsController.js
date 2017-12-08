@@ -214,10 +214,9 @@ app.controller('ModalAllShoppingCartsController', function ($scope, $rootScope, 
 
                         $scope.displayShoppingCarts(shoppingCarts);
 
-                    }, function () {
+                    },function () {
                         $scope.loading = false;
                     });
-
                 }
                 else {
                     $scope.filterAmount = undefined;

@@ -1,6 +1,6 @@
-﻿app.controller('ModalOneProductInCategoryController', function ($scope, $rootScope, $uibModalInstance,categoryService,productService,pictureService,shoppingCartModel, offerOneProductInCategory) {
+﻿app.controller('ModalOneProductInCategoryController', function ($scope, $rootScope, $uibModalInstance, categoryService, productService, pictureService, shoppingCartModel, offerOneProductInCategory) {
     $scope.offerOneProductInCategory = offerOneProductInCategory;
-    
+
     $scope.init = function () {
         //obtains categoryIds
         var categoryIds = categoryService.getCategoryIdsFromOfferParam(offerOneProductInCategory.OfferParam);
@@ -37,25 +37,31 @@
 
             }, function (err) {
                 $uibModalInstance.dismiss(err);
-            });;
+            });
 
-            
-            
         } else {
             $uibModalInstance.dismiss('cancel');
         }
-    }
+    };
 
     $scope.addToCart = function (product, forceinbasket, offer) {
-        shoppingCartModel.addToCart(product, true, $scope.offerOneProductInCategory);
-        $uibModalInstance.close('ok');
-    }
+        if(!product.DisableBuyButton){
+            // Si le produit en question est une formule
+            if(product.ProductAttributes.length > 0){
+                shoppingCartModel.addToCart(product, false, $scope.offerOneProductInCategory, undefined, true);
+            } else {
+                shoppingCartModel.addToCart(product, true, $scope.offerOneProductInCategory);
+            }
+
+            $uibModalInstance.close('ok');
+        }
+    };
 
     $scope.ok = function () {
         $uibModalInstance.close('ok');
-    }
+    };
 
     $scope.cancel = function () {
         $uibModalInstance.dismiss('cancel');
-    }
+    };
 });

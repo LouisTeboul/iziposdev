@@ -7,7 +7,7 @@
         setTimeout(function () {
             var txtBarcode = document.getElementById("txtBarcode");
             if (txtBarcode) {
-            	txtBarcode.focus();
+                txtBarcode.focus();
             }
 
         }, 250);
@@ -15,12 +15,12 @@
     };
 
     $scope.ok = function () {
-    	$rootScope.closeKeyboard();
+        $rootScope.closeKeyboard();
         $uibModalInstance.close($scope.barcode);
     };
 
     $scope.cancel = function () {
-    	$rootScope.closeKeyboard();
+        $rootScope.closeKeyboard();
 
         $uibModalInstance.dismiss('cancel');
     }

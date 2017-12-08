@@ -6,16 +6,16 @@ app.controller('ModalSplitItemController', function ($scope, $rootScope, $uibMod
 
     $scope.result = 0;
 
-    $scope.init = function(){
+    $scope.init = function () {
         $scope.setFocus();
     };
 
 
-    $scope.setFocus = function(){
+    $scope.setFocus = function () {
         console.log("focus");
 
-        setTimeout(function(){
-            if(document.querySelector('#splitAmount')){
+        setTimeout(function () {
+            if (document.querySelector('#splitAmount')) {
                 document.querySelector('#splitAmount').focus();
                 $rootScope.openKeyboard('decimal', "end-start");
             }
@@ -28,10 +28,10 @@ app.controller('ModalSplitItemController', function ($scope, $rootScope, $uibMod
         $uibModalInstance.dismiss('cancel');
     };
 
-    $scope.ok = function(){
+    $scope.ok = function () {
         $rootScope.closeKeyboard();
-        if($scope.result > 0) {
-            if($scope.result > $scope.itemPrice){
+        if ($scope.result > 0) {
+            if ($scope.result > $scope.itemPrice) {
                 $scope.errorMessage = "Le prix renseigné est supérieur au prix de l'article"
             } else {
                 $uibModalInstance.close($scope.result);

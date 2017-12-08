@@ -1,5 +1,4 @@
-﻿
-app.controller('ModalClosePosController', function ($scope, $rootScope, $uibModal, $uibModalInstance, settingService, eventService, cashMovementService, zposService, $translate, posPeriodService, closePosParameters, modalStats, posUserService, posService, $http) {
+﻿app.controller('ModalClosePosController', function ($scope, $rootScope, $uibModal, $uibModalInstance, settingService, shoppingCartService, eventService, cashMovementService, zposService, $translate, posPeriodService, closePosParameters, modalStats, posUserService, posService, $http) {
     $scope.closePosParameters = closePosParameters;
     $scope.paymentType = PaymentType;
 
@@ -13,7 +12,6 @@ app.controller('ModalClosePosController', function ($scope, $rootScope, $uibModa
             closingEnable: posUserService.isEnable('CLOS', true),
             showCloseButton: true
         };
-
 
 
         settingService.getPaymentModesAsync().then(function (paymentSetting) {
@@ -38,7 +36,7 @@ app.controller('ModalClosePosController', function ($scope, $rootScope, $uibModa
                     Text: p.Text,
                     Total: 0,
                     IsBalance: p.IsBalance ? true : false,
-                    cashDiscrepancyYs : 0
+                    cashDiscrepancyYs: 0
                 };
 
                 var lineClosePos = {
@@ -52,8 +50,8 @@ app.controller('ModalClosePosController', function ($scope, $rootScope, $uibModa
             var lineBalance = {
                 PaymentMode: {
                     PaymentType: PaymentType.FIDELITE,
-                    Value : "Ma Cagnotte",
-                    Text : "Ma Cagnotte",
+                    Value: "Ma Cagnotte",
+                    Text: "Ma Cagnotte",
                     Total: 0,
                     IsBalance: true,
                     cashDiscrepancyYs: 0
@@ -69,11 +67,11 @@ app.controller('ModalClosePosController', function ($scope, $rootScope, $uibModa
                 case 1:
                     //Fermeture de service
                     //Il n'y a toujours qu'un seul HID
-                    posService.getPosNameAsync($scope.closePosParameters.hid).then(function(alias){
+                    posService.getPosNameAsync($scope.closePosParameters.hid).then(function (alias) {
                         var newHidModel = {
                             hid: $scope.closePosParameters.hid,
                             ypid: $scope.closePosParameters.yperiod.id,
-                            alias : alias,
+                            alias: alias,
                             CashMovementLines: []
                         };
 
@@ -92,19 +90,19 @@ app.controller('ModalClosePosController', function ($scope, $rootScope, $uibModa
                                         return x.PaymentMode.Value == l.PaymentMode.Value && x.PaymentMode.PaymentType == l.PaymentMode.PaymentType;
                                     });
 
-                                if (lineClose) {
-                                    // Pré-renseigner le nombre attendu
-                                    lineClose.Count = l.Count;
-                                    // Pré-renseigné du montant attendu
-                                    lineClose.PaymentMode.Total = l.PaymentMode.Total;
-                                    lineClose.TotalKnown = l.PaymentMode.Total;
-                                }
-                                else {
-                                    l.TotalKnown = l.PaymentMode.Total;
-                                    newHidModel.CashMovementLines.push(l);
-                                }
-                            });
-                        }
+                                    if (lineClose) {
+                                        // Pré-renseigner le nombre attendu
+                                        lineClose.Count = l.Count;
+                                        // Pré-renseigné du montant attendu
+                                        lineClose.PaymentMode.Total = l.PaymentMode.Total;
+                                        lineClose.TotalKnown = l.PaymentMode.Total;
+                                    }
+                                    else {
+                                        l.TotalKnown = l.PaymentMode.Total;
+                                        newHidModel.CashMovementLines.push(l);
+                                    }
+                                });
+                            }
                         });
                     });
                     break;
@@ -112,10 +110,10 @@ app.controller('ModalClosePosController', function ($scope, $rootScope, $uibModa
 
                 case 2:
                     //Fermeture de la caisse
-                    posService.getPosNameAsync($scope.closePosParameters.hid).then(function(alias){
+                    posService.getPosNameAsync($scope.closePosParameters.hid).then(function (alias) {
                         var newHidModel = {
                             hid: $scope.closePosParameters.hid,
-                            alias : alias,
+                            alias: alias,
                             CashMovementLines: []
                         };
 
@@ -129,12 +127,14 @@ app.controller('ModalClosePosController', function ($scope, $rootScope, $uibModa
 
                             if (!yPeriod) {
                                 $scope.model.showCloseButton = false;
-                                sweetAlert({ title: $translate.instant("Toutes les services de cette caisse sont fermés") }, function () { });
+                                sweetAlert({title: $translate.instant("Toutes les services de cette caisse sont fermés")}, function () {
+                                });
                             }
 
                         }, function () {
                             $scope.model.showCloseButton = false;
-                            sweetAlert({ title: $translate.instant("Toutes les services de cette caisse sont fermés") }, function () { });
+                            sweetAlert({title: $translate.instant("Toutes les services de cette caisse sont fermés")}, function () {
+                            });
                         });
 
                         posPeriodService.getZPaymentValuesByHidAsync($scope.closePosParameters.zperiod.id, $scope.closePosParameters.hid).then(function (paymentValues) {
@@ -144,19 +144,19 @@ app.controller('ModalClosePosController', function ($scope, $rootScope, $uibModa
                                         return x.PaymentMode.Value == l.PaymentMode.Value && x.PaymentMode.PaymentType == l.PaymentMode.PaymentType;
                                     });
 
-                                if (lineClose) {
-                                    // Pré-renseigner le nombre attendu
-                                    lineClose.Count = l.Count;
-                                    // Pré-renseigné du montant attendu
-                                    lineClose.PaymentMode.Total = l.PaymentMode.Total;
-                                    lineClose.TotalKnown = l.PaymentMode.Total;
-                                }
-                                else {
-                                    l.TotalKnown = l.PaymentMode.Total;
-                                    newHidModel.CashMovementLines.push(l);
-                                }
-                            });
-                        }
+                                    if (lineClose) {
+                                        // Pré-renseigner le nombre attendu
+                                        lineClose.Count = l.Count;
+                                        // Pré-renseigné du montant attendu
+                                        lineClose.PaymentMode.Total = l.PaymentMode.Total;
+                                        lineClose.TotalKnown = l.PaymentMode.Total;
+                                    }
+                                    else {
+                                        l.TotalKnown = l.PaymentMode.Total;
+                                        newHidModel.CashMovementLines.push(l);
+                                    }
+                                });
+                            }
                         });
                     });
                     break;
@@ -165,7 +165,7 @@ app.controller('ModalClosePosController', function ($scope, $rootScope, $uibModa
                     // Foreach pour tout les hId de closePosParameters
                     Enumerable.from($scope.closePosParameters.hidList).forEach(function (cashmachine) {
 
-                        posService.getPosNameAsync(cashmachine.hid).then(function(alias) {
+                        posService.getPosNameAsync(cashmachine.hid).then(function (alias) {
                             var newHidModel = {
                                 hid: cashmachine.hid,
                                 alias: alias,
@@ -178,44 +178,44 @@ app.controller('ModalClosePosController', function ($scope, $rootScope, $uibModa
                                 newHidModel.CashMovementLines.push(clone(line));
                             });
 
-                            posPeriodService.getZPaymentValuesByHidAsync($scope.closePosParameters.zperiod.id,cashmachine.hid).then(function (paymentValues) {
+                            posPeriodService.getZPaymentValuesByHidAsync($scope.closePosParameters.zperiod.id, cashmachine.hid).then(function (paymentValues) {
                                 if (paymentValues) {
                                     Enumerable.from(paymentValues.PaymentLines).forEach(function (l) {
                                         var lineClose = Enumerable.from(newHidModel.CashMovementLines).firstOrDefault(function (x) {
                                             return x.PaymentMode.Value == l.PaymentMode.Value && x.PaymentMode.PaymentType == l.PaymentMode.PaymentType;
                                         });
 
-                                    if (lineClose) {
-                                        // Pré-renseigner le nombre attendu
-                                        lineClose.Count = l.Count;
-                                        // Pré-renseigner du montant attendu
-                                        lineClose.PaymentMode.Total = l.PaymentMode.Total;
-                                        lineClose.TotalKnown = l.PaymentMode.Total;
-                                    }
-                                    else {
-                                        l.TotalKnown = l.PaymentMode.Total;
-                                        newHidModel.CashMovementLines.push(l);
-                                    }
-                                    var lineCloseRecap = Enumerable.from($scope.model.zRecap).firstOrDefault(function (x) {
-                                        return x.PaymentMode.Value == l.PaymentMode.Value && x.PaymentMode.PaymentType == l.PaymentMode.PaymentType;
-                                    });
-                                    if (lineCloseRecap) {
-                                        // Pré-renseigner le nombre attendu
-                                        lineCloseRecap.Count += l.Count;
-                                        if (lineCloseRecap.PaymentMode.Total) {
-                                            lineCloseRecap.PaymentMode.Total += l.PaymentMode.Total;
+                                        if (lineClose) {
+                                            // Pré-renseigner le nombre attendu
+                                            lineClose.Count = l.Count;
+                                            // Pré-renseigner du montant attendu
+                                            // lineClose.PaymentMode.Total = l.PaymentMode.Total;
+                                            lineClose.TotalKnown = l.PaymentMode.Total;
                                         }
                                         else {
-                                            lineCloseRecap.PaymentMode.Total = l.PaymentMode.Total;
+                                            l.TotalKnown = l.PaymentMode.Total;
+                                            newHidModel.CashMovementLines.push(l);
                                         }
-                                        if (lineCloseRecap.TotalKnown) {
-                                            lineCloseRecap.TotalKnown += l.PaymentMode.Total;
+                                        var lineCloseRecap = Enumerable.from($scope.model.zRecap).firstOrDefault(function (x) {
+                                            return x.PaymentMode.Value == l.PaymentMode.Value && x.PaymentMode.PaymentType == l.PaymentMode.PaymentType;
+                                        });
+                                        if (lineCloseRecap) {
+                                            // Pré-renseigner le nombre attendu
+                                            lineCloseRecap.Count += l.Count;
+                                            if (lineCloseRecap.PaymentMode.Total) {
+                                                lineCloseRecap.PaymentMode.Total += l.PaymentMode.Total;
+                                            }
+                                            else {
+                                                lineCloseRecap.PaymentMode.Total = l.PaymentMode.Total;
+                                            }
+                                            if (lineCloseRecap.TotalKnown) {
+                                                lineCloseRecap.TotalKnown += l.PaymentMode.Total;
+                                            }
+                                            else {
+                                                lineCloseRecap.TotalKnown = l.PaymentMode.Total;
+                                            }
                                         }
-                                        else {
-                                            lineCloseRecap.TotalKnown = l.PaymentMode.Total;
-                                        }
-                                    }
-                                    
+
                                     });
                                     // Renseigner ce que le ou les utilisateurs on déjà renseigné lors de la fermeture du(des) services 
                                     posPeriodService.getYCountLinesByHidAsync($scope.closePosParameters.zperiod.id, cashmachine.hid).then(function (yPeriodCash) {
@@ -232,11 +232,14 @@ app.controller('ModalClosePosController', function ($scope, $rootScope, $uibModa
                                                 });
 
                                                 if (lineClose) {
+                                                    // Pré-renseigner du montant saisi précédement (somme des services)
+                                                    lineClose.PaymentMode.Total = l.PaymentMode.Total;
+
                                                     // Renseigner du montant saisi précédement (somme des services)
                                                     lineClose.PaymentMode.TotalYs = l.PaymentMode.Total;
                                                     lineClose.PaymentMode.cashDiscrepancyYs = l.PaymentMode.Total - l.TotalKnown;
                                                 }
-                                                
+
                                                 var lineCloseRecap = Enumerable.from($scope.model.zRecap).firstOrDefault(function (x) {
                                                     return x.PaymentMode.Value == l.PaymentMode.Value && x.PaymentMode.PaymentType == l.PaymentMode.PaymentType;
                                                 });
@@ -264,9 +267,9 @@ app.controller('ModalClosePosController', function ($scope, $rootScope, $uibModa
                                             });
                                         }
                                     });
-                            }
+                                }
+                            });
                         });
-                    });
                     });
                     break;
             }
@@ -292,7 +295,8 @@ app.controller('ModalClosePosController', function ($scope, $rootScope, $uibModa
         modalInstance.result.then(function (total) {
             paymentValue.PaymentMode.Total = total;
 
-        }, function () { });
+        }, function () {
+        });
     };
 
 
@@ -301,7 +305,7 @@ app.controller('ModalClosePosController', function ($scope, $rootScope, $uibModa
      * Enable user to modify said tickets
      * @param hid
      */
-    $scope.correctTickets = function(hid) {
+    $scope.correctTickets = function (hid) {
         var modalInstance = $uibModal.open({
             templateUrl: 'modals/modalCashRegisterShoppingCarts.html',
             controller: 'ModalCashRegisterShoppingCartsController',
@@ -311,13 +315,13 @@ app.controller('ModalClosePosController', function ($scope, $rootScope, $uibModa
                 hid: function () {
                     return hid;
                 },
-                zpid: function() {
+                zpid: function () {
                     return $scope.closePosParameters.zperiod.id;
                 },
-                ypid: function() {
-                    if($scope.closePosParameters.yperiod){
+                ypid: function () {
+                    if ($scope.closePosParameters.yperiod) {
                         return $scope.closePosParameters.yperiod.id;
-                    } else{
+                    } else {
                         return {};
                     }
                 }
@@ -365,18 +369,19 @@ app.controller('ModalClosePosController', function ($scope, $rootScope, $uibModa
                     $scope.init();
                 }
             }, function () {
-                sweetAlert({ title: $translate.instant("Veuillez renseigner le fond de caisse") }, function () { });
+                sweetAlert({title: $translate.instant("Veuillez renseigner le fond de caisse")}, function () {
+                });
             });
         }
     };
 
     $scope.openDrawer = function () {
         /**
-		 * TODO: Log this event
+         * TODO: Log this event
          */
         if (posUserService.isEnable('ODRAW')) {
             var configApiUrl = "http://" + $rootScope.IziBoxConfiguration.LocalIpIziBox + ":" + $rootScope.IziBoxConfiguration.RestPort + "/open/" + $rootScope.PrinterConfiguration.POSPrinter;
-            $http.get(configApiUrl, { timeout: 10000 });
+            $http.get(configApiUrl, {timeout: 10000});
         }
     };
 
@@ -438,16 +443,16 @@ app.controller('ModalClosePosController', function ($scope, $rootScope, $uibModa
                     $scope.init()
                 }
                 else {
-                    closeCashMachine();
+                    checkForFreeze();
                 }
-                
+
             }, function () {
             });
         }
         else {
 
-            closeCashMachine();
-            
+            checkForFreeze();
+
         }
     };
 
@@ -482,10 +487,31 @@ app.controller('ModalClosePosController', function ($scope, $rootScope, $uibModa
             $rootScope.closeKeyboard();
             $rootScope.closeKeyboard();
         }, 500);
-    }
+    };
 
-    var closeCashMachine = function () {
-        swal({ title: $translate.instant($scope.closePosParameters.mode.text), text: "", type: "warning", showCancelButton: true, confirmButtonColor: "#d83448", confirmButtonText: $translate.instant("Oui"), cancelButtonText: $translate.instant("Non"), closeOnConfirm: true },
+    var checkForFreeze = function(){
+        var nbFreeze = undefined;
+        shoppingCartService.getFreezedShoppingCartsAsync().then(function(r){
+            console.log(r);
+            closeCashMachine(r.length)
+        }, function(err){
+            console.log(err);
+            closeCashMachine(undefined)
+        });
+    };
+
+    var closeCashMachine = function (nbFreeze) {
+        var textFreeze = nbFreeze && nbFreeze >0 ? "Vous avez " + nbFreeze + " ticket en attente" : "";
+        swal({
+                title: $translate.instant($scope.closePosParameters.mode.text),
+                text: textFreeze,
+                type: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#d83448",
+                confirmButtonText: $translate.instant("Oui"),
+                cancelButtonText: $translate.instant("Non"),
+                closeOnConfirm: true
+            },
             function () {
 
                 switch ($scope.closePosParameters.mode.idMode) {
@@ -565,6 +591,7 @@ app.controller('ModalClosePosController', function ($scope, $rootScope, $uibModa
                     $rootScope.closeKeyboard();
                     $rootScope.closeKeyboard();
                 }, 500);
-            }, function () { });
+            }, function () {
+            });
     }
 });

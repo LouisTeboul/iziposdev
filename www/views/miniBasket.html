@@ -126,11 +126,13 @@
                             </a>
                             <div layout="column" layout-align="center end" style="height:100%">
                                 <span>{{currentShoppingCart.Total | CurrencyFormat}}</span>
-                                <div layout="row" layout-align="end center" ng-if="currentShoppingCart && currentShoppingCart.Repaid > 0">
+                                <div layout="row" layout-align="end center"
+                                     ng-if="currentShoppingCart && currentShoppingCart.Repaid > 0">
                                     <span class="repaidtitle">Rendu</span>
-                                    <span  class="repaid">{{currentShoppingCart.Repaid | CurrencyFormat}}</span>
+                                    <span class="repaid">{{currentShoppingCart.Repaid | CurrencyFormat}}</span>
                                 </div>
-                                <div layout="row" layout-align="end center" ng-if="!currentShoppingCart && viewmodel.lastShoppingCart && viewmodel.lastShoppingCart.Repaid > 0">
+                                <div layout="row" layout-align="end center"
+                                     ng-if="!currentShoppingCart && viewmodel.lastShoppingCart && viewmodel.lastShoppingCart.Repaid > 0">
                                     <span class="repaidtitle">Dernier rendu</span>
                                     <span class="repaid">{{viewmodel.lastShoppingCart.Repaid | CurrencyFormat}}</span>
                                 </div>
@@ -194,7 +196,8 @@
                                     <span>{{paymentModeRow.Total | CurrencyFormat}}</span>
                                 </div>
                                 <div>
-                                    <a class="btn" ng-click="$event.stopPropagation(); removePayment(paymentModeRow);" ng-if="!currentShoppingCart.isPayed">
+                                    <a class="btn" ng-click="$event.stopPropagation(); removePayment(paymentModeRow);"
+                                       ng-if="!currentShoppingCart.isPayed">
                                         <span class="glyphicon glyphicon-trash"></span>
                                     </a>
                                 </div>
@@ -217,7 +220,8 @@
 
                                         <md-button aria-label="removeDiscount"
                                                    class="itemAction md-fab md-mini"
-                                                   ng-click="removeShoppingCartDiscount(item)" ng-if="!currentShoppingCart.isPayed">
+                                                   ng-click="removeShoppingCartDiscount(item)"
+                                                   ng-if="!currentShoppingCart.isPayed">
                                             <span class="glyphicon glyphicon-trash"></span>
                                         </md-button>
 
@@ -267,8 +271,11 @@
                                                 <strong ng-style="item.Quantity == 0 && {'text-decoration':'line-through'}">{{item.Product.Name}}</strong>
 
                                                 <div style="margin-left:10px" layout="row" ng-if="item.Quantity > 0">
-                                                    <strong ng-show="item.Quantity > 1 && !item.isPartSplitItem">x {{item.Quantity}}</strong>
-                                                    <strong ng-show="item.isPartSplitItem">x {{(item.Product.Price + item.splittedAmount)/item.Product.Price | RoundedValue}}</strong>
+                                                    <strong ng-show="item.Quantity > 1 && !item.isPartSplitItem">x
+                                                        {{item.Quantity}}</strong>
+                                                    <strong ng-show="item.isPartSplitItem">x {{(item.Product.Price +
+                                                        item.splittedAmount)/item.Product.Price |
+                                                        RoundedValue}}</strong>
                                                     <span>( </span>
                                                     <span ng-if="item.IsFree"> {{0 | CurrencyFormat}}</span>
                                                     <span ng-if="!item.IsFree">
@@ -326,17 +333,18 @@
                                                     <!-- offer -->
                                                     <md-button aria-label="offer"
                                                                ng-disabled="item.IsFree"
-                                                               ng-if =" (item.DiscountIT == 0 || item.DiscountET == 0)"
+                                                               ng-if=" (item.DiscountIT == 0 || item.DiscountET == 0)"
                                                                class="itemAction md-fab md-mini"
                                                                ng-click="$event.stopPropagation();chooseOffer(item);">
                                                         <span class="glyphicon glyphicon-gift"></span>
                                                     </md-button>
 
                                                     <md-button aria-label="removeOffer"
-                                                               ng-if =" item.DiscountIT > 0 || item.DiscountET > 0"
+                                                               ng-if=" item.DiscountIT > 0 || item.DiscountET > 0"
                                                                class="itemAction md-fab md-mini"
                                                                ng-click="$event.stopPropagation();removeOffer(item);">
-                                                        <img src="../www/img/remove-offer.png" height="15px" width="18px">
+                                                        <img src="../www/img/remove-offer.png" height="15px"
+                                                             width="18px">
                                                     </md-button>
 
                                                 </div>
@@ -472,7 +480,8 @@
             <a class="shoppingCartAction btn btn-info" ng-click="printProdShoppingCart()" flex>
                 <span style="white-space:normal"><img style="width:35px" alt="Image" src="img/printProd.png"></span>
             </a>
-            <a class="shoppingCartAction btn btn-danger" ng-click="cancelShoppingCart()" flex ng-if="!currentShoppingCart.isPayed">
+            <a class="shoppingCartAction btn btn-danger" ng-click="cancelShoppingCart()" flex
+               ng-if="!currentShoppingCart.isPayed">
                 <span style="white-space:normal"><img class="btn-action-image" alt="Image" src="img/trash.png"></span>
             </a>
         </div>

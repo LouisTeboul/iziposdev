@@ -18,7 +18,7 @@
     </div>
 
     <md-content class="attributes" id="attributes" layout-padding>        
-        <div id="{{attribute.Name}}" ng-repeat="attribute in product.ProductAttributes track by $index">
+        <div id="a{{attribute.Id}}" ng-repeat="attribute in product.ProductAttributes track by $index">
             <div class="attributesPanel" layout="column">
                 <div class="attributesPanelInfos" layout="row">
                     <span class="title">{{attribute.Name}}</span>
@@ -28,7 +28,9 @@
 
                 <div layout="row" layout-wrap>
                     <div ng-repeat="v in attribute.ProductAttributeValues track by $index">
-                        <md-button aria-label="attributeBox" layout-fill class="attributeBox" ng-class="v.DisableBuyButton ? 'disable' : (v.Selected == 1 ? 'active' : '')" ng-click="v.DisableBuyButton ? null : selectAttributeValue(v.ProductAttributeId,v.Id)">
+                        <md-button aria-label="attributeBox" layout-fill class="attributeBox"
+                                   ng-class="v.DisableBuyButton ? 'disable' : (v.Selected == 1 ? 'active' : '')"
+                                   ng-click="v.DisableBuyButton ? null : selectAttributeValue(v.ProductAttributeId,v.Id,null, $event)">
                             <div layout="column" layout-fill>
                                 <div class="attributeInfo-text">
                                     <div ng-if="v.LinkedProduct" data-ng-bind-html="v.LinkedProduct.Name"></div>

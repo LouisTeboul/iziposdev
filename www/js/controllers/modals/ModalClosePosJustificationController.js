@@ -1,11 +1,10 @@
-﻿
-app.controller('ModalClosePosJustificationController', function ($scope, $rootScope, $uibModal, $uibModalInstance, settingService, eventService, cashMovementService, zposService, $translate, posPeriodService, justificationParameters, posUserService, posService) {
+﻿app.controller('ModalClosePosJustificationController', function ($scope, $rootScope, $uibModal, $uibModalInstance, settingService, eventService, cashMovementService, zposService, $translate, posPeriodService, justificationParameters, posUserService, posService) {
     $scope.justificationParameters = justificationParameters;
 
 
     $scope.init = function () {
 
-        
+
     };
 
     /**
@@ -13,7 +12,7 @@ app.controller('ModalClosePosJustificationController', function ($scope, $rootSc
      * Enable user to modify said tickets
      * @param hid
      */
-    $scope.correctTickets = function(hid) {
+    $scope.correctTickets = function (hid) {
         var modalInstance = $uibModal.open({
             templateUrl: 'modals/modalCashRegisterShoppingCarts.html',
             controller: 'ModalCashRegisterShoppingCartsController',
@@ -23,13 +22,13 @@ app.controller('ModalClosePosJustificationController', function ($scope, $rootSc
                 hid: function () {
                     return hid;
                 },
-                zpid: function() {
+                zpid: function () {
                     return $scope.justificationParameters.closePosParameters.zperiod.id;
                 },
-                ypid: function() {
-                    if ($scope.justificationParameters.closePosParameters.yperiod){
+                ypid: function () {
+                    if ($scope.justificationParameters.closePosParameters.yperiod) {
                         return $scope.justificationParameters.closePosParameters.yperiod.id;
-                    } else{
+                    } else {
                         return {};
                     }
                 }
@@ -89,7 +88,8 @@ app.controller('ModalClosePosJustificationController', function ($scope, $rootSc
                     $uibModalInstance.close(param);
                 }
             }, function () {
-                sweetAlert({ title: $translate.instant("Veuillez renseigner le fond de caisse") }, function () { });
+                sweetAlert({title: $translate.instant("Veuillez renseigner le fond de caisse")}, function () {
+                });
             });
         }
     };

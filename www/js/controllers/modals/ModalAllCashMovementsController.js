@@ -1,8 +1,8 @@
 app.controller('ModalAllCashMovementsController', function ($scope, $rootScope, $uibModal, $uibModalInstance, cashMovementService, posLogService, posPeriodService, posUserService, posService) {
     $scope.model = {
-        allCashMovements : [],
-        allCashMovementsTypes : undefined,
-        allPosUsers : undefined,
+        allCashMovements: [],
+        allCashMovementsTypes: undefined,
+        allPosUsers: undefined,
         closingEnable: posUserService.isEnable('CLOS', true)
     };
 
@@ -14,18 +14,18 @@ app.controller('ModalAllCashMovementsController', function ($scope, $rootScope, 
             $scope.model.allCashMovementsTypes = cm;
         });
 
-        posUserService.getPosUsersAsync().then(function (pu){
+        posUserService.getPosUsersAsync().then(function (pu) {
             $scope.model.allPosUsers = pu;
         });
         // get Y
         // Si c'est le gérant on recup toutes les YPeriod du Z
-        if($scope.model.closingEnable){
+        if ($scope.model.closingEnable) {
             console.log('all');
-            posPeriodService.getAllYPeriodAsync('*').then(function(yperiods){
+            posPeriodService.getAllYPeriodAsync('*').then(function (yperiods) {
                 console.log(yperiods);
-                Enumerable.from(yperiods).forEach(function(yp){
+                Enumerable.from(yperiods).forEach(function (yp) {
                     posPeriodService.getYPaymentValuesAsync(yp.id).then(function (p) {
-                        posService.getPosNameAsync(p.hardwareId).then(function(alias){
+                        posService.getPosNameAsync(p.hardwareId).then(function (alias) {
                             console.log(p);
                             p.CashMovements[0].alias = alias ? alias : p.hardwareId;
                             $scope.model.allCashMovements.push(p.CashMovements);
@@ -50,16 +50,16 @@ app.controller('ModalAllCashMovementsController', function ($scope, $rootScope, 
     };
 
     // Match l'id du mouvement avec son nom
-    $scope.getMovementName = function(movementType){
-        var matchMvt = Enumerable.from($scope.model.allCashMovementsTypes).firstOrDefault(function(cmt){
+    $scope.getMovementName = function (movementType) {
+        var matchMvt = Enumerable.from($scope.model.allCashMovementsTypes).firstOrDefault(function (cmt) {
             return cmt.Id == movementType
         });
         return matchMvt.Name;
     };
 
     // Match l'id de l'utilisateur avec son nom
-    $scope.getPosUserName = function(userId){
-        var matchPu = Enumerable.from($scope.model.allPosUsers).firstOrDefault(function(pu){
+    $scope.getPosUserName = function (userId) {
+        var matchPu = Enumerable.from($scope.model.allPosUsers).firstOrDefault(function (pu) {
             return pu.Id == userId;
         });
         return matchPu.Name;

@@ -122,7 +122,6 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
 
         // Used to transfer item from a ticket to another when splitting ticket
         this.splitItemTo = function (shoppingCartTo, shoppingCartFrom, cartItem, amount) {
-            //console.log(shoppingCartTo,shoppingCartFrom);
             var itemExist = undefined;
 
             //Ticket from an online order doesn't have empty product attributes
@@ -161,6 +160,7 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
                     //On l'ajoute au ticket de destination
                     shoppingCartTo.Items.push(item);
 				});
+
 				 */
 
                 item.splittedAmount += amount - item.Product.Price;
@@ -396,6 +396,8 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
                 currentShoppingCart.CurrentStep = 0;
                 currentShoppingCart.StoreId = $rootScope.IziBoxConfiguration.StoreId;
                 currentShoppingCart.CompanyInformation = settingService.getCompanyInfo();
+                currentShoppingCart.addCreditToBalance = false;
+                currentShoppingCart.isDiscountConsumed = false;
 
                 $rootScope.$emit("shoppingCartChanged", currentShoppingCart);
 
@@ -442,6 +444,8 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
             currentShoppingCartIn.CurrentStep = 0;
             currentShoppingCartIn.StoreId = $rootScope.IziBoxConfiguration.StoreId;
             currentShoppingCartIn.CompanyInformation = settingService.getCompanyInfo();
+            currentShoppingCartIn.addCreditToBalance = false;
+            currentShoppingCartIn.isDiscountConsumed = false;
 
             Enumerable.from(currentShoppingCartIn.Discounts).forEach(function (item) {
                 item.Total = 0;
@@ -504,6 +508,8 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
                 currentShoppingCartOut.CurrentStep = 0;
                 currentShoppingCartOut.StoreId = $rootScope.IziBoxConfiguration.StoreId;
                 currentShoppingCartOut.CompanyInformation = settingService.getCompanyInfo();
+                currentShoppingCartOut.addCreditToBalance = false;
+                currentShoppingCartOut.isDiscountConsumed = false;
 
                 var hdid = $rootScope.modelPos.hardwareId;
 
@@ -616,7 +622,7 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
 
         //Add a product to the cart
         //TODO : refactor
-        this.addToCart = function (product, forceinbasket, offer, isfree, isdiscounted) {
+        this.addToCart = function (product, forceinbasket, offer, isfree, formuleOfferte = false) {
             // The product is payed
             if (this.getCurrentShoppingCart() && this.getCurrentShoppingCart().isPayed) {
                 return;
@@ -640,6 +646,7 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
                 // POUR LES BURGERS / MENU
                 if (!forceinbasket && product.ProductTemplate.ViewPath != 'ProductTemplate.Simple') {
                     $rootScope.currentConfigurableProduct = product;
+                    $rootScope.isConfigurableProductOffer = formuleOfferte;
                     $state.go('catalog.' + product.ProductTemplate.ViewPath, { id: product.Id });
 
                 }
@@ -777,6 +784,56 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
             }
         };
 
+        function periodValidation(ignorePrintTicket){
+
+            // On recupere les periodes courantes et on les affecte au ticket
+            // Si besoin est, on demande a l'utilisateur de renseigner le fond de caisse
+            // Pour la nouvelle periode
+            posPeriodService.getYPeriodAsync(currentShoppingCart.HardwareId, currentShoppingCart.PosUserId, true, false).then(function(yp){
+
+                currentShoppingCart.yPeriodId = yp.id;
+                currentShoppingCart.zPeriodId = yp.zPeriodId;
+                var currentDate = new Date();
+                currentShoppingCart.Date = currentDate.toString('dd/MM/yyyy H:mm:ss');
+                if (!currentShoppingCart.DateProd) {
+                    currentShoppingCart.DateProd = currentShoppingCart.Date;
+                }
+                var toSave = clone(currentShoppingCart);
+
+
+                //TODO : Add the posuser to create a ticket from an online order
+                // Suppressing line with zero for quantity
+                toSave.Items = Enumerable.from(currentShoppingCart.Items).where("item => item.Quantity > 0").toArray();
+
+                lastShoppingCart = toSave;
+
+                //shoppingCartService.updatePaymentShoppingCartAsync(toSave).then(function (result) {
+                $rootScope.hideLoading();
+
+                // Once the ticket saved we delete the splitting ticket
+                currentShoppingCartIn = undefined;
+
+                if (currentShoppingCartOut) {
+                    currentShoppingCart = clone(currentShoppingCartOut);
+                    deliveryType = currentShoppingCart.DeliveryType;
+                    currentShoppingCartOut = undefined;
+                    $rootScope.$emit("shoppingCartChanged", currentShoppingCart);
+
+                }
+                else {
+                    current.clearShoppingCart();
+                }
+
+                // Print Ticket
+                current.printPOSShoppingCart(toSave, ignorePrintTicket);
+
+            }, function(){
+                //Dans le cas ou le fetch / creation yPeriod echoue, on supprime le panier
+                $rootScope.hideLoading();
+                current.clearShoppingCart();
+            });
+        };
+
 		/**
 		*@ngdoc method
 		*@name validShoppingCart
@@ -789,63 +846,51 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
         this.validShoppingCart = function (ignorePrintTicket) {
             if (currentShoppingCart != undefined && currentShoppingCart.Items.length > 0) {
                 $rootScope.showLoading();
-                //On verifie si les periode du ticket qu'on veut valider sont ouverte
-                // Si ce n'est pas le cas, on en ouvre une nouvelle
+                console.log(currentShoppingCart);
 
                 if (!currentShoppingCart.Residue == 0) {																	//The ticket must be paid
                     $rootScope.hideLoading();
                     sweetAlert($translate.instant("Le ticket n'est pas soldé"));
                     return;
                 }
-                //console.log(currentShoppingCart);
-                // On recupere les periodes courantes et on les affecte au ticket
-                // Si besoin est, on demande a l'utilisateur de renseigner le fond de caisse
-                // Pour a nouvelle periode
-                posPeriodService.getYPeriodAsync(currentShoppingCart.HardwareId, currentShoppingCart.PosUserId, true, false).then(function(yp){
 
-                    currentShoppingCart.yPeriodId = yp.id;
-                    currentShoppingCart.zPeriodId = yp.zPeriodId;
-                    var currentDate = new Date();
-                    currentShoppingCart.Date = currentDate.toString('dd/MM/yyyy H:mm:ss');
-                    if (!currentShoppingCart.DateProd) {
-                        currentShoppingCart.DateProd = currentShoppingCart.Date;
-                    }
-                    var toSave = clone(currentShoppingCart);
+                // Si le ticket est associé à un client
+                if(currentShoppingCart.customerLoyalty){
+                    //Si le client possède au moins une balance UseToPay
+                    var hasBalanceUseToPay = Enumerable.from(currentShoppingCart.customerLoyalty.Balances).firstOrDefault(function(balance){
+                        return balance.UseToPay == true;
+                    });
 
+                    if (hasBalanceUseToPay && currentShoppingCart.Credit > 0) {
 
-                    //TODO : Add the posuser to create a ticket from an online order
-                    // Suppressing line with zero for quantity
-                    toSave.Items = Enumerable.from(currentShoppingCart.Items).where("item => item.Quantity > 0").toArray();
+                        currentShoppingCart.utpId = hasBalanceUseToPay.Id;
 
-                    lastShoppingCart = toSave;
+                        // Propose à l'utilisateur de crediter son compte fidélité
+                        swal({
+                                title: "Cagnotter l'avoir sur le compte fidélité ?",
+                                text: currentShoppingCart.Credit + "€ d'avoir",
+                                type: "warning",
+                                showCancelButton: true,
+                                confirmButtonColor: '#DD6B55',
+                                confirmButtonText: 'Oui',
+                                cancelButtonText: "Non",
+                                closeOnConfirm: true,
+                                closeOnCancel: true
+                            },
+                            function (isConfirm) {
+                                if (isConfirm) {
+                                    currentShoppingCart.addCreditToBalance = true;
+                                }
+                                periodValidation(ignorePrintTicket);
+                            });
 
-                    //shoppingCartService.updatePaymentShoppingCartAsync(toSave).then(function (result) {
-                    $rootScope.hideLoading();
-
-                    // Once the ticket saved we delete the splitting ticket
-                    currentShoppingCartIn = undefined;
-
-                    if (currentShoppingCartOut) {
-                        currentShoppingCart = clone(currentShoppingCartOut);
-                        deliveryType = currentShoppingCart.DeliveryType;
-                        currentShoppingCartOut = undefined;
-                        $rootScope.$emit("shoppingCartChanged", currentShoppingCart);
-
-                    }
-                    else {
-                        current.clearShoppingCart();
+                    } else {
+                        periodValidation(ignorePrintTicket);
                     }
 
-                    // Print Ticket
-                    current.printPOSShoppingCart(toSave, ignorePrintTicket);
-
-                }, function(){
-                    //Dans le cas ou le fetch / creation yPeriod echoue, on supprime le panier
-                    $rootScope.hideLoading();
-                    current.clearShoppingCart();
-                });
-
-
+                } else {
+                    periodValidation(ignorePrintTicket);
+                }
             }
 
         };
@@ -1546,7 +1591,12 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
                     //Apply offer price
                     product.Price = offerPrice > product.Price ? product.Price : offerPrice;
 
-                    current.addToCart(product, true, offer);
+                    if(product.ProductAttributes.length > 0) {
+                        current.addToCart(product, false, offer);
+                    } else {
+                        current.addToCart(product, true, offer);
+                    }
+
                 });
             });
         };
@@ -1596,6 +1646,7 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
 
         //#region Discount
         this.addShoppingCartDiscount = function (value, percent) {
+            console.log("Add discount cart");
             this.createShoppingCart();
 
             if (currentShoppingCart.Discounts.length > 0) {
@@ -1610,6 +1661,7 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
                 currentShoppingCart.Discounts.push(cartDiscount);
 
                 setTimeout(function () {
+
                     current.calculateTotal();
                     current.calculateLoyalty();
                     $rootScope.$emit("shoppingCartDiscountAdded", cartDiscount);
@@ -1877,6 +1929,7 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
 
         // TODO : Make only one function
         this.calculateTotalFor = function (shoppingCart) {
+            console.log("calc for");
             taxesService.calculateTotalFor(shoppingCart);
         };
 

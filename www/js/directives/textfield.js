@@ -274,7 +274,6 @@ app.controller('TextFieldCtrl', function ($rootScope, $scope, textFieldService) 
         var isQrModal=$("#txtQRCode").hasClass("modalQrOpen");
         var isModal = $("body").hasClass("modal-open");
         if ($scope.isFocused || ($scope.nativekeyboard && isVisible()&&(!isModal || isQrModal))) {
-            console.log($scope.initialized, $scope.txtValue, $scope.txtValue.toString().length > 0);
             if (!$scope.initialized && $scope.txtValue && $scope.txtValue.toString().length > 0) {
                 $scope.txtValue = data;
 

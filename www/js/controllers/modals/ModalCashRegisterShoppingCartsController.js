@@ -2,17 +2,24 @@ app.controller('ModalCashRegisterShoppingCartsController', function ($scope, $ro
     var currentFilterAmount = undefined;
 
 
-
     $scope.init = function () {
         $scope.gridColumns = [
-            { field: "alias", title: "Caisse" },
-            { field: "PosUserName", title: "Opérateur" },
-            { field: "Date", title: "Date", type: "date", format: "{0:dd/MM/yyyy HH:mm:ss}" },
-            { field: "Timestamp", title: "No Ticket", width: 150 },
-            { field: "TableNumber", title: "Table", width: 80 },
-            { field: "Total", title: "Total", width: 80 },
-            { template: "<button class=\"btn btn-default\" ng-click=\"editShopCartItem(dataItem)\"><span class='glyphicon glyphicon-pencil'></span></button>", title: " ", width: 80 },
-            { template: "<button class=\"btn btn-info\" ng-click=\"printNote(dataItem)\"><img style=\"width:20px;\" alt=\"Image\" src=\"img/receipt.png\"></button><button class=\"btn btn-rose\" style=\"margin-left:5px\" ng-click=\"selectShopCartItem(dataItem)\"><img style=\"width:20px;\" alt=\"Image\" src=\"img/print.png\"></button>", title: " ", width: 133 }
+            {field: "alias", title: "Caisse"},
+            {field: "PosUserName", title: "Opérateur"},
+            {field: "Date", title: "Date", type: "date", format: "{0:dd/MM/yyyy HH:mm:ss}"},
+            {field: "Timestamp", title: "No Ticket", width: 150},
+            {field: "TableNumber", title: "Table", width: 80},
+            {field: "Total", title: "Total", width: 80},
+            {
+                template: "<button class=\"btn btn-default\" ng-click=\"editShopCartItem(dataItem)\"><span class='glyphicon glyphicon-pencil'></span></button>",
+                title: " ",
+                width: 80
+            },
+            {
+                template: "<button class=\"btn btn-info\" ng-click=\"printNote(dataItem)\"><img style=\"width:20px;\" alt=\"Image\" src=\"img/receipt.png\"></button><button class=\"btn btn-rose\" style=\"margin-left:5px\" ng-click=\"selectShopCartItem(dataItem)\"><img style=\"width:20px;\" alt=\"Image\" src=\"img/print.png\"></button>",
+                title: " ",
+                width: 133
+            }
         ];
 
         //Par default, undefined affiche toute les caisses
@@ -31,7 +38,7 @@ app.controller('ModalCashRegisterShoppingCartsController', function ($scope, $ro
 
     };
 
-    $scope.displayShoppingCarts = function(shoppingCarts) {
+    $scope.displayShoppingCarts = function (shoppingCarts) {
 
         $scope.gridDatas = new kendo.data.DataSource({
             schema: {
@@ -78,20 +85,20 @@ app.controller('ModalCashRegisterShoppingCartsController', function ($scope, $ro
      */
     $scope.loadValues = function (zpid, hid, ypid, filterAmount) {
         $scope.loading = true;
-        if(!ypid) ypid = {};
+        if (!ypid) ypid = {};
 
         // Get shopping cart by Hid ZPid
-        zposService.getShoppingCartsByPeriodAsync(zpid, hid, ypid).then(function(shoppingCarts){
-            if(isNaN(filterAmount) || filterAmount == 0){
+        zposService.getShoppingCartsByPeriodAsync(zpid, hid, ypid).then(function (shoppingCarts) {
+            if (isNaN(filterAmount) || filterAmount == 0) {
                 $scope.displayShoppingCarts(shoppingCarts);
             } else {
                 var tmpSp = [];
-                Enumerable.from(shoppingCarts).forEach(function(sp, index){
-                    if(sp.Total == filterAmount){
+                Enumerable.from(shoppingCarts).forEach(function (sp, index) {
+                    if (sp.Total == filterAmount) {
                         tmpSp.push(sp);
                     }
 
-                    if(index == shoppingCarts.length -1){
+                    if (index == shoppingCarts.length - 1) {
                         $scope.displayShoppingCarts(tmpSp);
                     }
                 })
@@ -139,14 +146,16 @@ app.controller('ModalCashRegisterShoppingCartsController', function ($scope, $ro
             backdrop: 'static'
         });
 
-        modalInstance.result.then(function () {}, function () {});
+        modalInstance.result.then(function () {
+        }, function () {
+        });
     };
 
     $scope.select = function (shoppingCart) {
         $uibModalInstance.close(shoppingCart);
     };
 
-    $scope.ok = function(){
+    $scope.ok = function () {
         $uibModalInstance.close();
     };
 
