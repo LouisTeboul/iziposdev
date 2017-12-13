@@ -94,11 +94,11 @@
                                         // Pré-renseigner le nombre attendu
                                         lineClose.Count = l.Count;
                                         // Pré-renseigné du montant attendu
-                                        lineClose.PaymentMode.Total = l.PaymentMode.Total;
-                                        lineClose.TotalKnown = l.PaymentMode.Total;
+                                        lineClose.PaymentMode.Total = roundValue(l.PaymentMode.Total);
+                                        lineClose.TotalKnown = roundValue(l.PaymentMode.Total);
                                     }
                                     else {
-                                        l.TotalKnown = l.PaymentMode.Total;
+                                        l.TotalKnown = roundValue(l.PaymentMode.Total);
                                         newHidModel.CashMovementLines.push(l);
                                     }
                                 });
@@ -148,11 +148,11 @@
                                         // Pré-renseigner le nombre attendu
                                         lineClose.Count = l.Count;
                                         // Pré-renseigné du montant attendu
-                                        lineClose.PaymentMode.Total = l.PaymentMode.Total;
-                                        lineClose.TotalKnown = l.PaymentMode.Total;
+                                        lineClose.PaymentMode.Total = roundValue(l.PaymentMode.Total);
+                                        lineClose.TotalKnown = roundValue(l.PaymentMode.Total);
                                     }
                                     else {
-                                        l.TotalKnown = l.PaymentMode.Total;
+                                        l.TotalKnown = roundValue(l.PaymentMode.Total);
                                         newHidModel.CashMovementLines.push(l);
                                     }
                                 });
@@ -190,10 +190,10 @@
                                             lineClose.Count = l.Count;
                                             // Pré-renseigner du montant attendu
                                             // lineClose.PaymentMode.Total = l.PaymentMode.Total;
-                                            lineClose.TotalKnown = l.PaymentMode.Total;
+                                            lineClose.TotalKnown = roundValue(l.PaymentMode.Total);
                                         }
                                         else {
-                                            l.TotalKnown = l.PaymentMode.Total;
+                                            l.TotalKnown = roundValue(l.PaymentMode.Total);
                                             newHidModel.CashMovementLines.push(l);
                                         }
                                         var lineCloseRecap = Enumerable.from($scope.model.zRecap).firstOrDefault(function (x) {
@@ -203,16 +203,16 @@
                                             // Pré-renseigner le nombre attendu
                                             lineCloseRecap.Count += l.Count;
                                             if (lineCloseRecap.PaymentMode.Total) {
-                                                lineCloseRecap.PaymentMode.Total += l.PaymentMode.Total;
+                                                lineCloseRecap.PaymentMode.Total += roundValue(l.PaymentMode.Total);
                                             }
                                             else {
-                                                lineCloseRecap.PaymentMode.Total = l.PaymentMode.Total;
+                                                lineCloseRecap.PaymentMode.Total = roundValue(l.PaymentMode.Total);
                                             }
                                             if (lineCloseRecap.TotalKnown) {
-                                                lineCloseRecap.TotalKnown += l.PaymentMode.Total;
+                                                lineCloseRecap.TotalKnown += roundValue(l.PaymentMode.Total);
                                             }
                                             else {
-                                                lineCloseRecap.TotalKnown = l.PaymentMode.Total;
+                                                lineCloseRecap.TotalKnown = roundValue(l.PaymentMode.Total);
                                             }
                                         }
 
@@ -233,11 +233,11 @@
 
                                                 if (lineClose) {
                                                     // Pré-renseigner du montant saisi précédement (somme des services)
-                                                    lineClose.PaymentMode.Total = l.PaymentMode.Total;
+                                                    lineClose.PaymentMode.Total = roundValue(l.PaymentMode.Total);
 
                                                     // Renseigner du montant saisi précédement (somme des services)
-                                                    lineClose.PaymentMode.TotalYs = l.PaymentMode.Total;
-                                                    lineClose.PaymentMode.cashDiscrepancyYs = l.PaymentMode.Total - l.TotalKnown;
+                                                    lineClose.PaymentMode.TotalYs = roundValue(l.PaymentMode.Total);
+                                                    lineClose.PaymentMode.cashDiscrepancyYs = roundValue(l.PaymentMode.Total - l.TotalKnown);
                                                 }
 
                                                 var lineCloseRecap = Enumerable.from($scope.model.zRecap).firstOrDefault(function (x) {
@@ -247,21 +247,21 @@
                                                 if (lineCloseRecap) {
                                                     // Renseigner du montant saisi précédement (somme des services)
                                                     if (lineCloseRecap.PaymentMode.TotalYs) {
-                                                        lineCloseRecap.PaymentMode.TotalYs += l.PaymentMode.Total;
+                                                        lineCloseRecap.PaymentMode.TotalYs += roundValue(l.PaymentMode.Total);
                                                     }
                                                     else {
-                                                        lineCloseRecap.PaymentMode.TotalYs = l.PaymentMode.Total;
+                                                        lineCloseRecap.PaymentMode.TotalYs = roundValue(l.PaymentMode.Total);
                                                     }
                                                     if (lineCloseRecap.PaymentMode.cashDiscrepancyYs) {
-                                                        lineCloseRecap.PaymentMode.cashDiscrepancyYs += l.PaymentMode.Total - l.TotalKnown;
+                                                        lineCloseRecap.PaymentMode.cashDiscrepancyYs += roundValue(l.PaymentMode.Total - l.TotalKnown);
                                                     }
                                                     else {
-                                                        lineCloseRecap.PaymentMode.cashDiscrepancyYs = l.PaymentMode.Total - l.TotalKnown;
+                                                        lineCloseRecap.PaymentMode.cashDiscrepancyYs = roundValue(l.PaymentMode.Total - l.TotalKnown);
                                                     }
                                                 }
                                                 else {
-                                                    l.PaymentMode.TotalYs = l.PaymentMode.Total;
-                                                    l.PaymentMode.cashDiscrepancyYs = l.PaymentMode.Total - l.TotalKnown;
+                                                    l.PaymentMode.TotalYs = roundValue(l.PaymentMode.Total);
+                                                    l.PaymentMode.cashDiscrepancyYs = roundValue(l.PaymentMode.Total - l.TotalKnown);
                                                     $scope.model.zRecap.push(l);
                                                 }
                                             });
@@ -492,10 +492,8 @@
     var checkForFreeze = function(){
         var nbFreeze = undefined;
         shoppingCartService.getFreezedShoppingCartsAsync().then(function(r){
-            console.log(r);
             closeCashMachine(r.length)
         }, function(err){
-            console.log(err);
             closeCashMachine(undefined)
         });
     };

@@ -212,6 +212,32 @@
         }
     };
 
+    $scope.openPhoneOrder = function(){
+        $scope.closeDrawerMenu();
+
+        //Active le mode commande telephonique
+        //Ce mode du mini basket permet la création de ticket speciaux pour les commandes telephoniques
+        // Il n'est pas possible de "valider" la commande
+        // On doit lui attribuer une heure de retrait relative à l'heure actuelle
+        // On peut la regler
+        // Une fois le ticket realiser, on le met dans le freeze
+
+        var modalInstance = $uibModal.open({
+            templateUrl: 'modals/modalCustomerForPhone.html',
+            controller: 'ModalCustomerForPhoneController',
+            size: 'lg',
+            backdrop: 'static'
+        });
+
+        modalInstance.result.then(function () {
+            console.log("On a add un client");
+            $rootScope.PhoneOrderMode = true;
+        }, function () {
+            console.log("On a annulé");
+            $rootScope.PhoneOrderMode = false;
+        });
+    };
+
     $scope.logout = function () {
         $scope.closeDrawerMenu();
         posUserService.saveEventAsync("Logout", 1, 0);

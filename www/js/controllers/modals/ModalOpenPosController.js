@@ -7,7 +7,8 @@ app.controller('ModalOpenPosController', function ($scope, $rootScope, $uibModal
             motif: null,
             total: 0,
             totalKnown: 0,
-            message: null
+            message: null,
+            validateDisabled : false
         };
 
         cashMovementService.getMovementTypesAsync($scope.openPosParameters).then(function (motifs) {
@@ -133,6 +134,7 @@ app.controller('ModalOpenPosController', function ($scope, $rootScope, $uibModal
     $scope.ok = function () {
         if (!$scope.openPosParameters.editMode) {
             if ($scope.model.motif && $scope.model.motif != null) {
+                $scope.model.validateDisabled = true;
                 $scope.openPosValues.MovementType_Id = $scope.model.motif.Id;
 
                 if ($scope.openPosParameters.previousYPeriod && !$scope.openPosParameters.previousYPeriod.emptyCash) {
@@ -205,12 +207,14 @@ app.controller('ModalOpenPosController', function ($scope, $rootScope, $uibModal
         if ($scope.model.motif.IsCashFunds) {
 
             posPeriodService.replacePaymentValuesAsync($scope.openPosParameters.yPeriodId, $scope.openPosParameters.zPeriodId, $rootScope.PosLog.HardwareId, updPaymentModes, cashMovement).then(function (paymentMode) {
+                $scope.model.validateDisabled = false;
                 $uibModalInstance.close();
             });
         }
         else {
 
             posPeriodService.updatePaymentValuesAsync($scope.openPosParameters.yPeriodId, $scope.openPosParameters.zPeriodId, $rootScope.PosLog.HardwareId, updPaymentModes, undefined, cashMovement).then(function (paymentMode) {
+                $scope.model.validateDisabled = false;
                 $uibModalInstance.close();
             });
 

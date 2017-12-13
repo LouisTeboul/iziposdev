@@ -302,7 +302,7 @@ app.service('taxesService', ['$rootScope', '$q','settingService',
                     // Calculate excluding tax price
                     if (!cacheIsPricesIncludedTax) {
 
-                        priceET = price - discountET;
+                        priceET = price - discountET / quantity;
                         priceIT = ETtoIT(priceET, taxRate);
 
                     }
@@ -310,7 +310,7 @@ app.service('taxesService', ['$rootScope', '$q','settingService',
                     // Calculate price including tax
                     else {
 
-                        priceIT = price - discountIT;
+                        priceIT = price - discountIT / quantity;
                         priceET = ITtoET(priceIT, taxRate);
 
                     }

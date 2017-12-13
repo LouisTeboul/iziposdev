@@ -93,12 +93,15 @@ app.controller('BarcodeTextFieldController', function ($scope, $rootScope, $uibM
                     result = true;
                 } else /* Fid */ if ($rootScope.IziBoxConfiguration.UseFID) {
                     // Si on detecte une carte de fidelité, on verifie si le client a un ticket en attente
-                    //Si oui, on le defreeze
-                    shoppingCartModel.unfreezeShoppingCartByBarcode(barcode);
+                    // Si oui, on le defreeze
+                    if(shoppingCartModel.getCurrentShoppingCart == undefined){
+                        shoppingCartModel.unfreezeShoppingCartByBarcode(barcode);
+                    } else {
+                        shoppingCartModel.getLoyalty(barcode);
+                        result = true;
+                        $rootScope.closeKeyboard();
+                    }
 
-                    shoppingCartModel.getLoyalty(barcode);
-                    result = true;
-                    $rootScope.closeKeyboard();
                 } else {
                     sweetAlert("Le code à barres n'a pas été reconnu...");
                     $rootScope.closeKeyboard();

@@ -1,0 +1,43 @@
+<section ng-init="init()">
+    <div class="modal-header">
+        <h1 class="modal-title" translate>Choisissez une heure de retrait / Livraison</h1>
+    </div>
+
+    <div class="form-panel modal-body">
+
+        <div class="row center">
+            <div class="btn-group" dropdown is-open="status.isopenHeure">
+                <button id="heure-button" type="button" style="width:120px" class="btn btn-default" dropdown-toggle
+                        ng-disabled="disabled">
+                    {{ model.heure >= 0 ? model.heure : "Heure"  }}
+                    <span style="margin-top:8px;float:right" class="caret"></span>
+                </button>
+                <ul class="dropdown-menu" style="width:120px" role="menu" aria-labelledby="heure-button">
+                    <li ng-repeat="h in [0,1,2,3]" role="menuitem" class="item"><a
+                            ng-click="selectHeure(h)">{{h}}</a></li>
+                </ul>
+            </div>
+
+            H
+
+            <div class="btn-group" dropdown is-open="status.isopenMinute">
+                <button id="minute-button" type="button" style="width:120px" class="btn btn-default" dropdown-toggle
+                        ng-disabled="disabled">
+                    {{ model.minute >= 0 ? model.minute : "Minute" }}
+                    <span style="margin-top:8px;float:right" class="caret"></span>
+                </button>
+                <ul class="dropdown-menu" style="width:120px" role="menu" aria-labelledby="minute-button">
+                    <li ng-repeat="m in multipleOfFive()" role="menuitem" class="item"><a
+                            ng-click="selectMinute(m)"> {{m}}</a></li>
+                </ul>
+            </div>
+            MIN
+        </div>
+    </div>
+
+    <div class="modal-footer">
+        <button class="btn btn-green" ng-click="ok()">OK</button>
+        <button class="btn btn-rose" ng-click="close()" translate>Annuler</button>
+    </div>
+
+</section>

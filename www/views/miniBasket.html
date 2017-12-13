@@ -340,7 +340,7 @@
                                                     </md-button>
 
                                                     <md-button aria-label="removeOffer"
-                                                               ng-if=" item.DiscountIT > 0 || item.DiscountET > 0"
+                                                               ng-if=" (item.DiscountIT > 0 || item.DiscountET > 0) && currentShoppingCart.Discounts.length == 0 "
                                                                class="itemAction md-fab md-mini"
                                                                ng-click="$event.stopPropagation();removeOffer(item);">
                                                         <img src="../www/img/remove-offer.png" height="15px"
@@ -424,6 +424,46 @@
 
     <div id="buttonbar" class="buttonbar" layout="column" layout-align="end stretch">
 
+        <div ng-if="PhoneOrderMode == true && accordionStatus.ticketOpen"
+             id="phoneTicketActionBar" class="shoppingCartActionsBar" layout="row">
+
+
+            <a class="shoppingCartAction btn btn-success"
+               ng-click="pickTime()"
+               flex>
+                <i style="font-size: 30px" class="glyphicon glyphicon-time"></i>
+                +{{minutesToDisplay(TimeOffset)}}
+            </a>
+
+
+
+
+
+            <!--
+            <a class="shoppingCartAction btn btn-success"
+               ng-click="changeShoppingCartTime(5)"
+               flex>
+                <span style="white-space:normal"><img class="btn-action-image" alt="Image" src="img/valid.png"></span>
+                +5
+            </a>
+
+            <a class="shoppingCartAction btn btn-success"
+               ng-click="changeShoppingCartTime(10)"
+               flex>
+                <span style="white-space:normal"><img class="btn-action-image" alt="Image" src="img/valid.png"></span>
+                +10
+            </a>
+
+            <a class="shoppingCartAction btn btn-success"
+               ng-click="changeShoppingCartTime(-5)"
+               flex>
+                <span style="white-space:normal"><img class="btn-action-image" alt="Image" src="img/valid.png"></span>
+                -5
+            </a>
+
+            -->
+        </div>
+
         <div ng-if="IziBoxConfiguration.CanFreezeShoppingCart && accordionStatus.ticketOpen"
              class="shoppingCartActionsBar" layout="row">
             <a class="shoppingCartAction btn btn-info btnFreeze" style="padding:0" ng-click="unfreezeShoppingCart()"
@@ -465,6 +505,8 @@
             <a ng-if="PrinterConfiguration.POSPrinterCount == 0 || IziBoxConfiguration.ConfirmPrint || !IziBoxConfiguration.LocalIpIziBox"
                class="shoppingCartAction btn btn-success"
                ng-click="$rootScope.IziBoxConfiguration.ForceDeliveryChoice ? openModalDelivery(true) : validShoppingCart(true) "
+               ng-class="{ 'disabled' : PhoneOrderMode }"
+               ng-disabled =" PhoneOrderMode == true"
                flex>
                 <span style="white-space:normal"><img class="btn-action-image" alt="Image" src="img/valid.png"></span>
             </a>
@@ -472,6 +514,8 @@
             <a ng-if="PrinterConfiguration.POSPrinterCount > 0 && IziBoxConfiguration.LocalIpIziBox"
                class="shoppingCartAction btn btn-success"
                ng-click="$rootScope.IziBoxConfiguration.ForceDeliveryChoice ? openModalDelivery() : validShoppingCart() "
+               ng-class="{ 'disabled' : PhoneOrderMode }"
+               ng-disabled =" PhoneOrderMode == true"
                flex>
                 <span style="white-space:normal"><img style="width:25px;margin-right:2px;" alt="Image"
                                                       src="img/valid.png"><img style="width:28px;margin-left:2px;"

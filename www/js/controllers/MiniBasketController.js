@@ -18,6 +18,7 @@ app.controller('MiniBasketController', ['$scope', '$rootScope', '$state', '$uibM
 		*/
 		$scope.init = function () {
             $scope.viewmodel = {};
+            $scope.TimeOffset = 15;
 
 			updateCurrentShoppingCart();
 
@@ -328,6 +329,71 @@ app.controller('MiniBasketController', ['$scope', '$rootScope', '$state', '$uibM
 		};
 		//#endregion
 
+		//#region Phone Order Action
+
+		$scope.changeShoppingCartTime = function(time){
+			// Impossible de descendre en dessous de 15min
+			/** TODO : rendre le min parametrable */
+			if($scope.TimeOffset + time < 15) {
+                $scope.TimeOffset = 15;
+			} else {
+                $scope.TimeOffset += time;
+			}
+
+		};
+
+		$scope.pickTime = function(){
+            var modalInstance = $uibModal.open({
+                templateUrl: 'modals/modalPhoneOrderTime.html',
+                controller: 'ModalPhoneOrderTimeController',
+                resolve: {
+                    currentTotalDivider: function () {
+                        return $scope.totalDivider;
+                    }
+                },
+                backdrop: 'static'
+            });
+
+            modalInstance.result.then(function (model) {
+            	console.log(model);
+                console.log("On a finit");
+                if(60 * model.heure + model.minute >= 15){
+                    $scope.TimeOffset = 60 * model.heure + model.minute;
+				} else {
+                    $scope.TimeOffset = 15;
+				}
+            }, function () {
+            	console.log("On a cancel");
+            });
+
+        };
+
+
+        $scope.setShoppingCartTime = function(){
+            $scope.currentShoppingCart.DatePickup = new Date().addMinutes($scope.TimeOffset).toString("HH:mm:ss");
+        };
+
+        $scope.minutesToDisplay = function(minutes){
+            var minutesDisp = 0;
+            var heuresDisp = 0;
+            var retour = "";
+            if(minutes >= 60){
+                heuresDisp =  Math.trunc(minutes / 60);
+                minutesDisp = minutes % 60;
+                retour = heuresDisp + "h" + minutesDisp +"min";
+
+            } else {
+                minutesDisp = minutes;
+                retour = minutesDisp +"min";
+            }
+
+            return retour;
+
+        };
+
+        //#endregion
+
+
 		//#region Payments
 		$scope.removePayment = function (selectedPaymentMode) {
 
@@ -402,6 +468,13 @@ app.controller('MiniBasketController', ['$scope', '$rootScope', '$state', '$uibM
 		};
 
 		$scope.freezeShoppingCart = function () {
+            if($rootScope.PhoneOrderMode){
+            	if($scope.currentShoppingCart.Residue == 0){
+                    $scope.currentShoppingCart.isPayed = true;
+				}
+                $scope.setShoppingCartTime();
+                $rootScope.PhoneOrderMode = false;
+            }
 			shoppingCartModel.freezeShoppingCart();
 		};
 

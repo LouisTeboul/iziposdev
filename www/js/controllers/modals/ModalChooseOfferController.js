@@ -47,7 +47,7 @@ app.controller('ModalChooseOfferController', function ($scope, $rootScope, $uibM
         var focus = setTimeout(function () {
             if (document.querySelector('#txtAmount')) {
                 document.querySelector('#txtAmount').focus();
-                $rootScope.openKeyboard('numeric', "end-start");
+                $rootScope.openKeyboard('decimal', "end-start");
             }
         }, 100);
     };

@@ -998,6 +998,8 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
 		 * Cancel the shopping cart - The event should be logged
 		 */
         this.cancelShoppingCartAndSend = function () {
+            // Retabli le mode de fonctionnement normal
+            $rootScope.PhoneOrderMode = false;
             if (currentShoppingCart != undefined) {
                 console.log(currentShoppingCart);
 
@@ -1141,13 +1143,14 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
         this.unfreezeShoppingCartById = function (id) {
             if (currentShoppingCart == undefined) {
                 shoppingCartService.getFreezedShoppingCartByIdAsync(id).then(function (shoppingCart) {
-                    shoppingCartService.unfreezeShoppingCartAsync(shoppingCart);
-                    currentShoppingCart = shoppingCart;
-                    deliveryType = currentShoppingCart.DeliveryType;
-                    current.calculateTotal();
-                    current.calculateLoyalty();
+                    shoppingCartService.unfreezeShoppingCartAsync(shoppingCart).then(function(){
+                        currentShoppingCart = shoppingCart;
+                        deliveryType = currentShoppingCart.DeliveryType;
+                        current.calculateTotal();
+                        current.calculateLoyalty();
 
-                    $rootScope.$emit("shoppingCartChanged", currentShoppingCart);
+                        $rootScope.$emit("shoppingCartChanged", currentShoppingCart);
+                    });
                 }, function () {
                     sweetAlert($translate.instant("Ticket introuvable") + "...");
                 });

@@ -30,6 +30,7 @@ app.controller('ConfigurationController', function ($scope, $rootScope, $locatio
 
 	$scope.init = function () {
         $scope.Model = {};
+        $rootScope.PhoneOrderMode = false;
 
         $rootScope.modelPos.posNumber = window.localStorage.getItem("PosNumber");
         if (!$rootScope.modelPos.posNumber) $rootScope.modelPos.posNumber = 1;

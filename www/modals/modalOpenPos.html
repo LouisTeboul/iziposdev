@@ -65,7 +65,7 @@
     <div class="modal-footer">
         <button class="btn btn-info" ng-click="openDrawer()" translate>Ouvrir le tiroir</button>
         <button class="btn btn-green" ng-if="!openPosParameters.isOpenPos" ng-click="openRecap()" translate>Mouvements d'espèces</button>
-        <button class="btn btn-green" ng-click="ok()">OK</button>
+        <button class="btn btn-green" ng-click="ok()" ng-disabled="model.validateDisabled">OK</button>
         <button class="btn btn-rose" ng-if="!openPosParameters.forceOpen" ng-click="cancel()" translate>Annuler</button>
     </div>
 

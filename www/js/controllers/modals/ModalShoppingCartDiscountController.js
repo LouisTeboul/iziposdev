@@ -19,7 +19,7 @@
 
         var focus = setTimeout(function () {
             document.querySelector('#txtAmount').focus();
-            $rootScope.openKeyboard('numeric', "end-start");
+            $rootScope.openKeyboard('decimal', "end-start");
         }, 30);
     };
 

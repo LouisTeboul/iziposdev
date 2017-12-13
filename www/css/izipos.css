@@ -178,6 +178,11 @@ input:focus, textarea:focus {
 	background-color:#ccc;
 }
 
+.btn.disabled{
+	background-color:#ccc;
+	border-color: #ccc;
+}
+
 .modal-dialog{
 	margin-top: 5px;
 }
@@ -301,6 +306,17 @@ text-field.flexbox div{
 .checkbox-menu ._md-icon{
 	border-color:white;
 }
+
+.btn-tel {
+	background: #5cb85c;
+	color: #fff;
+	font-size: 14px;
+	/*height: 45px;*/
+	width: 85%;
+	margin-bottom: 5px;
+	margin-top: 5px;
+}
+
 
 .btn-logout {
 	background: red;
