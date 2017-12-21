@@ -9,6 +9,7 @@ app.controller('ModalCustomerForPhoneController', function ($scope, $rootScope, 
     $scope.init = function () {
 
         $rootScope.PhoneOrderMode = true;
+        $scope.validDisabled = false;
         $scope.searchResults = [];
         $scope.barcode = {};
         $scope.firstName;
@@ -87,7 +88,7 @@ app.controller('ModalCustomerForPhoneController', function ($scope, $rootScope, 
                     $scope.$evalAsync();
                     $scope.clientSelected = true;
 
-                    $scope.ok();
+                    $scope.validCustomer();
 
                     setTimeout(function () {
                         $rootScope.hideLoading();
@@ -172,6 +173,7 @@ app.controller('ModalCustomerForPhoneController', function ($scope, $rootScope, 
     };
 
     $scope.validCustomer = function () {
+        $scope.validDisabled = true;
         // No register if no customer is selected
 
         if ($scope.clientSelected == true) {
@@ -181,11 +183,13 @@ app.controller('ModalCustomerForPhoneController', function ($scope, $rootScope, 
 
         //Si pas d'infos saisie pour les mails- aucune opération
         if ($scope.newLoyalty.CustomerEmail == '' || $scope.newLoyalty.CustomerEmail == undefined) {
+            $scope.validDisabled = false;
             $scope.close();
             return;
         }
         else {
             if (!$scope.validEmail($scope.newLoyalty.CustomerEmail)) {
+                $scope.validDisabled = false;
                 ngToast.create({
                     className: 'danger',
                     content: '<b>Le format de l\'email est incorrect</b>',
@@ -198,6 +202,7 @@ app.controller('ModalCustomerForPhoneController', function ($scope, $rootScope, 
         }
 
         if (!$scope.validPhone($scope.newLoyalty.CustomerPhone)) {
+            $scope.validDisabled = false;
             ngToast.create({
                 className: 'danger',
                 content: '<b>Le format du téléphone est incorrect</b>',
@@ -209,6 +214,7 @@ app.controller('ModalCustomerForPhoneController', function ($scope, $rootScope, 
         }
 
         if (!$scope.validZipPostCode($scope.newLoyalty.CustomerZipPostalCode)) {
+            $scope.validDisabled = false;
             ngToast.create({
                 className: 'danger',
                 content: '<b>Le format du code postal est incorrect</b>',
@@ -259,6 +265,7 @@ app.controller('ModalCustomerForPhoneController', function ($scope, $rootScope, 
                 loyaltyService.registerFullCustomerAsync($scope.newLoyalty).then(function (loyalty) {
                     // On ajoute la fidélité au ticket
                     console.log('Succes');
+                    $scope.validDisabled = false;
                     curShoppingCart.customerLoyalty = loyalty;
                     $rootScope.$emit("customerLoyaltyChanged", loyalty);
                     $rootScope.$emit("shoppingCartChanged", curShoppingCart);
@@ -279,6 +286,7 @@ app.controller('ModalCustomerForPhoneController', function ($scope, $rootScope, 
                 //Enregistre le customer complet
 
             } else {
+                $scope.validDisabled = false;
                 ngToast.create({
                     className: 'danger',
                     content: '<b>Veuillez renseigner tout les champs</b>',
@@ -289,6 +297,7 @@ app.controller('ModalCustomerForPhoneController', function ($scope, $rootScope, 
             }
         }
         catch (err) {
+            $scope.validDisabled = false;
             ngToast.create({
                 className: 'danger',
                 content: '<b>Impossible d\'enregistrer le client</b>',

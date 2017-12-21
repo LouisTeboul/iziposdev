@@ -428,7 +428,7 @@ app.service('shoppingCartService', ["$http", "$rootScope", "$q", "$filter", "zpo
 
 			// WARNING: the POS could send a retry and insert 3 times a valid ticket
 			// TODO: Pull the retry from the validation
-			$http.post(printerApiUrl, shoppingCartPrinterReq, { timeout: 50000 }).
+			$http.post(printerApiUrl, shoppingCartPrinterReq, { timeout: 10000 }).
                 success(function (obj) {
                     //Set the coucbDb Id and the timestamp that come from the box
                     if (shoppingCartPrinterReq.ShoppingCart != undefined) {

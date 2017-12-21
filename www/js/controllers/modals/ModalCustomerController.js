@@ -9,6 +9,8 @@ app.controller('ModalCustomerController', function ($scope, $rootScope, $q, $htt
 
     $scope.init = function () {
 
+
+        $scope.validDisabled = false;
         $scope.searchResults = [];
         $scope.barcode = {};
         $scope.firstName;
@@ -28,8 +30,10 @@ app.controller('ModalCustomerController', function ($scope, $rootScope, $q, $htt
             $scope.signInSettings = {
                 City: settings.CityRequired,
                 Company: settings.CompanyRequired,
+                Fax: settings.FaxRequired,
                 Phone: settings.PhoneRequired,
                 StreetAddress: settings.StreetAddressRequired,
+                StreetAddress2: settings.StreetAddressRequired2,
                 ZipPostalCode: settings.ZipPostalCodeRequired
             };
 
@@ -171,6 +175,7 @@ app.controller('ModalCustomerController', function ($scope, $rootScope, $q, $htt
     };
 
     $scope.validCustomer = function () {
+        $scope.validDisabled = true;
         // No register if no customer is selected
 
         if ($scope.clientSelected == true) {
@@ -196,7 +201,7 @@ app.controller('ModalCustomerController', function ($scope, $rootScope, $q, $htt
             }
         }
 
-        if(!$scope.validPhone($scope.newLoyalty.CustomerPhone)){
+        if (!$scope.validPhone($scope.newLoyalty.CustomerPhone)) {
             ngToast.create({
                 className: 'danger',
                 content: '<b>Le format du téléphone est incorrect</b>',
@@ -207,7 +212,7 @@ app.controller('ModalCustomerController', function ($scope, $rootScope, $q, $htt
             return;
         }
 
-        if(!$scope.validZipPostCode($scope.newLoyalty.CustomerZipPostalCode)){
+        if (!$scope.validZipPostCode($scope.newLoyalty.CustomerZipPostalCode)) {
             ngToast.create({
                 className: 'danger',
                 content: '<b>Le format du code postal est incorrect</b>',
@@ -253,50 +258,56 @@ app.controller('ModalCustomerController', function ($scope, $rootScope, $q, $htt
                 }
 
                 if ($scope.registerFull) {
-                    console.log(isFormComplete());
-                    // Si tout les champs requis sont rempli
-                    if (isFormComplete() != false) {
-                        console.log($scope.newLoyalty);
-                        $scope.newLoyalty.AllowCustomerToCreateLoyaltyBarcode = true;
-                        loyaltyService.registerFullCustomerAsync($scope.newLoyalty).then(function (loyalty) {
-                            // On ajoute la fidélité au ticket
-                            console.log('Succes');
-                            curShoppingCart.customerLoyalty = loyalty;
-                            $rootScope.$emit("customerLoyaltyChanged", loyalty);
-                            $rootScope.$emit("shoppingCartChanged", curShoppingCart);
-                            //notification
+                    loyaltyService.getLoyaltyObjectAsync().then(function (l) {
+                        $scope.newLoyalty.AllowCustomerToCreateLoyaltyBarcode = l.AllowCustomerToCreateLoyaltyBarcode;
+                        console.log(l.AllowCustomerToCreateLoyaltyBarcode);
+                        // Si tout les champs requis sont rempli
+                        if (isFormComplete() != false &&
+                            (!l.AllowCustomerToCreateLoyaltyBarcode && $scope.newLoyalty.barcode.barcodeValue != "" || l.AllowCustomerToCreateLoyaltyBarcode)) {
+
+                            console.log($scope.newLoyalty);
+                            loyaltyService.registerFullCustomerAsync($scope.newLoyalty).then(function (loyalty) {
+                                // On ajoute la fidélité au ticket
+                                $scope.validDisabled = false;
+                                console.log('Succes');
+                                curShoppingCart.customerLoyalty = loyalty;
+                                $rootScope.$emit("customerLoyaltyChanged", loyalty);
+                                $rootScope.$emit("shoppingCartChanged", curShoppingCart);
+                                //notification
+                                ngToast.create({
+                                    className: 'info',
+                                    content: 'Le client est enregistré',
+                                    dismissOnTimeout: true,
+                                    timeout: 10000,
+                                    dismissOnClick: true
+                                });
+
+                                $uibModalInstance.close();
+                            }, function (err) {
+                                console.log(err);
+                            });
+                            //Appelle loyalty service
+                            //Enregistre le customer complet
+
+                        } else {
+                            $scope.validDisabled = false;
                             ngToast.create({
-                                className: 'info',
-                                content: 'Le client est enregistré',
+                                className: 'danger',
+                                content: '<b>Veuillez renseigner tout les champs</b>',
                                 dismissOnTimeout: true,
                                 timeout: 10000,
                                 dismissOnClick: true
                             });
 
-                            $uibModalInstance.close();
-                        }, function(err){
-                            console.log(err);
-                        });
-                        //Appelle loyalty service
-                        //Enregistre le customer complet
 
-                    } else {
-                        ngToast.create({
-                            className: 'danger',
-                            content: '<b>Veuillez renseigner tout les champs</b>',
-                            dismissOnTimeout: true,
-                            timeout: 10000,
-                            dismissOnClick: true
-                        });
+                        }
+                    });
 
-
-                    }
                 } else {
 
 
                     // On récupère le loyalty si il existe
-                    // Si le client n'a pas de loyalty, et que le formulaire est en mode enregistrement complet
-                    // On enregistre le client
+                    // Si le client n'a pas de loyalty on l'enregistre en partiel
                     loyaltyService.getLoyaltyObjectAsync($scope.newLoyalty.barcode.barcodeValue).then(function (loyalty) {
 
 
@@ -327,6 +338,7 @@ app.controller('ModalCustomerController', function ($scope, $rootScope, $q, $htt
 
                         //On enregistre le client partiel
                         loyaltyService.registerCustomerAsync(loyalty).then(function (loyalty) {
+                            $scope.validDisabled = false;
                             // On ajoute la fidélité au ticket
                             curShoppingCart.customerLoyalty = loyalty;
                             $rootScope.$emit("customerLoyaltyChanged", loyalty);
@@ -351,6 +363,7 @@ app.controller('ModalCustomerController', function ($scope, $rootScope, $q, $htt
 
             }
             catch (err) {
+                $scope.validDisabled = false;
                 ngToast.create({
                     className: 'danger',
                     content: '<b>Impossible d\'enregistrer le client</b>',
@@ -362,6 +375,7 @@ app.controller('ModalCustomerController', function ($scope, $rootScope, $q, $htt
         }
 
         if ($scope.registerOperation == "getEmail") {
+            $scope.validDisabled = false;
 
             curShoppingCart.customerLoyalty = $scope.newLoyalty;
             $rootScope.$emit("customerLoyaltyChanged", $scope.newLoyalty);

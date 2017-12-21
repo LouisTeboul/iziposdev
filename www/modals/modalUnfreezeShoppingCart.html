@@ -13,7 +13,7 @@
                     <div class="itemRow" layout="column" ng-repeat="shoppingCart in shoppingCarts track by $index"
                          ng-click="select(shoppingCart)"
                          ng-if="!shoppingCart.DatePickup"
-                         ng-style="shoppingCart.Customer != undefined && {'line-height':'30px'} || {'line-height':'60px'}">
+                         ng-style="(shoppingCart.Customer != undefined || shoppingcart.customerLoyalty ) && {'line-height':'30px'} || {'line-height':'50px'}">
                         <div style="margin-left:10px; margin-right:10px" layout="row">
                             <div>
                                 <div style="margin-top:10px;margin-bottom:-10px;">
@@ -28,15 +28,18 @@
                                     {{shoppingCart.TableNumber}}</strong>
                                 <strong flex>
                                     <md-icon md-svg-src="img/icons/shoppingcart.svg"></md-icon>
-                                    {{shoppingCart.Timestamp}}</strong>
+                                    {{shoppingCart.Timestamp}}
+                                </strong>
                                 <strong flex ng-if="shoppingCart.TableCutleries != undefined">
                                     <md-icon md-svg-src="img/icons/cutleries.svg"></md-icon>
                                     {{shoppingCart.TableCutleries}}</strong>
                                 <strong flex
                                         ng-if="shoppingCart.PosUserName != undefined && shoppingCart.PosUserName.length > 0">
                                     <md-icon md-svg-src="img/icons/user.svg"></md-icon>
-                                    {{shoppingCart.PosUserName}}</strong>
+                                    {{shoppingCart.PosUserName}}
+                                </strong>
                             </div>
+
 
                             <strong flex="10">
                                 <md-icon md-svg-src="img/icons/box.svg"></md-icon>
@@ -50,13 +53,19 @@
                             </a>-->
 
                         </div>
-                        <div ng-if="shoppingCart.Customer != undefined" style="margin-left:10px; margin-right:10px"
-                             ng-if="shoppingCart.Customer != undefined">
+                        <div ng-if="shoppingCart.Customer != undefined"
+                             style="margin-left:10px; margin-right:10px">
                             <strong style="width:20%;float:left">
                                 <x translate>Horaire</x>
                                 : {{shoppingCart.ShippingOption}}</strong>
                             <span style="width:30%;float:left">{{shoppingCart.Customer.FirstName+" "+shoppingCart.Customer.LastName}}</span>
                             <span style="width:30%;float:left">{{shoppingCart.Customer.Email}}</span>
+                        </div>
+
+                        <div ng-if="shoppingCart.customerLoyalty != undefined"
+                             style="margin-left:10px; margin-right:10px">
+                            <span style="width:30%;float:left">{{shoppingCart.customerLoyalty.CustomerFirstName+" "+shoppingCart.customerLoyalty.CustomerLastName}}</span>
+                            <span style="width:30%;float:left">{{shoppingCart.customerLoyalty.CustomerEmail}}</span>
                         </div>
                     </div>
                 </div>
@@ -111,7 +120,7 @@
                              ng-if="order.customerLoyalty != undefined && order.Customer == undefined">
                             <strong style="width:40%;float:left">
                                 <x translate>Horaire</x>
-                                : {{order.DatePickup}}</strong>
+                                : {{order.DatePickup.split(" ")[1]}}</strong>
                             <span style="width:30%;float:left">{{order.customerLoyalty.CustomerFirstName+" "+order.customerLoyalty.CustomerLastName}}</span>
                             <span style="width:30%;float:left">{{order.customerLoyalty.CustomerEmail}}</span>
                         </div>
@@ -159,7 +168,7 @@
                              ng-if="order.customerLoyalty != undefined && order.Customer == undefined">
                             <strong style="width:40%;float:left">
                                 <x translate>Horaire</x>
-                                : {{order.DatePickup}}</strong>
+                                : {{order.DatePickup.split(" ")[1]}}</strong>
                             <span style="width:30%;float:left">{{order.customerLoyalty.CustomerFirstName+" "+order.customerLoyalty.CustomerLastName}}</span>
                             <span style="width:30%;float:left">{{order.customerLoyalty.CustomerEmail}}</span>
                         </div>

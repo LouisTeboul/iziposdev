@@ -141,9 +141,9 @@ app.controller('ModalOpenPosController', function ($scope, $rootScope, $uibModal
                     var previousYperiodButClosed = $scope.openPosParameters.previousYPeriod;
                     if (previousYperiodButClosed) {
 
-                        // Cr��er le motif n�gatif isSytem "Fin de service" du montant esp�ce du pr�c�dent yPeriod dans le yPeriod pr�c�dent
+                        // Crééer le motif négatif isSytem "Fin de service" du montant espèce du précédent yPeriod dans le yPeriod précédent
                         posPeriodService.emptyCashYPeriodAsync(previousYperiodButClosed, previousYperiodButClosed.YCountLines).then(function (paymentValues) {
-                            //Appel apr�s la cr�ation de la fermeture du service pr�c�dent pour que la date du motif de l'ouverture du service soit apr�s le motif de fermeture du service pr�c�dent
+                            //Appel aprés la création de la fermeture du service précédent pour que la date du motif de l'ouverture du service soit aprés le motif de fermeture du service pr�c�dent
                             $scope.openPosValues.CashMovementLines[0].PaymentMode.Total = $scope.model.totalKnown;
 
                             openCashMachine();
@@ -228,8 +228,13 @@ app.controller('ModalOpenPosController', function ($scope, $rootScope, $uibModal
                 OperatorCode: $rootScope.PosUserId,
                 Type: "Fonds de caisse",
                 TerminalCode: $rootScope.PosLog.HardwareId,
-                Informations: ["todo", "todo2"]
+                Informations: []
             };
+
+            Enumerable.from(updPaymentModes).forEach(function (pm) {
+                event.Informations.push(pm.Text + ":" + pm.Total);
+            });
+
 
             eventService.sendEvent(event);
         }

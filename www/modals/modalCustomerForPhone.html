@@ -124,7 +124,9 @@
     </div>
 
     <div class="modal-footer">
-        <button class="btn btn-green" ng-click="validCustomer()">OK</button>
+        <button class="btn btn-green"
+                ng-disabled="validDisabled"
+                ng-click="validCustomer()">OK</button>
         <button class="btn btn-rose" ng-click="close()" translate>Annuler</button>
     </div>
 

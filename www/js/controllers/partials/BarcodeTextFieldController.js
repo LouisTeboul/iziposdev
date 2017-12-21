@@ -55,7 +55,7 @@ app.controller('BarcodeTextFieldController', function ($scope, $rootScope, $uibM
             var barcodeLength = barcode.length;
           
             if (barcodeLength > 0) {
-                if /* Freezed shoppingCart */ (barcode.indexOf("TK") == 0) {
+                if /* Freezed shoppingCart */ (barcode.indexOf("TK") == 0){
                     var id = barcode.replace("TK", "");
                     id = parseInt(id);
                     shoppingCartModel.unfreezeShoppingCartById(id);
@@ -92,6 +92,8 @@ app.controller('BarcodeTextFieldController', function ($scope, $rootScope, $uibM
                     shoppingCartModel.addToCartBySku(barcode);
                     result = true;
                 } else /* Fid */ if ($rootScope.IziBoxConfiguration.UseFID) {
+
+
                     // Si on detecte une carte de fidelité, on verifie si le client a un ticket en attente
                     // Si oui, on le defreeze
                     if(shoppingCartModel.getCurrentShoppingCart == undefined){

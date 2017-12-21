@@ -13,7 +13,7 @@
             <md-button aria-label="NavigAttr"  class="md-fab md-mini" ng-click="moveStep(1)"><span class="glyphicon glyphicon-plus"></span></md-button>
         </div>
         <div layout="row" layout-align="center center" ng-show="$mdMedia('gt-sm')">
-            <md-button aria-label="NavigAttr" ng-repeat="attr in product.ProductAttributes track by $index" class="md-raised navigAction" ng-click="scrollTo(attr.Name)">{{attr.Name | Truncate:16}}</md-button>
+            <md-button aria-label="NavigAttr" ng-repeat="attr in product.ProductAttributes track by $index" class="md-raised navigAction" ng-click="scrollTo(attr.Id)">{{attr.Name | Truncate:16}}</md-button>
         </div>
     </div>
 

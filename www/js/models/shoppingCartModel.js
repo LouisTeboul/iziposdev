@@ -592,7 +592,7 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
             } else {
                 this.createShoppingCart();
             }
-        }
+        };
 
         this.previousStep = function () {
             currentShoppingCart.CurrentStep -= 1;
@@ -602,12 +602,12 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
             }
 
             $rootScope.$emit("shoppingCartStepChanged", currentShoppingCart);
-        }
+        };
 
         this.setStep = function (step) {
             currentShoppingCart.CurrentStep = step;
             $rootScope.$emit("shoppingCartStepChanged", currentShoppingCart);
-        }
+        };
 
         this.addToCartBySku = function (sku) {
             var self = this;
@@ -618,7 +618,7 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
                     sweetAlert($translate.instant("Produit introuvable"));
                 }
             });;
-        }
+        };
 
         //Add a product to the cart
         //TODO : refactor
@@ -1401,7 +1401,7 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
             if (barcode) {
 
                 loyaltyService.getLoyaltyObjectAsync(barcode).then(function (loyalty) {
-                    if (loyalty && loyalty.CustomerId != 0) {
+                    if (loyalty && (loyalty.CustomerId && loyalty.CustomerId != 0)) {
                         current.createShoppingCart();
                         current.removeAllLoyalties();
 
@@ -1410,11 +1410,11 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
                         current.calculateLoyalty();
                         $rootScope.$emit("customerLoyaltyChanged", loyalty);
                     } else {
-                        sweetAlert($translate.instant("Carte de fidélité introuvable !"));
+                        swal($translate.instant("Carte de fidélité introuvable !"));
                     }
                 }, function (err) {
                     console.log(err);
-                    sweetAlert($translate.instant("Le serveur de fidélité n'a pas répondu !"));
+                    swal($translate.instant("Le serveur de fidélité n'a pas répondu !"));
                 });
             }
         };
@@ -1804,6 +1804,9 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
             var result = false;
 
             if (currentShoppingCart != undefined) {
+
+                console.log(currentShoppingCart);
+
                 if (!currentShoppingCart.PaymentModes) {
                     currentShoppingCart.PaymentModes = [];
                 }

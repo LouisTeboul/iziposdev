@@ -172,6 +172,16 @@
                                 <span>{{tax.TaxAmount | CurrencyFormat}}</span>
                             </div>
                         </div>
+
+                        <div ng-repeat="shipping in currentShoppingCart.Shipping.TaxDetails" layout="row">
+                            <div flex>
+                                <span>Livraison HT</span>
+                            </div>
+                            <div flex>
+                                <span>{{shipping.PriceET | CurrencyFormat}}</span>
+                            </div>
+                        </div>
+
                         <div class="payments">
                             <div class="totalPayment" ng-if="currentShoppingCart.BalanceUpdate != undefined"
                                  layout="row">
@@ -427,46 +437,19 @@
         <div ng-if="PhoneOrderMode == true && accordionStatus.ticketOpen"
              id="phoneTicketActionBar" class="shoppingCartActionsBar" layout="row">
 
-
             <a class="shoppingCartAction btn btn-success"
                ng-click="pickTime()"
                flex>
                 <i style="font-size: 30px" class="glyphicon glyphicon-time"></i>
                 +{{minutesToDisplay(TimeOffset)}}
             </a>
-
-
-
-
-
-            <!--
-            <a class="shoppingCartAction btn btn-success"
-               ng-click="changeShoppingCartTime(5)"
-               flex>
-                <span style="white-space:normal"><img class="btn-action-image" alt="Image" src="img/valid.png"></span>
-                +5
-            </a>
-
-            <a class="shoppingCartAction btn btn-success"
-               ng-click="changeShoppingCartTime(10)"
-               flex>
-                <span style="white-space:normal"><img class="btn-action-image" alt="Image" src="img/valid.png"></span>
-                +10
-            </a>
-
-            <a class="shoppingCartAction btn btn-success"
-               ng-click="changeShoppingCartTime(-5)"
-               flex>
-                <span style="white-space:normal"><img class="btn-action-image" alt="Image" src="img/valid.png"></span>
-                -5
-            </a>
-
-            -->
         </div>
 
         <div ng-if="IziBoxConfiguration.CanFreezeShoppingCart && accordionStatus.ticketOpen"
              class="shoppingCartActionsBar" layout="row">
-            <a class="shoppingCartAction btn btn-info btnFreeze" style="padding:0" ng-click="unfreezeShoppingCart()"
+            <a class="shoppingCartAction btn btn-info btnFreeze" style="padding:0"
+               ng-class="{'disabled' : currentShoppingCart}"
+               ng-click="unfreezeShoppingCart()"
                flex>
                 <div style="white-space:normal" layout="row" layout-align="center center" layout-fill>
                     <span flex="20"></span>

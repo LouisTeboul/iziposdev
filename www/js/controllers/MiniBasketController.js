@@ -370,7 +370,8 @@ app.controller('MiniBasketController', ['$scope', '$rootScope', '$state', '$uibM
 
 
         $scope.setShoppingCartTime = function(){
-            $scope.currentShoppingCart.DatePickup = new Date().addMinutes($scope.TimeOffset).toString("HH:mm:ss");
+            $scope.currentShoppingCart.DatePickup = new Date().addMinutes($scope.TimeOffset).toString("d/M/yyyy HH:mm:ss");
+            $scope.currentShoppingCart.id = new Date().addMinutes($scope.TimeOffset).getTime();
         };
 
         $scope.minutesToDisplay = function(minutes){
@@ -469,13 +470,21 @@ app.controller('MiniBasketController', ['$scope', '$rootScope', '$state', '$uibM
 
 		$scope.freezeShoppingCart = function () {
             if($rootScope.PhoneOrderMode){
-            	if($scope.currentShoppingCart.Residue == 0){
-                    $scope.currentShoppingCart.isPayed = true;
+            	if($scope.currentShoppingCart.Items.length > 0){
+                    if($scope.currentShoppingCart.Residue == 0){
+                        $scope.currentShoppingCart.isPayed = true;
+                    }
+                    $scope.setShoppingCartTime();
+                    $rootScope.PhoneOrderMode = false;
+                    shoppingCartModel.freezeShoppingCart();
+				} else {
+                    swal("Le ticket doit contenir au moins un produit !");
+            		return;
 				}
-                $scope.setShoppingCartTime();
-                $rootScope.PhoneOrderMode = false;
-            }
-			shoppingCartModel.freezeShoppingCart();
+            } else {
+                shoppingCartModel.freezeShoppingCart();
+			}
+
 		};
 
 		$scope.validShoppingCart = function (ignorePrintTicket) {

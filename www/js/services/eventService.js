@@ -9,20 +9,11 @@ app.service('eventService', ["$http", "$rootScope", "$q",
          */
         this.sendEvent = function(logEvent){
 
-            return;
-
-            var event = {
-                OperatorCode : "",
-                TimeStamp:"",
-                Information:logEvent.Information,
-                Type:logEvent.Type
-            };
-
             var logDefer = $q.defer();
 
             var eventApiUrl = "http://" + $rootScope.IziBoxConfiguration.LocalIpIziBox + ":" + $rootScope.IziBoxConfiguration.RestPort + "/log";
 
-            $http.post(eventApiUrl, event, { timeout: 10000 }).
+            $http.post(eventApiUrl, logEvent, { timeout: 10000 }).
             success(function () {
                 logDefer.resolve(logEvent);
             }).
@@ -30,7 +21,7 @@ app.service('eventService', ["$http", "$rootScope", "$q",
                 logDefer.reject("Logging error");
             });
 
-            return logEvent.promise;
+            return logDefer.promise;
         };
     }
 ]);

@@ -12,7 +12,7 @@
 	<button class="btn btn-menu btn-menu-closable" ng-click="openDrawer()" ng-disabled="!modelPos.iziboxConnected" translate>Ouvrir le tiroir</button>
 	<button class="btn btn-menu btn-menu-closable" ng-if="IziBoxConfiguration.UseCashMovement" ng-disabled="!modelPos.iziboxConnected" ng-click="pickClose()" translate>Fermeture</button>
 	<button class="btn btn-menu btn-menu-closable" ng-if="IziBoxConfiguration.LoginRequired" ng-click="changeUser()" translate>Changer d'utilisateur</button>
-	<button class="btn btn-tel btn-menu-closable" ng-click="openPhoneOrder()" ng-show="false" translate>Commande telephonique</button>
+	<button class="btn btn-tel btn-menu-closable" ng-if="phoneOrderEnable" ng-click="openPhoneOrder()" translate>Commande telephonique</button>
 	<button class="btn btn-logout btn-menu-closable"  ng-if="PosUserId>0" ng-click="logout()" translate>Déconnecter</button>
 	<button class="btn btn-logout btn-menu-closable" ng-if="closable" ng-click="exit()" translate>Fermer l'application</button>
 	<span flex></span>

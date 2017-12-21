@@ -45,12 +45,11 @@ app.service('orderShoppingCartService', ["$http", "$rootScope", "$q", "settingSe
                 for (var i = current.orders.length - 1; i >= 0; i--) {
                     var order = current.orders[i];
                     var orderDate = Date.parseExact(order.Date, "dd/MM/yyyy H:mm:ss");
-                    if(order.ShippingOption){
+                    if (order.ShippingOption) {
                         var orderOptions = Date.parseExact(order.ShippingOption, "H:mm:ss");
                     }
-
-                    if(order.DatePickup){
-                        var orderOptions = Date.parseExact(order.DatePickup, "H:mm:ss");
+                    if (order.DatePickup) {
+                        var orderOptions = Date.parseExact(order.DatePickup, "dd/MM/yyyy H:mm:ss");
                     }
 
 
@@ -74,8 +73,6 @@ app.service('orderShoppingCartService', ["$http", "$rootScope", "$q", "settingSe
                     }
                 }
             }
-            console.log("COmmande : ", current.orders);
-            console.log("A traiter : ", current.ordersInProgress);
             $rootScope.$emit("orderShoppingCartChanged");
         };
 
@@ -95,10 +92,7 @@ app.service('orderShoppingCartService', ["$http", "$rootScope", "$q", "settingSe
                     var shoppingCartsTel = resShoppingCartsTel.ShoppingCarts;
                     // Filtre pour ne garder que ceux qui ont une date de retrait
                     var sh2 = Enumerable.from(shoppingCartsTel).where('x => x.DatePickup').toArray();
-
                     var shoppingCarts = resShoppingCarts.ShoppingCarts.concat(sh2);
-
-                    console.log(shoppingCarts);
 
                     //Hack for remove duplicate
                     var shoppingCartsToRemove = [];
@@ -106,7 +100,7 @@ app.service('orderShoppingCartService', ["$http", "$rootScope", "$q", "settingSe
 
                     Enumerable.from(shoppingCarts).forEach(function (s) {
                         if (shoppingCartsToRemove.indexOf(s) == -1) {
-                            if(s.DatePickup){
+                            if (s.DatePickup) {
                                 var duplicateShoppingCarts = Enumerable.from(shoppingCarts).where(function (d) {
                                     return d.DatePickup == s.DatePickup;
                                 }).toArray();
@@ -126,11 +120,12 @@ app.service('orderShoppingCartService', ["$http", "$rootScope", "$q", "settingSe
                     });
 
 
-
                     taxesService.getTaxCategoriesAsync().then(function (taxCategories) {
                         Enumerable.from(shoppingCartsToReturn).forEach(function (r) {
-                            r.Timestamp = r.OrderId;
-                            r.id = r.OrderId;
+                            if(r.OrderId){
+                                r.Timestamp = r.OrderId;
+                                r.id = r.OrderId;
+                            }
 
                             Enumerable.from(r.Items).forEach(function (cartItem) {
                                 var taxCategory = Enumerable.from(taxCategories).firstOrDefault(function (t) {
@@ -142,8 +137,6 @@ app.service('orderShoppingCartService', ["$http", "$rootScope", "$q", "settingSe
                                 cartItem.TaxCategoryId = cartItem.Product.TaxCategoryId;
                             });
                         });
-
-                        console.log(shoppingCartsToReturn);
 
                         shoppingCartsDefer.resolve(shoppingCartsToReturn);
                     });
@@ -158,14 +151,14 @@ app.service('orderShoppingCartService', ["$http", "$rootScope", "$q", "settingSe
         };
 
         this.loadOrderShoppingCartAsync = function (shoppingCart) {
+            console.log(shoppingCart);
             var unfreezeDefer = $q.defer();
 
             //Commande telephonique
-            if(shoppingCart.DatePickup){
-                shoppingCartService.unfreezeShoppingCartAsync(shoppingCart).then(function(){
-                    console.log('cool');
+            if (shoppingCart.DatePickup) {
+                shoppingCartService.unfreezeShoppingCartAsync(shoppingCart).then(function () {
                     unfreezeDefer.resolve(true);
-                }, function(errDel){
+                }, function (errDel) {
                     unfreezeDefer.reject(errDel);
                 });
             }
@@ -180,7 +173,6 @@ app.service('orderShoppingCartService', ["$http", "$rootScope", "$q", "settingSe
                         var paymentModesAvailable = paymentSetting;
 
                         Enumerable.from(shoppingCart.PaymentModes).forEach(function (item) {
-                            console.log(item);
                             var p = Enumerable.from(paymentModesAvailable).where('x => x.Text == item.Text').firstOrDefault();
                             if (p) item.PaymentType = p.PaymentType;
                         });

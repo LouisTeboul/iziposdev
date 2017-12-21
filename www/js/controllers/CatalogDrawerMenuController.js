@@ -2,6 +2,7 @@
     $scope.closable = false;
     $scope.authService = authService;
     $scope.docToSynchronize = 0;
+    $scope.phoneOrderEnable = $rootScope.IziBoxConfiguration.PhoneOrderEnable;
 
     $scope.init = function () {
         var btnMenus = document.getElementsByClassName("btn-menu-closable");

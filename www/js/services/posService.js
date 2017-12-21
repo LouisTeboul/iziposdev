@@ -1,8 +1,12 @@
-﻿app.service('posService', ['$rootScope', '$q', '$http',
-    function ($rootScope, $q, $http) {
+﻿app.service('posService', ['$rootScope', '$q', '$http','eventService',
+    function ($rootScope, $q, $http, eventService) {
 
         var current = this;
         var _daemonIziboxStarted = false;
+        var _sending = false;
+        var _degradeState = false;
+        var _degradeStateTime = undefined;
+
         /**
          * Get Pos Name Infos
          * */
@@ -81,10 +85,50 @@
                         $http.get(pingApiUrl, { timeout: 1000 }).then(function (data) {
                             $rootScope.modelPos.iziboxConnected = true;
                             $rootScope.$evalAsync();
+
+                            if (_degradeState && !_sending) {
+
+                                _sending = true;
+                                var event = {
+                                    Code: 70,
+                                    Description: "Début mode dégradé",
+                                    OperatorCode: $rootScope.PosUserId,
+                                    TerminalCode: $rootScope.PosLog.HardwareId,
+                                    Type: "Technical",
+                                    Informations: ["Start at : " + _degradeStateTime]
+                                };
+                                eventService.sendEvent(event).then(function () {
+                                    event = {
+                                        Code: 120,
+                                        Description: "Fin mode dégradé",
+                                        OperatorCode: $rootScope.PosUserId,
+                                        TerminalCode: $rootScope.PosLog.HardwareId,
+                                        Type: "Technical",
+                                        Informations: ["End at : " + moment().format("DD/MM/YYYY HH:mm:ss")]
+                                    };
+                                    eventService.sendEvent(event).then(function () {
+                                        _degradeState = false;
+                                        _sending = false;
+                                    }, function () {
+                                        _sending = false;
+                                    });
+                                }, function () {
+                                    _sending = false;
+                                });
+
+
+                            }
+
                             if (_daemonIziboxStarted && !checkOnly) iziboxDaemon();
                         }).catch(function (err) {
                             $rootScope.modelPos.iziboxConnected = false;
                             $rootScope.$evalAsync();
+
+                            if (!_degradeState) {
+                                _degradeState = true;
+                                _degradeStateTime = moment().format("DD/MM/YYYY HH:mm:ss");
+                            }
+
                             if (_daemonIziboxStarted && !checkOnly) iziboxDaemon();
                         });
                     }, timerRepeat);

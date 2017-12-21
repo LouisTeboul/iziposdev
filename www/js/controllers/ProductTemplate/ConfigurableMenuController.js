@@ -207,7 +207,7 @@ app.controller('ConfigurableMenuController', function ($scope, $rootScope, $stat
     };
 
     $scope.scrollTo = function (elementId) {
-        var updatedItemElem = document.getElementById(elementId);
+        var updatedItemElem = document.getElementById('a' + elementId);
         if (updatedItemElem) {
             $("#attributes").scrollTo(updatedItemElem);
         }

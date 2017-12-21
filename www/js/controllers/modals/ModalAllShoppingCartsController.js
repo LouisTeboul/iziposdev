@@ -61,7 +61,8 @@ app.controller('ModalAllShoppingCartsController', function ($scope, $rootScope, 
 		});
 
 		// Reload values if alias filter has changed
-        filterAliasHandler = $scope.$watch('filterAlias', function () {
+        $scope.updateFilterAlias = function(alias){
+            $scope.filterAlias = alias;
             if($scope.filterAlias !=0) {
                 $scope.filterAmountDisabled = true;
             } else {
@@ -73,12 +74,12 @@ app.controller('ModalAllShoppingCartsController', function ($scope, $rootScope, 
             if (dateStart != currentDateStart || dateEnd != currentDateEnd || $scope.filterAlias != currentFilterAlias || $scope.filterAmount != currentFilterAmount ) {
                 currentDateStart = dateStart;
                 currentDateEnd = dateEnd;
-                currentFilterAlias = $scope.filterAlias;
+                currentFilterAlias = alias;
                 currentFilterAmount = undefined;
 
-                $scope.loadValues(dateStart, dateEnd, $scope.filterAlias, $scope.filterAmount);
+                $scope.loadValues(dateStart, dateEnd, alias, $scope.filterAmount);
             }
-        });
+        };
 
         // Reload values if alias filter has changed
         $scope.isAliasFilterDisabled = $scope.$watch('filterAmount', function () {

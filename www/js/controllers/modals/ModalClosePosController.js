@@ -511,6 +511,7 @@
                 closeOnConfirm: true
             },
             function () {
+                var updPaymentModes = [];
 
                 switch ($scope.closePosParameters.mode.idMode) {
                     case 1:
@@ -527,6 +528,7 @@
                             }
                         });
 
+                        updPaymentModes = hardwareIdModel.CashMovementLines;
 
                         break;
                     case 2:
@@ -548,6 +550,8 @@
                             });
                         }
 
+                        updPaymentModes = hardwareIdModel.CashMovementLines;
+
                         break;
                     case 3:
                         //Fermeture de Z
@@ -562,6 +566,19 @@
                             // Set the value
                             closPosVal.CashMovementLines = hidModel.CashMovementLines;
 
+                            Enumerable.from(hidModel.CashMovementLines).forEach(function (cm) {
+                                var cmExist = Enumerable.from(updPaymentModes).firstOrDefault(function (pm) {
+                                    return pm.PaymentMode.Text == cm.PaymentMode.Text;
+                                });
+
+                                if (cmExist) {
+                                    cmExist.Count += cm.Count;
+                                    cmExist.TotalKnown += cm.TotalKnown;
+                                } else {
+                                    updPaymentModes.push(clone(cm));
+                                }
+                            });
+
                             cashMovementService.saveMovementAsync(closPosVal);
                         });
 
@@ -570,18 +587,23 @@
                         break;
                 }
 
-                //TODO Cloture NF
-                //// Logging the event
-                //var event = {
-                //    Code: 170,
-                //    Description: "Clotûre de caisse",
-                //    OperatorCode: $rootScope.PosUserId,
-                //    TerminalCode: $rootScope.PosLog.HardwareId,
-                //    Type: "Fonds de caisse",
-                //    Informations: ["todo", "todo2"]
-                //};
+                //Cloture NF
+                // Logging the event
+                var event = {
+                    Code: 170,
+                    Description: "Clotûre de caisse",
+                    OperatorCode: $rootScope.PosUserId,
+                    TerminalCode: $rootScope.PosLog.HardwareId,
+                    Type: "Fonds de caisse",
+                    Informations: []
+                };
 
-                //eventService.sendEvent(event);
+               
+                Enumerable.from(updPaymentModes).forEach(function (pm) {
+                    event.Informations.push(pm.PaymentMode.Text+ "(" + pm.Count + "):" + pm.TotalKnown);
+                });
+
+                eventService.sendEvent(event);
 
                 $uibModalInstance.close();
 

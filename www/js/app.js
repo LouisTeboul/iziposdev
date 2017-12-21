@@ -35,7 +35,7 @@ app.run(function ($rootScope, $location, $q, $http, ipService, zposService, $tra
 	try {
 		angularLocation = $location;
 
-		$rootScope.Version = "3.0.0.13121";
+		$rootScope.Version = "3.0.0.19121";
 		$rootScope.adminMode = { state: false };
         $rootScope.loading = 0;
 
@@ -141,21 +141,27 @@ var init = function ($rootScope, $location, $q, $http, ipService, zposService, $
 	// IziBoxConfiguration
 	app.getConfigIziBoxAsync($rootScope, $q, $http, ipService, $translate, $location, $uibModal).then(function (config) {
 
-		$rootScope.IziBoxConfiguration = config;
+        if (config.IndexIsNotDefined) {
+            $rootScope.IziBoxTempConfiguration = config;
+            $location.path("/initizibox");
+        } else {
 
-		// Convert settings from 'string' to 'boolean'
-		for (var prop in config) {
-			if (config[prop] == "true") {
-				config[prop] = true;
-			}
+            $rootScope.IziBoxConfiguration = config;
 
-			if (config[prop] == "false") {
-				config[prop] = false;
-			}
-		}
+            // Convert settings from 'string' to 'boolean'
+            for (var prop in config) {
+                if (config[prop] == "true") {
+                    config[prop] = true;
+                }
 
-		// BackButton
-		app.configHWButtons($rootScope, $translate);
+                if (config[prop] == "false") {
+                    config[prop] = false;
+                }
+            }
+
+            // BackButton
+            app.configHWButtons($rootScope, $translate);
+        }
 		
 	});
 

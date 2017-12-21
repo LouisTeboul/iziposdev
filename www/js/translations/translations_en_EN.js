@@ -1,5 +1,7 @@
 ﻿app.config(['$translateProvider', function ($translateProvider) {
 
+    $translateProvider.useSanitizeValueStrategy('sanitizeParameters');
+
 	// register english translation table
 	$translateProvider.translations('en_EN', {
 		"Veuillez patienter": "Please wait",
@@ -18,6 +20,7 @@
 		"Changer d'utilisateur": "Change user",
 		"Déconnecter": "Logout",
 		"Fermer l'application": "Exit",
+		"Commande telephonique" : "Phone Order",
 		"Paiement Rapide": "Speed payment",
 		"Veuillez renseigner le fond de caisse": "Please fill in the cash fund",
 		"Ajouter au panier": "Add",
@@ -154,6 +157,29 @@
         "Le ticket est vide, impossible de le valider": "The receipt is empty, it can not be validate",
         "Aucun article n'a été ajouté au ticket, impossible de le valider": "No items have been added to the receipt, it can not be validated",
         "Les moyens de payment ne sont pas renseignés, impossible de valider le ticket": "The payments mode are not filled in, it is impossible to validate the receipt",
+
+
+		"Choisissez les services à fermer" : "Pick the service(s) to close",
+		"Toutes les caisses" : "All cash registers",
+		"Tous les services" : "All services",
+		"Date début" : "Start date",
+		"Date fin" : "End date",
+		"Nb" : "Count",
+		"Cagnotte" : "Used balance",
+		"ESPECE" : "CASH",
+		"C-B" : "Credit Card",
+		"Total TTC" : "Total IT",
+		"Total par utilisateur :" : "Total by user :",
+ 		"Fermeture" : "Close services",
+		"Afficher le Z" : "Display Z",
+		"Envoyer par email" : "Send to email",
+		"Imprimer" : "Print",
+		"Inclure le detail des services" : "Include services details",
+		"Correction des tickets" : "Edit tickets",
+
+
+
+
 
         "Gestion des espèces": "Cash management",
         "Vous devez d&eacute;finir un mouvement de caisse de type fonds de caisse dans le BO, merci": "You have to define a cash movement of cash funds in the BO, thanks",

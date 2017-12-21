@@ -4,9 +4,9 @@
     </div>
 
     <div class="form-panel modal-body">
-        <tabset>
+        <uib-tabset>
 
-            <tab>
+            <uib-tab id="search">
                 <tab-heading>
                     <x translate>RECHERCHE</x>
                 </tab-heading>
@@ -40,8 +40,8 @@
                         <h4 style="margin-top: 8px; text-align: center" translate>Aucun résultat</h4>
                     </div>
                 </div>
-            </tab>
-            <tab>
+            </uib-tab>
+            <uib-tab id="register">
 
                 <tab-heading>
                     <x translate>EMAIL</x>
@@ -92,10 +92,25 @@
                                     style="width:510px;margin-right:10px;min-height:34px;"></text-field>
                     </div>
 
+                    <div layout="row" ng-if="registerOperation=='registerFid' && signInSettings.Fax && registerFull">
+                        <label flex="10" translate>Fax</label>
+                        <text-field flex="70" id="fax" class="flexbox" ng-model="newLoyalty.CustomerFax"
+                                    location="center-end" type="azerty" validfunction="ok"
+                                    style="width:510px;margin-right:10px;min-height:34px;"></text-field>
+                    </div>
+
                     <div layout="row" ng-if="registerOperation=='registerFid' && signInSettings.StreetAddress && registerFull">
                         <label flex="10" translate>Adresse</label>
                         <text-field flex="70" id="streetAddress" class="flexbox"
                                     ng-model="newLoyalty.CustomerStreetAddress" location="center-end" type="azerty"
+                                    validfunction="ok"
+                                    style="width:510px;margin-right:10px;min-height:34px;"></text-field>
+                    </div>
+
+                    <div layout="row" ng-if="registerOperation=='registerFid' && signInSettings.StreetAddress2 && registerFull">
+                        <label flex="10" translate>Adresse 2</label>
+                        <text-field flex="70" id="streetAddress2" class="flexbox"
+                                    ng-model="newLoyalty.CustomerStreetAddress2" location="center-end" type="azerty"
                                     validfunction="ok"
                                     style="width:510px;margin-right:10px;min-height:34px;"></text-field>
                     </div>
@@ -138,9 +153,9 @@
                     </div>
 
                 </div>
-            </tab>
+            </uib-tab>
 
-            <tab ng-if="currentShoppingCart.customerLoyalty">
+            <uib-tab ng-if="currentShoppingCart.customerLoyalty">
                 <tab-heading>
                     <x translate>INFORMATIONS</x>
                 </tab-heading>
@@ -300,12 +315,14 @@
                     </div>
                     <!-- #endregion -->
                 </div>
-            </tab>
-        </tabset>
+            </uib-tab>
+        </uib-tabset>
     </div>
 
     <div class="modal-footer">
-        <button class="btn btn-green" ng-click="validCustomer()">OK</button>
+        <button class="btn btn-green"
+                ng-disabled="validDisabled"
+                ng-click="validCustomer()">OK</button>
         <button class="btn btn-rose" ng-click="close()" translate>Annuler</button>
     </div>
 

@@ -177,10 +177,8 @@ app.service('loyaltyService', ["$http", "$rootScope", "$q", "$translate",
                     obj[newKey] = field.value;
                 });
                 obj.Barcode = code;
-
-                //En attendant mise en prod du fix de l'API
-                obj.DateOfBirth = "test au max";
             }
+            console.log(obj);
             $http.post(getRegisterUrl, obj, { timeout: 10000 })
                 .then(function (response) {
                     registerDefer.resolve(response.data);

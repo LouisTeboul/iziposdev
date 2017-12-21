@@ -19,26 +19,30 @@ app.getConfigIziBoxAsync = function ($rootScope, $q, $http, ipService, $translat
 	var configJSON = window.localStorage.getItem("IziBoxConfiguration");
 	var existingConfig = false;
 
-	if (!configJSON) {
-		defaultConfig = {
-			UrlSmartStoreApi: undefined,
-			UrlCouchDb: undefined,
-			IdxCouchDb: undefined,
-			RestPort: 8080,
-			LocalIpIziBox: undefined,
-			UseFID: false,
-			ConfirmPrint: false,
-			CanFreezeShoppingCart: false,
-			UseProdPrinter: false,
-			UseTable: false,
-			StoreId: undefined,
-			UseCashMovement: false,
-			LoginRequired: false,
-			LoginTimeout: 0
-		};
-	} else {
-		defaultConfig = JSON.parse(configJSON);
-		existingConfig = true;
+    var defaultConfig = {
+        UrlSmartStoreApi: undefined,
+        UrlCouchDb: undefined,
+        IdxCouchDb: undefined,
+        RestPort: 8080,
+        LocalIpIziBox: undefined,
+        UseFID: false,
+        ConfirmPrint: false,
+        CanFreezeShoppingCart: false,
+        UseProdPrinter: false,
+        UseTable: false,
+        StoreId: undefined,
+        UseCashMovement: false,
+        LoginRequired: false,
+        LoginTimeout: 0
+    };
+
+	if (configJSON) {
+        var savedConfig = JSON.parse(configJSON);
+
+        if (!savedConfig.IndexIsNotDefined) {
+            existingConfig = true;
+            defaultConfig = savedConfig;
+        } 
 	}
 
 	if (/*!defaultConfig.WithoutIzibox*/true) {

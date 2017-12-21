@@ -301,20 +301,15 @@ app.service('taxesService', ['$rootScope', '$q','settingService',
 
                     // Calculate excluding tax price
                     if (!cacheIsPricesIncludedTax) {
-
-                        priceET = price - discountET / quantity;
+                        priceET = price - (discountET / quantity);
                         priceIT = ETtoIT(priceET, taxRate);
-
                     }
 
                     // Calculate price including tax
                     else {
-
-                        priceIT = price - discountIT / quantity;
+                        priceIT = price - (discountIT / quantity);
                         priceET = ITtoET(priceIT, taxRate);
-
                     }
-
 
                     // Add the result to the tax list
                     // ATTENTION au round value
@@ -331,7 +326,7 @@ app.service('taxesService', ['$rootScope', '$q','settingService',
 
                     // Price is without taxes
                     if (!cacheIsPricesIncludedTax) {
-                        priceET = price;
+                        priceET = price - (discountET / quantity);
 
                         tpsAmount = getTaxValue(priceET, taxCategory.TPSValue);
                         tvqAmount = getTaxValue(priceET, taxCategory.TVQValue);
@@ -341,7 +336,7 @@ app.service('taxesService', ['$rootScope', '$q','settingService',
                     }
                     // Price includes taxes
                     else {
-                        priceIT = price;
+                        priceIT = price - (discountIT / quantity);
                         priceET = ITtoET(priceIT, taxCategory.TPSValue + taxCategory.TVQValue);
                         tpsAmount = getTaxValue(priceET, taxCategory.TPSValue);
                         tvqAmount = getTaxValue(priceET, taxCategory.TVQValue);
@@ -400,7 +395,6 @@ app.service('taxesService', ['$rootScope', '$q','settingService',
                 cartItem.TaxDetails = taxResult.taxDetails;
             }
             else {
-
                 // Calculate item's tax
                 var cartItemPrice = 0;
 
@@ -544,6 +538,7 @@ app.service('taxesService', ['$rootScope', '$q','settingService',
                 var totalET = 0;
                 var totalIT = 0;
 
+                var shipping = shoppingCart.Shipping;
                 var discount = Enumerable.from(shoppingCart.Discounts).firstOrDefault();
 
                 // Pour chaque article
@@ -578,13 +573,39 @@ app.service('taxesService', ['$rootScope', '$q','settingService',
                     });
                 });
 
+                if(shipping){
+
+
+                    Enumerable.from(shipping.TaxDetails).forEach(function (shippingTaxDetail) {
+                        totalIT = roundValue(totalIT + shippingTaxDetail.PriceIT);
+                        totalIET = roundValue(totalET + shippingTaxDetail.PriceET);
+
+                        var existingTaxDetail = Enumerable.from(taxDetails).firstOrDefault(function (taxD) {
+                            return taxD.TaxCategoryId == shippingTaxDetail.TaxCategoryId &&
+                                taxD.TaxCode == shippingTaxDetail.TaxCode &&
+                                taxD.TaxRate == shippingTaxDetail.TaxRate;
+                        });
+
+                        // On ajoute le montant de la taxe
+                        if (existingTaxDetail) {
+                            existingTaxDetail.TaxAmount = roundValue(existingTaxDetail.TaxAmount + shippingTaxDetail.TaxAmount);
+                            existingTaxDetail.PriceIT = roundValue(existingTaxDetail.PriceIT + shippingTaxDetail.PriceIT);
+                            existingTaxDetail.PriceET = roundValue(existingTaxDetail.PriceET + shippingTaxDetail.PriceET);
+                        } else {
+                            taxDetails.push(clone(shippingTaxDetail));
+                        }
+                    });
+                }
+
+
+
 
                 //TODO : passer le calcul à la ligne
                 //On calcule la remise si il y en a -- on le calcule aussi pour chaque montant de taxe
 
                 // If the shopping cart has a global discount attached to it
                 // And has not been applied yet
-                if (discount && !shoppingCart.isDiscountConsumed) {
+                if (discount && !discount.isDiscountConsumed) {
                     var totalDiscount = totalIT;
 
                     // Calcul de la remise
@@ -622,7 +643,7 @@ app.service('taxesService', ['$rootScope', '$q','settingService',
                         i.DiscountIT = roundValue(i.PriceIT - i.PriceIT * ratio);
                         i.DiscountET = roundValue(i.PriceET - i.PriceET * ratio);
                     });
-                    shoppingCart.isDiscountConsumed = true;
+                    discount.isDiscountConsumed = true;
                 }
                 
 
