@@ -148,7 +148,7 @@
 
 		"Selectionnez un type de remise" : "Select a discount type",
 		"Remise %" : "Discount %",
-		"Remise €" : "Discount €",
+		"Remise" : "Discount",
 		"Offrir" : "Free of charge",
 		"Appliquer sur un produit" : "Apply on one item",
 		"Appliquer sur toute la ligne" : "Apply on the whole line",

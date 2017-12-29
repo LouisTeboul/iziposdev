@@ -868,7 +868,7 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
                         // Propose à l'utilisateur de crediter son compte fidélité
                         swal({
                                 title: "Cagnotter l'avoir sur le compte fidélité ?",
-                                text: currentShoppingCart.Credit + "€ d'avoir",
+                                text: currentShoppingCart.Credit + " " + $rootScope.IziPosConfiguration.Currency.currencySymbol + " d'avoir",
                                 type: "warning",
                                 showCancelButton: true,
                                 confirmButtonColor: '#DD6B55',

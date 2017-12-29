@@ -6,8 +6,8 @@
     <div class="form-panel modal-body">
 		<center>
             <div class="btn-group">
-                <label class="btn btn-primary" ng-model="mode" ng-click="result.isPercent=true; setFocus()" uib-btn-radio="'Remise %'">Remise %</label>
-                <label class="btn btn-primary" ng-model="mode" ng-click="result.isPercent=false; setFocus()" uib-btn-radio="'Remise €'">Remise €</label>
+                <label class="btn btn-primary" ng-model="mode" ng-click="result.isPercent=true; setFocus()" uib-btn-radio="'Remise %'"><x translate>Remise %</x></label>
+                <label class="btn btn-primary" ng-model="mode" ng-click="result.isPercent=false; setFocus()" uib-btn-radio="'Remise €'"><x translate>Remise</x>{{IziPosConfiguration.Currency.currencySymbol}}</label>
             </div>
             <br/>
 		</center>

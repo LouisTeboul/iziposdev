@@ -347,11 +347,11 @@
                                         }
 
                                         //LinkedProductIds enabled
-                                        //linkedProductIds = Enumerable.from(datasProducts.LinkedProducts).select('x => x.Id').toArray();
-                                        //datasProducts.ProductAttributeValues = Enumerable.from(productAttributeValues)
-                                        //    .where(function (x) { return linkedProductIds.indexOf(x.LinkedProductId) != -1; })
-                                        //    .toArray();
-                                        datasProducts.ProductAttributeValues = productAttributeValues;
+                                        linkedProductIds = Enumerable.from(datasProducts.LinkedProducts).select('x => x.Id').toArray();
+                                        datasProducts.ProductAttributeValues = Enumerable.from(productAttributeValues)
+                                            .where(function (x) { return linkedProductIds.indexOf(x.LinkedProductId) != -1 || x.LinkedProductId === 0; })
+                                            .toArray();
+                                        //datasProducts.ProductAttributeValues = productAttributeValues;
 
                                         var products = self.composeProducts(datasProducts);
                                         productsDefer.resolve(products);
