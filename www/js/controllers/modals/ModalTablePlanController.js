@@ -133,6 +133,35 @@
 
     $scope.selectTable = function (table) {
         if (table) {
+            //Si la table qu'on a selectionné est different de la table deja selectionné
+
+            console.log(table);
+            //Retablir la couleur de la bordure de la table precedemment selectionné
+            //Changer la couleur de la bordure de la table qu'on a cliquer
+
+            console.log($scope.tableModel.selectedTableId, table.Id);
+            if ($scope.tableModel.selectedTableId && $scope.tableModel.selectedTableId != table.Id) {
+                //Si une table etait deja selectionné
+                //On change sa couleur en vert
+                var oldTable = document.querySelectorAll("#t" + $scope.tableModel.selectedTableId);
+                if(oldTable){
+                    console.log(oldTable);
+                    Enumerable.from(oldTable).forEach(function(ot){
+                        ot.style.backgroundColor = "green";
+                    })
+
+                }
+            }
+            $scope.tableModel.selectedTableId = table.Id;
+
+            //On change la couleur de la nouvelle table selectionné = jaune
+            var newTable = document.querySelectorAll("#t" + table.Id);
+            if(newTable){
+                console.log(newTable);
+                Enumerable.from(newTable).forEach(function(nt){
+                    nt.style.backgroundColor = "#e0b20b";
+                })
+            }
             $scope.tableModel.valueTable = table.TableNumber;
             $scope.tableModel.valueCutleries = table.TableNumber == initCurrentTableNumber ? initCurrentTableCutleries : table.Cutleries;
 
@@ -144,6 +173,8 @@
                     $scope.tableModel.valueCutleries = freezedShoppingCart.TableCutleries;
                 }
             }
+
+
         }
 
         $scope.$evalAsync();

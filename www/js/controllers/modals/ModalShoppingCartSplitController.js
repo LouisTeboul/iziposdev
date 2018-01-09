@@ -2,7 +2,7 @@
     $scope.errorMessage = undefined;
     $scope.value = defaultValue;
     $scope.result = {
-        "nb": 1
+        "nb": 0
     };
 
     $scope.init = function () {
@@ -19,7 +19,19 @@
     };
 
     $scope.sendToIn = function (item) {
-        shoppingCartModel.addItemTo($scope.currentShoppingCartIn, $scope.currentShoppingCartOut, item);
+
+        if (item.isPartSplitItem == true && !item.dispFraction) {
+            this.tryMatch($scope.currentShoppingCartOut, $scope.currentShoppingCartIn, item);
+        } else {
+            if(!$scope.currentShoppingCartIn){
+                $scope.currentShoppingCartIn = shoppingCartModel.createShoppingCartIn();
+            }
+            if(!$scope.currentShoppingCartOut){
+                $scope.currentShoppingCartOut = shoppingCartModel.createShoppingCartOut();
+            }
+            shoppingCartModel.addItemTo($scope.currentShoppingCartIn, $scope.currentShoppingCartOut, item);
+        }
+
     };
 
     $scope.splitToIn = function (item) {
@@ -32,53 +44,68 @@
                 defaultValue: function () {
                     return true;
                 },
-                itemPrice: function () {
-                    return item.PriceIT;
+                item: function () {
+                    return item;
                 }
             }
         });
 
         modalInstance.result.then(function (result) {
+            console.log(result);
             console.log(item.splittedAmount);
+            if(result.montant) {
+                if (result.montant <= item.PriceIT - item.splittedAmount - item.DiscountIT && !result.makeParts) {
+                    shoppingCartModel.splitItemTo($scope.currentShoppingCartIn, $scope.currentShoppingCartOut, item, result.montant);
+                    shoppingCartModel.calculateTotalFor($scope.currentShoppingCartOut);
+                    shoppingCartModel.calculateTotalFor($scope.currentShoppingCartIn);
 
-            if (result <= item.PriceIT - item.splittedAmount - item.DiscountIT) {
-                shoppingCartModel.splitItemTo($scope.currentShoppingCartIn, $scope.currentShoppingCartOut, item, result);
-                shoppingCartModel.calculateTotalFor($scope.currentShoppingCartOut);
-                shoppingCartModel.calculateTotalFor($scope.currentShoppingCartIn);
-            }
-            else {
-                // Afficher une erreur
-            }
+                }
+                else {
+                    // Afficher une erreur
+                }
 
+                if(result.makeParts && result.nbPart){
+                    for(var i = result.nbPart; i > 0 ; i--){
+                        shoppingCartModel.splitItemTo($scope.currentShoppingCartOut, $scope.currentShoppingCartOut, item, (item.Product.Price - item.DiscountIT) / result.nbPart, result.makeParts, result.nbPart);
+                        shoppingCartModel.calculateTotalFor($scope.currentShoppingCartOut);
+                        shoppingCartModel.calculateTotalFor($scope.currentShoppingCartIn);
+                    }
+                }
+            }
         }, function () {
             console.log('Erreur');
         });
-
     };
 
 
-    $scope.splitToOut = function (itemIn) {
+    $scope.tryMatch = function (from, to, itemIn) {
         //on cherche a match une partie de produit split avec son parent
         //Pour cela, on utilise les hashkey
         //Si les hashkey sont identique, on regroupe les deux items
 
-        Enumerable.from($scope.currentShoppingCartOut.Items).forEach(function (itemOut) {
-            if (itemOut.hashkey == itemIn.hashkey && itemOut.isPartSplitItem) {
-                itemOut.splittedAmount += itemIn.splittedAmount + itemIn.Product.Price;
-                shoppingCartModel.removeItemFrom($scope.currentShoppingCartIn, itemIn);
-                console.log(itemOut);
-                if (itemOut.splittedAmount == 0) {
-                    itemOut.isPartSplitItem = false;
-                }
-            }
-            shoppingCartModel.calculateTotalFor($scope.currentShoppingCartOut);
-            shoppingCartModel.calculateTotalFor($scope.currentShoppingCartIn);
+
+        var matchedItem = Enumerable.from(to.Items).firstOrDefault(function (itemOut) {
+            return itemOut.hashkey == itemIn.hashkey && itemOut.isPartSplitItem;
         });
+
+        if(matchedItem){
+            matchedItem.splittedAmount += itemIn.splittedAmount + itemIn.Product.Price;
+            shoppingCartModel.removeItemFrom(from, itemIn);
+            console.log(matchedItem);
+            if (matchedItem.splittedAmount == 0) {
+                matchedItem.isPartSplitItem = false;
+            }
+        } else {
+            shoppingCartModel.addItemTo(to, from, itemIn);
+        }
+
+        shoppingCartModel.calculateTotalFor(to);
+        shoppingCartModel.calculateTotalFor(from);
     };
 
     $scope.sendToOut = function (item) {
-        if (item.isPartSplitItem == true) {
-            this.splitToOut(item);
+        if (item.isPartSplitItem == true && !item.dispFraction) {
+            this.tryMatch($scope.currentShoppingCartIn, $scope.currentShoppingCartOut, item);
         } else {
             shoppingCartModel.addItemTo($scope.currentShoppingCartOut, $scope.currentShoppingCartIn, item);
         }

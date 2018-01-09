@@ -1,38 +1,79 @@
 <section ng-init="init()">
     <div class="modal-header">
-        <h1 class="modal-title" translate>Choisissez une heure de retrait / Livraison</h1>
+        <h1 class="modal-title" translate>Choisissez une heure de retrait / livraison</h1>
     </div>
 
     <div class="form-panel modal-body">
 
-        <div class="row center">
-            <div class="btn-group" dropdown is-open="status.isopenHeure">
-                <button id="heure-button" type="button" style="width:120px" class="btn btn-default" dropdown-toggle
-                        ng-disabled="disabled">
-                    {{ model.heure >= 0 ? model.heure : "Heure"  }}
-                    <span style="margin-top:8px;float:right" class="caret"></span>
-                </button>
-                <ul class="dropdown-menu" style="width:120px" role="menu" aria-labelledby="heure-button">
-                    <li ng-repeat="h in [0,1,2,3]" role="menuitem" class="item"><a
-                            ng-click="selectHeure(h)">{{h}}</a></li>
-                </ul>
-            </div>
+        <uib-tabset>
+            <uib-tab>
+                <tab-heading>
+                    <x translate> Pour Aujourd'hui</x>
+                </tab-heading>
 
-            H
+                <div class="row center">
 
-            <div class="btn-group" dropdown is-open="status.isopenMinute">
-                <button id="minute-button" type="button" style="width:120px" class="btn btn-default" dropdown-toggle
-                        ng-disabled="disabled">
-                    {{ model.minute >= 0 ? model.minute : "Minute" }}
-                    <span style="margin-top:8px;float:right" class="caret"></span>
-                </button>
-                <ul class="dropdown-menu" style="width:120px" role="menu" aria-labelledby="minute-button">
-                    <li ng-repeat="m in multipleOfFive()" role="menuitem" class="item"><a
-                            ng-click="selectMinute(m)"> {{m}}</a></li>
-                </ul>
-            </div>
-            MIN
-        </div>
+                    <div class="btn-group" uib-dropdown is-open="status.isopenHeure">
+                        <button id="heure-button" type="button" style="width:120px" class="btn btn-default"
+                                uib-dropdown-toggle
+                                ng-disabled="disabled">
+                            {{ model.heure >= 0 ? model.heure : "Heure" }}
+                            <span style="margin-top:8px;float:right" class="caret"></span>
+                        </button>
+                        <ul class="uib-dropdown-menu" style="width:120px" role="menu" aria-labelledby="heure-button">
+                            <li ng-repeat="h in [0,1,2,3]" role="menuitem" class="item"><a
+                                    ng-click="selectHeure(h)">{{h}}</a></li>
+                        </ul>
+                    </div>
+
+                    H
+
+                    <div class="btn-group" uib-dropdown is-open="status.isopenMinute">
+                        <button id="minute-button" type="button" style="width:120px" class="btn btn-default"
+                                uib-dropdown-toggle
+                                ng-disabled="disabled">
+                            {{ model.minute >= 0 ? model.minute : "Minute" }}
+                            <span style="margin-top:8px;float:right" class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu" style="width:120px" role="menu" aria-labelledby="minute-button">
+                            <li ng-repeat="m in multipleOfFive()" role="menuitem" class="item"><a
+                                    ng-click="selectMinute(m)"> {{m}}</a></li>
+                        </ul>
+                    </div>
+                    MIN
+                </div>
+
+            </uib-tab>
+
+            <uib-tab>
+                <tab-heading>
+                    <x translate>Agenda</x>
+                </tab-heading>
+
+                <div class="input-group" style="width:50%; margin-left:125px">
+                    <input type="text" class="form-control" uib-datepicker-popup="dd/MM/yyyy"
+                           ng-model="model.date" min-date="model.minDate" starting-day="1"
+                           close-text="Fermer" current-text="Aujourd'hui" clear-text="Effacer"
+                           is-open="model.dateOpen" ng-required="true" close-text="Close"
+                           alt-input-formats="altInputFormats"/>
+                    <span class="input-group-btn">
+                        <button type="button" class="btn btn-default" ng-click="openDate()"><i
+                                class="glyphicon glyphicon-calendar"></i></button>
+                    </span>
+                </div>
+
+                <div>
+                    <div uib-timepicker ng-model="model.agendaTime" hour-step="1" minute-step="5" show-meridian="ismeridian"></div>
+                </div>
+
+
+
+
+
+            </uib-tab>
+        </uib-tabset>
+
+
     </div>
 
     <div class="modal-footer">

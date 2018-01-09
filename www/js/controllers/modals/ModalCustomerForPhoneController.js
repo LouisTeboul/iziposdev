@@ -2,15 +2,16 @@
  * Modal available for phone orders
  * Select an existing customer, or fully create one
  */
-app.controller('ModalCustomerForPhoneController', function ($scope, $rootScope, $q, $http, $uibModalInstance, $uibModal, shoppingCartService, loyaltyService, ngToast, shoppingCartModel, $translate) {
+app.controller('ModalCustomerForPhoneController', function ($scope, $rootScope, $q, $http, $uibModalInstance, $uibModal, shoppingCartService, loyaltyService, ngToast, shoppingCartModel, $translate, $timeout) {
 
     var current = this;
+    $rootScope.currentPage = 1;
 
     $scope.init = function () {
 
         $rootScope.PhoneOrderMode = true;
         $scope.validDisabled = false;
-        $scope.searchResults = [];
+        $scope.search = {};
         $scope.barcode = {};
         $scope.firstName;
         $scope.lastName;
@@ -18,7 +19,6 @@ app.controller('ModalCustomerForPhoneController', function ($scope, $rootScope, 
         $scope.clientSelected = false;
         $scope.registerFull = false;
         $scope.signInSettings = undefined;
-
 
         var settingApi = $rootScope.IziBoxConfiguration.UrlSmartStoreApi + '/RESTLoyalty/RESTLoyalty/getCustomerSettings';
         console.log(settingApi);
@@ -29,18 +29,13 @@ app.controller('ModalCustomerForPhoneController', function ($scope, $rootScope, 
             $scope.signInSettings = {
                 City: settings.CityRequired,
                 Company: settings.CompanyRequired,
+                Fax: settings.FaxRequired,
                 Phone: settings.PhoneRequired,
                 StreetAddress: settings.StreetAddressRequired,
+                StreetAddress2: settings.StreetAddressRequired2,
                 ZipPostalCode: settings.ZipPostalCodeRequired
             };
-
-            console.log($scope.signInSettings)
-
         });
-
-        setTimeout(function () {
-            document.getElementById("txtComment").focus();
-        }, 0);
 
         $scope.newLoyalty = {};
         $scope.isLoyaltyEnabled = {
@@ -51,18 +46,91 @@ app.controller('ModalCustomerForPhoneController', function ($scope, $rootScope, 
         $scope.clientUrl = $rootScope.IziBoxConfiguration.UrlSmartStoreApi.replace("/api", "");
     };
 
+    //Marche pas tres bien
+    //Est censé trap la touche TAB sur le dernier element de chaque page, et passer a la page suivante
+    /*
+
+    $scope.initRegister = function(){
+        Enumerable.from(document.querySelectorAll(".pageRegister")).forEach(function(page){
+            console.log(page);
+            if(page.children.length >0){
+                console.log(page.children[page.children.length -1]);
+                page.children[page.children.length -1].addEventListener("keydown", function(e){
+                    console.log(e.keyCode);
+                    switch(e.keyCode){
+                        case 9 :
+                            e.preventDefault();
+                            e.stopPropagation();
+                            $rootScope.currentPage++;
+                            break;
+                        default:
+                            break;
+                    }
+                })
+            }
+        });
+    };
+    */
+
+
+    $scope.pageChanged = function () {
+        $rootScope.closeKeyboard();
+        switch ($rootScope.currentPage) {
+            case 1:
+                $timeout(function () {
+                    document.querySelector("#email").focus();
+                }, 50);
+                break;
+            case 2:
+                $timeout(function () {
+                    document.querySelector("#city").focus();
+                }, 50);
+                break;
+            case 3:
+                $timeout(function () {
+                    document.querySelector("#ZipPostalCode").focus();
+                }, 50);
+                break;
+            case 4:
+                $timeout(function () {
+                    document.querySelector("#txtBarcodeCustomer").focus();
+                }, 50);
+                break;
+            default:
+                break;
+        }
+    };
+
     $scope.toggleRegisterFull = function () {
         $scope.registerFull = !$scope.registerFull;
     };
 
     //Recherche de client par nom, prénom ou email
-    $scope.searchForCustomer = function (query) {
-        loyaltyService.searchForCustomerAsync(query).then(function (res) {
-            $scope.searchResults = res;
+    $scope.searchForCustomer = function () {
+        loyaltyService.searchForCustomerAsync($scope.search.query).then(function (res) {
+            $scope.search.results = res;
         }, function () {
-            $scope.searchResults = [];
+            $scope.search.results = [];
         });
+        $rootScope.closeKeyboard();
     };
+
+    $scope.setMode = function (mode) {
+        $rootScope.closeKeyboard();
+        switch (mode) {
+            case "RECH":
+                $timeout(function () {
+                    document.querySelector("#searchBar").focus();
+                }, 100);
+                break;
+            case "ENR" :
+                $timeout(function () {
+                    document.querySelector("#email").focus();
+                }, 100);
+                break;
+        }
+    };
+
 
     /**
      * Add the customer loyalty info to the current shopping cart
@@ -80,16 +148,13 @@ app.controller('ModalCustomerForPhoneController', function ($scope, $rootScope, 
                         shoppingCartModel.createShoppingCart();
                     }
                     $scope.currentShoppingCart = shoppingCartModel.getCurrentShoppingCart();
-
                     $scope.currentShoppingCart.Barcode = barcode;
                     $scope.currentShoppingCart.customerLoyalty = loyalty;
                     $rootScope.$emit("customerLoyaltyChanged", loyalty);
                     $rootScope.$emit("shoppingCartChanged", $scope.currentShoppingCart);
                     $scope.$evalAsync();
                     $scope.clientSelected = true;
-
                     $scope.validCustomer();
-
                     setTimeout(function () {
                         $rootScope.hideLoading();
                     }, 500);
@@ -152,6 +217,7 @@ app.controller('ModalCustomerForPhoneController', function ($scope, $rootScope, 
     };
 
     $scope.setBarcodeFocus = function () {
+        console.log("barcode Focus");
         var test = document.getElementById("txtBarcodeCustomer");
         test.focus();
 
@@ -163,12 +229,14 @@ app.controller('ModalCustomerForPhoneController', function ($scope, $rootScope, 
         //Put the focus in the barcode input for a direct scan
         if (strOperation == "registerFid") {
             setTimeout(function () {
+                console.log("barcode customer focus");
                 document.getElementById("txtBarcodeCustomer").focus();
             }, 0);
         }
     };
 
     $scope.ok = function () {
+        delete $rootScope.currentPage;
         $rootScope.closeKeyboard();
     };
 
@@ -250,9 +318,11 @@ app.controller('ModalCustomerForPhoneController', function ($scope, $rootScope, 
                             }
                         }
                     });
+                    $scope.validDisabled = false;
                     return true;
                 }
                 catch (ex) {
+                    $scope.validDisabled = false;
                     return false;
                 }
             }
@@ -277,9 +347,10 @@ app.controller('ModalCustomerForPhoneController', function ($scope, $rootScope, 
                         timeout: 10000,
                         dismissOnClick: true
                     });
-
+                    $scope.validDisabled = false;
                     $uibModalInstance.close();
                 }, function (err) {
+                    $scope.validDisabled = false;
                     console.log(err);
                 });
                 //Appelle loyalty service
@@ -294,6 +365,7 @@ app.controller('ModalCustomerForPhoneController', function ($scope, $rootScope, 
                     timeout: 10000,
                     dismissOnClick: true
                 });
+                $scope.validDisabled = false;
             }
         }
         catch (err) {
@@ -309,6 +381,7 @@ app.controller('ModalCustomerForPhoneController', function ($scope, $rootScope, 
     };
 
     $scope.close = function () {
+        delete $rootScope.currentPage;
         $uibModalInstance.dismiss('cancel');
     };
 

@@ -95,7 +95,7 @@ app.controller('TextFieldCtrl', function ($rootScope, $scope, textFieldService) 
      * 
      */
     var isVisible = function () {
-        var el = $scope.currentElement[0];      
+        var el = $scope.currentElement[0];
 
         var top = el.offsetTop;
         var left = el.offsetLeft;
@@ -111,7 +111,7 @@ app.controller('TextFieldCtrl', function ($rootScope, $scope, textFieldService) 
         var boolResult = top < (window.pageYOffset + document.body.offsetHeight) &&
           left < (window.pageXOffset + document.body.offsetWidth) &&
           (top + height) > window.pageYOffset &&
-          (left + width) > window.pageXOffset;       
+          (left + width) > window.pageXOffset;
 
         return boolResult;
 
@@ -210,9 +210,9 @@ app.controller('TextFieldCtrl', function ($rootScope, $scope, textFieldService) 
         modelHandler();
 
         //Native Keyboard
-        if ($scope.nativekeyboard ) {            
+        if ($scope.nativekeyboard ) {
             document.removeEventListener("keypress", trapkeypress);
-            document.removeEventListener("keydown", trapkeydown);              
+            document.removeEventListener("keydown", trapkeydown);
         }
     });
 
@@ -222,20 +222,20 @@ app.controller('TextFieldCtrl', function ($rootScope, $scope, textFieldService) 
     }
 
     $scope.init = function () {
-        $scope.initialized = false;      
+        $scope.initialized = false;
 
         //Native keyboard
-        if ($scope.nativekeyboard && !($('#qr-canvas').length > 0)) {                   
+        if ($scope.nativekeyboard && !($('#qr-canvas').length > 0)) {
             document.addEventListener("keypress", trapkeypress);
             document.addEventListener("keydown", trapkeydown);
-        }      
+        }
     }
 
     // This functions traps the physical keyboard interaction in
     // By default it is enabled 
     //Keypress and Keydown handle different character but we have 
-    var trapkeypress = function (e) {       
-        
+    var trapkeypress = function (e) {
+
         //How to tell if a uibModal is opened
         //https://github.com/angular-ui/bootstrap/tree/master/src/modal/docs
         var isModal = $("body").hasClass("modal-open");
@@ -244,11 +244,11 @@ app.controller('TextFieldCtrl', function ($rootScope, $scope, textFieldService) 
             lastEvent = e;
             $scope.$emit(Keypad.KEY_PRESSED, String.fromCharCode(e.keyCode));
         }
-        
+
     }
 
     var trapkeydown = function (e) {
-                
+
         //How to tell if a uibModal is opened
         //https://github.com/angular-ui/bootstrap/tree/master/src/modal/docs
         var isModal = $("body").hasClass("modal-open");

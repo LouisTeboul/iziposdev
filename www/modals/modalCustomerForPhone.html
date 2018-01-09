@@ -4,9 +4,9 @@
     </div>
 
     <div class="form-panel modal-body">
-        <tabset>
+        <uib-tabset>
 
-            <tab>
+            <uib-tab ng-click="setMode('RECH')">
                 <tab-heading>
                     <x translate>RECHERCHE</x>
                 </tab-heading>
@@ -14,15 +14,15 @@
 
                     <div layout="row">
                         <label flex="30" translate>Nom, prénom ou email</label>
-                        <text-field flex="40" id="txtComment" class="flexbox" ng-model="search.query"
-                                    location="center-end" type="azerty" validfunction="ok"
+                        <text-field flex="40" id="searchBar" class="flexbox" ng-model="search.query"
+                                    location="center-end" type="azerty" validfunction="searchForCustomer"
                                     style="width:510px;margin-right:10px;min-height:34px;"></text-field>
-                        <md-button flex="20" ng-click="searchForCustomer(search.query)"
+                        <md-button flex="20" ng-click="searchForCustomer()"
                                    style="background-color:lightgrey;">Rechercher
                         </md-button>
                     </div>
                     <md-content layout-padding style="max-height:400px">
-                        <div ng-if="searchResults && searchResults.length > 0" ng-repeat="client in searchResults"
+                        <div ng-if="search.results && search.results.length > 0" ng-repeat="client in search.results"
                              ng-click="selectCustomer(client.Barcode)"
                              ng-style="{ 'background-color' : (client.Barcode == currentShoppingCart.Barcode) ? 'rgba(171, 242, 150, 0.42)' : 'transparent' }">
                             <h4 style="margin-top: 0">{{client.FirstName}} {{client.LastName}}</h4>
@@ -36,97 +36,143 @@
                         </div>
                     </md-content>
 
-                    <div class="card error" ng-if="searchResults.length === 0" style="height:100px;">
+                    <div class="card error" ng-if="search.results.length === 0" style="height:100px;">
                         <h4 style="margin-top: 8px; text-align: center" translate>Aucun résultat</h4>
                     </div>
                 </div>
-            </tab>
-            <tab>
+            </uib-tab>
+            <uib-tab ng-click="setMode('ENR')">
 
                 <tab-heading>
-                    <x translate>EMAIL</x>
+                    <x translate>ENREGISTREMENT</x>
                 </tab-heading>
 
-                <div layout="column" layout-margin>
+                <div ng-init="initRegister()">
 
-                    <div layout="row">
-                        <label flex="10" translate>Email</label>
-                        <text-field flex="70" class="flexbox" id="email" ng-model="newLoyalty.CustomerEmail"
-                                    location="center-end" type="azerty" validfunction="ok"
-                                    style="width:510px;margin-right:10px;min-height:34px;"></text-field>
-                    </div>
+                    <!-- PAGE 1 -->
+                    <div id="pageUne" class="pageRegister" ng-show="$root.currentPage == 1" layout="column" layout-margin>
+                        <div layout="row">
+                            <label flex="10" translate>Email</label>
+                            <text-field flex="70" class="flexbox" id="email" ng-model="newLoyalty.CustomerEmail"
+                                        location="center-end" type="azerty" validfunction="$root.closeKeyboard"
+                                        style="width:510px;margin-right:10px;min-height:34px;"></text-field>
+                        </div>
 
-                    <div layout="row">
-                        <label flex="10" translate>Nom</label>
-                        <text-field flex="70" id="firstName" class="flexbox" ng-model="newLoyalty.CustomerFirstName"
-                                    location="center-end" type="azerty" validfunction="ok"
-                                    style="width:510px;margin-right:10px;min-height:34px;"></text-field>
-                    </div>
+                        <div layout="row">
+                            <label flex="10" translate>Nom</label>
+                            <text-field flex="70" id="firstName" class="flexbox" ng-model="newLoyalty.CustomerFirstName"
+                                        location="center-end" type="azerty" validfunction="$root.closeKeyboard"
+                                        style="width:510px;margin-right:10px;min-height:34px;"></text-field>
+                        </div>
 
-                    <div layout="row">
-                        <label flex="10" translate>Prénom</label>
-                        <text-field flex="70" id="lastName" class="flexbox" ng-model="newLoyalty.CustomerLastName"
-                                    location="center-end" type="azerty" validfunction="ok"
-                                    style="width:510px;margin-right:10px;min-height:34px;"></text-field>
-                    </div>
-
-
-                    <div layout="row" ng-if="signInSettings.City">
-                        <label flex="10" translate>Ville</label>
-                        <text-field flex="70" id="city" class="flexbox" ng-model="newLoyalty.CustomerCity"
-                                    location="center-end" type="azerty" validfunction="ok"
-                                    style="width:510px;margin-right:10px;min-height:34px;"></text-field>
-                    </div>
-
-                    <div layout="row" ng-if="signInSettings.Company">
-                        <label flex="10" translate>Société</label>
-                        <text-field flex="70" id="company" class="flexbox" ng-model="newLoyalty.CustomerCompany"
-                                    location="center-end" type="azerty" validfunction="ok"
-                                    style="width:510px;margin-right:10px;min-height:34px;"></text-field>
-                    </div>
-
-                    <div layout="row" ng-if="signInSettings.Phone">
-                        <label flex="10" translate>Téléphone</label>
-                        <text-field flex="70" id="phone" class="flexbox" ng-model="newLoyalty.CustomerPhone"
-                                    location="center-end" type="azerty" validfunction="ok"
-                                    style="width:510px;margin-right:10px;min-height:34px;"></text-field>
-                    </div>
-
-                    <div layout="row" ng-if="signInSettings.StreetAddress">
-                        <label flex="10" translate>Adresse</label>
-                        <text-field flex="70" id="streetAddress" class="flexbox"
-                                    ng-model="newLoyalty.CustomerStreetAddress" location="center-end" type="azerty"
-                                    validfunction="ok"
-                                    style="width:510px;margin-right:10px;min-height:34px;"></text-field>
-                    </div>
-
-                    <div layout="row" ng-if="signInSettings.ZipPostalCode">
-                        <label flex="10" translate>Code Postal</label>
-                        <text-field flex="70" id="ZipPostalCode" class="flexbox"
-                                    ng-model="newLoyalty.CustomerZipPostalCode" location="center-end" type="azerty"
-                                    validfunction="ok"
-                                    style="width:510px;margin-right:10px;min-height:34px;"></text-field>
+                        <div layout="row">
+                            <label flex="10" translate>Prénom</label>
+                            <text-field flex="70" id="lastName" class="flexbox" ng-model="newLoyalty.CustomerLastName"
+                                        location="center-end" type="azerty" validfunction="$root.closeKeyboard"
+                                        style="width:510px;margin-right:10px;min-height:34px;"></text-field>
+                        </div>
                     </div>
 
 
-                    <div class="barcodeTextField" layout="row">
-                        <label flex="10" translate>No Carte</label>
-                        <text-field flex="70" id="txtBarcodeCustomer" class="flexbox"
-                                    ng-model="newLoyalty.barcode.barcodeValue" location="center-end" type="azerty"
-                                    validfunction="ok"
-                                    style="width:510px;margin-right:10px;min-height:34px;"></text-field>
-                        <md-button aria-label="scanBarcode" class="btnAction double" ng-click="scanBarcode()"><span
-                                class="glyphicon glyphicon-camera"></span></md-button>
+
+                    <!-- PAGE 2 -->
+
+
+                    <div id="pageDeux" class="pageRegister" ng-show="$root.currentPage == 2" layout="column" layout-margin>
+                        <div layout="row" ng-if="signInSettings.City">
+                            <label flex="10" translate>Ville</label>
+                            <text-field flex="70" id="city" class="flexbox" ng-model="newLoyalty.CustomerCity"
+                                        location="center-end" type="azerty" validfunction="$root.closeKeyboard"
+                                        style="width:510px;margin-right:10px;min-height:34px;"></text-field>
+                        </div>
+
+
+                        <div layout="row" class="pageRegister" ng-if="signInSettings.StreetAddress">
+                            <label flex="10" translate>Adresse</label>
+                            <text-field flex="70" id="streetAddress" class="flexbox"
+                                        ng-model="newLoyalty.CustomerStreetAddress" location="center-end" type="azerty"
+                                        validfunction="$root.closeKeyboard"
+                                        style="width:510px;margin-right:10px;min-height:34px;"></text-field>
+                        </div>
+
+
+                        <div layout="row" ng-if="signInSettings.StreetAddress2">
+                            <label flex="10" translate>Adresse 2</label>
+                            <text-field flex="70" id="streetAddress2" class="flexbox"
+                                        ng-model="newLoyalty.CustomerStreetAddress2" location="center-end" type="azerty"
+                                        validfunction="$root.closeKeyboard"
+                                        style="width:510px;margin-right:10px;min-height:34px;"></text-field>
+                        </div>
                     </div>
+
+
+                    <!-- PAGE 3 -->
+
+                    <div id="pageTrois" class="pageRegister" ng-show="$root.currentPage == 3" layout="column" layout-margin>
+                        <div layout="row" ng-if="signInSettings.ZipPostalCode">
+                            <label flex="10" translate>Code Postal</label>
+                            <text-field flex="70" id="ZipPostalCode" class="flexbox"
+                                        ng-model="newLoyalty.CustomerZipPostalCode" location="center-end" type="azerty"
+                                        validfunction="$root.closeKeyboard"
+                                        style="width:510px;margin-right:10px;min-height:34px;"></text-field>
+                        </div>
+
+                        <div layout="row" ng-if="signInSettings.Phone">
+                            <label flex="10" translate>Téléphone</label>
+                            <text-field flex="70" id="phone" class="flexbox" ng-model="newLoyalty.CustomerPhone"
+                                        location="center-end" type="azerty" validfunction="$root.closeKeyboard"
+                                        style="width:510px;margin-right:10px;min-height:34px;"></text-field>
+                        </div>
+
+
+                        <div layout="row" ng-if="signInSettings.Fax">
+                            <label flex="10" translate>Fax</label>
+                            <text-field flex="70" id="fax" class="flexbox" ng-model="newLoyalty.CustomerFax"
+                                        location="center-end" type="azerty" validfunction="$root.closeKeyboard"
+                                        style="width:510px;margin-right:10px;min-height:34px;"></text-field>
+                        </div>
+                    </div>
+
+
+                    <!-- PAGE 4 -->
+
+                    <div id="pageQuatre" class="pageRegister" ng-show="$root.currentPage == 4" layout="column" layout-margin>
+                        <div layout="row" ng-if="signInSettings.Company">
+                            <label flex="10" translate>Société</label>
+                            <text-field flex="70" id="company" class="flexbox" ng-model="newLoyalty.CustomerCompany"
+                                        location="center-end" type="azerty" validfunction="$root.closeKeyboard"
+                                        style="width:510px;margin-right:10px;min-height:34px;"></text-field>
+                        </div>
+
+
+                        <div class="barcodeTextField" layout="row">
+                            <label flex="10" translate>No Carte</label>
+                            <text-field flex="70" id="txtBarcodeCustomer" class="flexbox"
+                                        ng-model="newLoyalty.barcode.barcodeValue" location="center-end" type="azerty"
+                                        validfunction="$root.closeKeyboard"
+                                        style="width:510px;margin-right:10px;min-height:34px;"></text-field>
+                            <md-button aria-label="scanBarcode" class="btnAction double" ng-click="scanBarcode()"><span
+                                    class="glyphicon glyphicon-camera"></span></md-button>
+                        </div>
+
+                    </div>
+
+                    <div style="margin-left:40%">
+                        <ul direction-links="false" uib-pagination items-per-page="3" total-items="11"
+                            ng-model="$root.currentPage" ng-change="pageChanged()"></ul>
+                    </div>
+
+
                 </div>
-            </tab>
-        </tabset>
+            </uib-tab>
+        </uib-tabset>
     </div>
 
     <div class="modal-footer">
         <button class="btn btn-green"
                 ng-disabled="validDisabled"
-                ng-click="validCustomer()">OK</button>
+                ng-click="validCustomer()">OK
+        </button>
         <button class="btn btn-rose" ng-click="close()" translate>Annuler</button>
     </div>
 

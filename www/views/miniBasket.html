@@ -283,16 +283,31 @@
                                                 <div style="margin-left:10px" layout="row" ng-if="item.Quantity > 0">
                                                     <strong ng-show="item.Quantity > 1 && !item.isPartSplitItem">x
                                                         {{item.Quantity}}</strong>
-                                                    <strong ng-show="item.isPartSplitItem">x {{(item.Product.Price +
-                                                        item.splittedAmount)/item.Product.Price |
-                                                        RoundedValue}}</strong>
-                                                    <span>( </span>
-                                                    <span ng-if="item.IsFree"> {{0 | CurrencyFormat}}</span>
-                                                    <span ng-if="!item.IsFree">
-                                                        {{(item.Product.Price * item.Quantity) + item.splittedAmount | CurrencyFormat}}
-                                                    </span>
-                                                    <span ng-if="(item.DiscountIT && item.DiscountIT!=0)"> - {{ item.DiscountIT | CurrencyFormat }} </span>
-                                                    <span>)</span>
+                                                    <strong ng-show="item.isPartSplitItem">x
+                                                        <span ng-if="!item.dispFraction">
+                                                            {{(item.PriceIT) / item.Product.Price | number : 2}}
+                                                        </span>
+
+                                                        <div class="frac" ng-if="item.dispFraction == true">
+                                                            <span>1</span>
+                                                            <span class="symbol"></span>
+                                                            <span class="bottom">
+                                                              {{ 1 / ((item.Product.Price +
+                                                              item.splittedAmount)/item.Product.Price) |
+                                                              number : 0}}
+                                                            </span>
+                                                        </div>
+
+                                                    </strong>
+                                                    <div style="display: flex; align-items: center; margin-left: 5px;">
+                                                        <span> ( </span>
+                                                        <span ng-if="item.IsFree"> {{0 | CurrencyFormat}}</span>
+                                                        <span ng-if="!item.IsFree">
+                                                            {{ (item.PriceIT) | CurrencyFormat}}
+                                                        </span>
+                                                        <span ng-if="(item.DiscountIT && item.DiscountIT!=0)"> - {{ item.DiscountIT | CurrencyFormat }} </span>
+                                                        <span>)</span>
+                                                    </div>
                                                 </div>
 
                                             </div>
@@ -301,7 +316,7 @@
                                                 <div layout="row">
                                                     <!-- Decrement quantity -->
                                                     <md-button aria-label="decrementQty"
-                                                               ng-disabled="item.Offer != undefined || item.Quantity <= 1"
+                                                               ng-disabled="item.Offer != undefined || item.Quantity <= 1 || item.isPartSplitItem"
                                                                class="itemAction md-fab md-mini"
                                                                ng-click="$event.stopPropagation();decrementQuantity(item);">
                                                         <span class="glyphicon glyphicon-minus"></span>
@@ -309,7 +324,7 @@
 
                                                     <!-- Increment quantity -->
                                                     <md-button aria-label="incrementQty"
-                                                               ng-disabled="item.Offer != undefined"
+                                                               ng-disabled="item.Offer != undefined || item.isPartSplitItem"
                                                                class="itemAction md-fab md-mini"
                                                                ng-click="$event.stopPropagation();incrementQuantity(item);">
                                                         <span class="glyphicon glyphicon-plus"></span>
@@ -382,6 +397,14 @@
                                     <span ng-if="item.Comment">{{item.Comment}}</span>
                                 </div>
                             </div>
+                            <div ng-if="currentShoppingCart.Shipping">
+                                <hr/>
+                                Frais de Livraison
+                                <div ng-repeat="shipping in currentShoppingCart.Shipping.TaxDetails">
+                                    {{shipping.PriceIT}}
+                                </div>
+                                <hr/>
+                            </div>
                         </div>
                     </md-content>
                 </uib-accordion-group>
@@ -396,11 +419,22 @@
                             <span style="font-size: 14px;padding-top: 3px;"
                                   ng-if="currentShoppingCart && totalDivider > 1">{{currentShoppingCart.Total | CurrencyFormat}} / {{totalDivider}} = {{(currentShoppingCart.Total/totalDivider) | CurrencyFormat}}</span>
                             <span flex></span>
-                            <a ng-if="currentShoppingCart" class="btn btn-warning btnDivideTotal"
+                            <!--
+                            <a ng-if="currentShoppingCart && shoppingCartQueue.length > 0"
+                               class="btn btn-warning btnRemerge"
+                               ng-click="$event.stopPropagation(); mergeQueue()">
+                                <i class="glyphicon glyphicon-magnet"></i>
+                            </a>
+                            -->
+                            <a ng-if="currentShoppingCart && !currentShoppingCart.hasSplitItems"
+                               class="btn btn-warning btnDivideTotal"
+                               ng-class="{'disabled' : shoppingCartQueue.length > 0}"
                                ng-click="$event.stopPropagation();divideTotal();">
                                 <img style="width:26px;" alt="Image" src="img/divideUser.png">
                             </a>
-                            <a ng-if="currentShoppingCart" class="btn btn-warning btnDivideReceipt"
+                            <a ng-if="currentShoppingCart"
+                               class="btn btn-warning btnDivideReceipt"
+                               ng-class="{'disabled' : shoppingCartQueue.length > 0}"
                                ng-click="$event.stopPropagation();splitShoppingCart();">
                                 <img style="width:26px;" alt="Image" src="img/divideReceipt.png">
                             </a>
@@ -489,7 +523,7 @@
                class="shoppingCartAction btn btn-success"
                ng-click="$rootScope.IziBoxConfiguration.ForceDeliveryChoice ? openModalDelivery(true) : validShoppingCart(true) "
                ng-class="{ 'disabled' : PhoneOrderMode }"
-               ng-disabled =" PhoneOrderMode == true"
+               ng-disabled=" PhoneOrderMode == true"
                flex>
                 <span style="white-space:normal"><img class="btn-action-image" alt="Image" src="img/valid.png"></span>
             </a>
@@ -498,16 +532,19 @@
                class="shoppingCartAction btn btn-success"
                ng-click="$rootScope.IziBoxConfiguration.ForceDeliveryChoice ? openModalDelivery() : validShoppingCart() "
                ng-class="{ 'disabled' : PhoneOrderMode }"
-               ng-disabled =" PhoneOrderMode == true"
+               ng-disabled=" PhoneOrderMode == true"
                flex>
-                <span style="white-space:normal"><img style="width:25px;margin-right:2px;" alt="Image"
-                                                      src="img/valid.png"><img style="width:28px;margin-left:2px;"
-                                                                               alt="Image" src="img/print.png"></span>
+                <span style="white-space:normal"><img style="width:25px;margin-right:2px;"
+                                                      alt="Image" src="img/valid.png">
+                    <img style="width:28px;margin-left:2px;"
+                         alt="Image" src="img/print.png">
+                </span>
             </a>
             <a class="shoppingCartAction btn btn-info" ng-click="printProdShoppingCart()" flex>
                 <span style="white-space:normal"><img style="width:35px" alt="Image" src="img/printProd.png"></span>
             </a>
-            <a class="shoppingCartAction btn btn-danger" ng-click="cancelShoppingCart()" flex
+            <a class="shoppingCartAction btn btn-danger"
+               ng-click="cancelShoppingCart()" flex
                ng-if="!currentShoppingCart.isPayed">
                 <span style="white-space:normal"><img class="btn-action-image" alt="Image" src="img/trash.png"></span>
             </a>

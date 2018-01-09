@@ -1,26 +1,56 @@
 <section>
 
     <div ng-init="init()" class="modal-header">
-        <h1 class="modal-title ng_scope" translate> Montant à split</h1>
+        <h1 class="modal-title ng_scope" translate>Choisissez une opération</h1>
     </div>
 
+    <uib-tabset ng-cloak>
 
-    <div style="height:50px; margin-top:20px; margin-bottom: 10px">
 
-        <div class = "center">
-            <label for="splitAmount"> Montant : </label>
-            <text-field id="splitAmount" ng-model="result" location="end-start" type="decimal" validfunction="ok" style="width:155px;"></text-field>
-        </div>
+        <uib-tab ng-click="setMode('MONTANT')">
+            <tab-heading>
+                <x translate>Montant</x>
+            </tab-heading>
 
-        <div class="inp center" ng-if="errorMessage">
-            <span class="labelErr">{{errorMessage}}</span>
-        </div>
+            <div style="height:50px; margin-top:20px; margin-bottom: 10px">
+                <div class = "center">
+                    <label for="splitAmount"> Montant : </label>
+                    <text-field id="splitAmount" ng-model="result.montant" location="end-start" type="decimal" validfunction="okMontant" style="width:155px;"></text-field>
+                </div>
 
-    </div>
+                <div class="inp center" ng-if="errorMessageMontant">
+                    <span class="labelErr">{{errorMessageMontant}}</span>
+                </div>
+            </div>
 
-    <div class="modal-footer" style="display:flex; justify-content: space-between">
-        <button class="btn btn-success" ng-click="ok()" translate>Ok</button>
-        <button class="btn btn-rose" ng-click="cancel()" translate>Annuler</button>
-    </div>
+            <div class="modal-footer">
+                <button class="btn btn-success" ng-click="okMontant()" translate>OK</button>
+                <button class="btn btn-rose" ng-click="cancel()" translate>Annuler</button>
+            </div>
+
+        </uib-tab>
+
+        <uib-tab ng-click="setMode('PART')"
+                 ng-if="false">
+                 <!--ng-if="!item.isPartSplitItem || item.isPartSplitItem == false ">-->
+
+            <tab-heading>
+                <x translate>Part</x>
+            </tab-heading>
+
+            <div style="height:50px; margin-top:20px; margin-bottom: 10px">
+                <div class = "center">
+                    <label for="splitPart" translate> Nombre de parts : </label>
+                    <text-field id="splitPart" ng-model="result.part" location="end-start" type="decimal" validfunction="okPart" style="width:155px;"></text-field>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn btn-success" ng-click="okPart()" translate>OK</button>
+                <button class="btn btn-rose" ng-click="cancel()" translate>Annuler</button>
+            </div>
+        </uib-tab>
+
+    </uib-tabset>
 
 </section>

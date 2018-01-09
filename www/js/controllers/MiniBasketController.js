@@ -12,13 +12,15 @@ app.controller('MiniBasketController', ['$scope', '$rootScope', '$state', '$uibM
 		$scope.DeliveryTypes = DeliveryTypes;
 
 		$scope.totalDivider = 1;
+
+		$scope.shoppingCartQueue = [];
 		//#region Controller init
 		/**
 		* Initialize controller
 		*/
 		$scope.init = function () {
             $scope.viewmodel = {};
-            $scope.TimeOffset = 15;
+            $scope.TimeOffset = $rootScope.IziBoxConfiguration.OrdersPrepareMinutes;
 
 			updateCurrentShoppingCart();
 
@@ -331,24 +333,13 @@ app.controller('MiniBasketController', ['$scope', '$rootScope', '$state', '$uibM
 
 		//#region Phone Order Action
 
-		$scope.changeShoppingCartTime = function(time){
-			// Impossible de descendre en dessous de 15min
-			/** TODO : rendre le min parametrable */
-			if($scope.TimeOffset + time < 15) {
-                $scope.TimeOffset = 15;
-			} else {
-                $scope.TimeOffset += time;
-			}
-
-		};
-
 		$scope.pickTime = function(){
             var modalInstance = $uibModal.open({
                 templateUrl: 'modals/modalPhoneOrderTime.html',
                 controller: 'ModalPhoneOrderTimeController',
                 resolve: {
-                    currentTotalDivider: function () {
-                        return $scope.totalDivider;
+                	currentTimeOffset : function(){
+                		return $scope.TimeOffset;
                     }
                 },
                 backdrop: 'static'
@@ -357,10 +348,10 @@ app.controller('MiniBasketController', ['$scope', '$rootScope', '$state', '$uibM
             modalInstance.result.then(function (model) {
             	console.log(model);
                 console.log("On a finit");
-                if(60 * model.heure + model.minute >= 15){
+                if(60 * model.heure + model.minute >= $rootScope.IziBoxConfiguration.OrdersPrepareMinutes){
                     $scope.TimeOffset = 60 * model.heure + model.minute;
 				} else {
-                    $scope.TimeOffset = 15;
+                    $scope.TimeOffset = $rootScope.IziBoxConfiguration.OrdersPrepareMinutes;
 				}
             }, function () {
             	console.log("On a cancel");
@@ -370,7 +361,7 @@ app.controller('MiniBasketController', ['$scope', '$rootScope', '$state', '$uibM
 
 
         $scope.setShoppingCartTime = function(){
-            $scope.currentShoppingCart.DatePickup = new Date().addMinutes($scope.TimeOffset).toString("d/M/yyyy HH:mm:ss");
+            $scope.currentShoppingCart.DatePickup = new Date().addMinutes($scope.TimeOffset).toString("dd/MM/yyyy HH:mm:ss");
             $scope.currentShoppingCart.id = new Date().addMinutes($scope.TimeOffset).getTime();
         };
 
@@ -419,39 +410,52 @@ app.controller('MiniBasketController', ['$scope', '$rootScope', '$state', '$uibM
 		};
 
 		$scope.splitShoppingCart = function () {
-			if (posUserService.isEnable('SPLIT')) {
-				var modalInstance = $uibModal.open({
-					templateUrl: 'modals/modalShoppingCartSplit.html',
-					controller: 'ModalShoppingCartSplitController',
-					backdrop: 'static',
-					size: 'lg',
-					resolve: {
-						defaultValue: function () {
-							return true;
-						}
-					}
-				});
-			}
+            if($scope.currentShoppingCart && $scope.currentShoppingCart.Items.length > 0) {
+                if (posUserService.isEnable('SPLIT')) {
+                    var modalInstance = $uibModal.open({
+                        templateUrl: 'modals/modalShoppingCartSplit.html',
+                        controller: 'ModalShoppingCartSplitController',
+                        backdrop: 'static',
+                        size: 'lg',
+                        resolve: {
+                            defaultValue: function () {
+                                return true;
+                            }
+                        }
+                    });
+                }
+            }
 		};
 
 		$scope.divideTotal = function () {
-			var modalInstance = $uibModal.open({
-				templateUrl: 'modals/modalTotalDivider.html',
-				controller: 'ModalTotalDividerController',
-				resolve: {
-					currentTotalDivider: function () {
-						return $scope.totalDivider;
-					}
-				},
-				size: 'sm',
-				backdrop: 'static'
-			});
+			if($scope.currentShoppingCart && $scope.currentShoppingCart.Items.length > 0) {
+                var modalInstance = $uibModal.open({
+                    templateUrl: 'modals/modalTotalDivider.html',
+                    controller: 'ModalTotalDividerController',
+                    resolve: {
+                        currentTotalDivider: function () {
+                            return $scope.totalDivider;
+                        }
+                    },
+                    size: 'sm',
+                    backdrop: 'static'
+                });
 
-			modalInstance.result.then(function (divider) {
-				$scope.totalDivider = divider;
-			}, function () {
-			});
+                modalInstance.result.then(function (divider) {
 
+                	$scope.totalDivider = divider;
+
+                	/*
+                    shoppingCartModel.createDividedShoppingCartsAsync($scope.currentShoppingCart, divider).then(function(spq){
+                        $scope.shoppingCartQueue = spq;
+                        shoppingCartModel.setCurrentShoppingCart($scope.shoppingCartQueue[$scope.shoppingCartQueue.length -1]);
+                    });
+                    */
+
+                }, function () {
+                	console.log('cancel divider');
+                });
+			}
 		};
 		//#endregion
 
@@ -519,6 +523,7 @@ app.controller('MiniBasketController', ['$scope', '$rootScope', '$state', '$uibM
 			if (posUserService.isEnable('DELT')) {
 				swal({ title: $translate.instant("Supprimer le ticket ?"), text: "", type: "warning", showCancelButton: true, confirmButtonColor: "#d83448", confirmButtonText: $translate.instant("Oui"), cancelButtonText: $translate.instant("Non"), closeOnConfirm: true },
 					function () {
+						$scope.shoppingCartQueue = [];
 						shoppingCartModel.cancelShoppingCartAndSend();
 					});
 			}			
@@ -620,6 +625,9 @@ app.controller('MiniBasketController', ['$scope', '$rootScope', '$state', '$uibM
 
 		/** Clear the loyalty info linked to the ticket */
 		$scope.removeLoyaltyInfo = function () {
+			//Une commande telephonique est forcement lié a un client
+			//Si on supprime, un client, on sort donc du mode commande telephonique
+            $rootScope.PhoneOrderMode = false;
 			// Il faut suppr les paymentModesAvailable lié a la fid
             console.log($scope.paymentModesAvailable);
             $scope.paymentModesAvailable = $scope.paymentModesAvailable.filter(function(pma){

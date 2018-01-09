@@ -122,26 +122,28 @@ app.controller('ConfigurableMenuController', function ($scope, $rootScope, $stat
 
         var AttributeValue = Enumerable.from(Attribute.ProductAttributeValues).firstOrDefault("x => x.Id ==" + id);
         if (AttributeValue.Selected) {
-            if (Attribute.IsRequired == false) {
-                testSelectCheckbox(Attribute, AttributeValue, false);
-                if (AttributeValue.PriceAdjustment) $scope.TotalPrice = $scope.TotalPrice - AttributeValue.PriceAdjustment;
+            if (Attribute.IsRequired == false || Attribute.Type == 3) {
+                if(testSelectCheckbox(Attribute, AttributeValue, false)){
+                    if (AttributeValue.PriceAdjustment) $scope.TotalPrice = $scope.TotalPrice - AttributeValue.PriceAdjustment;
+                }
             }
         }
         else {
-            testSelectCheckbox(Attribute, AttributeValue, true);
-            if (!reload) {
-                Attribute.Step = $scope.currentStep;
+            if(testSelectCheckbox(Attribute, AttributeValue, true)){
+                if (!reload) {
+                    Attribute.Step = $scope.currentStep;
 
-                if (AttributeValue.LinkedProduct && AttributeValue.LinkedProduct.ProductComments && AttributeValue.LinkedProduct.ProductComments.length > 0) {
-                    shoppingCartModel.editComment(AttributeValue);
+                    if (AttributeValue.LinkedProduct && AttributeValue.LinkedProduct.ProductComments && AttributeValue.LinkedProduct.ProductComments.length > 0) {
+                        shoppingCartModel.editComment(AttributeValue);
+                    }
+
                 }
-
+                else {
+                    if (!Attribute.Step) Attribute.Step = $scope.currentStep;
+                }
+                if (AttributeValue.PriceAdjustment) $scope.TotalPrice = $scope.TotalPrice + AttributeValue.PriceAdjustment;
+                $scope.$evalAsync();
             }
-            else {
-                if (!Attribute.Step) Attribute.Step = $scope.currentStep;
-            }
-            if (AttributeValue.PriceAdjustment) $scope.TotalPrice = $scope.TotalPrice + AttributeValue.PriceAdjustment;
-            $scope.$evalAsync();
         }
 
         if (Attribute.Type == 2) // Radiolist
@@ -179,16 +181,21 @@ app.controller('ConfigurableMenuController', function ($scope, $rootScope, $stat
             // Si on veut selectionné et qu'on est en dessous du max, on autorise
             if(nbSelect < max && state===true){
                 AttributeValue.Selected = state;
+                return true;
             }
 
             // Si on veut déselectionné et qu'on est au dessus du min, on autorise
-            if(nbSelect >= min && state===false){
+            if(nbSelect > min && state===false){
                 AttributeValue.Selected = state;
+                return true
             }
+
+            return false;
 
         } else {
             // Dans le cas radio, on autorise
             AttributeValue.Selected = state;
+            return true;
         }
     }
 

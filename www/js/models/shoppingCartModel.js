@@ -7,6 +7,8 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
         //For splitting ticket
         var currentShoppingCartIn = undefined;
         var currentShoppingCartOut = undefined;
+
+        var shoppingCartQueue = [];
         var paymentModesAvailable = undefined;
         var deliveryType = DeliveryTypes.FORHERE;
         var currentBarcode = { barcodeValue: '' };
@@ -121,50 +123,45 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
         };
 
         // Used to transfer item from a ticket to another when splitting ticket
-        this.splitItemTo = function (shoppingCartTo, shoppingCartFrom, cartItem, amount) {
+        this.splitItemTo = function (shoppingCartTo, shoppingCartFrom, cartItem, amount, makeParts = false, nbParts = 0) {
             var itemExist = undefined;
+            shoppingCartTo.hasSplitItems = true;
+            shoppingCartFrom.hasSplitItems = true;
 
             //Ticket from an online order doesn't have empty product attributes
             if (!cartItem.Offer && !cartItem.Isfree && cartItem.Product.ProductAttributes && !cartItem.Product.ProductAttributes.length > 0) {
                 itemExist = Enumerable.from(shoppingCartTo.Items).firstOrDefault(function (x) {
-                    return !x.Comment && !x.Offer && !x.IsFree && x.ProductId == cartItem.ProductId && x.Step == cartItem.Step && x.hashkey == cartItem.hashkey;
+                    return !x.Comment && !x.Offer && !x.IsFree && x.ProductId == cartItem.ProductId && x.hashkey == cartItem.hashkey;
                 });
             }
 
             // If the item is already in the shopping cart, increase its price
             // A revoir
-            if (itemExist) {
+            if (itemExist && !makeParts) {
                 itemExist.splittedAmount += amount;
                 cartItem.splittedAmount -= amount;
             }
             else {
                 //Clone l'item
                 var item = clone(cartItem);
-                item.DiscountET = 0;
-                item.DiscountIT = 0;
+                if(!makeParts){
+                    cartItem.dispFraction = false;
+                    item.dispFraction = false;
+                    item.DiscountET = 0;
+                    item.DiscountIT = 0;
+                } else {
+                    cartItem.dispFraction = true;
+                    item.hashkey = objectHash(item);
+                    item.dispFraction = true;
+                    item.DiscountET /= nbParts;
+                    item.DiscountIT /= nbParts;
+                }
+
                 item.splittedAmount = 0;
-
-                //Faire le cas ou les taxe ne sont pas incluse dans le prix  ?
-                //la fonction taxeService à un bug
-				/**
-                taxesService.getPricesIncludedTaxAsync().then(function(result){
-                	if(result) {
-                        item.splittedAmount += amount - item.Product.PriceIT;
-					}
-					else {
-                        item.splittedAmount += amount - item.Product.PriceET;
-					}
-
-                    item.Quantity = 1;
-
-                    //On l'ajoute au ticket de destination
-                    shoppingCartTo.Items.push(item);
-				});
-
-				 */
 
                 item.splittedAmount += amount - item.Product.Price;
                 item.isPartSplitItem = true;
+
 
                 item.Quantity = 1;
 
@@ -177,23 +174,33 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
                     newCartItem.Quantity--;
                     //On regenere un hash
                     newCartItem.hashkey = objectHash(newCartItem);
+
                     shoppingCartFrom.Items.push(newCartItem);
                 }
 
+
                 cartItem.Quantity = 1;
-                cartItem.isPartSplitItem = true; cartItem.splittedAmount -= amount;
+
+
+                cartItem.isPartSplitItem = true;
+                cartItem.splittedAmount -= amount;
 
             }
             if (cartItem.Product.Price + cartItem.splittedAmount <= 0 && shoppingCartFrom) {
 
+                shoppingCartFrom.hasSplitItems = false;
+
                 //Si on a passer l'integralité du produit vers le In,
                 //Le produit dans le in n'est plus un produit split
-                if (item) {
-                    item.isPartSplitItem = false;
+                if(!makeParts) {
+                    if (item) {
+                        item.isPartSplitItem = false;
+                    }
+                    if (itemExist) {
+                        itemExist.isPartSplitItem = false;
+                    }
                 }
-                if (itemExist) {
-                    itemExist.isPartSplitItem = false;
-                }
+
                 this.removeItemFrom(shoppingCartFrom, cartItem);
             }
         };
@@ -214,19 +221,11 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
                 });
             }
 
-            //If the item is already in the shopping cart, increase its quantity
-            //Except if it's a comment product
-            if (itemExist || cartItem.Product.ProductComments.length > 0) {
-                itemExist.Quantity += qty;
-                cartItem.Quantity -= qty;
-            }
-            else {
+            var item = clone(cartItem);
+            item.Quantity = qty;
+            shoppingCartTo.Items.push(item);
+            cartItem.Quantity -= qty;
 
-                var item = clone(cartItem);
-                item.Quantity = qty;
-                shoppingCartTo.Items.push(item);
-                cartItem.Quantity -= qty;
-            }
             if (cartItem.Quantity <= 0 && shoppingCartFrom) {
                 this.removeItemFrom(shoppingCartFrom, cartItem);
             }
@@ -375,6 +374,25 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
         //#endregion
 
         //#region Actions on ShoppingCart
+
+        this.createDividedShoppingCartsAsync = function(shoppingCart, divider){
+            var dividedDefer = $q.defer();
+            shoppingCart.isDividedShoppingCart = true;
+            Enumerable.from(shoppingCart.Items).forEach(function(item){
+                item.DiscountIT /= divider;
+                item.DiscountET /= divider;
+                item.isPartSplitItem = true;
+                item.splittedAmount += (item.Product.Price / divider) - item.Product.Price
+            });
+
+            for(var i = 0; i < divider; i++) {
+                current.calculateTotalFor(shoppingCart);
+                shoppingCartQueue.push(clone(shoppingCart));
+            }
+
+            dividedDefer.resolve(shoppingCartQueue);
+            return dividedDefer.promise;
+        };
 
         // Creates an empty ticket
         this.createShoppingCart = function () {
@@ -813,14 +831,27 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
                 // Once the ticket saved we delete the splitting ticket
                 currentShoppingCartIn = undefined;
 
-                if (currentShoppingCartOut) {
-                    currentShoppingCart = clone(currentShoppingCartOut);
-                    deliveryType = currentShoppingCart.DeliveryType;
-                    currentShoppingCartOut = undefined;
-                    $rootScope.$emit("shoppingCartChanged", currentShoppingCart);
+                if(currentShoppingCartOut || (shoppingCartQueue && shoppingCartQueue.length >= 1)) {
+                    if (currentShoppingCartOut) {
+                        currentShoppingCart = clone(currentShoppingCartOut);
+                        deliveryType = currentShoppingCart.DeliveryType;
+                        currentShoppingCartOut = undefined;
+                        $rootScope.$emit("shoppingCartChanged", currentShoppingCart);
 
+                    }
+
+                    if (shoppingCartQueue.length >= 1) {
+                        shoppingCartQueue.splice(shoppingCartQueue.length -1, 1);
+                        currentShoppingCart = clone(shoppingCartQueue[shoppingCartQueue.length -1]);
+                        deliveryType = currentShoppingCart.DeliveryType;
+                        $rootScope.$emit("shoppingCartChanged", currentShoppingCart);
+                        if(shoppingCartQueue.length == 1){
+                            shoppingCartQueue = [];
+                        }
+                    }
                 }
                 else {
+
                     current.clearShoppingCart();
                 }
 
@@ -832,7 +863,7 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
                 $rootScope.hideLoading();
                 current.clearShoppingCart();
             });
-        };
+        }
 
 		/**
 		*@ngdoc method
@@ -852,6 +883,10 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
                     $rootScope.hideLoading();
                     sweetAlert($translate.instant("Le ticket n'est pas soldé"));
                     return;
+                }
+
+                if(currentShoppingCart.Shipping){
+
                 }
 
                 // Si le ticket est associé à un client
@@ -892,7 +927,6 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
                     periodValidation(ignorePrintTicket);
                 }
             }
-
         };
 
 		/**
@@ -1100,7 +1134,7 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
                                     attr.PrintCount = attr.PrintCount ? attr.PrintCount + 1 : 1;
                                 }
                             });
-                            item.PartialPrinted = false
+                            item.PartialPrinted = false;
                             if (Enumerable.from(item.Attributes).any("x => x.Printed")) {
                                 if (Enumerable.from(item.Attributes).any("x => !x.Printed")) {
                                     item.PartialPrinted = true;
@@ -1214,6 +1248,8 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
                 currentShoppingCartOut = undefined;
                 $rootScope.$emit("shoppingCartCleared");
             }
+
+            shoppingCartQueue = [];
 
             this.updatePaymentModes();
         };

@@ -17,7 +17,16 @@ app.controller('ModalAllShoppingCartsController', function ($scope, $rootScope, 
             { field: "Timestamp", title: "No Ticket", width: 150 },
             { field: "TableNumber", title: "Table", width: 80 },
             { field: "Total", title: "Total", width: 80 },
-            { template: "<button class=\"btn btn-default\"  ng-init='isServiceOpen(dataItem)' ng-show='modelItem[dataItem.yPeriodId]' ng-click=\"editShopCartItem(dataItem)\"><span class='glyphicon glyphicon-pencil'></span></button>", title: " ", width: 80 },
+            { template: "" +
+
+                "<div class='center'>"+
+                    "<span ng-show='dataItem.Canceled' class='glyphicon glyphicon-remove' style='color:red; display:inline-block'></span>" +
+
+
+                    "<button class=\"btn btn-default\"  ng-init='isServiceOpen(dataItem)' ng-show='modelItem[dataItem.yPeriodId]' ng-click=\"editShopCartItem(dataItem)\" style='display:inline-block'>" +
+                        "<span class='glyphicon glyphicon-pencil'></span>" +
+                    "</button>"+
+                "</div>", title: " ", width: 80 },
             { template: "<button class=\"btn btn-info\" ng-click=\"printNote(dataItem)\"><img style=\"width:20px;\" alt=\"Image\" src=\"img/receipt.png\"></button><button class=\"btn btn-rose\" style=\"margin-left:5px\" ng-click=\"selectShopCartItem(dataItem)\"><img style=\"width:20px;\" alt=\"Image\" src=\"img/print.png\"></button>", title: " ", width: 133 }
 		];
 
@@ -122,6 +131,7 @@ app.controller('ModalAllShoppingCartsController', function ($scope, $rootScope, 
 	});
 
 	$scope.displayShoppingCarts = function(shoppingCarts) {
+	    console.log(shoppingCarts);
 
         $scope.gridDatas = new kendo.data.DataSource({
             schema: {
@@ -251,6 +261,7 @@ app.controller('ModalAllShoppingCartsController', function ($scope, $rootScope, 
 	};
 
 	$scope.isServiceOpen = function (line){
+	    console.log(line);
         $scope.modelItem[line.yPeriodId] = false;
         posPeriodService.getYPeriodAsync(line.HardwareId, null, false, false).then(function(yp){
             $scope.modelItem[line.yPeriodId] =  yp.id == line.yPeriodId;

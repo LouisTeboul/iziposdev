@@ -44,12 +44,14 @@ app.service('orderShoppingCartService', ["$http", "$rootScope", "$q", "settingSe
 
                 for (var i = current.orders.length - 1; i >= 0; i--) {
                     var order = current.orders[i];
-                    var orderDate = Date.parseExact(order.Date, "dd/MM/yyyy H:mm:ss");
+
                     if (order.ShippingOption) {
                         var orderOptions = Date.parseExact(order.ShippingOption, "H:mm:ss");
+                        var orderDate = Date.parseExact(order.Date, "dd/MM/yyyy H:mm:ss");
                     }
                     if (order.DatePickup) {
                         var orderOptions = Date.parseExact(order.DatePickup, "dd/MM/yyyy H:mm:ss");
+                        var orderDate = Date.parseExact(order.DatePickup, "dd/MM/yyyy H:mm:ss");
                     }
 
 

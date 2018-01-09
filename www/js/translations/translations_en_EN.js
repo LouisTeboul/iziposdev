@@ -177,6 +177,11 @@
 		"Inclure le detail des services" : "Include services details",
 		"Correction des tickets" : "Edit tickets",
 
+		"Choisissez une op&eacute;ration" : "Choose an operation",
+		"Montant" : "Amount",
+		"Nombre de parts" : "Number of parts",
+
+
 
 
 

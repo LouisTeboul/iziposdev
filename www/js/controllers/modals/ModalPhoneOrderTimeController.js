@@ -1,11 +1,26 @@
 
-app.controller('ModalPhoneOrderTimeController', function ($scope, $rootScope, $q, $http, $uibModalInstance, $uibModal, $translate) {
+app.controller('ModalPhoneOrderTimeController', function ($scope, $rootScope, $q, $http, $uibModalInstance, $uibModal, $translate, currentTimeOffset) {
 
     var current = this;
 
-    $scope.init = function () {
-        $scope.model = {};
+    var currentTimeHours = Math.floor(currentTimeOffset/60);
+    var currentTimeMinutes = currentTimeOffset % 60;
 
+
+
+
+    $scope.init = function () {
+        var d = new Date();
+        d.setHours( 14 );
+        d.setMinutes( 0 );
+        $scope.model = {
+            heure : currentTimeHours,
+            minute : currentTimeMinutes,
+            date : new Date(),
+            minDate: new Date(),
+            dateOpen : false,
+            agendaTime : d,
+        };
 
     };
 
@@ -25,6 +40,11 @@ app.controller('ModalPhoneOrderTimeController', function ($scope, $rootScope, $q
     $scope.selectMinute = function(m){
         $scope.model.minute = m;
         console.log($scope.model)
+    };
+
+
+    $scope.openDate = function() {
+        $scope.model.dateOpen = true;
     };
 
     $scope.ok = function () {

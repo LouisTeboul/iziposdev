@@ -142,7 +142,7 @@ app.service('loyaltyService', ["$http", "$rootScope", "$q", "$translate",
 
 
         /**
-         * Register a partial customer - firstname, lastname, mail are mandatory
+         * Register a full customer - mandatory fields only
          * @param loyalty
          */
         this.registerFullCustomerAsync = function (loyalty) {
@@ -152,7 +152,6 @@ app.service('loyaltyService', ["$http", "$rootScope", "$q", "$translate",
             var code;
             var obj = {};
 
-            //if (loyalty.AllowCustomerToCreateLoyaltyBarcode)
             if (loyalty.Barcodes && loyalty.Barcodes.length > 0 && loyalty.Barcodes) {
                 code = loyalty.Barcodes[0].Barcode;
             } else {
@@ -185,13 +184,13 @@ app.service('loyaltyService', ["$http", "$rootScope", "$q", "$translate",
                 }, function (response) {
                     registerDefer.reject("Error registering customer");
                     if (response.statusText != undefined && response.statusText != '') {
-                        sweetAlert($translate.instant(response.statusText));
+                        //Fix horrible qui permet de remplacé les caractères mal formatté
+                        sweetAlert($translate.instant(response.statusText.replace('Ã©', 'é').replace('Ã', 'à').replace('Ã©', 'é')));
                     }
                     else {
                         sweetAlert($translate.instant("Erreur lors de l'enregistrement du client"));
                     }
                 });
-
             return registerDefer.promise;
         };
 

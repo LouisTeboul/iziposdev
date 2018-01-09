@@ -390,11 +390,14 @@ app.service('shoppingCartService', ["$http", "$rootScope", "$q", "$filter", "zpo
 		 * @param step The production steps
 		 */
 		this.printProdAsync = function (shoppingCart, step) {
+			console.log(shoppingCart);
 			var printDefer = $q.defer();
 
 			shoppingCart.PosUserId = $rootScope.PosUserId;
 			shoppingCart.PosUserName = $rootScope.PosUserName;
-			shoppingCart.ShowNameOnTicket = $rootScope.PosUser.ShowNameOnTicket; // Warning bug
+			if($rootScope.PosUser){
+                shoppingCart.ShowNameOnTicket = $rootScope.PosUser.ShowNameOnTicket;
+			}
 
 			var shoppingCartPrinterReq = {
 				ShoppingCart: shoppingCart,
@@ -404,6 +407,7 @@ app.service('shoppingCartService', ["$http", "$rootScope", "$q", "$filter", "zpo
 			if ($rootScope.IziBoxConfiguration.LocalIpIziBox) {
 				var printerApiUrl = "http://" + $rootScope.IziBoxConfiguration.LocalIpIziBox + ":" + $rootScope.IziBoxConfiguration.RestPort + "/printprod";
 				console.log("PrinterApiUrl : " + printerApiUrl);
+				console.log(shoppingCartPrinterReq);
 				this.printShoppingCartPOST(printerApiUrl, shoppingCartPrinterReq, printDefer);
 
 			} else {
@@ -428,8 +432,10 @@ app.service('shoppingCartService', ["$http", "$rootScope", "$q", "$filter", "zpo
 
 			// WARNING: the POS could send a retry and insert 3 times a valid ticket
 			// TODO: Pull the retry from the validation
+			console.log(printerApiUrl);
 			$http.post(printerApiUrl, shoppingCartPrinterReq, { timeout: 10000 }).
                 success(function (obj) {
+                	console.log("succes", obj);
                     //Set the coucbDb Id and the timestamp that come from the box
                     if (shoppingCartPrinterReq.ShoppingCart != undefined) {
                         if (obj.ticketId != undefined) {
@@ -446,6 +452,7 @@ app.service('shoppingCartService', ["$http", "$rootScope", "$q", "$filter", "zpo
 					printDefer.resolve(shoppingCartPrinterReq);
 				}).
                 error(function (err) {
+                	console.log("erreur", err);
 
                     if (err && err.error) {
                         printDefer.reject({ request: shoppingCartPrinterReq, error: err.error });

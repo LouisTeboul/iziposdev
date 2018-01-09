@@ -10,8 +10,12 @@
 					<md-tab ng-repeat="area in map.Areas"
 							label="{{area.Name}}">
 						<div layout="row" layout-wrap flex>
-							<md-grid-list ng-if="!isLoading" md-cols="4" md-row-height="1:1" md-row-height-gt-md="1:1" md-cols-gt-sm="6" md-cols-gt-md="8" md-gutter="8px" flex>
-								<md-grid-tile ng-if="table.ihm.enabled" ng-repeat="table in currentArea.Objects | orderBy:'TableNumber'" style="background-color: {{table.options.fill}}" ng-click="selectTable(table)">
+							<md-grid-list ng-show="!isLoading" md-cols="4" md-row-height="1:1" md-row-height-gt-md="1:1" md-cols-gt-sm="6" md-cols-gt-md="8" md-gutter="8px" flex>
+								<md-grid-tile ng-show="table.ihm.enabled"
+											  ng-repeat="table in currentArea.Objects | orderBy:'TableNumber'"
+											  id="t{{table.Id}}"
+											  style="background-color: {{table.options.fill}}"
+											  ng-click="selectTable(table)">
 									<div layout="column" ng-class="{'layout-align-center-center' : $mdMedia('gt-xs'), 'layout-align-start-end':$mdMedia('xs')}" layout-fill>
 										<h1 style="margin:0;color:white;font-weight:bold;">{{table.TableNumber}}</h1>
 										<md-icon ng-if="$mdMedia('gt-xs')" style="color:white;width: 40%;height:40%;margin: 0 0 20% 0;" md-svg-icon="img/icons/table.svg"></md-icon>
@@ -29,12 +33,12 @@
 								</div>
 								<div class="form-panel modal-body">
 									<div class="inp">
-										<label for="address"><x translate>Numéro</x> :</label>
+										<label for="txtTable"><x translate>Numéro</x> :</label>
 										<text-field id="txtTable" ng-model="tableModel.valueTable" location="center-end" type="numeric" validfunction="ok" style="width:150px"></text-field>
 									</div>
 									<br />
 									<div class="inp">
-										<label for="address"><x translate>Couvert(s)</x> :</label>
+										<label for="txtCutleries"><x translate>Couvert(s)</x> :</label>
 										<text-field id="txtCutleries" ng-model="tableModel.valueCutleries" location="center-end" type="numeric" validfunction="ok" style="width:150px"></text-field>
 									</div>
 									<div class="inp" ng-if="errorMessage">
