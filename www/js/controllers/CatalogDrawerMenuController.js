@@ -46,10 +46,20 @@
                 $scope.docToSynchronize = Enumerable.from(result.rows).count(function (item) {
                     return item.id.indexOf("PosLog_") === -1;
                 });
-
                 $scope.$evalAsync();
 
-                loop();
+                $rootScope.dbValidatePool.allDocs({
+                    include_docs: false,
+                    attachments: false
+                }).then(function (resPool) {
+                    $scope.docToSynchronize += resPool.rows.length;
+                    $scope.$evalAsync();
+                    loop();                    
+                }).catch(function () {
+                    loop();
+                });
+
+
             }).catch(function (err) {
                 loop();
             });

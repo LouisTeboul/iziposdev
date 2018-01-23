@@ -83,7 +83,15 @@
                 var iziboxDaemon = function () {
                     setTimeout(function () {
                         $http.get(pingApiUrl, { timeout: 1000 }).then(function (data) {
-                            $rootScope.modelPos.iziboxConnected = true;
+                            //Ancienne version izibox
+                            if (!data.data.localDb) {
+                                data.data.localDb = true;
+                                data.data.distantDb = true;
+                            }
+
+                            $rootScope.modelPos.iziboxConnected = data.data && data.data.localDb != undefined ? data.data.localDb : true;
+                            $rootScope.modelPos.iziboxStatus = data.data;
+
                             $rootScope.$evalAsync();
 
                             if (_degradeState && !_sending) {
@@ -150,7 +158,7 @@
             var retDefer = $q.defer();
 
             this.getUpdDailyTicketAsync(hardwareId, changeValue).then(function (res) {
-                retDefer.resolve($rootScope.modelPos.posNumber + res.count.toString().padStart(3, "0"));
+                retDefer.resolve($rootScope.modelPos.posNumber + padLeft(res.count.toString(),3, "0"));
             }, function (errGet) {
                 retDefer.resolve($rootScope.modelPos.posNumber + "001");
             });

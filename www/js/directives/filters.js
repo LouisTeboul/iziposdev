@@ -30,7 +30,8 @@ app
 
 		if (res == 0 || input.toString() == res) {
 			//Pas réussi à déterminer la devise
-			if ($rootScope.IziPosConfiguration.Currency.CurrencyCode == "EUR") res = roundValue(input).toFixed(2) + " €";
+            if ($rootScope.IziPosConfiguration.Currency.CurrencyCode == "EUR") res = roundValue(input).toFixed(2) + " €";
+            if ($rootScope.IziPosConfiguration.Currency.CurrencyCode == "KMF") res = roundValue(input).toFixed(2) + " F";
 			if ($rootScope.IziPosConfiguration.Currency.CurrencyCode == "USD") res = "$" + roundValue(input).toFixed(2);
 			if ($rootScope.IziPosConfiguration.Currency.CurrencyCode == "CAD") res = "$" + roundValue(input).toFixed(2);
 		}

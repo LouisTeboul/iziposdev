@@ -318,7 +318,8 @@ app.service('shoppingCartService', ["$http", "$rootScope", "$q", "$filter", "zpo
 			var shoppingCartPrinterReq = {
 				PrinterIdx: printerIdx,
 				ShoppingCart: shoppingCart,
-				IsPosTicket: isPosTicket,
+                IsPosTicket: isPosTicket,
+                IsNote: nbNote && nbNote > 0,
 				PrintCount: printCount,
 				IgnorePrintTicket: ignorePrintTicket,
 				PrintQRCode: !isPosTicket && $rootScope.IziBoxConfiguration.PrintProdQRCode,
@@ -434,24 +435,24 @@ app.service('shoppingCartService', ["$http", "$rootScope", "$q", "$filter", "zpo
 			// TODO: Pull the retry from the validation
 			console.log(printerApiUrl);
 			$http.post(printerApiUrl, shoppingCartPrinterReq, { timeout: 10000 }).
-                success(function (obj) {
+                then(function (obj) {
                 	console.log("succes", obj);
                     //Set the coucbDb Id and the timestamp that come from the box
                     if (shoppingCartPrinterReq.ShoppingCart != undefined) {
-                        if (obj.ticketId != undefined) {
+                        var data = obj.data;
+                        if (data.ticketId != undefined) {
                             //shoppingCartPrinterReq.id = obj.ticketId;
 
-                            shoppingCartPrinterReq.ShoppingCart.id = obj.ticketId;
+                            shoppingCartPrinterReq.ShoppingCart.id = data.ticketId;
                         }
-                        if (obj.timestamp != undefined) {
+                        if (data.timestamp != undefined) {
 
-                            shoppingCartPrinterReq.ShoppingCart.Timestamp = obj.timestamp;
+                            shoppingCartPrinterReq.ShoppingCart.Timestamp = data.timestamp;
 
                         }
                     }
 					printDefer.resolve(shoppingCartPrinterReq);
-				}).
-                error(function (err) {
+				},function (err) {
                 	console.log("erreur", err);
 
                     if (err && err.error) {

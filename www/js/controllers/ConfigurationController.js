@@ -114,13 +114,24 @@ app.controller('ConfigurationController', function ($scope, $rootScope, $locatio
 		}).then(function (result) {
 			var docToSynchronize = Enumerable.from(result.rows).any(function (item) {
 				return item.id.indexOf("PosLog_") === -1;
-			});
+            });
 
-			if (docToSynchronize) {
-				swal({ title: "Attention", text: "Il reste des documents à synchroniser, vous ne pouvez pas supprimer le cache.", type: "warning", showCancelButton: false, confirmButtonColor: "#d83448", confirmButtonText: "Ok", closeOnConfirm: true });
-			} else {
-				deleteCache();
-			}
+            $rootScope.dbValidatePool.allDocs({
+                include_docs: false,
+                attachments: false
+            }).then(function (resPool) {
+                docToSynchronize += resPool.rows.length;
+
+                if (docToSynchronize) {
+                    swal({ title: "Attention", text: "Il reste des documents à synchroniser, vous ne pouvez pas supprimer le cache.", type: "warning", showCancelButton: false, confirmButtonColor: "#d83448", confirmButtonText: "Ok", closeOnConfirm: true });
+                } else {
+                    deleteCache();
+                }
+
+            }).catch(function () {
+                deleteCache();
+            });
+
 		}).catch(function (err) {
 			deleteCache();
 		});

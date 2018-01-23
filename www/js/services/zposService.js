@@ -153,6 +153,33 @@ app.service('zposService', ['$http', '$rootScope', '$q', 'posLogService', 'posPe
 
         };
 
+        this.getLastShoppingCartAsync = function (hardwareId) {
+            var queryDefer = $q.defer();
+            var db = $rootScope.remoteDbZPos ? $rootScope.remoteDbZPos : $rootScope.dbZPos;
+
+            var dateStartKey = new Date().toString("yyyyMMdd");
+
+            db.query("zpos/byHidAndDate", {
+                startkey: [hardwareId, dateStartKey],
+                endkey: [hardwareId,""],
+                limit: 1,
+                descending: true
+            }).then(function (resShoppingCarts) {
+                var shoppingCartRow = Enumerable.from(resShoppingCarts.rows).firstOrDefault();
+                if (shoppingCartRow) {
+                    queryDefer.resolve(shoppingCartRow.value.data);
+                } else {
+                    queryDefer.reject();
+                }
+
+                }, function () {
+                    queryDefer.reject();
+                });
+
+
+            return queryDefer.promise;
+        };
+
 
         /**
          *
@@ -186,7 +213,6 @@ app.service('zposService', ['$http', '$rootScope', '$q', 'posLogService', 'posPe
 
                 // If an alias is selected for filtering
                 if (filterAlias != 0) {
-                    //ATTENTION bricolage, set timeout a changer
                     setTimeout(function () {
                         for (var i = 0; i < allShoppingCarts.length; i++) {
                             // Iterate through all shopping carts
@@ -198,8 +224,6 @@ app.service('zposService', ['$http', '$rootScope', '$q', 'posLogService', 'posPe
                     }, 100);
                 }
 
-                // ATTENTION
-                // Bricolage extreme, il faut trouver une meilleur solution pour assurer la syncronisation
                 setTimeout(function () {
                     allShoppingCartsDefer.resolve(allShoppingCarts);
                 }, 100);
@@ -1281,9 +1305,9 @@ app.service('zposService', ['$http', '$rootScope', '$q', 'posLogService', 'posPe
             htmlLines.push("<br />");
             htmlLines.push("<p>Cagnotte : " + roundValue(zpos.balance.total) + "</p>");
             htmlLines.push("<br />");
-            htmlLines.push("<p>Rendu : -" + zpos.repaid.total + "</p>");
+            htmlLines.push("<p>Rendu : " + -1*zpos.repaid.total + "</p>");
             htmlLines.push("<br />");
-            htmlLines.push("<p>Avoir émis : -" + zpos.credit.total + "</p>");
+            htmlLines.push("<p>Avoir émis : " + -1*zpos.credit.total + "</p>");
             htmlLines.push("<br />");
             //Total payment
             htmlLines.push("<p>Recette :</p>");

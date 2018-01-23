@@ -67,7 +67,7 @@ app.controller('InitIziboxController', function ($scope, $rootScope, $location, 
                     } else {
                         window.location.reload();
                     }
-                }, 300);
+                }, 800);
             };
 
             rebootProgress();

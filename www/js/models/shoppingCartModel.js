@@ -1,5 +1,5 @@
-app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$uibModal', 'shoppingCartService', 'productService', 'loyaltyService', 'settingService', 'posUserService', '$translate', 'storeMapService', 'taxesService', 'posPeriodService','posService',
-    function ($rootScope, $q, $state, $timeout, $uibModal, shoppingCartService, productService, loyaltyService, settingService, posUserService, $translate, storeMapService, taxesService, posPeriodService, posService) {
+app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$uibModal', 'shoppingCartService', 'productService', 'loyaltyService', 'settingService', 'posUserService', '$translate', 'storeMapService', 'taxesService', 'posPeriodService','posService','zposService',
+    function ($rootScope, $q, $state, $timeout, $uibModal, shoppingCartService, productService, loyaltyService, settingService, posUserService, $translate, storeMapService, taxesService, posPeriodService, posService,zposService) {
         var current = this;
 
         var lastShoppingCart = undefined;
@@ -933,12 +933,30 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
 		 *  Print the last ticket
 		 */
         this.printLastShoppingCart = function () {
-            if (lastShoppingCart) {
-                shoppingCartService.reprintShoppingCartAsync(lastShoppingCart).then(function () { },
-                    function () {
-                        sweetAlert($translate.instant("Erreur d'impression du dernier ticket !"));
-                    });
-            }
+
+            this.getLastShoppingCartAsync().then(function (lastShoppingCart) {
+                if (lastShoppingCart) {
+                    shoppingCartService.reprintShoppingCartAsync(lastShoppingCart).then(function () { },
+                        function () {
+                            sweetAlert($translate.instant("Erreur d'impression du dernier ticket !"));
+                        });
+                }
+            }, function () {
+                sweetAlert($translate.instant("Dernier ticket introuvable!"));
+            });
+
+        };
+
+        this.getLastShoppingCartAsync = function () {
+            var reqDefer = $q.defer();
+
+            zposService.getLastShoppingCartAsync($rootScope.modelPos.hardwareId).then(function (lastShoppingCart) {
+                reqDefer.resolve(lastShoppingCart);
+            }, function () {
+                reqDefer.reject();
+            });
+
+            return reqDefer.promise;
         };
 
         this.getLastShoppingCart = function () {
@@ -951,28 +969,40 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
 		 */
         this.printShoppingCartNote = function (shoppingCart) {
 
+            var continuePrint = function (shoppingCart) {
+                // Print the current shopping cart
+                if (shoppingCart) {
+                    var modalInstance = $uibModal.open({
+                        templateUrl: 'modals/modalShoppingCartNote.html',
+                        controller: 'ModalShoppingCartNoteController',
+                        backdrop: 'static'
+                    });
+
+                    modalInstance.result.then(function (nbNote) {
+                        shoppingCartService.printShoppingCartAsync(shoppingCart, $rootScope.PrinterConfiguration.POSPrinter, false, 1, false, nbNote).then(function () { },
+                            function () {
+                                sweetAlert($translate.instant("Erreur d'impression de la note !"));
+                            });
+
+                    }, function () {
+                    });
+                }
+            };
+
             // Print the last transaction or not
             if (!shoppingCart) {
-                shoppingCart = lastShoppingCart;
-            }
-
-            // Print the current shopping cart
-            if (shoppingCart) {
-                var modalInstance = $uibModal.open({
-                    templateUrl: 'modals/modalShoppingCartNote.html',
-                    controller: 'ModalShoppingCartNoteController',
-                    backdrop: 'static'
-                });
-
-                modalInstance.result.then(function (nbNote) {
-                    shoppingCartService.printShoppingCartAsync(shoppingCart, $rootScope.PrinterConfiguration.POSPrinter, false, 1, false, nbNote).then(function () { },
-                        function () {
-                            sweetAlert($translate.instant("Erreur d'impression de la note !"));
-                        });
-
+                this.getLastShoppingCartAsync().then(function (lastShoppingCart) {
+                    if (lastShoppingCart) {
+                        continuePrint(lastShoppingCart);
+                    }
                 }, function () {
+                    sweetAlert($translate.instant("Dernier ticket introuvable!"));
                 });
+            } else {
+                continuePrint(shoppingCart);
             }
+
+
         };
 
 		/**

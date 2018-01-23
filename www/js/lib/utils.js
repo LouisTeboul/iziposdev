@@ -27,6 +27,9 @@ var clone = function (objToClone) {
     return newObj;
 };
 
+var padLeft = function (str, size, ctopad) {
+    return Array(size - String(str).length + 1).join(ctopad || '0') + str;
+};
 
 var dateFormat = function (date) {
 

@@ -17,6 +17,13 @@
                 try {
                     networkinterface.getIPAddress(function (ip) {
                         localIpDefer.resolve({ local: ip, izibox: iziboxIp });
+                    }, function (errGetWifiIp) {
+                        console.error(errGetWifiIp);
+                        networkinterface.getCarrierIPAddress(function (ip) {
+                            localIpDefer.resolve({ local: ip, izibox: iziboxIp });
+                        }, function (errGetLanIp) {
+                            console.error(errGetLanIp);
+                        });
                     });
                 } catch (errIP) {
                     try {

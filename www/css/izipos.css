@@ -105,7 +105,7 @@ html{
 .loader {
   position: fixed;
   background: url("../img/ajax-loader.gif") center center no-repeat rgba(57, 66, 100, 0.6);
-  background-size: 60px;
+  background-size: 80px;
   z-index: 500;
   width: 100%;
   height: 100%; 
@@ -331,6 +331,12 @@ text-field.flexbox div{
 /*-----------------------END BUTTONS----------------------*/
 
 /*-----------------------CONFIGURATION--------------------*/
+
+.labelversion {
+    position: absolute;
+    font-size: 10px;
+    margin-left: 60px;
+}
 
 .configuration{
 	margin-top:30px;
@@ -916,6 +922,10 @@ text-field.flexbox div{
 
 .catalogMenu .izibox.connected{
 	background: #5cb85c;
+}
+
+.catalogMenu .izibox.connectedwarning {
+    background: #ffffff;
 }
 
 .catalogMenu .infoCashMovement{

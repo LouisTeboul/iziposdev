@@ -295,7 +295,10 @@
 												break;
 											case "CAD":
 												currencySymbol = "$";
-												break;
+                                                break;
+                                            case "KMF":
+                                                currencySymbol = "F";
+                                                break;
 										}
 									}
 									cacheCurrency.currencySymbol = currencySymbol;

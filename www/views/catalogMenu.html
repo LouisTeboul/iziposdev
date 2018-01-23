@@ -38,7 +38,7 @@
 				<span>{{PosUserName}}</span>
 				<div layout="row" layout-align="end center">
 					<span>{{Version}}</span>
-					<span class="izibox" ng-class="{'connected':modelPos.iziboxConnected}"></span>
+					<span class="izibox" ng-class="{'connected':modelPos.iziboxConnected && modelPos.iziboxStatus.localDb && modelPos.iziboxStatus.distantDb, 'connectedwarning': modelPos.iziboxConnected && modelPos.iziboxStatus.localDb && !modelPos.iziboxStatus.distantDb }"></span>
 
 				</div>
                 <span>{{CashMachineName}}</span>

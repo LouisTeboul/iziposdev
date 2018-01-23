@@ -313,7 +313,7 @@ app.service('taxesService', ['$rootScope', '$q','settingService',
 
                     // Add the result to the tax list
                     // ATTENTION au round value
-                    var newTaxDetail = getTaxDetailLine(taxCategory.TaxCategoryId, "TVA", taxRate, roundValue(priceIT - priceET) * quantity, priceIT, priceET);
+                    var newTaxDetail = getTaxDetailLine(taxCategory.TaxCategoryId, "TVA", taxRate, roundValue(priceIT - priceET) * quantity, priceIT * quantity, priceET * quantity);
                     taxDetails.push(newTaxDetail);
 
 
@@ -343,8 +343,8 @@ app.service('taxesService', ['$rootScope', '$q','settingService',
                     }
 
                     // Adding the amount of taxes to the tax list
-                    var newTaxDetailTPS = getTaxDetailLine(taxCategory.TaxCategoryId, "TPS", taxCategory.TPSValue, tpsAmount * quantity, priceIT, priceET);
-                    var newTaxDetailTVQ = getTaxDetailLine(taxCategory.TaxCategoryId, "TVQ", taxCategory.TVQValue, tvqAmount * quantity, priceIT, priceET);
+                    var newTaxDetailTPS = getTaxDetailLine(taxCategory.TaxCategoryId, "TPS", taxCategory.TPSValue, tpsAmount * quantity, priceIT * quantity, priceET * quantity);
+                    var newTaxDetailTVQ = getTaxDetailLine(taxCategory.TaxCategoryId, "TVQ", taxCategory.TVQValue, tvqAmount * quantity, priceIT * quantity, priceET * quantity);
                     taxDetails.push(newTaxDetailTPS);
                     taxDetails.push(newTaxDetailTVQ);
 

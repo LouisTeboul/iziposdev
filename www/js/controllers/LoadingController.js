@@ -168,7 +168,7 @@ app.controller('LoadingController', function ($scope, $rootScope, $location, $ti
             next();
         }
     };
-
+    
     var next = function () {
         // console.log("Loading complete");
         var nextLocation = function () {
