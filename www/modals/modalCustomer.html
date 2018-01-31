@@ -59,14 +59,14 @@
                     </div>
 
                     <div layout="row" ng-if="registerOperation=='registerFid'" ng-show="(registerFull && currentPage == 1) || !registerFull">
-                        <label flex="10" translate>Nom</label>
+                        <label flex="10" translate>Prénom</label>
                         <text-field flex="70" id="firstName" class="flexbox" ng-model="newLoyalty.CustomerFirstName"
                                     location="center-end" type="azerty" validfunction="$root.closeKeyboard"
                                     style="width:510px;margin-right:10px;min-height:34px;"></text-field>
                     </div>
 
                     <div layout="row" ng-if="registerOperation=='registerFid'" ng-show="(registerFull && currentPage == 1) || !registerFull">
-                        <label flex="10" translate>Prénom</label>
+                        <label flex="10" translate>Nom</label>
                         <text-field flex="70" id="lastName" class="flexbox" ng-model="newLoyalty.CustomerLastName"
                                     location="center-end" type="azerty" validfunction="$root.closeKeyboard"
                                     style="width:510px;margin-right:10px;min-height:34px;"></text-field>
@@ -279,16 +279,34 @@
                                     <b translate>Téléphone</b> :
                                     <a data-ng-href="tel:{{currentShoppingCart.customerLoyalty.CustomerPhone}}">{{currentShoppingCart.customerLoyalty.CustomerPhone}}</a>
                                 </h4>
+
+                                <h4 class="no-mg-vert" ng-if="currentShoppingCart.deliveryAddress">
+                                    <b translate>Adresse de livraison</b> :
+                                    <div layout="row">
+                                        <div flex>
+                                            <div layout="row">{{currentShoppingCart.deliveryAddress.Address1}}</div>
+                                            <div layout="row">{{currentShoppingCart.deliveryAddress.ZipPostalCode}}, {{currentShoppingCart.deliveryAddress.City}}</div>
+                                        </div>
+
+                                        <div flex>
+                                            <button class="btn btn-success" ng-click="editDeliveryAddress()">Modif.</button>
+                                        </div>
+
+                                    </div>
+
+                                </h4>
+
                                 <h4 class="no-mg-vert"
                                     ng-if="currentShoppingCart.customerLoyalty.Barcodes[0].LastBipDate"
                                     ng-init="bipDate = getDate(currentShoppingCart.customerLoyalty.Barcodes[0].LastBipDate)">
                                     <b translate>Dernier passage</b> : {{bipDate.toString("dd/MM/yyyy")}}
                                 </h4>
+
                                 <!--3 differents Balances can be diplay -->
                                 <h4 class="no-mg-vert"
                                     ng-if="currentShoppingCart.customerLoyalty.History && currentShoppingCart.customerLoyalty.Balances[0] != undefined">
                                     <b translate>Cumul depuis la création</b>
-                                    :{{getTotalPositiveHistory(currentShoppingCart.customerLoyalty.History,
+                                    : {{getTotalPositiveHistory(currentShoppingCart.customerLoyalty.History,
                                     currentShoppingCart.customerLoyalty.Balances[0])}}
                                     {{currentShoppingCart.customerLoyalty.Balances[0].BalanceType === 'Dollars' ?
                                     '$':currentShoppingCart.customerLoyalty.Balances[0].BalanceType}}
@@ -296,7 +314,7 @@
                                 <h4 class="no-mg-vert"
                                     ng-if="currentShoppingCart.customerLoyalty.History && currentShoppingCart.customerLoyalty.Balances[1] != undefined">
                                     <b translate>Cumul depuis la création</b>
-                                    :{{getTotalPositiveHistory(currentShoppingCart.customerLoyalty.History,
+                                    : {{getTotalPositiveHistory(currentShoppingCart.customerLoyalty.History,
                                     currentShoppingCart.customerLoyalty.Balances[1])}}
                                     {{currentShoppingCart.customerLoyalty.Balances[1].BalanceType === 'Dollars' ?
                                     '$':currentShoppingCart.customerLoyalty.Balances[1].BalanceType}}
@@ -304,7 +322,7 @@
                                 <h4 class="no-mg-vert"
                                     ng-if="currentShoppingCart.customerLoyalty.History && currentShoppingCart.customerLoyalty.Balances[2] != undefined">
                                     <b translate>Cumul depuis la création</b>
-                                    :{{getTotalPositiveHistory(currentShoppingCart.customerLoyalty.History,
+                                    : {{getTotalPositiveHistory(currentShoppingCart.customerLoyalty.History,
                                     currentShoppingCart.customerLoyalty.Balances[2])}}
                                     {{currentShoppingCart.customerLoyalty.Balances[2].BalanceType === 'Dollars' ?
                                     '$':currentShoppingCart.customerLoyalty.Balances[2].BalanceType}}

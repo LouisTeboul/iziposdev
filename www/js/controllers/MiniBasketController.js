@@ -38,14 +38,16 @@ app.controller('MiniBasketController', ['$scope', '$rootScope', '$state', '$uibM
 				ticketOpen: true
 			};
 
+			/*
 			// BUGFIX: The loyalty div was modified after the miniBasketResize()            
 			$scope.$watch(function () {
 				return document.getElementById("loyaltyRow").clientHeight;
 			}, function () {
 				resizeMiniBasket();
 			});
+			*/
 
-			currentShoppingCartHandler = $scope.$watchCollection('currentShoppingCart', function () {
+			var currentShoppingCartHandler = $scope.$watchCollection('currentShoppingCart', function () {
 				if ($scope.currentShoppingCart) {
 					$scope.filteredTaxDetails = taxesService.groupTaxDetail($scope.currentShoppingCart.TaxDetails);
 					$scope.$evalAsync();
@@ -443,14 +445,14 @@ app.controller('MiniBasketController', ['$scope', '$rootScope', '$state', '$uibM
 
                 modalInstance.result.then(function (divider) {
 
-                	$scope.totalDivider = divider;
+                	//$scope.totalDivider = divider;
 
-                	/*
+
                     shoppingCartModel.createDividedShoppingCartsAsync($scope.currentShoppingCart, divider).then(function(spq){
                         $scope.shoppingCartQueue = spq;
                         shoppingCartModel.setCurrentShoppingCart($scope.shoppingCartQueue[$scope.shoppingCartQueue.length -1]);
                     });
-                    */
+
 
                 }, function () {
                 	console.log('cancel divider');
@@ -521,7 +523,15 @@ app.controller('MiniBasketController', ['$scope', '$rootScope', '$state', '$uibM
 			//Impossible de supprimer le shopping cart si il contient des item splitté
 			// TODO: Logger action
 			if (posUserService.isEnable('DELT')) {
-				swal({ title: $translate.instant("Supprimer le ticket ?"), text: "", type: "warning", showCancelButton: true, confirmButtonColor: "#d83448", confirmButtonText: $translate.instant("Oui"), cancelButtonText: $translate.instant("Non"), closeOnConfirm: true },
+			    var errMess = $scope.shoppingCartQueue.length > 0 ? "Vous allez supprimer toutes les parts d'un ticket partagé" : "";
+				swal({
+                        title: $translate.instant("Supprimer le ticket ?"),
+                        text: errMess, type: "warning",
+                        showCancelButton: true,
+                        confirmButtonColor: "#d83448",
+                        confirmButtonText: $translate.instant("Oui"),
+                        cancelButtonText: $translate.instant("Non"),
+                        closeOnConfirm: true },
 					function () {
 						$scope.shoppingCartQueue = [];
 						shoppingCartModel.cancelShoppingCartAndSend();

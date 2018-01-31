@@ -35,14 +35,14 @@
                     Value: p.Value,
                     Text: p.Text,
                     Total: 0,
-                    IsBalance: p.IsBalance ? true : false,
-                    cashDiscrepancyYs: 0
+                    IsBalance: p.IsBalance ? true : false
                 };
 
                 var lineClosePos = {
                     PaymentMode: addPaymentMode,
                     Count: 0,
-                    TotalKnown: 0
+                    TotalKnown: 0,
+                    CashDiscrepancyYs: 0
                 };
                 $scope.closePosValues.CashMovementLines.push(lineClosePos);
                 $scope.model.zRecap.push(lineClosePos);
@@ -53,11 +53,11 @@
                     Value: "Ma Cagnotte",
                     Text: "Ma Cagnotte",
                     Total: 0,
-                    IsBalance: true,
-                    cashDiscrepancyYs: 0
+                    IsBalance: true
                 },
                 Count: 0,
-                TotalKnown: 0
+                TotalKnown: 0,
+                CashDiscrepancyYs: 0
             };
             $scope.closePosValues.CashMovementLines.push(lineBalance);
             $scope.model.zRecap.push(lineBalance);
@@ -236,8 +236,8 @@
                                                     lineClose.PaymentMode.Total = roundValue(l.PaymentMode.Total);
 
                                                     // Renseigner du montant saisi précédement (somme des services)
-                                                    lineClose.PaymentMode.TotalYs = roundValue(l.PaymentMode.Total);
-                                                    lineClose.PaymentMode.cashDiscrepancyYs = roundValue(l.PaymentMode.Total - l.TotalKnown);
+                                                    lineClose.TotalYs = roundValue(l.PaymentMode.Total);
+                                                    lineClose.CashDiscrepancyYs = roundValue(l.PaymentMode.Total - l.TotalKnown);
                                                 }
 
                                                 var lineCloseRecap = Enumerable.from($scope.model.zRecap).firstOrDefault(function (x) {
@@ -246,22 +246,22 @@
 
                                                 if (lineCloseRecap) {
                                                     // Renseigner du montant saisi précédement (somme des services)
-                                                    if (lineCloseRecap.PaymentMode.TotalYs) {
-                                                        lineCloseRecap.PaymentMode.TotalYs += roundValue(l.PaymentMode.Total);
+                                                    if (lineCloseRecap.TotalYs) {
+                                                        lineCloseRecap.TotalYs += roundValue(l.PaymentMode.Total);
                                                     }
                                                     else {
-                                                        lineCloseRecap.PaymentMode.TotalYs = roundValue(l.PaymentMode.Total);
+                                                        lineCloseRecap.TotalYs = roundValue(l.PaymentMode.Total);
                                                     }
-                                                    if (lineCloseRecap.PaymentMode.cashDiscrepancyYs) {
-                                                        lineCloseRecap.PaymentMode.cashDiscrepancyYs += roundValue(l.PaymentMode.Total - l.TotalKnown);
+                                                    if (lineCloseRecap.CashDiscrepancyYs) {
+                                                        lineCloseRecap.CashDiscrepancyYs += roundValue(l.PaymentMode.Total - l.TotalKnown);
                                                     }
                                                     else {
-                                                        lineCloseRecap.PaymentMode.cashDiscrepancyYs = roundValue(l.PaymentMode.Total - l.TotalKnown);
+                                                        lineCloseRecap.CashDiscrepancyYs = roundValue(l.PaymentMode.Total - l.TotalKnown);
                                                     }
                                                 }
                                                 else {
-                                                    l.PaymentMode.TotalYs = roundValue(l.PaymentMode.Total);
-                                                    l.PaymentMode.cashDiscrepancyYs = roundValue(l.PaymentMode.Total - l.TotalKnown);
+                                                    l.TotalYs = roundValue(l.PaymentMode.Total);
+                                                    l.CashDiscrepancyYs = roundValue(l.PaymentMode.Total - l.TotalKnown);
                                                     $scope.model.zRecap.push(l);
                                                 }
                                             });

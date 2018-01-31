@@ -70,10 +70,10 @@
                             <div class="title centered" ng-model="p.TotalKnown" ng-show="p.PaymentMode.PaymentType !== paymentType.FIDELITE && p.PaymentMode.PaymentType !== paymentType.INTERNET">{{p.TotalKnown | CurrencyFormat}}</div>
                         </div>
                         <div style="width:20%;float:left;min-height:60px;">
-                            <div class="title centered" ng-if="p.PaymentMode.PaymentType !== paymentType.FIDELITE && p.PaymentMode.PaymentType !== paymentType.INTERNET">{{p.PaymentMode.TotalYs | CurrencyFormat}}</div>
+                            <div class="title centered" ng-if="p.PaymentMode.PaymentType !== paymentType.FIDELITE && p.PaymentMode.PaymentType !== paymentType.INTERNET">{{p.TotalYs | CurrencyFormat}}</div>
                         </div>
                         <div style="width:10%;float:left;">
-                            <div class="title centered green" ng-class="{ red : p.PaymentMode.cashDiscrepancyYs !== 0}" ng-if="p.PaymentMode.PaymentType !== paymentType.FIDELITE && p.PaymentMode.PaymentType !== paymentType.INTERNET">{{p.PaymentMode.cashDiscrepancyYs | CurrencyFormat}}</div>
+                            <div class="title centered green" ng-class="{ red : p.CashDiscrepancyYs !== 0}" ng-if="p.PaymentMode.PaymentType !== paymentType.FIDELITE && p.PaymentMode.PaymentType !== paymentType.INTERNET">{{p.CashDiscrepancyYs | CurrencyFormat}}</div>
                         </div>
                     </div>
                     <div ng-if="closePosParameters.mode.idMode !== 3">
@@ -114,10 +114,10 @@
                         <div class="title centered" >{{p.PaymentMode.Total | CurrencyFormat}}</div>
                     </div>
                     <div style="width:25%;float:left;min-height:60px;">
-                        <div class="title centered" >{{p.PaymentMode.TotalYs | CurrencyFormat}}</div>
+                        <div class="title centered" >{{p.TotalYs | CurrencyFormat}}</div>
                     </div>
                     <div style="width:20%;float:left;">
-                        <div class="title centered green" ng-class="{ red : p.PaymentMode.cashDiscrepancyYs !== 0}" >{{p.PaymentMode.cashDiscrepancyYs | CurrencyFormat}}</div>
+                        <div class="title centered green" ng-class="{ red : p.CashDiscrepancyYs !== 0}">{{p.CashDiscrepancyYs | CurrencyFormat}}</div>
                     </div>
                 </div>
             </div>

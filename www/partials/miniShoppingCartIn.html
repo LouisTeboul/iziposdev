@@ -52,8 +52,11 @@
                                     <strong>{{item.Product.Name}}</strong>
 
                                     <div style="margin-left:10px" layout="row" ng-if="item.Quantity > 0">
-                                        <strong ng-show="item.Quantity > 1 && !item.isPartSplitItem">x
-                                            {{item.Quantity}}</strong>
+                                        <!-- ng-show="item.Quantity > 1 && !item.isPartSplitItem" -->
+                                        <strong>x
+                                            {{item.Quantity | number : 2}}
+                                        </strong>
+                                        <!--
                                         <strong ng-show="item.isPartSplitItem">x
 
                                             <span ng-if="!item.dispFraction">
@@ -71,11 +74,12 @@
                                             </div>
 
                                         </strong>
+                                        -->
                                         <div style="display: flex; align-items: center; margin-left: 5px;">
                                             <span>( </span>
                                             <span ng-if="item.IsFree"> {{0 | CurrencyFormat}}</span>
                                             <span ng-if="!item.IsFree">
-											    {{(item.Product.Price * item.Quantity) + item.splittedAmount | CurrencyFormat}}
+											    {{(item.Product.Price * item.Quantity) | CurrencyFormat}}
 										    </span>
                                             <span ng-if="(item.DiscountIT && item.DiscountIT!=0)"> - {{ item.DiscountIT | CurrencyFormat }} </span>
                                             <span>)</span>

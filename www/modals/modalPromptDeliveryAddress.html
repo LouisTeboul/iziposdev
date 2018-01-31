@@ -1,0 +1,72 @@
+<section>
+    <div ng-init="init()" class="modal-header">
+        <h1 class="modal-title" translate>Adresse de livraison</h1>
+    </div>
+
+    <div class="form-panel modal-body">
+
+        <!-- ng-repeat="ad in addresses" -->
+        <md-content layout-padding style="max-height:400px">
+            <div ng-click="setNoDelivery()"
+                 ng-style="{ 'background-color' : (noDelivery) ? 'rgba(171, 242, 150, 0.42)' : 'transparent' }">
+                <h4 style="margin-top: 0"> Passage sur place </h4>
+
+                <hr/>
+            </div>
+
+
+
+
+
+            <div ng-click="selectDeliveryAddress(ad)"
+                 ng-repeat="ad in addresses"
+                 ng-style="{ 'background-color' : (selectedAddress.$$hashKey == ad.$$hashKey) ? 'rgba(171, 242, 150, 0.42)' : 'transparent' }">
+                <h4 style="margin-top: 0"> {{ad.Address1}}</h4>
+                <h4>{{ad.ZipPostalCode}}, {{ad.City}}</h4>
+                <h4 style="margin-bottom: 0" layout="column">
+                    <small layout="row" ng-show="ad.Floor">
+                        <div translate>
+                            Etage :
+                        </div>
+                        <div>
+                            {{ad.Floor}}
+                        </div>
+                    </small>
+                    <small ng-show="ad.Door">
+                        <div translate>
+                            Porte :
+                        </div>
+                        <div>
+                            {{ad.Door}}
+                        </div>
+                    </small>
+                    <small ng-show="ad.Digicode">
+                        <div translate>
+                            Digicode :
+                        </div>
+                        <div>
+                            {{ad.DigiCode}}
+                        </div>
+                    </small>
+                    <small ng-show="ad.Interphone">
+                        <div translate>
+                            Interphone :
+                        </div>
+                        <div>
+                            {{ad.Interphone}}
+                        </div>
+                    </small>
+                </h4>
+                <hr/>
+            </div>
+        </md-content>
+
+        <a translate ng-click="addAddress()">Ajouter une nouvelle adresse</a>
+
+    </div>
+
+    <div class="modal-footer">
+        <button class="btn btn-green" ng-click="ok()">OK</button>
+    </div>
+
+</section>

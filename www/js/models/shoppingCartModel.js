@@ -123,7 +123,7 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
         };
 
         // Used to transfer item from a ticket to another when splitting ticket
-        this.splitItemTo = function (shoppingCartTo, shoppingCartFrom, cartItem, amount, makeParts = false, nbParts = 0) {
+        this.splitItemTo = function (shoppingCartTo, shoppingCartFrom, cartItem, amount) {
             var itemExist = undefined;
             shoppingCartTo.hasSplitItems = true;
             shoppingCartFrom.hasSplitItems = true;
@@ -135,81 +135,71 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
                 });
             }
 
-            // If the item is already in the shopping cart, increase its price
-            // A revoir
-            if (itemExist && !makeParts) {
-                itemExist.splittedAmount += amount;
-                cartItem.splittedAmount -= amount;
-            }
-            else {
-                //Clone l'item
+            var ratio = amount / cartItem.Product.Price;
+
+            if (itemExist) {
+                itemExist.Quantity = roundValue(itemExist.Quantity + ratio);
+                cartItem.Quantity = roundValue(cartItem.Quantity - ratio);
+            } else {
                 var item = clone(cartItem);
-                if(!makeParts){
-                    cartItem.dispFraction = false;
-                    item.dispFraction = false;
-                    item.DiscountET = 0;
-                    item.DiscountIT = 0;
+                //Si on split plus que le montant unitaire du produit,
+                if(ratio > 1){
+                    var j = 0;
+                    for(var i = ratio; i >= 1; i--, j++){
+                        var newSplitItem = clone(cartItem);
+                        newSplitItem.Quantity = 1;
+                        newSplitItem.hashkey = objectHash(newSplitItem);
+                        newSplitItem.isPartSplitItem = true;
+                        shoppingCartTo.Items.push(newSplitItem);
+                    }
+
+
+                    item.Quantity = roundValue(ratio - j);
+                    item.isPartSplitItem = true;
+                    shoppingCartTo.Items.push(item);
+
                 } else {
-                    cartItem.dispFraction = true;
-                    item.hashkey = objectHash(item);
-                    item.dispFraction = true;
-                    item.DiscountET /= nbParts;
-                    item.DiscountIT /= nbParts;
+                    item.Quantity = roundValue(ratio);
+                    item.isPartSplitItem = true;
+                    shoppingCartTo.Items.push(item);
                 }
 
-                item.splittedAmount = 0;
 
-                item.splittedAmount += amount - item.Product.Price;
-                item.isPartSplitItem = true;
-
-
-                item.Quantity = 1;
-
-                //On l'ajoute au ticket de destination
-                shoppingCartTo.Items.push(item);
-
-                //Dans le cas ou l'item d'origine est en plusieurs exemplaire
-                if (cartItem.Quantity > 1) {
+                if (cartItem.Quantity > 1 && ratio < 1) {
                     var newCartItem = clone(cartItem);
                     newCartItem.Quantity--;
+                    cartItem.Quantity--;
                     //On regenere un hash
                     newCartItem.hashkey = objectHash(newCartItem);
 
                     shoppingCartFrom.Items.push(newCartItem);
                 }
 
-
-                cartItem.Quantity = 1;
-
-
+                cartItem.Quantity = roundValue(cartItem.Quantity - ratio);
                 cartItem.isPartSplitItem = true;
-                cartItem.splittedAmount -= amount;
-
             }
-            if (cartItem.Product.Price + cartItem.splittedAmount <= 0 && shoppingCartFrom) {
+        };
 
-                shoppingCartFrom.hasSplitItems = false;
-
-                //Si on a passer l'integralité du produit vers le In,
-                //Le produit dans le in n'est plus un produit split
-                if(!makeParts) {
-                    if (item) {
-                        item.isPartSplitItem = false;
-                    }
-                    if (itemExist) {
-                        itemExist.isPartSplitItem = false;
-                    }
-                }
-
-                this.removeItemFrom(shoppingCartFrom, cartItem);
+        // Used to transfer item from a ticket to another when splitting ticket
+        this.makeParts = function (shoppingCart, cartItem, nbPart) {
+            //On crée une part
+            //On l'insert autant de fois qu'il y a de part
+            for(var i=0; i< nbPart; i++){
+                var newPart = clone(cartItem);
+                newPart.DiscountIT /= nbPart;
+                newPart.DiscountET /= nbPart;
+                newPart.Quantity /= nbPart;
+                newPart.hashkey = objectHash(newPart);
+                shoppingCart.Items.push(newPart);
             }
+            this.removeItemFrom(shoppingCart, cartItem);
         };
 
 
         // Used to transfer item from a ticket to another when splitting ticket
         this.addItemTo = function (shoppingCartTo, shoppingCartFrom, cartItem, qty) {
             if (!qty) {
-                qty = 1;
+                qty = cartItem.Quantity;
             }
 
             var itemExist = undefined;
@@ -382,7 +372,7 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
                 item.DiscountIT /= divider;
                 item.DiscountET /= divider;
                 item.isPartSplitItem = true;
-                item.splittedAmount += (item.Product.Price / divider) - item.Product.Price
+                item.Quantity /= divider;
             });
 
             for(var i = 0; i < divider; i++) {
@@ -426,8 +416,6 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
 
                 posPeriodService.getYPeriodAsync($rootScope.PosLog.HardwareId, $rootScope.PosUserId).then(function (yPeriod) {
                     //Associate period on validate
-                    //currentShoppingCart.zPeriodId = yPeriod.zPeriodId;
-                    //currentShoppingCart.yPeriodId = yPeriod.id;
                 }, function () {
                     if ($rootScope.modelPos.iziboxConnected) {
                         //Si l'izibox est connectée, alors on refuse la création d'un ticket sans Y/ZPeriod
@@ -452,8 +440,6 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
             currentShoppingCartIn.Timestamp = timestamp;
             currentShoppingCartIn.id = timestamp;
             currentShoppingCartIn.AliasCaisse = $rootScope.modelPos.aliasCaisse;
-            currentShoppingCartIn.yPeriodId = currentShoppingCart.yPeriodId;
-            currentShoppingCartIn.zPeriodId = currentShoppingCart.zPeriodId;
             currentShoppingCartIn.HardwareId = $rootScope.PosLog.HardwareId;
             currentShoppingCartIn.PosUserId = $rootScope.PosUserId;
             currentShoppingCartIn.PosUserName = $rootScope.PosUserName;
@@ -478,8 +464,6 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
 
             posPeriodService.getYPeriodAsync($rootScope.PosLog.HardwareId, $rootScope.PosUserId).then(function (yPeriod) {
                 //Asociate periods on validate
-                //currentShoppingCartIn.zPeriodId = yPeriod.zPeriodId;
-                //currentShoppingCartIn.yPeriodId = yPeriod.id;
             }, function () {
                 if ($rootScope.modelPos.iziboxConnected) {
                     //Si l'izibox est connectée, alors on refuse la création d'un ticket sans Y/ZPeriod
@@ -536,8 +520,6 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
 
                 posPeriodService.getYPeriodAsync($rootScope.PosLog.HardwareId, $rootScope.PosUserId).then(function (yPeriod) {
                     //Associate periods on validate
-                    //currentShoppingCartOut.zPeriodId = yPeriod.zPeriodId;
-                    //currentShoppingCartOut.yPeriodId = yPeriod.id;
                 }, function () {
                     if ($rootScope.modelPos.iziboxConnected) {
                         //Si l'izibox est connectée, alors on refuse la création d'un ticket sans Y/ZPeriod
@@ -1162,14 +1144,17 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
                                 if (attr.Step == req.Step) {
                                     attr.Printed = true;
                                     attr.PrintCount = attr.PrintCount ? attr.PrintCount + 1 : 1;
+
                                 }
                             });
+
                             item.PartialPrinted = false;
                             if (Enumerable.from(item.Attributes).any("x => x.Printed")) {
                                 if (Enumerable.from(item.Attributes).any("x => !x.Printed")) {
                                     item.PartialPrinted = true;
                                 }
                             }
+
                         }
                     });
                 }, function (err) {
@@ -1258,6 +1243,13 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
                 });
 
                 modalInstance.result.then(function (shoppingCart) {
+
+                    // Set the new HarwareId
+                    shoppingCart.HardwareIdCreation = shoppingCart.HardwareId;
+                    shoppingCart.HardwareId = $rootScope.PosLog.HardwareId;
+                    if ($rootScope.modelPos && $rootScope.modelPos.aliasCaisse) {
+                        shoppingCart.AliasCaisse = $rootScope.modelPos.aliasCaisse;
+                    }
                     currentShoppingCart = shoppingCart;
                     deliveryType = currentShoppingCart.DeliveryType;
                     current.calculateTotal();

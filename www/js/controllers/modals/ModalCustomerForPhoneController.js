@@ -9,7 +9,6 @@ app.controller('ModalCustomerForPhoneController', function ($scope, $rootScope, 
 
     $scope.init = function () {
 
-        $rootScope.PhoneOrderMode = true;
         $scope.validDisabled = false;
         $scope.search = {};
         $scope.barcode = {};
@@ -45,33 +44,6 @@ app.controller('ModalCustomerForPhoneController', function ($scope, $rootScope, 
         $scope.currentShoppingCart = shoppingCartModel.getCurrentShoppingCart();
         $scope.clientUrl = $rootScope.IziBoxConfiguration.UrlSmartStoreApi.replace("/api", "");
     };
-
-    //Marche pas tres bien
-    //Est censé trap la touche TAB sur le dernier element de chaque page, et passer a la page suivante
-    /*
-
-    $scope.initRegister = function(){
-        Enumerable.from(document.querySelectorAll(".pageRegister")).forEach(function(page){
-            console.log(page);
-            if(page.children.length >0){
-                console.log(page.children[page.children.length -1]);
-                page.children[page.children.length -1].addEventListener("keydown", function(e){
-                    console.log(e.keyCode);
-                    switch(e.keyCode){
-                        case 9 :
-                            e.preventDefault();
-                            e.stopPropagation();
-                            $rootScope.currentPage++;
-                            break;
-                        default:
-                            break;
-                    }
-                })
-            }
-        });
-    };
-    */
-
 
     $scope.pageChanged = function () {
         $rootScope.closeKeyboard();
@@ -141,6 +113,35 @@ app.controller('ModalCustomerForPhoneController', function ($scope, $rootScope, 
         if (barcode) {
             $rootScope.showLoading();
 
+            /**Proposer de renseigner une adresse de livraison */
+            var modalInstance = $uibModal.open({
+                templateUrl: 'modals/modalPromptDeliveryAddress.html',
+                controller: 'ModalPromptDeliveryAddressController',
+                resolve: {
+                    barcodeClient: function () {
+                        return barcode;
+                    }
+                },
+                backdrop: 'static'
+            });
+
+            modalInstance.result.then(function (deliveryAddress) {
+                console.log(deliveryAddress);
+                $scope.currentShoppingCart.deliveryAddress = {
+                    Address1: deliveryAddress.Address1,
+                    ZipPostalCode: deliveryAddress.ZipPostalCode,
+                    City: deliveryAddress.City,
+                    Floor: deliveryAddress.Floor,
+                    Door: deliveryAddress.Door,
+                    Digicode: deliveryAddress.Digicode,
+                    InterCom: deliveryAddress.InterCom,
+                    PhoneNumber: deliveryAddress.PhoneNumber
+                };
+
+            }, function () {
+                $rootScope.hideLoading()
+
+            });
 
             loyaltyService.getLoyaltyObjectAsync(barcode).then(function (loyalty) {
                 if (loyalty && loyalty.CustomerId != 0) {
@@ -150,22 +151,24 @@ app.controller('ModalCustomerForPhoneController', function ($scope, $rootScope, 
                     $scope.currentShoppingCart = shoppingCartModel.getCurrentShoppingCart();
                     $scope.currentShoppingCart.Barcode = barcode;
                     $scope.currentShoppingCart.customerLoyalty = loyalty;
+
                     $rootScope.$emit("customerLoyaltyChanged", loyalty);
                     $rootScope.$emit("shoppingCartChanged", $scope.currentShoppingCart);
-                    $scope.$evalAsync();
                     $scope.clientSelected = true;
                     $scope.validCustomer();
                     setTimeout(function () {
                         $rootScope.hideLoading();
                     }, 500);
-
                 } else {
+                    $rootScope.hideLoading();
                     sweetAlert($translate.instant("Carte de fidélité introuvable !"));
                 }
             }, function (err) {
+                $rootScope.hideLoading();
                 console.log(err);
-                sweetAlert($translate.instant("Le serveur de fidélité n'a pas répondu !"));
+                sweetAlert($translate.instant("Une erreur s'est produite !"));
             });
+
         }
     };
 
@@ -237,6 +240,7 @@ app.controller('ModalCustomerForPhoneController', function ($scope, $rootScope, 
 
     $scope.ok = function () {
         delete $rootScope.currentPage;
+        $rootScope.hideLoading();
         $rootScope.closeKeyboard();
     };
 
@@ -245,8 +249,13 @@ app.controller('ModalCustomerForPhoneController', function ($scope, $rootScope, 
         // No register if no customer is selected
 
         if ($scope.clientSelected == true) {
+
+
+            $rootScope.PhoneOrderMode = true;
             $uibModalInstance.close();
             return;
+
+
         }
 
         //Si pas d'infos saisie pour les mails- aucune opération
@@ -265,6 +274,7 @@ app.controller('ModalCustomerForPhoneController', function ($scope, $rootScope, 
                     timeout: 10000,
                     dismissOnClick: true
                 });
+                $rootScope.hideLoading();
                 return;
             }
         }
@@ -278,6 +288,7 @@ app.controller('ModalCustomerForPhoneController', function ($scope, $rootScope, 
                 timeout: 10000,
                 dismissOnClick: true
             });
+            $rootScope.hideLoading();
             return;
         }
 
@@ -290,6 +301,7 @@ app.controller('ModalCustomerForPhoneController', function ($scope, $rootScope, 
                 timeout: 10000,
                 dismissOnClick: true
             });
+            $rootScope.hideLoading();
             return;
         }
 
@@ -331,10 +343,53 @@ app.controller('ModalCustomerForPhoneController', function ($scope, $rootScope, 
             // Si tout les champs requis sont rempli
             if (isFormComplete() != false) {
                 console.log($scope.newLoyalty);
-                $scope.newLoyalty.AllowCustomerToCreateLoyaltyBarcode = true;
+                $rootScope.showLoading();
+                $rootScope.closeKeyboard();
                 loyaltyService.registerFullCustomerAsync($scope.newLoyalty).then(function (loyalty) {
                     // On ajoute la fidélité au ticket
                     console.log('Succes');
+                    $rootScope.hideLoading();
+                    setTimeout(function () {
+                        $rootScope.hideLoading();
+                    }, 500);
+
+                    console.log(loyalty);
+
+                    if (!curShoppingCart.deliveryAddress) {
+                        /**Proposer de renseigner une adresse de livraison */
+                        var modalInstance = $uibModal.open({
+                            templateUrl: 'modals/modalPromptDeliveryAddress.html',
+                            controller: 'ModalPromptDeliveryAddressController',
+                            resolve: {
+                                barcodeClient: function () {
+                                    return loyalty.Barcodes[0].Barcode;
+                                }
+                            },
+                            backdrop: 'static'
+                        });
+
+                        modalInstance.result.then(function (deliveryAddress) {
+                            curShoppingCart.deliveryAddress = {
+                                Address1: deliveryAddress.Address1,
+                                ZipPostalCode: deliveryAddress.ZipPostalCode,
+                                City: deliveryAddress.City,
+                                Floor: deliveryAddress.Floor,
+                                Door: deliveryAddress.Door,
+                                Digicode: deliveryAddress.Digicode,
+                                InterCom: deliveryAddress.InterCom,
+                                PhoneNumber: deliveryAddress.PhoneNumber,
+
+                            };
+
+                        }, function () {
+                            $rootScope.hideLoading();
+                        });
+
+                    }
+
+
+
+
                     $scope.validDisabled = false;
                     curShoppingCart.customerLoyalty = loyalty;
                     $rootScope.$emit("customerLoyaltyChanged", loyalty);
@@ -347,14 +402,18 @@ app.controller('ModalCustomerForPhoneController', function ($scope, $rootScope, 
                         timeout: 10000,
                         dismissOnClick: true
                     });
+                    $rootScope.hideLoading();
                     $scope.validDisabled = false;
+                    $rootScope.PhoneOrderMode = true;
                     $uibModalInstance.close();
                 }, function (err) {
+                    $rootScope.hideLoading();
                     $scope.validDisabled = false;
                     console.log(err);
                 });
-                //Appelle loyalty service
-                //Enregistre le customer complet
+
+
+
 
             } else {
                 $scope.validDisabled = false;
@@ -365,7 +424,7 @@ app.controller('ModalCustomerForPhoneController', function ($scope, $rootScope, 
                     timeout: 10000,
                     dismissOnClick: true
                 });
-                $scope.validDisabled = false;
+                $rootScope.hideLoading();
             }
         }
         catch (err) {
@@ -377,6 +436,7 @@ app.controller('ModalCustomerForPhoneController', function ($scope, $rootScope, 
                 timeout: 10000,
                 dismissOnClick: true
             });
+            $rootScope.hideLoading();
         }
     };
 
@@ -411,81 +471,4 @@ app.controller('ModalCustomerForPhoneController', function ($scope, $rootScope, 
         return balance.UseToPay ? roundValue(total) : total;
     };
 
-    //[WARNING] -> La caisse ne peut pas utiliser le addpassage il est géré à l'intégration du ticket
-    $scope.addPassage = function () {
-        $scope.isAddingPassage = true;
-        var passageObj = createEmptyPassageObj();
-        loyaltyService.addPassageAsync(passageObj).then(function (res) {
-            customAlert($translate.instant("Un passage a été ajouté"));
-        });
-    };
-
-    $scope.clickAction = function (actionId, isTiles) {
-        $scope.currentShoppingCart.customerLoyalty.customAction = actionId;
-        $scope.useAction(true);
-    };
-
-
-    //[OBSOLETE]
-    $scope.useAction = function (isTiles) {
-        var amount = $('#orderAmountInput').val();
-        // If the amount is mandatory
-        if ($scope.currentShoppingCart.customerLoyalty.CustomActionMandatoryAmount && (amount == null || amount == undefined || amount === "")) {
-            customAlert($translate.instant("Veuillez saisir") + " " + ($scope.currentShoppingCart.customerLoyalty.OneRuleWithOrderAmountString ? $scope.currentShoppingCart.customerLoyalty.OneRuleWithOrderAmountString : $translate.instant("Montant d'achat")));
-        }
-        else {
-            $scope.isUsingAction = true;
-            customConfirm($translate.instant("Voulez-vous effectuer cette action ?"), "", function (isAccept) {
-                if (isAccept) {
-                    var passageObj = createEmptyPassageObj();
-                    if (amount != null && amount != undefined && amount != "") {
-                        passageObj.OrderTotalIncludeTaxes = amount;
-                        passageObj.OrderTotalExcludeTaxes = amount;
-                    }
-                    if (isTiles) {
-                        passageObj.CustomAction = {
-                            "CustomActionId": $scope.currentShoppingCart.customerLoyalty.customAction
-                        };
-                    } else {
-                        passageObj.CustomAction = {
-                            "CustomActionId": $('#actionSelect').val()
-                        };
-                    }
-                    //$log.info(passageObj); // BROKEN
-
-                    loyaltyService.addPassageAsync(passageObj).success(function () {
-                        customAlert($translate.instant("Action exécutée"));
-                    });
-                } else {
-                    $scope.isUsingAction = false;
-                }
-            });
-        }
-
-    };
-
-    var customAlert = function (newTitle, newText, callback) {
-        swal({
-            title: newTitle,
-            text: newText,
-            showCancelButton: false,
-            confirmButtonColor: "#28A54C",
-            confirmButtonText: "OK",
-            closeOnCancel: false,
-            closeOnConfirm: true
-        }, callback);
-    };
-
-    var customConfirm = function (newTitle, newText, callback) {
-        swal({
-            title: newTitle,
-            text: newText,
-            showCancelButton: true,
-            confirmButtonColor: "#28A54C",
-            confirmButtonText: $translate.instant("Oui"),
-            cancelButtonText: $translate.instant("Non"),
-            closeOnCancel: true,
-            closeOnConfirm: true
-        }, callback);
-    };
 });

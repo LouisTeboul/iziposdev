@@ -84,6 +84,39 @@ app.controller('ModalCustomerController', function ($scope, $rootScope, $q, $htt
         }
     };
 
+
+    $scope.editDeliveryAddress = function(){
+        var modalInstance = $uibModal.open({
+            templateUrl: 'modals/modalPromptDeliveryAddress.html',
+            controller: 'ModalPromptDeliveryAddressController',
+            resolve: {
+                barcodeClient: function () {
+                    return $scope.currentShoppingCart.Barcode;
+                }
+            },
+            backdrop: 'static'
+        });
+
+        modalInstance.result.then(function (deliveryAddress) {
+            console.log(deliveryAddress);
+
+            $scope.currentShoppingCart.deliveryAddress = {
+                Address1: deliveryAddress.Address1,
+                ZipPostalCode: deliveryAddress.ZipPostalCode,
+                City: deliveryAddress.City,
+                Floor: deliveryAddress.Floor,
+                Door: deliveryAddress.Door,
+                Digicode: deliveryAddress.Digicode,
+                InterCom: deliveryAddress.InterCom,
+                PhoneNumber: deliveryAddress.PhoneNumber
+            };
+
+        }, function () {
+            $rootScope.hideLoading()
+
+        });
+    };
+
     $scope.toggleRegisterFull = function () {
         $scope.registerFull = !$scope.registerFull;
     };
@@ -119,7 +152,6 @@ app.controller('ModalCustomerController', function ($scope, $rootScope, $q, $htt
                     $scope.currentShoppingCart.customerLoyalty = loyalty;
                     $rootScope.$emit("customerLoyaltyChanged", loyalty);
                     $rootScope.$emit("shoppingCartChanged", $scope.currentShoppingCart);
-                    $scope.$evalAsync();
                     $scope.clientSelected = true;
 
 

@@ -125,7 +125,7 @@ app.controller('ModalYperiodPickController', function ($scope, $rootScope, $uibM
             $scope.model.chosenYpid = undefined;
         } else {
             $scope.isClosingEnabled = yp.endDate ? false : true;
-            $scope.model.chosenYpid = yp.id;
+            $scope.model.chosenYpid = yp.yPeriodId;
             //Verifié si la periode contient des ticket,
             //Si non, il faut bloquer l'affichage du Z
         }

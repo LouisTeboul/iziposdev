@@ -23,10 +23,10 @@
         if (item.isPartSplitItem == true && !item.dispFraction) {
             this.tryMatch($scope.currentShoppingCartOut, $scope.currentShoppingCartIn, item);
         } else {
-            if(!$scope.currentShoppingCartIn){
+            if (!$scope.currentShoppingCartIn) {
                 $scope.currentShoppingCartIn = shoppingCartModel.createShoppingCartIn();
             }
-            if(!$scope.currentShoppingCartOut){
+            if (!$scope.currentShoppingCartOut) {
                 $scope.currentShoppingCartOut = shoppingCartModel.createShoppingCartOut();
             }
             shoppingCartModel.addItemTo($scope.currentShoppingCartIn, $scope.currentShoppingCartOut, item);
@@ -52,24 +52,21 @@
 
         modalInstance.result.then(function (result) {
             console.log(result);
-            console.log(item.splittedAmount);
-            if(result.montant) {
-                if (result.montant <= item.PriceIT - item.splittedAmount - item.DiscountIT && !result.makeParts) {
+            if (result.montant) {
+                if (result.montant <= item.PriceIT - item.DiscountIT && !result.makeParts) {
                     shoppingCartModel.splitItemTo($scope.currentShoppingCartIn, $scope.currentShoppingCartOut, item, result.montant);
                     shoppingCartModel.calculateTotalFor($scope.currentShoppingCartOut);
                     shoppingCartModel.calculateTotalFor($scope.currentShoppingCartIn);
 
                 }
                 else {
-                    // Afficher une erreur
+                    /* TODO : Afficher une erreur */
                 }
 
-                if(result.makeParts && result.nbPart){
-                    for(var i = result.nbPart; i > 0 ; i--){
-                        shoppingCartModel.splitItemTo($scope.currentShoppingCartOut, $scope.currentShoppingCartOut, item, (item.Product.Price - item.DiscountIT) / result.nbPart, result.makeParts, result.nbPart);
-                        shoppingCartModel.calculateTotalFor($scope.currentShoppingCartOut);
-                        shoppingCartModel.calculateTotalFor($scope.currentShoppingCartIn);
-                    }
+                if (result.makeParts && result.nbPart) {
+                    shoppingCartModel.makeParts($scope.currentShoppingCartOut, item, result.nbPart);
+                    shoppingCartModel.calculateTotalFor($scope.currentShoppingCartOut);
+                    shoppingCartModel.calculateTotalFor($scope.currentShoppingCartIn);
                 }
             }
         }, function () {
@@ -88,11 +85,11 @@
             return itemOut.hashkey == itemIn.hashkey && itemOut.isPartSplitItem;
         });
 
-        if(matchedItem){
-            matchedItem.splittedAmount += itemIn.splittedAmount + itemIn.Product.Price;
+        if (matchedItem) {
+            matchedItem.Quantity += itemIn.Quantity;
             shoppingCartModel.removeItemFrom(from, itemIn);
             console.log(matchedItem);
-            if (matchedItem.splittedAmount == 0) {
+            if (matchedItem.Quantity % 1 == 0) {
                 matchedItem.isPartSplitItem = false;
             }
         } else {
@@ -104,12 +101,12 @@
     };
 
     $scope.sendToOut = function (item) {
+
         if (item.isPartSplitItem == true && !item.dispFraction) {
             this.tryMatch($scope.currentShoppingCartIn, $scope.currentShoppingCartOut, item);
         } else {
             shoppingCartModel.addItemTo($scope.currentShoppingCartOut, $scope.currentShoppingCartIn, item);
         }
-
     };
 
 
@@ -128,9 +125,10 @@
 
 
                 } else {
-                    $scope.currentShoppingCartIn.TableCutleries = $scope.result.nb;
-                    $scope.currentShoppingCartOut.TableCutleries -= $scope.result.nb;
-
+                    if($scope.currentShoppingCartOut.TableCutleries) {
+                        $scope.currentShoppingCartIn.TableCutleries = $scope.result.nb;
+                        $scope.currentShoppingCartOut.TableCutleries -= $scope.result.nb;
+                    }
                     console.log($scope.currentShoppingCartOut, $scope.currentShoppingCartIn);
                     shoppingCartModel.setCurrentShoppingCartIn($scope.currentShoppingCartIn);
                     shoppingCartModel.setCurrentShoppingCartOut($scope.currentShoppingCartOut);
@@ -146,7 +144,6 @@
             shoppingCartModel.setCurrentShoppingCart($scope.currentShoppingCartOut);
             $uibModalInstance.close($scope.value);
         }
-
 
     };
 

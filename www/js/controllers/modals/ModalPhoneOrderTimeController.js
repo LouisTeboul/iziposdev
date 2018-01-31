@@ -52,6 +52,7 @@ app.controller('ModalPhoneOrderTimeController', function ($scope, $rootScope, $q
         if(!$scope.model.heure) $scope.model.heure = 0;
         if(!$scope.model.minute) $scope.model.minute = 0;
         $uibModalInstance.close($scope.model);
+        delete $scope.model;
     };
 
     $scope.close = function () {

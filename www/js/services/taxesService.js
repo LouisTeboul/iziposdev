@@ -301,14 +301,25 @@ app.service('taxesService', ['$rootScope', '$q','settingService',
 
                     // Calculate excluding tax price
                     if (!cacheIsPricesIncludedTax) {
-                        priceET = price - (discountET / quantity);
-                        priceIT = ETtoIT(priceET, taxRate);
+                        if(quantity != 0){
+                            priceET = price - (discountET / quantity);
+                            priceIT = ETtoIT(priceET, taxRate);
+                        } else {
+                            priceET = 0;
+                            priceIT = 0;
+                        }
+
                     }
 
                     // Calculate price including tax
                     else {
-                        priceIT = price - (discountIT / quantity);
-                        priceET = ITtoET(priceIT, taxRate);
+                        if(quantity != 0) {
+                            priceIT = price - (discountIT / quantity);
+                            priceET = ITtoET(priceIT, taxRate);
+                        } else {
+                            priceET = 0;
+                            priceIT = 0;
+                        }
                     }
 
                     // Add the result to the tax list
@@ -377,8 +388,6 @@ app.service('taxesService', ['$rootScope', '$q','settingService',
                 cartItem.DiscountET = 0;
             if (isNaN(cartItem.DiscountIT))
                 cartItem.DiscountIT = 0;
-            if (isNaN(cartItem.splittedAmount))
-                cartItem.splittedAmount = 0;
 
             cartItem.PriceIT = 0;
             cartItem.PriceET = 0;
@@ -400,7 +409,7 @@ app.service('taxesService', ['$rootScope', '$q','settingService',
 
                 switch (cacheTaxProvider) {
                     case "Tax.FixedRate":
-                        cartItemPrice = cartItem.Product.Price + cartItem.splittedAmount;
+                        cartItemPrice = cartItem.Product.Price;
                         break;
 
                     case "Tax.Quebec":

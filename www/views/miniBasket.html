@@ -280,14 +280,13 @@
                                             <div class="productLine" layout="column" flex>
                                                 <strong ng-style="item.Quantity == 0 && {'text-decoration':'line-through'}">{{item.Product.Name}}</strong>
 
-                                                <div style="margin-left:10px" layout="row" ng-if="item.Quantity > 0">
-                                                    <strong ng-show="item.Quantity > 1 && !item.isPartSplitItem">x
-                                                        {{item.Quantity}}</strong>
-                                                    <strong ng-show="item.isPartSplitItem">x
-                                                        <span ng-if="!item.dispFraction">
-                                                            {{(item.PriceIT) / item.Product.Price | number : 2}}
-                                                        </span>
+                                                <div style="margin-left:10px" layout="row">
+                                                    <strong ng-if="item.Quantity != 1">x
+                                                        {{item.Quantity | number : 2}}
+                                                    </strong>
 
+                                                    <!--
+                                                    <strong ng-show="item.isPartSplitItem">x
                                                         <div class="frac" ng-if="item.dispFraction == true">
                                                             <span>1</span>
                                                             <span class="symbol"></span>
@@ -297,8 +296,9 @@
                                                               number : 0}}
                                                             </span>
                                                         </div>
-
                                                     </strong>
+                                                    -->
+
                                                     <div style="display: flex; align-items: center; margin-left: 5px;">
                                                         <span> ( </span>
                                                         <span ng-if="item.IsFree"> {{0 | CurrencyFormat}}</span>
@@ -545,7 +545,8 @@
             </a>
             <a class="shoppingCartAction btn btn-danger"
                ng-click="cancelShoppingCart()" flex
-               ng-if="!currentShoppingCart.isPayed">
+               ng-if="!currentShoppingCart.isPayed
+                   && !currentShoppingCart.hasSplitItems">
                 <span style="white-space:normal"><img class="btn-action-image" alt="Image" src="img/trash.png"></span>
             </a>
         </div>

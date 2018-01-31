@@ -1,4 +1,4 @@
-﻿app.service('posService', ['$rootScope', '$q', '$http','eventService',
+﻿app.service('posService', ['$rootScope', '$q', '$http', 'eventService',
     function ($rootScope, $q, $http, eventService) {
 
         var current = this;
@@ -89,7 +89,13 @@
                                 data.data.distantDb = true;
                             }
 
-                            $rootScope.modelPos.iziboxConnected = data.data && data.data.localDb != undefined ? data.data.localDb : true;
+                            var iziboxConnected = data.data && data.data.localDb != undefined ? data.data.localDb : true;
+
+                            if ($rootScope.modelPos.iziboxConnected != iziboxConnected) {
+                                $rootScope.modelPos.iziboxConnected = iziboxConnected;
+                                $rootScope.$emit("iziboxConnected", $rootScope.modelPos.iziboxConnected);
+                            }
+
                             $rootScope.modelPos.iziboxStatus = data.data;
 
                             $rootScope.$evalAsync();
@@ -129,7 +135,12 @@
 
                             if (_daemonIziboxStarted && !checkOnly) iziboxDaemon();
                         }).catch(function (err) {
-                            $rootScope.modelPos.iziboxConnected = false;
+
+                            if ($rootScope.modelPos.iziboxConnected) {
+                                $rootScope.modelPos.iziboxConnected = false;
+                                $rootScope.$emit("iziboxConnected", $rootScope.modelPos.iziboxConnected);
+                            }
+
                             $rootScope.$evalAsync();
 
                             if (!_degradeState) {
@@ -147,6 +158,12 @@
         };
 
         this.initRkCounterListener = function () {
+            $rootScope.$on('iziboxConnected', function (event, args) {
+                current.getTotalRkCounterValueAsync().then(function (totalRk) {
+                    $rootScope.modelPos.rkCounter = totalRk;
+                });
+            });
+
             $rootScope.$on('dbUtilsUpdated', function (event, args) {
                 current.getTotalRkCounterValueAsync().then(function (totalRk) {
                     $rootScope.modelPos.rkCounter = totalRk;
@@ -158,7 +175,7 @@
             var retDefer = $q.defer();
 
             this.getUpdDailyTicketAsync(hardwareId, changeValue).then(function (res) {
-                retDefer.resolve($rootScope.modelPos.posNumber + padLeft(res.count.toString(),3, "0"));
+                retDefer.resolve($rootScope.modelPos.posNumber + padLeft(res.count.toString(), 3, "0"));
             }, function (errGet) {
                 retDefer.resolve($rootScope.modelPos.posNumber + "001");
             });
@@ -166,7 +183,7 @@
             return retDefer.promise;
         };
 
-        this.getUpdDailyTicketAsync = function (hardwareId,changeValue) {
+        this.getUpdDailyTicketAsync = function (hardwareId, changeValue) {
             var retDefer = $q.defer();
 
             $rootScope.dbUtils.rel.find('Dailyticket', hardwareId).then(function (res) {
@@ -246,7 +263,7 @@
                     currentRkCounter = {
                         id: hardwareId,
                         hardwareId: hardwareId,
-                        count:0
+                        count: 0
                     };
 
                     mustSave = true;
