@@ -13,7 +13,7 @@
             });
 
             return cashMovementDefer.promise;
-        }
+        };
 
         /**
          * Get movement types

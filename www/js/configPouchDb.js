@@ -123,6 +123,14 @@ var setupDatabases = function ($rootScope, $q, zposService, posService) {
         {
             singular: 'PosUser',
             plural: 'PosUsers'
+        },
+        {
+            singular: 'Dailyticket',
+            plural: 'Dailytickets'
+        },
+        {
+            singular: 'RkCounter',
+            plural: 'RkCounters'
         }
     ]);
 
@@ -741,16 +749,20 @@ var syncValidatePoolDb = function ($rootScope) {
                 setTimeout(function () {
                     syncRunning = false;
 
-                    $rootScope.dbValidatePool.sync(remoteDbValidatePool, settingsPouchDB.optsSync).on('active', function () {
+                    $rootScope.dbValidatePoolHandler = $rootScope.dbValidatePool.sync(remoteDbValidatePool, settingsPouchDB.optsSync);
+
+                    $rootScope.dbValidatePoolHandler.on('active', function () {
                         console.log("validatepool_sync active");
                     }).on('denied', function (err) {
                         console.log("validatepool_sync denied");
+                        $rootScope.dbValidatePoolHandler.removeAllListeners();
                         runpoolSync();
                     }).on('complete', function (info) {
-                        //console.log("pool complete");
+                        $rootScope.dbValidatePoolHandler.removeAllListeners();
                         runpoolSync();
                     }).on('error', function (err) {
                         console.log("validatepool_sync error");
+                        $rootScope.dbValidatePoolHandler.removeAllListeners();
                         runpoolSync();
                     });
                 }, immediately ? 0 : 30000);
@@ -758,67 +770,5 @@ var syncValidatePoolDb = function ($rootScope) {
         };
 
         runpoolSync(true);
-    }
-};
-
-
-var syncUtilsDb = function ($rootScope) {
-    //Create local db, and sync it with couch db
-    var hdid = $rootScope.modelPos.hardwareId;
-    var syncRunning = false;
-
-    $rootScope.dbUtils = new PouchDB('izipos_utils', { adapter: settingsPouchDB.typeDB });
-    $rootScope.dbUtils.setSchema([
-        {
-            singular: 'Dailyticket',
-            plural: 'Dailytickets'
-        },
-        {
-            singular: 'RkCounter',
-            plural: 'RkCounters'
-        }
-    ]);
-
-    if ($rootScope.IziBoxConfiguration.LocalIpIziBox) {
-        $rootScope.remoteDbUtils = new PouchDB('http://' + $rootScope.IziBoxConfiguration.LocalIpIziBox + ':5984/utils');
-        $rootScope.remoteDbUtils.setSchema([
-            {
-                singular: 'ZPeriod',
-                plural: 'ZPeriods'
-            },
-            {
-                singular: 'YPeriod',
-                plural: 'YPeriods'
-            }
-        ]);
-
-        var runUtilsSync = function (immediately) {
-
-            if (!syncRunning) {
-
-                syncRunning = true;
-
-                setTimeout(function () {
-                    syncRunning = false;
-
-                    $rootScope.dbUtils.sync($rootScope.remoteDbUtils, settingsPouchDB.optsSync).on('active', function () {
-                        //console.log("utils_sync active");
-                    }).on('change', function () {
-                        console.log("utils_sync change");
-                        $rootScope.$emit("dbUtilsUpdated");
-                    }).on('denied', function (err) {
-                        console.log("utils_sync denied");
-                        runUtilsSync();
-                    }).on('complete', function (info) {
-                        runUtilsSync();
-                    }).on('error', function (err) {
-                        console.log("utils_sync error");
-                        runUtilsSync();
-                    });
-                }, immediately ? 0 : 5000);
-            }
-        };
-
-        runUtilsSync(true);
     }
 };

@@ -161,7 +161,7 @@ var searchRestConfigurationAsync = function ($rootScope,$q, $http, ips, $transla
 
                 // We're scanning the ping rest service and THEN retrieving configuration because there was too much delay
                 // with the configuration service causing the BOX not being detected by the POS
-                var timeoutSearch = existingConfig && i == 0 ? 500 : 200;
+                var timeoutSearch = existingConfig && i == 0 ? 1000 : 200;
                 $http.get(pingApiUrl, { timeout: timeoutSearch }).
                 success(function (data, status, headers, config) {
 

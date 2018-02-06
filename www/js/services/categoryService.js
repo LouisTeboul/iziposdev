@@ -18,6 +18,8 @@
                     categoriesDefer.resolve(cacheCategories);
                 } else {
                     $rootScope.dbInstance.rel.find('Category').then(function (results) {
+                        //Filter pour n'avoir que les catégories de plus haut niveau (qui n'ont pas de parent)
+                        results.Categories = results.Categories.filter(cat => cat.ParentCategoryId == 0);
                         var categories = self.composeCategories(results);
                         cacheCategories = categories;
                         categoriesDefer.resolve(categories);
@@ -29,6 +31,26 @@
             }
 
             return categoriesDefer.promise;
+        };
+
+        this.getSubCategoriesByParentAsync = function (parentId) {
+            var self = this;
+            var subCategoriesDefer = $q.defer();
+
+            if ($rootScope.modelDb.databaseReady) {
+                $rootScope.dbInstance.rel.find('Category').then(function (results) {
+                    //Filter pour n'avoir que les sous catégories du parent précisé
+                    results.Categories = results.Categories.filter(subCat => subCat.ParentCategoryId == parentId);
+                    var subCategories = self.composeCategories(results);
+                    subCategoriesDefer.resolve(subCategories);
+                }, function (err) {
+                });
+            } else {
+                subCategoriesDefer.reject("Database isn't ready !");
+            }
+
+            return subCategoriesDefer.promise;
+
         };
 
         this.getCategoryByIdAsync = function (idStr) {
@@ -80,14 +102,12 @@
 
                 category.CategoryTemplate = categoryTemplate;
                 category.Picture = categoryPicture;
-                if (category.Mapping)
-                {
+                if (category.Mapping) {
                     var res = Enumerable.from(category.Mapping).any('x=>x.Store_Id==' + $rootScope.IziBoxConfiguration.StoreId);
-                    if(!res)
-                    {
+                    if (!res) {
                         category.IsEnabled = false;
                     }
-                }             
+                }
 
                 categories.push(category);
             }

@@ -153,7 +153,6 @@ app.service('shoppingCartService', ["$http", "$rootScope", "$q", "$filter", "zpo
         var RKComptage = function(shoppingCart){
         	var compteur = 0;
             Enumerable.from(shoppingCart.Items).forEach(function (item) {
-                console.log(item.Product.Sku);
                 if(item.Product.Sku == "rkcompteur") {
 					compteur++
                 }

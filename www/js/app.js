@@ -35,7 +35,7 @@ app.run(function ($rootScope, $location, $q, $http, ipService, zposService, $tra
 	try {
 		angularLocation = $location;
 
-        $rootScope.Version = "3.0.2.31011";
+        $rootScope.Version = "3.0.2.06021";
 		$rootScope.adminMode = { state: false };
         $rootScope.loading = 0;
 
@@ -123,7 +123,6 @@ app.run(function ($rootScope, $location, $q, $http, ipService, zposService, $tra
 var initServices = function ($rootScope,$injector) {
 
     syncValidatePoolDb($rootScope);
-    syncUtilsDb($rootScope);
 
     var zposService = $injector.get('zposService');
     zposService.init();
@@ -135,6 +134,7 @@ var initServices = function ($rootScope,$injector) {
 
     var posPeriodService = $injector.get('posPeriodService');
     posPeriodService.initPeriodListener();
+    posPeriodService.startPeriodDaemon();
 };
 
 var init = function ($rootScope, $location, $q, $http, ipService, zposService, $translate, $uibModal) {

@@ -199,7 +199,11 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
         // Used to transfer item from a ticket to another when splitting ticket
         this.addItemTo = function (shoppingCartTo, shoppingCartFrom, cartItem, qty) {
             if (!qty) {
-                qty = cartItem.Quantity;
+                if(Number.isInteger(cartItem.Quantity) || cartItem.Quantity >= 1){
+                    qty = 1
+                } else {
+                    qty = cartItem.Quantity;
+                }
             }
 
             var itemExist = undefined;
@@ -213,11 +217,15 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
 
             var item = clone(cartItem);
             item.Quantity = qty;
+            item.DiscountIT = 0;
+            item.DiscountET = 0;
             shoppingCartTo.Items.push(item);
             cartItem.Quantity -= qty;
 
             if (cartItem.Quantity <= 0 && shoppingCartFrom) {
                 this.removeItemFrom(shoppingCartFrom, cartItem);
+                item.DiscountIT = cartItem.DiscountIT;
+                item.DiscountET = cartItem.DiscountET;
             }
 
             if (shoppingCartFrom) this.calculateTotalFor(shoppingCartFrom);
@@ -365,22 +373,36 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
 
         //#region Actions on ShoppingCart
 
-        this.createDividedShoppingCartsAsync = function(shoppingCart, divider){
+        this.createDividedShoppingCartsAsync = function(shoppingCart, divider, spq){
+
             var dividedDefer = $q.defer();
-            shoppingCart.isDividedShoppingCart = true;
-            Enumerable.from(shoppingCart.Items).forEach(function(item){
-                item.DiscountIT /= divider;
-                item.DiscountET /= divider;
-                item.isPartSplitItem = true;
-                item.Quantity /= divider;
-            });
+            if(divider > 1 && Number.isInteger(divider)) {
+                shoppingCart.hasSplitItems = true;
+                shoppingCartQueue = spq ? spq : [];
+                shoppingCart.isDividedShoppingCart = true;
+                Enumerable.from(shoppingCart.Discounts).forEach(function (discount) {
+                    if (!discount.IsPercent) {
+                        discount.Value /= divider;
+                    }
+                });
 
-            for(var i = 0; i < divider; i++) {
-                current.calculateTotalFor(shoppingCart);
-                shoppingCartQueue.push(clone(shoppingCart));
+                Enumerable.from(shoppingCart.Items).forEach(function (item) {
+                    item.DiscountIT /= divider;
+                    item.DiscountET /= divider;
+                    item.isPartSplitItem = true;
+                    item.Quantity /= divider;
+                });
+
+                for (var i = 0; i < divider - 1; i++) {
+                    current.calculateTotalFor(shoppingCart);
+                    shoppingCartQueue.push(clone(shoppingCart));
+                }
+
+                dividedDefer.resolve(shoppingCartQueue);
+
+            } else {
+                dividedDefer.reject('Diviseur decimal ou inferieur ou egal a 1');
             }
-
-            dividedDefer.resolve(shoppingCartQueue);
             return dividedDefer.promise;
         };
 
@@ -405,7 +427,6 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
                 currentShoppingCart.StoreId = $rootScope.IziBoxConfiguration.StoreId;
                 currentShoppingCart.CompanyInformation = settingService.getCompanyInfo();
                 currentShoppingCart.addCreditToBalance = false;
-                currentShoppingCart.isDiscountConsumed = false;
 
                 $rootScope.$emit("shoppingCartChanged", currentShoppingCart);
 
@@ -449,7 +470,6 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
             currentShoppingCartIn.StoreId = $rootScope.IziBoxConfiguration.StoreId;
             currentShoppingCartIn.CompanyInformation = settingService.getCompanyInfo();
             currentShoppingCartIn.addCreditToBalance = false;
-            currentShoppingCartIn.isDiscountConsumed = false;
 
             Enumerable.from(currentShoppingCartIn.Discounts).forEach(function (item) {
                 item.Total = 0;
@@ -511,7 +531,6 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
                 currentShoppingCartOut.StoreId = $rootScope.IziBoxConfiguration.StoreId;
                 currentShoppingCartOut.CompanyInformation = settingService.getCompanyInfo();
                 currentShoppingCartOut.addCreditToBalance = false;
-                currentShoppingCartOut.isDiscountConsumed = false;
 
                 var hdid = $rootScope.modelPos.hardwareId;
 
@@ -738,6 +757,7 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
                         }
                     } else {
                         cartItem.Quantity = cartItem.Quantity + qty;
+                        console.log("Ajout d'un item : ", cartItem);
                         $rootScope.$emit("shoppingCartItemChanged", cartItem);
                     }
 
@@ -823,8 +843,8 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
                     }
 
                     if (shoppingCartQueue.length >= 1) {
-                        shoppingCartQueue.splice(shoppingCartQueue.length -1, 1);
                         currentShoppingCart = clone(shoppingCartQueue[shoppingCartQueue.length -1]);
+                        shoppingCartQueue.splice(shoppingCartQueue.length -1, 1);
                         deliveryType = currentShoppingCart.DeliveryType;
                         $rootScope.$emit("shoppingCartChanged", currentShoppingCart);
                         if(shoppingCartQueue.length == 1){
@@ -1701,13 +1721,13 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
                 sweetAlert($translate.instant("L'offre a été utilisé"));
                 current.calculateLoyalty();
             });
-        }
+        };
 
         //#endregion
 
         //#region Discount
         this.addShoppingCartDiscount = function (value, percent) {
-            console.log("Add discount cart");
+            console.log("Add cart discount : " + value + (percent ? "%" : "€"));
             this.createShoppingCart();
 
             if (currentShoppingCart.Discounts.length > 0) {
@@ -1732,6 +1752,7 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
         };
 
         this.removeShoppingCartDiscount = function (item) {
+            console.log("Remove cart discount");
             var idxToRemove = currentShoppingCart.Discounts.indexOf(item);
             if (idxToRemove > -1) {
                 currentShoppingCart.Discounts.splice(idxToRemove, 1);
@@ -1993,7 +2014,7 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
 
         // TODO : Make only one function
         this.calculateTotalFor = function (shoppingCart) {
-            console.log("calc for");
+            //console.log("calc for");
             taxesService.calculateTotalFor(shoppingCart);
         };
 

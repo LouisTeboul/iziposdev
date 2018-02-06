@@ -34,12 +34,12 @@
                 var pmTitle = pm.type;
 
                 if (pm.type.indexOf("-") != -1) {
-                    var tmp = pm.type.split("-");
-                    pmTitle = "";
-                    Enumerable.from(tmp).forEach(function (t) {
-                        pmTitle = pmTitle + " " + t[0];
-                    });
-                    pmTitle = pmTitle.trim().replace(" ", "-");
+                    if(pm.type.indexOf("-") == 0) {
+                        pmTitle = pmTitle.replace('-', '');
+                        pmTitle = pmTitle.replace('-', ' ');
+                    } else {
+                        pmTitle = pmTitle.replace('-', ' ');
+                    }
                 }
 
                 $scope.zheaders.push(pmTitle);
@@ -102,7 +102,10 @@
                     var lineTax = Enumerable.from(tax.byDate).firstOrDefault(function (value) {
                         return value.date == line.date;
                     });
-                    var dispTax = String(lineTax.total).substring(0, 4);
+                    if(lineTax && lineTax.total){
+                        var dispTax = String(lineTax.total).substring(0, 4);
+                    }
+
                     columnValues.push(lineTax ? roundValue(dispTax) : 0);
                 });
 
@@ -119,10 +122,12 @@
                     });
                     // Pour les especes
                     if (pm.type_id == 1) {
-                        console.log("Especes : ", linePM.total);
-                        console.log("Rendu : ", lineRepaid.total);
-                        // On soustrait le montant rendu au montant du paiement en especes
-                        columnValues.push(linePM ? roundValue(linePM.total - lineRepaid.total) : 0);
+                        if(linePM && lineRepaid){
+                            console.log("Especes : ", linePM.total);
+                            console.log("Rendu : ", lineRepaid.total);
+                            // On soustrait le montant rendu au montant du paiement en especes
+                            columnValues.push(linePM ? roundValue(linePM.total - lineRepaid.total) : 0);
+                        }
                     } else {
                         columnValues.push(linePM ? roundValue(linePM.total) : 0);
                     }

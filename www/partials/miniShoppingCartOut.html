@@ -47,7 +47,7 @@
 
                                     <div style="margin-left:10px" layout="row" ng-if="item.Quantity > 0">
                                         <!-- ng-show="item.Quantity > 1 && !item.isPartSplitItem" -->
-                                        <strong>x
+                                        <strong ng-if="item.Quantity !=1">x
                                             {{item.Quantity | number : 2}}
                                         </strong>
 

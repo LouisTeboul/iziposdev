@@ -20,17 +20,13 @@
 
     $scope.sendToIn = function (item) {
 
-        if (item.isPartSplitItem == true && !item.dispFraction) {
-            this.tryMatch($scope.currentShoppingCartOut, $scope.currentShoppingCartIn, item);
-        } else {
-            if (!$scope.currentShoppingCartIn) {
-                $scope.currentShoppingCartIn = shoppingCartModel.createShoppingCartIn();
-            }
-            if (!$scope.currentShoppingCartOut) {
-                $scope.currentShoppingCartOut = shoppingCartModel.createShoppingCartOut();
-            }
-            shoppingCartModel.addItemTo($scope.currentShoppingCartIn, $scope.currentShoppingCartOut, item);
+        if (!$scope.currentShoppingCartIn) {
+            $scope.currentShoppingCartIn = shoppingCartModel.createShoppingCartIn();
         }
+        if (!$scope.currentShoppingCartOut) {
+            $scope.currentShoppingCartOut = shoppingCartModel.createShoppingCartOut();
+        }
+        this.tryMatch($scope.currentShoppingCartOut, $scope.currentShoppingCartIn, item);
 
     };
 
@@ -82,12 +78,27 @@
 
 
         var matchedItem = Enumerable.from(to.Items).firstOrDefault(function (itemOut) {
-            return itemOut.hashkey == itemIn.hashkey && itemOut.isPartSplitItem;
+            return itemOut.hashkey == itemIn.hashkey;
         });
 
         if (matchedItem) {
-            matchedItem.Quantity += itemIn.Quantity;
-            shoppingCartModel.removeItemFrom(from, itemIn);
+
+            if (Number.isInteger(itemIn.Quantity) || itemIn.Quantity >= 1) {
+                var qty = 1
+            } else {
+                var qty = itemIn.Quantity;
+            }
+
+
+            matchedItem.Quantity += qty;
+            //matchedItem.DiscountIT *= matchedItem.Quantity;
+            //matchedItem.DiscountET *= matchedItem.Quantity;
+            itemIn.Quantity -= qty;
+            //itemIn.DiscountIT *= matchedItem.Quantity;
+            if(itemIn.Quantity ==0){
+                shoppingCartModel.removeItemFrom(from, itemIn);
+            }
+
             console.log(matchedItem);
             if (matchedItem.Quantity % 1 == 0) {
                 matchedItem.isPartSplitItem = false;
@@ -101,11 +112,8 @@
     };
 
     $scope.sendToOut = function (item) {
-
-        if (item.isPartSplitItem == true && !item.dispFraction) {
+        if (!item.dispFraction) {
             this.tryMatch($scope.currentShoppingCartIn, $scope.currentShoppingCartOut, item);
-        } else {
-            shoppingCartModel.addItemTo($scope.currentShoppingCartOut, $scope.currentShoppingCartIn, item);
         }
     };
 
@@ -125,7 +133,7 @@
 
 
                 } else {
-                    if($scope.currentShoppingCartOut.TableCutleries) {
+                    if ($scope.currentShoppingCartOut.TableCutleries) {
                         $scope.currentShoppingCartIn.TableCutleries = $scope.result.nb;
                         $scope.currentShoppingCartOut.TableCutleries -= $scope.result.nb;
                     }

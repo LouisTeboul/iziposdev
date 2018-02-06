@@ -17,7 +17,6 @@
                     <x translate></x>
                     {{currentShoppingCart.customerLoyalty.CustomerFirstName}}
                     {{currentShoppingCart.customerLoyalty.CustomerLastName}}</strong>
-                &nbsp;&nbsp;&nbsp;
                 <!-- If the user has signed the legal agreement -->
                 <img src="img/agreementTrue.png" ng-if="currentShoppingCart.customerLoyalty.HasValidLegalDocument"
                      style="max-width: 15px;"/>
@@ -34,7 +33,6 @@
                 <strong>
                     <x translate>Email :</x>
                     {{currentShoppingCart.customerLoyalty.CustomerEmail}} </strong>
-                &nbsp;&nbsp;&nbsp;
                 <!-- If the user has signed the legal agreement -->
                 <img src="img/agreementTrue.png" ng-if="currentShoppingCart.customerLoyalty.HasValidLegalDocument"
                      style="max-width: 15px;"/>
@@ -234,7 +232,6 @@
                                                    ng-if="!currentShoppingCart.isPayed">
                                             <span class="glyphicon glyphicon-trash"></span>
                                         </md-button>
-
                                     </div>
                                 </div>
                             </div>
@@ -286,6 +283,7 @@
                                                     </strong>
 
                                                     <!--
+
                                                     <strong ng-show="item.isPartSplitItem">x
                                                         <div class="frac" ng-if="item.dispFraction == true">
                                                             <span>1</span>
@@ -297,6 +295,7 @@
                                                             </span>
                                                         </div>
                                                     </strong>
+
                                                     -->
 
                                                     <div style="display: flex; align-items: center; margin-left: 5px;">
@@ -316,7 +315,7 @@
                                                 <div layout="row">
                                                     <!-- Decrement quantity -->
                                                     <md-button aria-label="decrementQty"
-                                                               ng-disabled="item.Offer != undefined || item.Quantity <= 1 || item.isPartSplitItem"
+                                                               ng-disabled="item.Offer != undefined || item.Quantity - 1 <= 0 "
                                                                class="itemAction md-fab md-mini"
                                                                ng-click="$event.stopPropagation();decrementQuantity(item);">
                                                         <span class="glyphicon glyphicon-minus"></span>
@@ -324,7 +323,7 @@
 
                                                     <!-- Increment quantity -->
                                                     <md-button aria-label="incrementQty"
-                                                               ng-disabled="item.Offer != undefined || item.isPartSplitItem"
+                                                               ng-disabled="item.Offer != undefined "
                                                                class="itemAction md-fab md-mini"
                                                                ng-click="$event.stopPropagation();incrementQuantity(item);">
                                                         <span class="glyphicon glyphicon-plus"></span>
@@ -368,7 +367,7 @@
                                                                ng-if=" (item.DiscountIT > 0 || item.DiscountET > 0) && currentShoppingCart.Discounts.length == 0 "
                                                                class="itemAction md-fab md-mini"
                                                                ng-click="$event.stopPropagation();removeOffer(item);">
-                                                        <img src="../www/img/remove-offer.png" height="15px"
+                                                        <img src="../www/img/remove-offer.png" height="18px"
                                                              width="18px">
                                                     </md-button>
 
@@ -426,12 +425,18 @@
                                 <i class="glyphicon glyphicon-magnet"></i>
                             </a>
                             -->
-                            <a ng-if="currentShoppingCart && !currentShoppingCart.hasSplitItems"
+                            <a ng-if="currentShoppingCart && !currentShoppingCart.hasSplitItems && (!shoppingCartQueue || shoppingCartQueue.length ==0)"
                                class="btn btn-warning btnDivideTotal"
-                               ng-class="{'disabled' : shoppingCartQueue.length > 0}"
                                ng-click="$event.stopPropagation();divideTotal();">
                                 <img style="width:26px;" alt="Image" src="img/divideUser.png">
                             </a>
+                            <a ng-if="currentShoppingCart && shoppingCartQueue.length > 0"
+                               class="btn btn-warning btnDivideTotal"
+                               ng-click="$event.stopPropagation(); mergeDividedTickets();">
+                                <img style="width:26px;" alt="Image" src="img/merge.png">
+                            </a>
+
+
                             <a ng-if="currentShoppingCart"
                                class="btn btn-warning btnDivideReceipt"
                                ng-class="{'disabled' : shoppingCartQueue.length > 0}"

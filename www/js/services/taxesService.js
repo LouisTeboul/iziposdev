@@ -302,7 +302,7 @@ app.service('taxesService', ['$rootScope', '$q','settingService',
                     // Calculate excluding tax price
                     if (!cacheIsPricesIncludedTax) {
                         if(quantity != 0){
-                            priceET = price - (discountET / quantity);
+                            priceET = price ;//- (discountET / quantity);
                             priceIT = ETtoIT(priceET, taxRate);
                         } else {
                             priceET = 0;
@@ -314,7 +314,7 @@ app.service('taxesService', ['$rootScope', '$q','settingService',
                     // Calculate price including tax
                     else {
                         if(quantity != 0) {
-                            priceIT = price - (discountIT / quantity);
+                            priceIT = price ;//- (discountIT / quantity);
                             priceET = ITtoET(priceIT, taxRate);
                         } else {
                             priceET = 0;
@@ -542,16 +542,19 @@ app.service('taxesService', ['$rootScope', '$q','settingService',
          * */
         this.calculateTotalFor = function (shoppingCart) {
             if (shoppingCart) {
-                console.log(shoppingCart);
+                console.log("Calcul du shopping cart ", shoppingCart);
                 var taxDetails = [];
                 var totalET = 0;
                 var totalIT = 0;
+
+                var totalQty = 0;
 
                 var shipping = shoppingCart.Shipping;
                 var discount = Enumerable.from(shoppingCart.Discounts).firstOrDefault();
 
                 // Pour chaque article
                 Enumerable.from(shoppingCart.Items).forEach(function (i) {
+                    totalQty += i.Quantity;
 
                     // On calcul le prix 
                     calculateCartItemTotal(shoppingCart, i, shoppingCart.DeliveryType);
@@ -559,8 +562,8 @@ app.service('taxesService', ['$rootScope', '$q','settingService',
                     // On ajoute le total TTC et HT de la ligne au montant total
                     // Check for discount on line only if there is no discount on receipt
 
-                    totalIT = roundValue(totalIT + i.PriceIT);
-                    totalET = roundValue(totalET + i.PriceET);
+                    totalIT = roundValue(totalIT + i.PriceIT - (discount ? 0 : i.DiscountIT));
+                    totalET = roundValue(totalET + i.PriceET - (discount ? 0 : i.DiscountET));
 
 
                     // On récupère les taxes de l'article
@@ -582,9 +585,11 @@ app.service('taxesService', ['$rootScope', '$q','settingService',
                     });
                 });
 
+                if(Number.isInteger(totalQty)){
+                    shoppingCart.hasSplitItems = false;
+                }
+
                 if(shipping){
-
-
                     Enumerable.from(shipping.TaxDetails).forEach(function (shippingTaxDetail) {
                         totalIT = roundValue(totalIT + shippingTaxDetail.PriceIT);
                         totalIET = roundValue(totalET + shippingTaxDetail.PriceET);
@@ -613,8 +618,7 @@ app.service('taxesService', ['$rootScope', '$q','settingService',
                 //On calcule la remise si il y en a -- on le calcule aussi pour chaque montant de taxe
 
                 // If the shopping cart has a global discount attached to it
-                // And has not been applied yet
-                if (discount && !discount.isDiscountConsumed) {
+                if (discount) {
                     var totalDiscount = totalIT;
 
                     // Calcul de la remise
@@ -652,7 +656,6 @@ app.service('taxesService', ['$rootScope', '$q','settingService',
                         i.DiscountIT = roundValue(i.PriceIT - i.PriceIT * ratio);
                         i.DiscountET = roundValue(i.PriceET - i.PriceET * ratio);
                     });
-                    discount.isDiscountConsumed = true;
                 }
                 
 

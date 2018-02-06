@@ -8,11 +8,12 @@ var roundValue = function (value) {
     } else {
         return value;
     }
-}
+};
 
 var clone = function (objToClone) {
+    return angular.copy(objToClone);
+    /*
     var newObj = undefined;
-    
     if (objToClone) {
     	if (Array.isArray(objToClone)) {
     		newObj = [];
@@ -23,8 +24,8 @@ var clone = function (objToClone) {
     		newObj = jQuery.extend(true, {}, objToClone);
     	}
     }
-
     return newObj;
+    */
 };
 
 var padLeft = function (str, size, ctopad) {

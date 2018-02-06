@@ -27,8 +27,6 @@
         $rootScope.closeKeyboard();
 
         var currentShoppingCart = shoppingCartModel.getCurrentShoppingCart();
-        console.log(currentShoppingCart);
-
         var hasDiscountedItems;
         Enumerable.from(currentShoppingCart.Items).forEach(function (item) {
             if (item.DiscountET > 0 || item.DiscountIT > 0) {

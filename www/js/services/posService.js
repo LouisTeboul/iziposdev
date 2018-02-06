@@ -134,7 +134,7 @@
                             }
 
                             if (_daemonIziboxStarted && !checkOnly) iziboxDaemon();
-                        }).catch(function (err) {
+                        }, function (err) {
 
                             if ($rootScope.modelPos.iziboxConnected) {
                                 $rootScope.modelPos.iziboxConnected = false;
@@ -164,7 +164,7 @@
                 });
             });
 
-            $rootScope.$on('dbUtilsUpdated', function (event, args) {
+            $rootScope.$on('dbFreezeChange', function (event, args) {
                 current.getTotalRkCounterValueAsync().then(function (totalRk) {
                     $rootScope.modelPos.rkCounter = totalRk;
                 });
@@ -186,7 +186,7 @@
         this.getUpdDailyTicketAsync = function (hardwareId, changeValue) {
             var retDefer = $q.defer();
 
-            $rootScope.dbUtils.rel.find('Dailyticket', hardwareId).then(function (res) {
+            $rootScope.dbFreeze.rel.find('Dailyticket', hardwareId).then(function (res) {
                 var dateNow = new Date().toString("dd/MM/yyyy");
 
                 var currentDailyTicket = Enumerable.from(res.Dailytickets).firstOrDefault();
@@ -214,7 +214,7 @@
                 }
 
                 if (mustSave) {
-                    $rootScope.dbUtils.rel.save('Dailyticket', currentDailyTicket).then(function (resSave) {
+                    $rootScope.dbFreeze.rel.save('Dailyticket', currentDailyTicket).then(function (resSave) {
                         var currentDailyTicket = resSave.Dailytickets[0];
 
                         retDefer.resolve(currentDailyTicket);
@@ -234,7 +234,7 @@
         this.getTotalRkCounterValueAsync = function () {
             var retDefer = $q.defer();
 
-            $rootScope.dbUtils.rel.find('RkCounter').then(function (res) {
+            $rootScope.dbFreeze.rel.find('RkCounter').then(function (res) {
 
                 var totalRkCounter = 0;
 
@@ -253,7 +253,7 @@
         this.getUpdRkCounterValueAsync = function (hardwareId, changeValue) {
             var retDefer = $q.defer();
 
-            $rootScope.dbUtils.rel.find('RkCounter', hardwareId).then(function (res) {
+            $rootScope.dbFreeze.rel.find('RkCounter', hardwareId).then(function (res) {
 
                 var currentRkCounter = Enumerable.from(res.RkCounters).firstOrDefault();
 
@@ -276,7 +276,7 @@
                 }
 
                 if (mustSave) {
-                    $rootScope.dbUtils.rel.save('RkCounter', currentRkCounter).then(function (resSave) {
+                    $rootScope.dbFreeze.rel.save('RkCounter', currentRkCounter).then(function (resSave) {
                         var currentRkCounter = resSave.RkCounters[0];
 
                         retDefer.resolve(currentRkCounter.count);

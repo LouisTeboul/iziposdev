@@ -176,16 +176,26 @@ app.controller('ModalCustomerController', function ($scope, $rootScope, $q, $htt
     };
 
     $scope.validPhone = function (strPhone) {
-        var re = /^0[1-68][0-9]{8}$/;
-        var myResult = re.test(strPhone);
-        return myResult;
+        var reFrance = /^0[1-9][0-9]{8}$/;
+        var resultFrance = reFrance.test(strPhone);
+
+        //Numero de telephone canadien.
+        // Indicatif entre parenthese facultatif
+        // Separateur soit : rien, espace, ou tiret.
+        var reCanada = /^\(?([0-9]{3})\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})$/;
+        var resultCanada = reCanada.test(strPhone);
+        return (resultCanada || resultFrance);
     };
 
 
     $scope.validZipPostCode = function (strZip) {
-        var re = /^[0-9]{5}$/;
-        var myResult = re.test(strZip);
-        return myResult;
+        var reFrance = /^[0-9]{5}$/;
+        var resultFrance = reFrance.test(strZip);
+
+        //Post Code canadien, avec espace facultatif
+        var reCanada = /[ABCEGHJKLMNPRSTVXY][0-9][ABCEGHJKLMNPRSTVWXYZ] ?[0-9][ABCEGHJKLMNPRSTVWXYZ][0-9]/;
+        var resultCanada = reCanada.test(strZip.toUpperCase());
+        return (resultCanada || resultFrance);
     };
 
 

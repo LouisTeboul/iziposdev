@@ -38,14 +38,16 @@ app.controller('MiniBasketController', ['$scope', '$rootScope', '$state', '$uibM
 				ticketOpen: true
 			};
 
-			/*
+
+			// Causes infinite digest loop
 			// BUGFIX: The loyalty div was modified after the miniBasketResize()            
 			$scope.$watch(function () {
 				return document.getElementById("loyaltyRow").clientHeight;
 			}, function () {
 				resizeMiniBasket();
 			});
-			*/
+
+
 
 			var currentShoppingCartHandler = $scope.$watchCollection('currentShoppingCart', function () {
 				if ($scope.currentShoppingCart) {
@@ -177,6 +179,7 @@ app.controller('MiniBasketController', ['$scope', '$rootScope', '$state', '$uibM
 		 * Events on ShoppingCartItem
 		 */
 		var shoppingCartChangedHandler = $rootScope.$on('shoppingCartChanged', function (event, args) {
+
 			updateCurrentShoppingCart();
 		});
 
@@ -316,9 +319,9 @@ app.controller('MiniBasketController', ['$scope', '$rootScope', '$state', '$uibM
 		};
 
         $scope.removeOffer = function (cartItem){
-        	console.log(cartItem);
         	cartItem.DiscountET = 0;
         	cartItem.DiscountIT = 0;
+            console.log("Remove free/discount", cartItem);
             shoppingCartModel.calculateTotal();
             shoppingCartModel.calculateLoyalty();
 		};
@@ -444,20 +447,57 @@ app.controller('MiniBasketController', ['$scope', '$rootScope', '$state', '$uibM
                 });
 
                 modalInstance.result.then(function (divider) {
-
                 	//$scope.totalDivider = divider;
 
-
-                    shoppingCartModel.createDividedShoppingCartsAsync($scope.currentShoppingCart, divider).then(function(spq){
+                    shoppingCartModel.createDividedShoppingCartsAsync($scope.currentShoppingCart, divider, $scope.shoppingCartQueue).then(function(spq){
                         $scope.shoppingCartQueue = spq;
-                        shoppingCartModel.setCurrentShoppingCart($scope.shoppingCartQueue[$scope.shoppingCartQueue.length -1]);
-                    });
 
+                        console.log($scope.shoppingCartQueue);
+                    }, function(err){
+
+					});
 
                 }, function () {
                 	console.log('cancel divider');
                 });
 			}
+		};
+
+
+        function tryMatch(itemIn, shoppingCartTo){
+            if(shoppingCartTo.Items){
+                var matchedItem = Enumerable.from(shoppingCartTo.Items).firstOrDefault(function(itemTo){
+                    return itemTo.hashkey == itemIn.hashkey;
+                });
+
+                if(matchedItem){
+                    matchedItem.Quantity += itemIn.Quantity;
+                    matchedItem.DiscountIT += itemIn.DiscountIT;
+                    matchedItem.DiscountET += itemIn.DiscountET;
+                } else {
+                    shoppingCartTo.Items.push(itemIn)
+                }
+            } else {
+                shoppingCartTo.Items.push(itemIn)
+            }
+        }
+
+
+		$scope.mergeDividedTickets = function(){
+
+            //Prend tout les item de chaque shopping cart de la queue
+            //les stock dans un meme shoppingcart
+            Enumerable.from($scope.shoppingCartQueue).forEach(function(shoppingCart){
+                Enumerable.from(shoppingCart.Items).forEach(function(item){
+                	tryMatch(item, $scope.currentShoppingCart)
+                })
+            });
+            $scope.shoppingCartQueue = undefined;
+            shoppingCartModel.calculateTotal();
+            shoppingCartModel.calculateLoyalty();
+            $rootScope.$emit("shoppingCartChanged", $scope.currentShoppingCart);
+            resizeMiniBasket();
+
 		};
 		//#endregion
 
@@ -523,7 +563,7 @@ app.controller('MiniBasketController', ['$scope', '$rootScope', '$state', '$uibM
 			//Impossible de supprimer le shopping cart si il contient des item splitté
 			// TODO: Logger action
 			if (posUserService.isEnable('DELT')) {
-			    var errMess = $scope.shoppingCartQueue.length > 0 ? "Vous allez supprimer toutes les parts d'un ticket partagé" : "";
+			    var errMess = $scope.shoppingCartQueue && $scope.shoppingCartQueue.length > 0 ? "Vous allez supprimer toutes les parts d'un ticket partagé" : "";
 				swal({
                         title: $translate.instant("Supprimer le ticket ?"),
                         text: errMess, type: "warning",

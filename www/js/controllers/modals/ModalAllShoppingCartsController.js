@@ -42,10 +42,6 @@ app.controller('ModalAllShoppingCartsController', function ($scope, $rootScope, 
 
 		// Reload values if the dates are changed
 		dateStartHandler = $scope.$watch('dateStart', function () {
-		    $scope.$evalAsync();
-		    console.log('hahaha');
-		    console.log($scope.dateStart);
-
 			var dateStart = $scope.dateStart != undefined ? $scope.dateStart.toString("dd/MM/yyyy") : new Date().toString("dd/MM/yyyy");
 			var dateEnd = $scope.dateEnd != undefined ? $scope.dateEnd.toString("dd/MM/yyyy") : new Date().toString("dd/MM/yyyy");
 
