@@ -153,9 +153,17 @@ app.service('orderShoppingCartService', ["$http", "$rootScope", "$q", "settingSe
         };
 
         this.loadOrderShoppingCartAsync = function (shoppingCart) {
-            console.log(shoppingCart);
+            
             var unfreezeDefer = $q.defer();
 
+            if (!shoppingCart.Discounts) {
+                shoppingCart.Discounts = new Array();
+            }
+            if (!shoppingCart.Items) {
+                shoppingCart.Items = new Array();
+            }
+
+            console.log(shoppingCart);
             //Commande telephonique
             if (shoppingCart.DatePickup) {
                 shoppingCartService.unfreezeShoppingCartAsync(shoppingCart).then(function () {

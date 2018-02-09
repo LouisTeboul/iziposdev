@@ -663,7 +663,7 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
 
                 //Test for a product with attributes
                 // POUR LES BURGERS / MENU
-                if (!forceinbasket && product.ProductTemplate.ViewPath != 'ProductTemplate.Simple') {
+                if (!forceinbasket && product.ProductTemplate && product.ProductTemplate.ViewPath != 'ProductTemplate.Simple') {
                     $rootScope.currentConfigurableProduct = product;
                     $rootScope.isConfigurableProductOffer = formuleOfferte;
                     $state.go('catalog.' + product.ProductTemplate.ViewPath, { id: product.Id });
@@ -1202,6 +1202,12 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
         };
 
         this.setCurrentShoppingCart = function (shoppingCart) {
+            if (!shoppingCart.Discounts) {
+                shoppingCart.Discounts = new Array();
+            }
+            if (!shoppingCart.Items) {
+                shoppingCart.Items = new Array();
+            }
             currentShoppingCart = shoppingCart;
             deliveryType = currentShoppingCart.DeliveryType;
             current.calculateTotal();
@@ -1730,6 +1736,9 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
             console.log("Add cart discount : " + value + (percent ? "%" : "€"));
             this.createShoppingCart();
 
+            if (!currentShoppingCart.Discounts) {
+                currentShoppingCart.Discounts = new Array();
+            }
             if (currentShoppingCart.Discounts.length > 0) {
                 sweetAlert($translate.instant("Le ticket a déjà une remise"));
 

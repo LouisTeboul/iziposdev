@@ -668,7 +668,7 @@ app.controller('MiniBasketController', ['$scope', '$rootScope', '$state', '$uibM
 		};
 
 		$scope.isMenuDisable = function (item) {
-			var ret = Enumerable.from(item.Attributes).any('attr=>attr.Printed') || item.IsFree || item.Product.ProductAttributes.length == 0;
+            var ret = Enumerable.from(item.Attributes).any('attr=>attr.Printed') || item.IsFree || !item.Product.ProductAttributes || (item.Product.ProductAttributes && item.Product.ProductAttributes.length == 0);
 			return (false);
 			return (ret);
 		};
