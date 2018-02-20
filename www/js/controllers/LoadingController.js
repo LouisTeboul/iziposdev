@@ -174,7 +174,6 @@ app.controller('LoadingController', function ($scope, $rootScope, $location, $ti
             next();
         }
     };
-<<<<<<< HEAD
 
     var initGauges = function () {
         $scope.gauges = {};
@@ -215,9 +214,6 @@ app.controller('LoadingController', function ($scope, $rootScope, $location, $ti
         $scope.gauges.orderloading = createGauge('OrderLoading');
     };
 
-=======
-    
->>>>>>> 9101faf73f812b9db686d8ab2bdb953304ed7f87
     var next = function () {
         // console.log("Loading complete");
         var nextLocation = function () {

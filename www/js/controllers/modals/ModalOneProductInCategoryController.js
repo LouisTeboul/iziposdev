@@ -45,15 +45,9 @@
     };
 
     $scope.addToCart = function (product, forceinbasket, offer) {
-<<<<<<< HEAD
         if (!product.DisableBuyButton) {
             // Si le produit en question est une formule
             if (product.ProductAttributes.length > 0) {
-=======
-        if(!product.DisableBuyButton){
-            // Si le produit en question est une formule
-            if(product.ProductAttributes.length > 0){
->>>>>>> 9101faf73f812b9db686d8ab2bdb953304ed7f87
                 shoppingCartModel.addToCart(product, false, $scope.offerOneProductInCategory, undefined, true);
             } else {
                 shoppingCartModel.addToCart(product, true, $scope.offerOneProductInCategory);

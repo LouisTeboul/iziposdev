@@ -87,7 +87,6 @@
 
 
         var matchedItem = Enumerable.from(to.Items).firstOrDefault(function (itemOut) {
-<<<<<<< HEAD
             return itemOut.hashkey == itemIn.hashkey && itemOut.ProductId == itemIn.ProductId && itemOut.Step == itemIn.Step && itemOut.Product.Price == itemIn.Product.Price;
         });
 
@@ -118,26 +117,6 @@
                 matchedItem.DiscountIT += itemIn.DiscountIT;
                 matchedItem.DiscountET += itemIn.DiscountET;
 
-=======
-            return itemOut.hashkey == itemIn.hashkey;
-        });
-
-        if (matchedItem) {
-
-            if (Number.isInteger(itemIn.Quantity) || itemIn.Quantity >= 1) {
-                var qty = 1
-            } else {
-                var qty = itemIn.Quantity;
-            }
-
-
-            matchedItem.Quantity += qty;
-            //matchedItem.DiscountIT *= matchedItem.Quantity;
-            //matchedItem.DiscountET *= matchedItem.Quantity;
-            itemIn.Quantity -= qty;
-            //itemIn.DiscountIT *= matchedItem.Quantity;
-            if(itemIn.Quantity ==0){
->>>>>>> 9101faf73f812b9db686d8ab2bdb953304ed7f87
                 shoppingCartModel.removeItemFrom(from, itemIn);
             }
 

@@ -40,11 +40,7 @@ app.run(function ($rootScope, $location, $q, $http, ipService, zposService, $tra
 	try {
 		angularLocation = $location;
 
-<<<<<<< HEAD
         $rootScope.Version = "3.0.2.20021";
-=======
-        $rootScope.Version = "3.0.2.09021";
->>>>>>> 9101faf73f812b9db686d8ab2bdb953304ed7f87
 		$rootScope.adminMode = { state: false };
         $rootScope.loading = 0;
 
@@ -162,21 +158,12 @@ var init = function ($rootScope, $location, $q, $http, ipService, zposService, $
                 if (config[prop] == "true") {
                     config[prop] = true;
                 }
-<<<<<<< HEAD
 
                 if (config[prop] == "false") {
                     config[prop] = false;
                 }
             }
 
-=======
-
-                if (config[prop] == "false") {
-                    config[prop] = false;
-                }
-            }
-
->>>>>>> 9101faf73f812b9db686d8ab2bdb953304ed7f87
             // BackButton
             app.configHWButtons($rootScope, $translate);
         }

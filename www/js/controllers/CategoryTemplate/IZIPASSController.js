@@ -21,14 +21,7 @@ app.controller('IZIPASSController', function ($scope, $rootScope, $stateParams, 
         pouchDBChangedHandler();
     });
 
-<<<<<<< HEAD
     $scope.init = function () {
-=======
-
-
-    $scope.init = function () {
-        $scope.subSubCategories = [];
->>>>>>> 9101faf73f812b9db686d8ab2bdb953304ed7f87
         // Get selected category
         var categoryId = $stateParams.id;
         categoryService.getCategoryByIdAsync(categoryId).then(function (category) {

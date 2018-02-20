@@ -1,8 +1,4 @@
-<<<<<<< HEAD
 ﻿app.controller('ModalTablePlanController', function ($scope, $rootScope, $uibModalInstance, $translate, $interval, currentStoreMap, currentTableNumber, currentTableCutleries, shoppingCartService, $mdMedia, shoppingCartModel) {
-=======
-﻿app.controller('ModalTablePlanController', function ($scope, $rootScope, $uibModalInstance, $translate, currentStoreMap, currentTableNumber, currentTableCutleries, shoppingCartService, $mdMedia, shoppingCartModel) {
->>>>>>> 9101faf73f812b9db686d8ab2bdb953304ed7f87
     var areaSelectedIndexHandler;
     var areaCanvas;
     var initCurrentTableNumber = currentTableNumber;
@@ -50,7 +46,6 @@
             }
 
             Enumerable.from($scope.currentArea.Objects).forEach(function (table) {
-<<<<<<< HEAD
                 var isUsed = Enumerable.from($scope.freezedShoppingCarts).firstOrDefault(function (fsc) {
                     return fsc.TableNumber == table.TableNumber;
                 });
@@ -58,8 +53,6 @@
                 if(isUsed){
                     table.inUseCutleries = isUsed.TableCutleries;
                 }
-=======
->>>>>>> 9101faf73f812b9db686d8ab2bdb953304ed7f87
                 table.ihm = {
                     backcolor: getTableColorStyle(table),
                     enabled: isCriteriaEnabled(table)
@@ -146,7 +139,6 @@
     };
 
     $scope.selectTable = function (table) {
-<<<<<<< HEAD
         $interval.cancel($scope.currentTimer);
         delete $scope.tableModel.activeTimer;
 
@@ -154,16 +146,6 @@
             //Si la table qu'on a selectionné est different de la table deja selectionné
             //Retablir la couleur de la bordure de la table precedemment selectionné
             //Changer la couleur de la bordure de la table qu'on a cliquer
-=======
-        if (table) {
-            //Si la table qu'on a selectionné est different de la table deja selectionné
-
-            console.log(table);
-            //Retablir la couleur de la bordure de la table precedemment selectionné
-            //Changer la couleur de la bordure de la table qu'on a cliquer
-
-            console.log($scope.tableModel.selectedTableId, table.Id);
->>>>>>> 9101faf73f812b9db686d8ab2bdb953304ed7f87
             if ($scope.tableModel.selectedTableId && $scope.tableModel.selectedTableId != table.Id) {
                 //Si une table etait deja selectionné
                 //On change sa couleur en vert
@@ -173,10 +155,6 @@
                     Enumerable.from(oldTable).forEach(function(ot){
                         ot.style.backgroundColor = "green";
                     })
-<<<<<<< HEAD
-=======
-
->>>>>>> 9101faf73f812b9db686d8ab2bdb953304ed7f87
                 }
             }
             $scope.tableModel.selectedTableId = table.Id;
@@ -198,12 +176,9 @@
                 });
                 if (freezedShoppingCart) {
                     $scope.tableModel.valueCutleries = freezedShoppingCart.TableCutleries;
-<<<<<<< HEAD
                     $scope.currentTimer = $interval(function(){
                         $scope.tableModel.activeTimer = Date.now() - freezedShoppingCart.Timestamp - 3600000;
                     }, 1000);
-=======
->>>>>>> 9101faf73f812b9db686d8ab2bdb953304ed7f87
                 }
             }
 
@@ -229,12 +204,9 @@
 
 
     $scope.ok = function () {
-<<<<<<< HEAD
         $interval.cancel($scope.currentTimer);
         delete $scope.tableModel.activeTimer;
 
-=======
->>>>>>> 9101faf73f812b9db686d8ab2bdb953304ed7f87
         $rootScope.closeKeyboard();
         var tableNumberValue = parseInt($scope.tableModel.valueTable);
         var tableCutleriesValue = parseInt($scope.tableModel.valueCutleries);
@@ -261,12 +233,9 @@
     };
 
     $scope.cancel = function () {
-<<<<<<< HEAD
         $interval.cancel($scope.currentTimer);
         delete $scope.tableModel.activeTimer;
 
-=======
->>>>>>> 9101faf73f812b9db686d8ab2bdb953304ed7f87
         $rootScope.closeKeyboard();
         $uibModalInstance.dismiss('cancel');
     }

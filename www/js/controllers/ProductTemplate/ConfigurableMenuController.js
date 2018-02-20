@@ -64,12 +64,7 @@ app.controller('ConfigurableMenuController', function ($scope, $rootScope, $stat
         //Clone instance
         $scope.product = jQuery.extend(true, {}, selectedProduct);
 
-<<<<<<< HEAD
         if (($rootScope.isConfigurableProductOffer == true || ($stateParams.offer && $stateParams.offer.OfferParam.Price == 0)) && !isOfferConsumed) {
-=======
-        if($rootScope.isConfigurableProductOffer == true){
-            $scope.initialProduct.Price = false;
->>>>>>> 9101faf73f812b9db686d8ab2bdb953304ed7f87
             $scope.TotalPrice = 0;
         } else {
             $scope.TotalPrice = $scope.initialProduct.Price;
@@ -133,21 +128,13 @@ app.controller('ConfigurableMenuController', function ($scope, $rootScope, $stat
         var AttributeValue = Enumerable.from(Attribute.ProductAttributeValues).firstOrDefault("x => x.Id ==" + id);
         if (AttributeValue.Selected) {
             if (Attribute.IsRequired == false || Attribute.Type == 3) {
-<<<<<<< HEAD
                 if (testSelectCheckbox(Attribute, AttributeValue, false)) {
-=======
-                if(testSelectCheckbox(Attribute, AttributeValue, false)){
->>>>>>> 9101faf73f812b9db686d8ab2bdb953304ed7f87
                     if (AttributeValue.PriceAdjustment) $scope.TotalPrice = $scope.TotalPrice - AttributeValue.PriceAdjustment;
                 }
             }
         }
         else {
-<<<<<<< HEAD
             if (testSelectCheckbox(Attribute, AttributeValue, true)) {
-=======
-            if(testSelectCheckbox(Attribute, AttributeValue, true)){
->>>>>>> 9101faf73f812b9db686d8ab2bdb953304ed7f87
                 if (!reload) {
                     Attribute.Step = $scope.currentStep;
 
@@ -197,21 +184,13 @@ app.controller('ConfigurableMenuController', function ($scope, $rootScope, $stat
             var nbSelect = container.querySelectorAll("button.attributeBox.active").length;
 
             // Si on veut selectionné et qu'on est en dessous du max, on autorise
-<<<<<<< HEAD
             if (nbSelect < max && state === true) {
-=======
-            if(nbSelect < max && state===true){
->>>>>>> 9101faf73f812b9db686d8ab2bdb953304ed7f87
                 AttributeValue.Selected = state;
                 return true;
             }
 
             // Si on veut déselectionné et qu'on est au dessus du min, on autorise
-<<<<<<< HEAD
             if (nbSelect > min && state === false) {
-=======
-            if(nbSelect > min && state===false){
->>>>>>> 9101faf73f812b9db686d8ab2bdb953304ed7f87
                 AttributeValue.Selected = state;
                 return true
             }
@@ -240,10 +219,6 @@ app.controller('ConfigurableMenuController', function ($scope, $rootScope, $stat
     };
 
 
-<<<<<<< HEAD
-=======
-
->>>>>>> 9101faf73f812b9db686d8ab2bdb953304ed7f87
     $scope.scrollTo = function (elementId) {
         var updatedItemElem = document.getElementById('a' + elementId);
         if (updatedItemElem) {

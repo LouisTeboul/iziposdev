@@ -1,5 +1,4 @@
 ﻿<md-content class="configuration" ng-controller="ConfigurationController" ng-init="init()" layout="column" layout-align="start center" layout-fill layout-padding>
-<<<<<<< HEAD
     <md-button class="md-fab md-mini md-fab-top-right" ng-if="IziBoxConfiguration != undefined && !isBrowser" aria-label="ClearCache" style="top:0;right:0;line-height:20px;background:#464646" ng-click="emptyCache()">
         <img style="width:20px;height:20px;" class="btn-action-image" alt="Image" src="img/trash.png">
     </md-button>
@@ -83,91 +82,6 @@
                 <md-button ng-click="testPrinter(PrinterConfiguration.ProdPrinter)" class="md-raised md-warn btn-rose">Test</md-button>
             </div>
         </div>
-=======
-	<md-button class="md-fab md-mini md-fab-top-right" ng-if="IziBoxConfiguration != undefined && !isBrowser" aria-label="ClearCache" style="top:0;right:0;line-height:20px;background:#464646" ng-click="emptyCache()">
-		<img style="width:20px;height:20px;" class="btn-action-image" alt="Image" src="img/trash.png">
-	</md-button>
-	<div>
-		<img style="width:70px;height:70px" src="img/logo.png" />
-        <span class="labelversion">{{Version}}</span>
-	</div>
-	<div>
-		<h1 ng-if="IziBoxConfiguration == undefined"><x translate>Veuillez patienter</x>...</h1>
-		<h1 ng-if="IziBoxConfiguration != undefined" translate>Configuration</h1>
-	</div>
-	<md-content ng-if="IziBoxConfiguration != undefined">
-		<div class="configRow" style="border-bottom:1px solid #C2C2C2;" layout="row" layout-align="center center" layout-wrap >
-			<div layout="column" layout-wrap>
-				<div layout="row" layout-align="start center" layout-wrap>
-					<div class="title" style="min-width:155px">
-						<b translate>Imprimante caisse</b><b> : </b>
-					</div>
-					<div class="value" style="min-width:250px">
-						<md-radio-group ng-model="PrinterConfiguration.POSPrinter" layout="row">
-							<md-radio-button value="1">1</md-radio-button>
-							<md-radio-button value="2">2</md-radio-button>
-							<md-radio-button value="3">3</md-radio-button>
-							<md-radio-button value="4">4</md-radio-button>
-							<md-radio-button value="5">5</md-radio-button>
-						</md-radio-group>
-					</div>
-				</div>
-				<div layout="row" layout-align="start center" layout-wrap>
-					<div class="title" style="min-width:155px">
-						<b translate>Nb impression</b><b> : </b>
-					</div>
-					<div class="value" style="min-width:250px">
-						<md-radio-group ng-model="PrinterConfiguration.POSPrinterCount" layout="row">
-							<md-radio-button value="1">1</md-radio-button>
-							<md-radio-button value="2">2</md-radio-button>
-							<!--<md-radio-button value="3">3</md-radio-button>
-							<md-radio-button value="4">4</md-radio-button>-->
-						</md-radio-group>
-					</div>
-				</div>
-			</div>
-
-			<div>
-				<md-button ng-click="testPrinter(PrinterConfiguration.POSPrinter)" class="md-raised md-warn btn-rose">Test</md-button>
-			</div>
-		</div>
-
-		<div class="configRow" style="border-bottom: 1px solid #C2C2C2;" layout="row" layout-align="center center" layout-wrap >
-			<div layout="column" layout-wrap>
-				<div layout="row" layout-align="start center" layout-wrap>
-					<div class="title" style="min-width:155px">
-						<b translate>Imprimante prod.</b><b> : </b>
-					</div>
-					<div class="value" style="min-width:250px">
-						<md-radio-group ng-model="PrinterConfiguration.ProdPrinter" layout="row">
-							<md-radio-button value="1">1</md-radio-button>
-							<md-radio-button value="2">2</md-radio-button>
-							<md-radio-button value="3">3</md-radio-button>
-							<md-radio-button value="4">4</md-radio-button>
-							<md-radio-button value="5">5</md-radio-button>
-						</md-radio-group>
-					</div>
-				</div>
-				<div layout="row" layout-align="start center" layout-wrap>
-					<div class="title" style="min-width:155px">
-						<b translate>Nb impression</b><b> : </b>
-					</div>
-					<div class="value" style="min-width:250px">
-						<md-radio-group ng-model="PrinterConfiguration.ProdPrinterCount" layout="row">
-							<md-radio-button value="1">1</md-radio-button>
-							<md-radio-button value="2">2</md-radio-button>
-							<md-radio-button value="3">3</md-radio-button>
-							<md-radio-button value="4">4</md-radio-button>
-						</md-radio-group>
-					</div>
-				</div>
-			</div>
-
-			<div>
-				<md-button ng-click="testPrinter(PrinterConfiguration.ProdPrinter)" class="md-raised md-warn btn-rose">Test</md-button>
-			</div>
-		</div>
->>>>>>> 9101faf73f812b9db686d8ab2bdb953304ed7f87
 
         <div class="configRow" style="border-bottom: 1px solid #C2C2C2; padding:10px 0" layout="row" layout-align="center center" layout-wrap>
             <div layout="column" layout-wrap>

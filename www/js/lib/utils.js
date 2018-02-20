@@ -9,7 +9,6 @@ var roundValue = function (value) {
         return value;
     }
 };
-<<<<<<< HEAD
 
 var adjustDividedQuantity = function (originalQuantity, value, divider) {
     if(value != 0 ){
@@ -19,8 +18,6 @@ var adjustDividedQuantity = function (originalQuantity, value, divider) {
     }
     return value
 };
-=======
->>>>>>> 9101faf73f812b9db686d8ab2bdb953304ed7f87
 
 var clone = function (objToClone) {
     return angular.copy(objToClone);

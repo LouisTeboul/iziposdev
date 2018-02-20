@@ -1,5 +1,4 @@
 app.controller('MiniBasketController', ['$scope', '$rootScope', '$state', '$uibModal', '$timeout', '$filter', 'settingService', 'shoppingCartService', 'productService', 'shoppingCartModel', 'posUserService', 'orderShoppingCartService', 'taxesService', '$translate',
-<<<<<<< HEAD
     function ($scope, $rootScope, $state, $uibModal, $timeout, $filter, settingService, shoppingCartService, productService, shoppingCartModel, posUserService, orderShoppingCartService, taxesService, $translate) {
         var deliveryTypeHandler = undefined;
         var itemsHandler = undefined;
@@ -18,28 +17,6 @@ app.controller('MiniBasketController', ['$scope', '$rootScope', '$state', '$uibM
          * Initialize controller
          */
         $scope.init = function () {
-=======
-	function ($scope, $rootScope, $state, $uibModal, $timeout, $filter, settingService, shoppingCartService, productService, shoppingCartModel, posUserService, orderShoppingCartService, taxesService, $translate) {
-		var deliveryTypeHandler = undefined;
-		var itemsHandler = undefined;
-		var accordionHandler = undefined;
-		var loyaltyHandler = undefined;
-		var orderServiceHandler = undefined;
-		var currentShoppingCartUpdatedHandler = undefined;
-
-		$scope.filter = $filter;
-
-		$scope.DeliveryTypes = DeliveryTypes;
-
-		$scope.totalDivider = 1;
-
-		$scope.shoppingCartQueue = [];
-		//#region Controller init
-		/**
-		* Initialize controller
-		*/
-		$scope.init = function () {
->>>>>>> 9101faf73f812b9db686d8ab2bdb953304ed7f87
             $scope.viewmodel = {};
             $scope.TimeOffset = $rootScope.IziBoxConfiguration.OrdersPrepareMinutes;
 
@@ -60,7 +37,6 @@ app.controller('MiniBasketController', ['$scope', '$rootScope', '$state', '$uibM
             };
 
 
-<<<<<<< HEAD
             // Causes infinite digest loop
             // BUGFIX: The loyalty div was modified after the miniBasketResize()
             $scope.$watch(function () {
@@ -76,25 +52,6 @@ app.controller('MiniBasketController', ['$scope', '$rootScope', '$state', '$uibM
                     $scope.$evalAsync();
                 }
             });
-=======
-
-			// Causes infinite digest loop
-			// BUGFIX: The loyalty div was modified after the miniBasketResize()            
-			$scope.$watch(function () {
-				return document.getElementById("loyaltyRow").clientHeight;
-			}, function () {
-				resizeMiniBasket();
-			});
-
-
-
-			var currentShoppingCartHandler = $scope.$watchCollection('currentShoppingCart', function () {
-				if ($scope.currentShoppingCart) {
-					$scope.filteredTaxDetails = taxesService.groupTaxDetail($scope.currentShoppingCart.TaxDetails);
-					$scope.$evalAsync();
-				}
-			});
->>>>>>> 9101faf73f812b9db686d8ab2bdb953304ed7f87
 
             deliveryTypeHandler = $scope.$watch('deliveryType', function () {
                 shoppingCartModel.setDeliveryType($scope.deliveryType);
@@ -180,7 +137,6 @@ app.controller('MiniBasketController', ['$scope', '$rootScope', '$state', '$uibM
                     Enumerable.from($scope.currentShoppingCart.Items).forEach(function (item) {
                         //Formule
                         if (item.Attributes && item.Attributes.length > 0) {
-<<<<<<< HEAD
                             Enumerable.from(item.Attributes).forEach(function (attr) {
                                 addItemToStep(item, attr.Step);
                             });
@@ -242,69 +198,6 @@ app.controller('MiniBasketController', ['$scope', '$rootScope', '$state', '$uibM
             $scope.balancePassages = undefined;
             $scope.filteredTaxDetails = undefined;
             $scope.accordionStatus.paiementOpen = false;
-=======
-							Enumerable.from(item.Attributes).forEach(function (attr) {
-								addItemToStep(item, attr.Step);
-							});
-						} else {
-							addItemToStep(item, item.Step);
-						}
-					});
-
-					//Tri des lignes par no de step
-					var lastStep = Enumerable.from(groupedLinesStep).select("x=>x.Step").orderByDescending().firstOrDefault();
-
-					if (!lastStep || lastStep < $scope.currentShoppingCart.CurrentStep) {
-						lastStep = $scope.currentShoppingCart.CurrentStep;
-					}
-
-					for (var s = lastStep; s >= 0; s--) {
-						var lineExists = Enumerable.from(groupedLinesStep).any("line => line.Step == " + s);
-						if (!lineExists) {
-
-							groupedLinesStep.push({ Step: s, Items: [] });
-						}
-					}
-
-					$scope.shoppingCartLines = Enumerable.from(groupedLinesStep).orderBy("x => x.Step").toArray();
-
-				} else {
-
-					$scope.shoppingCartLines = [];
-					$scope.shoppingCartLines.push({ Step: 0, Items: $scope.currentShoppingCart.Items });
-				}
-			}
-
-			$scope.$evalAsync();
-		};
-
-		/**
-		 * Events on ShoppingCartItem
-		 */
-		var shoppingCartChangedHandler = $rootScope.$on('shoppingCartChanged', function (event, args) {
-
-			updateCurrentShoppingCart();
-		});
-
-		var shoppingCartStepChangedHandler = $rootScope.$on('shoppingCartStepChanged', function (event, shoppingCart) {
-			updateCurrentLines();
-
-			$timeout(function () {
-				var selectedStep = document.getElementById("step" + shoppingCart.CurrentStep);
-
-				if (selectedStep) {
-					selectedStep.scrollIntoView(false);
-				}
-			}, 250);
-
-		});
-
-		var shoppingCartClearedHandler = $rootScope.$on('shoppingCartCleared', function (event, args) {
-			$scope.currentShoppingCart = undefined;
-			$scope.balancePassages = undefined;
-			$scope.filteredTaxDetails = undefined;
-			$scope.accordionStatus.paiementOpen = false;
->>>>>>> 9101faf73f812b9db686d8ab2bdb953304ed7f87
             $scope.accordionStatus.ticketOpen = true;
             $scope.viewmodel.lastShoppingCart = shoppingCartModel.getLastShoppingCart();
             $scope.$evalAsync();
@@ -418,18 +311,13 @@ app.controller('MiniBasketController', ['$scope', '$rootScope', '$state', '$uibM
 
                     }
 
-<<<<<<< HEAD
                 }
-=======
-				}
->>>>>>> 9101faf73f812b9db686d8ab2bdb953304ed7f87
                 shoppingCartModel.calculateTotal();
                 shoppingCartModel.calculateLoyalty();
                 resizeMiniBasket();
             }, function () {
                 console.log('Erreur');
             });
-<<<<<<< HEAD
         };
 
         $scope.removeOffer = function (cartItem) {
@@ -453,49 +341,18 @@ app.controller('MiniBasketController', ['$scope', '$rootScope', '$state', '$uibM
         //#region Phone Order Action
 
         $scope.pickTime = function () {
-=======
-		};
-
-        $scope.removeOffer = function (cartItem){
-        	cartItem.DiscountET = 0;
-        	cartItem.DiscountIT = 0;
-            console.log("Remove free/discount", cartItem);
-            shoppingCartModel.calculateTotal();
-            shoppingCartModel.calculateLoyalty();
-		};
-
-
-		$scope.editMenu = function (cartItem) {
-			shoppingCartModel.editMenu(cartItem);
-		};
-
-		$scope.editComment = function (cartItem) {
-			shoppingCartModel.editComment(cartItem);
-		};
-		//#endregion
-
-		//#region Phone Order Action
-
-		$scope.pickTime = function(){
->>>>>>> 9101faf73f812b9db686d8ab2bdb953304ed7f87
             var modalInstance = $uibModal.open({
                 templateUrl: 'modals/modalPhoneOrderTime.html',
                 controller: 'ModalPhoneOrderTimeController',
                 resolve: {
-<<<<<<< HEAD
                     currentTimeOffset: function () {
                         return $scope.TimeOffset;
-=======
-                	currentTimeOffset : function(){
-                		return $scope.TimeOffset;
->>>>>>> 9101faf73f812b9db686d8ab2bdb953304ed7f87
                     }
                 },
                 backdrop: 'static'
             });
 
             modalInstance.result.then(function (model) {
-<<<<<<< HEAD
                 console.log(model);
                 console.log("On a finit");
                 if (60 * model.heure + model.minute >= $rootScope.IziBoxConfiguration.OrdersPrepareMinutes) {
@@ -505,32 +362,16 @@ app.controller('MiniBasketController', ['$scope', '$rootScope', '$state', '$uibM
                 }
             }, function () {
                 console.log("On a cancel");
-=======
-            	console.log(model);
-                console.log("On a finit");
-                if(60 * model.heure + model.minute >= $rootScope.IziBoxConfiguration.OrdersPrepareMinutes){
-                    $scope.TimeOffset = 60 * model.heure + model.minute;
-				} else {
-                    $scope.TimeOffset = $rootScope.IziBoxConfiguration.OrdersPrepareMinutes;
-				}
-            }, function () {
-            	console.log("On a cancel");
->>>>>>> 9101faf73f812b9db686d8ab2bdb953304ed7f87
             });
 
         };
 
 
-<<<<<<< HEAD
         $scope.setShoppingCartTime = function () {
-=======
-        $scope.setShoppingCartTime = function(){
->>>>>>> 9101faf73f812b9db686d8ab2bdb953304ed7f87
             $scope.currentShoppingCart.DatePickup = new Date().addMinutes($scope.TimeOffset).toString("dd/MM/yyyy HH:mm:ss");
             $scope.currentShoppingCart.id = new Date().addMinutes($scope.TimeOffset).getTime();
         };
 
-<<<<<<< HEAD
         $scope.minutesToDisplay = function (minutes) {
             var minutesDisp = 0;
             var heuresDisp = 0;
@@ -543,20 +384,6 @@ app.controller('MiniBasketController', ['$scope', '$rootScope', '$state', '$uibM
             } else {
                 minutesDisp = minutes;
                 retour = minutesDisp + "min";
-=======
-        $scope.minutesToDisplay = function(minutes){
-            var minutesDisp = 0;
-            var heuresDisp = 0;
-            var retour = "";
-            if(minutes >= 60){
-                heuresDisp =  Math.trunc(minutes / 60);
-                minutesDisp = minutes % 60;
-                retour = heuresDisp + "h" + minutesDisp +"min";
-
-            } else {
-                minutesDisp = minutes;
-                retour = minutesDisp +"min";
->>>>>>> 9101faf73f812b9db686d8ab2bdb953304ed7f87
             }
 
             return retour;
@@ -566,7 +393,6 @@ app.controller('MiniBasketController', ['$scope', '$rootScope', '$state', '$uibM
         //#endregion
 
 
-<<<<<<< HEAD
         //#region Payments
         $scope.removePayment = function (selectedPaymentMode) {
 
@@ -592,33 +418,6 @@ app.controller('MiniBasketController', ['$scope', '$rootScope', '$state', '$uibM
 
         $scope.splitShoppingCart = function () {
             if ($scope.currentShoppingCart && $scope.currentShoppingCart.Items.length > 0) {
-=======
-		//#region Payments
-		$scope.removePayment = function (selectedPaymentMode) {
-
-			//reset des tickets resto
-            if (selectedPaymentMode.PaymentType == PaymentType.TICKETRESTAURANT) {
-				shoppingCartModel.removeTicketRestaurantFromCart();
-			}
-			selectedPaymentMode.Total = 0;
-			shoppingCartModel.setPaymentMode(selectedPaymentMode);
-		};
-
-		$scope.removeBalanceUpdate = function () {
-			shoppingCartModel.removeBalanceUpdate();
-		};
-
-		$scope.selectPaymentMode = function (selectedPaymentMode) {
-
-			// Attention à la fonction d'arrondi
-			var customValue = $scope.totalDivider > 1 ? parseFloat((Math.round($scope.currentShoppingCart.Total / $scope.totalDivider * 100) / 100).toFixed(2)) : undefined;
-
-			shoppingCartModel.selectPaymentMode(selectedPaymentMode, customValue, $rootScope.IziPosConfiguration.IsDirectPayment);
-		};
-
-		$scope.splitShoppingCart = function () {
-            if($scope.currentShoppingCart && $scope.currentShoppingCart.Items.length > 0) {
->>>>>>> 9101faf73f812b9db686d8ab2bdb953304ed7f87
                 if (posUserService.isEnable('SPLIT')) {
                     var modalInstance = $uibModal.open({
                         templateUrl: 'modals/modalShoppingCartSplit.html',
@@ -633,17 +432,10 @@ app.controller('MiniBasketController', ['$scope', '$rootScope', '$state', '$uibM
                     });
                 }
             }
-<<<<<<< HEAD
         };
 
         $scope.divideTotal = function () {
             if ($scope.currentShoppingCart && $scope.currentShoppingCart.Items.length > 0) {
-=======
-		};
-
-		$scope.divideTotal = function () {
-			if($scope.currentShoppingCart && $scope.currentShoppingCart.Items.length > 0) {
->>>>>>> 9101faf73f812b9db686d8ab2bdb953304ed7f87
                 var modalInstance = $uibModal.open({
                     templateUrl: 'modals/modalTotalDivider.html',
                     controller: 'ModalTotalDividerController',
@@ -657,7 +449,6 @@ app.controller('MiniBasketController', ['$scope', '$rootScope', '$state', '$uibM
                 });
 
                 modalInstance.result.then(function (divider) {
-<<<<<<< HEAD
                     //$scope.totalDivider = divider;
 
                     shoppingCartModel.createDividedShoppingCartsAsync($scope.currentShoppingCart, divider).then(function () {
@@ -691,35 +482,6 @@ app.controller('MiniBasketController', ['$scope', '$rootScope', '$state', '$uibM
                     var iidet = new Decimal(itemIn.DiscountET);
                     matchedItem.DiscountET = parseFloat(midet.plus(iidet));
 
-=======
-                	//$scope.totalDivider = divider;
-
-                    shoppingCartModel.createDividedShoppingCartsAsync($scope.currentShoppingCart, divider, $scope.shoppingCartQueue).then(function(spq){
-                        $scope.shoppingCartQueue = spq;
-
-                        console.log($scope.shoppingCartQueue);
-                    }, function(err){
-
-					});
-
-                }, function () {
-                	console.log('cancel divider');
-                });
-			}
-		};
-
-
-        function tryMatch(itemIn, shoppingCartTo){
-            if(shoppingCartTo.Items){
-                var matchedItem = Enumerable.from(shoppingCartTo.Items).firstOrDefault(function(itemTo){
-                    return itemTo.hashkey == itemIn.hashkey;
-                });
-
-                if(matchedItem){
-                    matchedItem.Quantity += itemIn.Quantity;
-                    matchedItem.DiscountIT += itemIn.DiscountIT;
-                    matchedItem.DiscountET += itemIn.DiscountET;
->>>>>>> 9101faf73f812b9db686d8ab2bdb953304ed7f87
                 } else {
                     shoppingCartTo.Items.push(itemIn)
                 }
@@ -729,7 +491,6 @@ app.controller('MiniBasketController', ['$scope', '$rootScope', '$state', '$uibM
         }
 
 
-<<<<<<< HEAD
         $scope.mergeDividedTickets = function () {
             //Prend tout les item de chaque shopping cart de la queue
             //les stock dans un meme shoppingcart
@@ -747,24 +508,11 @@ app.controller('MiniBasketController', ['$scope', '$rootScope', '$state', '$uibM
             });
 
             $scope.currentShoppingCart.shoppingCartQueue = [];
-=======
-		$scope.mergeDividedTickets = function(){
-
-            //Prend tout les item de chaque shopping cart de la queue
-            //les stock dans un meme shoppingcart
-            Enumerable.from($scope.shoppingCartQueue).forEach(function(shoppingCart){
-                Enumerable.from(shoppingCart.Items).forEach(function(item){
-                	tryMatch(item, $scope.currentShoppingCart)
-                })
-            });
-            $scope.shoppingCartQueue = undefined;
->>>>>>> 9101faf73f812b9db686d8ab2bdb953304ed7f87
             shoppingCartModel.calculateTotal();
             shoppingCartModel.calculateLoyalty();
             $rootScope.$emit("shoppingCartChanged", $scope.currentShoppingCart);
             resizeMiniBasket();
 
-<<<<<<< HEAD
         };
         //#endregion
 
@@ -785,34 +533,11 @@ app.controller('MiniBasketController', ['$scope', '$rootScope', '$state', '$uibM
             if ($rootScope.PhoneOrderMode) {
                 if ($scope.currentShoppingCart.Items.length > 0) {
                     if ($scope.currentShoppingCart.Residue == 0) {
-=======
-		};
-		//#endregion
-
-		//#region Actions on cart
-		$scope.addStep = function () {
-			shoppingCartModel.nextStep();
-		};
-
-		$scope.selectStep = function (step) {
-			shoppingCartModel.setStep(step);
-		};
-
-		$scope.unfreezeShoppingCart = function () {
-			shoppingCartModel.unfreezeShoppingCart();
-		};
-
-		$scope.freezeShoppingCart = function () {
-            if($rootScope.PhoneOrderMode){
-            	if($scope.currentShoppingCart.Items.length > 0){
-                    if($scope.currentShoppingCart.Residue == 0){
->>>>>>> 9101faf73f812b9db686d8ab2bdb953304ed7f87
                         $scope.currentShoppingCart.isPayed = true;
                     }
                     $scope.setShoppingCartTime();
                     $rootScope.PhoneOrderMode = false;
                     shoppingCartModel.freezeShoppingCart();
-<<<<<<< HEAD
                 } else {
                     swal("Le ticket doit contenir au moins un produit !");
                     return;
@@ -1000,164 +725,6 @@ app.controller('MiniBasketController', ['$scope', '$rootScope', '$state', '$uibM
             //Si on supprime, un client, on sort donc du mode commande telephonique
             $rootScope.PhoneOrderMode = false;
             // Il faut suppr les paymentModesAvailable lié a la fid
-=======
-				} else {
-                    swal("Le ticket doit contenir au moins un produit !");
-            		return;
-				}
-            } else {
-                shoppingCartModel.freezeShoppingCart();
-			}
-
-		};
-
-		$scope.validShoppingCart = function (ignorePrintTicket) {
-			shoppingCartModel.validShoppingCart(ignorePrintTicket);
-		};
-
-		$scope.openModalDelivery = function (parameter) {
-			shoppingCartModel.openModalDelivery(parameter);
-		};
-
-		$scope.openCustomActionModal = function () {
-			shoppingCartModel.openCustomActionModal();
-		};
-
-		$scope.printProdShoppingCart = function () {
-			if ($scope.currentShoppingCart != undefined && $scope.currentShoppingCart.Items.length > 0) 
-			{				
-				shoppingCartModel.printProdShoppingCart();
-			}
-		};
-
-		$scope.printStepProdShoppingCart = function () {
-			if ($scope.currentShoppingCart != undefined && $scope.currentShoppingCart.Items.length > 0) 
-			{		
-				shoppingCartModel.printStepProdShoppingCart();
-			}
-		};
-
-		$scope.cancelShoppingCart = function () {
-			//Impossible de supprimer le shopping cart si il contient des item splitté
-			// TODO: Logger action
-			if (posUserService.isEnable('DELT')) {
-			    var errMess = $scope.shoppingCartQueue && $scope.shoppingCartQueue.length > 0 ? "Vous allez supprimer toutes les parts d'un ticket partagé" : "";
-				swal({
-                        title: $translate.instant("Supprimer le ticket ?"),
-                        text: errMess, type: "warning",
-                        showCancelButton: true,
-                        confirmButtonColor: "#d83448",
-                        confirmButtonText: $translate.instant("Oui"),
-                        cancelButtonText: $translate.instant("Non"),
-                        closeOnConfirm: true },
-					function () {
-						$scope.shoppingCartQueue = [];
-						shoppingCartModel.cancelShoppingCartAndSend();
-					});
-			}			
-		};
-		//#endregion
-
-		//#region Discount
-		$scope.removeShoppingCartDiscount = function (item) {
-			shoppingCartModel.removeShoppingCartDiscount(item);
-		};
-		//#endregion
-
-		//#region FID
-		$scope.openClientModal = function () {
-			var modalInstance = $uibModal.open({
-				templateUrl: 'modals/modalCustomer.html',
-				controller: 'ModalCustomerController',
-				backdrop: 'static',
-				size: 'lg'
-			});
-		};
-
-		$scope.chooseRelevantOffer = function () {
-			shoppingCartModel.chooseRelevantOffer();
-		};
-
-		var updateBalancePassages = function () {
-			if ($scope.currentShoppingCart && $scope.currentShoppingCart.customerLoyalty && $scope.currentShoppingCart.customerLoyalty.Balances) {
-				$scope.balancePassages = Enumerable.from($scope.currentShoppingCart.customerLoyalty.Balances).firstOrDefault(function (b) {
-					return b.BalanceType == "Passages";
-				});
-
-				resizeMiniBasket();
-			} else {
-				$scope.balancePassages = undefined;
-			}
-		};
-		//#endregion
-
-		//#region Misc
-		
-		/**
-		 * Refresh the miniBasket
-		 * */
-		var resizeMiniBasket = function () {
-			var miniBasketDiv = document.getElementById("miniBasket");
-
-			if (miniBasketDiv) {
-				var height = miniBasketDiv.parentElement.clientHeight;
-
-				var textFieldHeight = 38;
-				var totalHeight = 62;
-				var headerHeight = 42 * 2;
-				var switchHeight = 43;
-				var divHeight = 0;
-				var marginHeight = 30;
-
-				var miniBasketItemsDiv = document.getElementById("miniBasketItems");
-				var miniBasketInfosDiv = document.getElementById("miniBasketInfos");
-				var buttonBarDiv = document.getElementById("buttonbar");
-				var loyaltyRowDiv = document.getElementById("loyaltyRow");
-				var paymentModesDiv = document.getElementById("paymentModes");
-
-				if (buttonBarDiv) {
-					divHeight = buttonBarDiv.clientHeight;
-				}
-
-				if (loyaltyRowDiv) {
-					divHeight += loyaltyRowDiv.clientHeight;
-				}
-
-				if (paymentModesDiv) {
-					divHeight += paymentModesDiv.clientHeight;
-				}
-
-				var itemsHeight = height - textFieldHeight - switchHeight - totalHeight - headerHeight - divHeight - marginHeight;
-
-				if (miniBasketItemsDiv) {
-					miniBasketItemsDiv.style.maxHeight = itemsHeight + "px";
-				}
-
-				if (miniBasketInfosDiv) {
-					miniBasketInfosDiv.style.maxHeight = itemsHeight + "px";
-				}
-			}
-
-		};
-		//#endregion
-
-		$scope.selectTable = function () {
-			shoppingCartModel.selectTableNumber();
-		};
-
-		$scope.isMenuDisable = function (item) {
-            var ret = Enumerable.from(item.Attributes).any('attr=>attr.Printed') || item.IsFree || !item.Product.ProductAttributes || (item.Product.ProductAttributes && item.Product.ProductAttributes.length == 0);
-			return (false);
-			return (ret);
-		};
-
-		/** Clear the loyalty info linked to the ticket */
-		$scope.removeLoyaltyInfo = function () {
-			//Une commande telephonique est forcement lié a un client
-			//Si on supprime, un client, on sort donc du mode commande telephonique
-            $rootScope.PhoneOrderMode = false;
-			// Il faut suppr les paymentModesAvailable lié a la fid
->>>>>>> 9101faf73f812b9db686d8ab2bdb953304ed7f87
             console.log($scope.paymentModesAvailable);
             $scope.paymentModesAvailable = $scope.paymentModesAvailable.filter(function (pma) {
                 return !pma.IsBalance;
