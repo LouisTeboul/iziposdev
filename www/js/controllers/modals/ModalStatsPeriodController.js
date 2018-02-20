@@ -1,4 +1,4 @@
-app.controller('ModalStatsPeriodController', function ($scope, $rootScope,  $uibModalInstance, $uibModal, zposService, closePosParameters, $translate) {
+app.controller('ModalStatsPeriodController', function ($scope, $rootScope, $uibModalInstance, $uibModal, zposService, closePosParameters, $translate) {
 
     $scope.printY = undefined;
     $scope.closePosParameters = closePosParameters;
@@ -68,38 +68,52 @@ app.controller('ModalStatsPeriodController', function ($scope, $rootScope,  $uib
                 var columnValues = [];
 
                 var dateStartDisp = dateFormat(line.start);
-                if(line.end){
+                if (line.end) {
                     var dateEndDisp = dateFormat(line.end)
                 }
 
                 columnValues.push(dateStartDisp);//date
                 columnValues.push(dateEndDisp || '-');//date
                 columnValues.push(line.count);//nb
-                columnValues.push(roundValue( line.totalIT));//total
+                columnValues.push(roundValue(line.totalIT));//total
 
                 //Cutleries
                 var lineCutleries = Enumerable.from(resZpos.cutleries.byPeriod).firstOrDefault(function (value) {
-                    return value.start == line.start; });
+                    return value.start == line.start;
+                });
                 columnValues.push(lineCutleries ? lineCutleries.count : 0);
 
                 //Sur place
-                var lineForHere = Enumerable.from(resZpos.deliveryValues).firstOrDefault(function (value) { return value.type == DeliveryTypes.FORHERE; });
-                var lineTotalForHere = lineForHere ? Enumerable.from(lineForHere.byPeriod).firstOrDefault(function (value) { return value.start == line.start; }) : undefined;
+                var lineForHere = Enumerable.from(resZpos.deliveryValues).firstOrDefault(function (value) {
+                    return value.type == DeliveryTypes.FORHERE;
+                });
+                var lineTotalForHere = lineForHere ? Enumerable.from(lineForHere.byPeriod).firstOrDefault(function (value) {
+                    return value.start == line.start;
+                }) : undefined;
                 columnValues.push(lineTotalForHere ? roundValue(lineTotalForHere.total) : 0);
 
                 //Emporté
-                var lineTakeOut = Enumerable.from(resZpos.deliveryValues).firstOrDefault(function (value) { return value.type == DeliveryTypes.TAKEOUT; });
-                var lineTotalTakeOut = lineTakeOut ? Enumerable.from(lineTakeOut.byPeriod).firstOrDefault(function (value) { return value.start == line.start; }) : undefined;
+                var lineTakeOut = Enumerable.from(resZpos.deliveryValues).firstOrDefault(function (value) {
+                    return value.type == DeliveryTypes.TAKEOUT;
+                });
+                var lineTotalTakeOut = lineTakeOut ? Enumerable.from(lineTakeOut.byPeriod).firstOrDefault(function (value) {
+                    return value.start == line.start;
+                }) : undefined;
                 columnValues.push(lineTotalTakeOut ? roundValue(lineTotalTakeOut.total) : 0);
 
                 //Livré
-                var lineDelivery = Enumerable.from(resZpos.deliveryValues).firstOrDefault(function (value) { return value.type == DeliveryTypes.DELIVERY; });
-                var lineTotalDelivery = lineDelivery ? Enumerable.from(lineDelivery.byPeriod).firstOrDefault(function (value) { return value.start == line.start; }) : undefined;
+                var lineDelivery = Enumerable.from(resZpos.deliveryValues).firstOrDefault(function (value) {
+                    return value.type == DeliveryTypes.DELIVERY;
+                });
+                var lineTotalDelivery = lineDelivery ? Enumerable.from(lineDelivery.byPeriod).firstOrDefault(function (value) {
+                    return value.start == line.start;
+                }) : undefined;
                 columnValues.push(lineTotalDelivery ? roundValue(lineTotalDelivery.total) : 0);
 
                 //Avoirs émis
                 var lineCredit = Enumerable.from(resZpos.credit.byPeriod).firstOrDefault(function (value) {
-                    return value.start == line.start; });
+                    return value.start == line.start;
+                });
                 columnValues.push(lineCredit ? roundValue(lineCredit.total) : 0);
 
 
@@ -108,19 +122,25 @@ app.controller('ModalStatsPeriodController', function ($scope, $rootScope,  $uib
                     var lineTax = Enumerable.from(tax.byPeriod).firstOrDefault(function (value) {
                         return value.start == line.start;
                     });
-                    columnValues.push(lineTax ? roundValue(String(lineTax.total).substring(0,4)) : 0);
+                    columnValues.push(lineTax ? roundValue(String(lineTax.total).substring(0, 4)) : 0);
                 });
 
                 //Rendu
-                var lineRepaid = Enumerable.from(resZpos.repaid.byPeriod).firstOrDefault(function (value) {return value.start == line.start; });
+                var lineRepaid = Enumerable.from(resZpos.repaid.byPeriod).firstOrDefault(function (value) {
+                    return value.start == line.start;
+                });
 
                 //PaymentModes
                 Enumerable.from(resZpos.paymentModes).forEach(function (pm) {
-                    if(pm.type_id == 1) {
-                        var linePM = Enumerable.from(pm.byPeriod).firstOrDefault(function (value) { return value.start == line.start; });
+                    if (pm.type_id == 1) {
+                        var linePM = Enumerable.from(pm.byPeriod).firstOrDefault(function (value) {
+                            return value.start == line.start;
+                        });
                         columnValues.push(linePM ? roundValue(linePM.total - lineRepaid.total) : 0);
                     } else {
-                        var linePM = Enumerable.from(pm.byPeriod).firstOrDefault(function (value) { return value.start == line.start; });
+                        var linePM = Enumerable.from(pm.byPeriod).firstOrDefault(function (value) {
+                            return value.start == line.start;
+                        });
                         columnValues.push(linePM ? roundValue(linePM.total) : 0);
                     }
 
@@ -148,16 +168,22 @@ app.controller('ModalStatsPeriodController', function ($scope, $rootScope,  $uib
             $scope.ztotal.push(roundValue(resZpos.totalIT));
             $scope.ztotal.push(resZpos.cutleries.count);
 
-            var lineForHere = Enumerable.from(resZpos.deliveryValues).firstOrDefault(function (value) { return value.type == DeliveryTypes.FORHERE; });
+            var lineForHere = Enumerable.from(resZpos.deliveryValues).firstOrDefault(function (value) {
+                return value.type == DeliveryTypes.FORHERE;
+            });
             $scope.ztotal.push(lineForHere ? roundValue(lineForHere.total) : 0);
 
-            var lineTakeOut = Enumerable.from(resZpos.deliveryValues).firstOrDefault(function (value) { return value.type == DeliveryTypes.TAKEOUT; });
+            var lineTakeOut = Enumerable.from(resZpos.deliveryValues).firstOrDefault(function (value) {
+                return value.type == DeliveryTypes.TAKEOUT;
+            });
             $scope.ztotal.push(lineTakeOut ? roundValue(lineTakeOut.total) : 0);
 
-            var lineDelivery = Enumerable.from(resZpos.deliveryValues).firstOrDefault(function (value) { return value.type == DeliveryTypes.DELIVERY; });
+            var lineDelivery = Enumerable.from(resZpos.deliveryValues).firstOrDefault(function (value) {
+                return value.type == DeliveryTypes.DELIVERY;
+            });
             $scope.ztotal.push(lineDelivery ? roundValue(lineDelivery.total) : 0);
 
-            $scope.ztotal.push( roundValue(resZpos.credit.total));
+            $scope.ztotal.push(roundValue(resZpos.credit.total));
 
             while ($scope.ztotal.length < $scope.zheaders.length) {
                 $scope.ztotal.push("");
@@ -187,7 +213,7 @@ app.controller('ModalStatsPeriodController', function ($scope, $rootScope,  $uib
                     return $scope.closePosParameters;
 
                 },
-                modalStats : function(){
+                modalStats: function () {
                     return $uibModalInstance
                 }
             },
@@ -210,6 +236,6 @@ app.controller('ModalStatsPeriodController', function ($scope, $rootScope,  $uib
     };
 
     $scope.emailZPos = function () {
-        zposService.emailZPosAsync($scope.zpos);
+        zposService.emailZPosAsync($scope.zpos, true, $scope.printY);
     }
 });

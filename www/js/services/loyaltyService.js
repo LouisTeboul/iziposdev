@@ -19,6 +19,8 @@ app.service('loyaltyService', ["$http", "$rootScope", "$q", "$translate",
                     timeout: 20000
                 }).then(function (response) {
                     if (response && response.data) {
+                        console.log(response);
+                        //Si on a pas de customer
                         //On créer un guest customer pour cette fidélité pour permettre de cagnotter la carte
                         //Le guest customer n'est pas supprimé par la tache de maintenance
                         if (response.data.CustomerId == 0 && response.data.AllowAnonymous && response.data.Barcodes.length != 0) {
@@ -131,10 +133,66 @@ app.service('loyaltyService', ["$http", "$rootScope", "$q", "$translate",
                         sweetAlert($translate.instant(response.statusText));
                     }
                     else {
-                        sweetAlert($translate.instant("Erreur lors de l'enregistrement du client"));
+                        //Si pas de reponse du serveur
+                        sweetAlert($translate.instant("Le serveur de fidélité n'est pas joignable ..."));
                     }
             });
 
+            return registerDefer.promise;
+        };
+
+
+        /**
+         * Register a full customer - mandatory fields only
+         * @param loyalty
+         */
+        this.registerFullCustomerAsync = function (loyalty) {
+            console.log(loyalty);
+            var registerDefer = $q.defer();
+            var getRegisterUrl = $rootScope.IziBoxConfiguration.UrlSmartStoreApi + "/RESTLoyalty/RESTLoyalty/RegisterJSON";
+            var code;
+            var obj = {};
+
+            if (loyalty.Barcodes && loyalty.Barcodes.length > 0 && loyalty.Barcodes) {
+                code = loyalty.Barcodes[0].Barcode;
+            } else {
+                if (loyalty.barcode && loyalty.barcode.barcodeValue != "") {
+                    code = loyalty.barcode.barcodeValue;
+                }
+            }
+
+            if (code == undefined && loyalty.AllowCustomerToCreateLoyaltyBarcode) {
+                delete loyalty['barcode'];
+                Enumerable.from(loyalty).forEach(function(field){
+                    var newKey = field.key.replace("Customer", "");
+                    obj[newKey] = field.value;
+                });
+
+                console.log(obj)
+            }
+            else {
+                delete loyalty['barcode'];
+                Enumerable.from(loyalty).forEach(function(field){
+                    var newKey = field.key.replace("Customer", "");
+                    obj[newKey] = field.value;
+                });
+                obj.Barcode = code;
+            }
+            console.log(obj);
+            $http.post(getRegisterUrl, obj, { timeout: 10000 })
+                .then(function (response) {
+                    registerDefer.resolve(response.data);
+                }, function (response) {
+                    registerDefer.reject("Error registering customer");
+                    if (response.statusText != undefined && response.statusText != '') {
+                        //Fix horrible qui permet de remplacé les caractères mal formatté
+                        sweetAlert($translate.instant(response.statusText.replace('Ã©', 'é').replace('Ã', 'à').replace('Ã©', 'é')));
+                    }
+                    else {
+                        //Si pas de réponse du serveur
+                        sweetAlert($translate.instant("Le serveur de fidélité n'est pas joignable ..."));
+                    }
+                });
             return registerDefer.promise;
         };
 

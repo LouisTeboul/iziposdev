@@ -1,0 +1,34 @@
+﻿<md-content class="configuration" ng-controller="InitIziboxController" ng-init="init()" layout="column" layout-align="start center" layout-fill layout-padding>
+	<div>
+		<img style="width:70px;height:70px" src="img/logo.png" />
+	</div>
+	<div>
+		<h1 translate>Izibox Setup</h1>
+	</div>
+    <md-content ng-if="model.rebootInProgress == false">
+        <div class="logincard" layout="column" layout-align="center center">
+            <md-input-container>
+                <label>Veuillez saisir votre code</label>
+                <input ng-model="model.iziboxcode">
+            </md-input-container>
+        </div>
+    </md-content>
+
+    <div layout="column" layout-align="center center" style="width:100%;height:200px;">
+        <div ng-if="model.rebootInProgress == true" layout="column" layout-fill layout-align="center center">
+            <uib-progressbar style="width:50%;margin-left:auto;margin-right:auto" animate="false" value="model.rebootPercent" type="success"></uib-progressbar>
+            <span><b>Izibox reboot ...</b></span>
+        </div>
+        <div layout="row" ng-if="model.rebootInProgress == false">
+            <md-button ng-if="closable" class="md-raised btn-rose validBtn" title="Exit" ng-click="exit()">
+                Fermer l'application
+            </md-button>
+            <md-button class="md-raised btn-orange validBtn" title="reset" ng-click="reset()">
+                Rechercher IziBox
+            </md-button>
+            <md-button class="md-raised btn-green validBtn" title="Valid config" ng-click="validConfig()">
+                Ok
+            </md-button>
+        </div>
+    </div>
+</md-content>

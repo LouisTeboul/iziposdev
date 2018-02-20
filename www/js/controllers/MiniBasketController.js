@@ -1,277 +1,287 @@
 app.controller('MiniBasketController', ['$scope', '$rootScope', '$state', '$uibModal', '$timeout', '$filter', 'settingService', 'shoppingCartService', 'productService', 'shoppingCartModel', 'posUserService', 'orderShoppingCartService', 'taxesService', '$translate',
-	function ($scope, $rootScope, $state, $uibModal, $timeout, $filter, settingService, shoppingCartService, productService, shoppingCartModel, posUserService, orderShoppingCartService, taxesService, $translate) {
-		var deliveryTypeHandler = undefined;
-		var itemsHandler = undefined;
-		var accordionHandler = undefined;
-		var loyaltyHandler = undefined;
-		var orderServiceHandler = undefined;
-		var currentShoppingCartUpdatedHandler = undefined;
+    function ($scope, $rootScope, $state, $uibModal, $timeout, $filter, settingService, shoppingCartService, productService, shoppingCartModel, posUserService, orderShoppingCartService, taxesService, $translate) {
+        var deliveryTypeHandler = undefined;
+        var itemsHandler = undefined;
+        var accordionHandler = undefined;
+        var loyaltyHandler = undefined;
+        var orderServiceHandler = undefined;
+        var currentShoppingCartUpdatedHandler = undefined;
 
-		$scope.filter = $filter;
+        $scope.filter = $filter;
 
-		$scope.DeliveryTypes = DeliveryTypes;
+        $scope.DeliveryTypes = DeliveryTypes;
 
-		$scope.totalDivider = 1;
-		//#region Controller init
-		/**
-		* Initialize controller
-		*/
-		$scope.init = function () {
+        $scope.totalDivider = 1;
+        //#region Controller init
+        /**
+         * Initialize controller
+         */
+        $scope.init = function () {
             $scope.viewmodel = {};
+            $scope.TimeOffset = $rootScope.IziBoxConfiguration.OrdersPrepareMinutes;
 
-			updateCurrentShoppingCart();
-
-
-			//ResizeEvent
-			window.addEventListener('resize', function () {
-				resizeMiniBasket();
-			});
-
-			$scope.tempStep = 0;
-			$scope.deliveryType = shoppingCartModel.getDeliveryType();
-
-			$scope.accordionStatus = {
-				paiementOpen: false,
-				ticketOpen: true
-			};
-
-			// BUGFIX: The loyalty div was modified after the miniBasketResize()            
-			$scope.$watch(function () {
-				return document.getElementById("loyaltyRow").clientHeight;
-			}, function () {
-				resizeMiniBasket();
-			});
-
-			currentShoppingCartHandler = $scope.$watchCollection('currentShoppingCart', function () {
-				if ($scope.currentShoppingCart) {
-					$scope.filteredTaxDetails = taxesService.groupTaxDetail($scope.currentShoppingCart.TaxDetails);
-					$scope.$evalAsync();
-				}
-			});
-
-			deliveryTypeHandler = $scope.$watch('deliveryType', function () {
-				shoppingCartModel.setDeliveryType($scope.deliveryType);
-			});
-
-			accordionHandler = $scope.$watch('accordionStatus.ticketOpen', function () {
-				setTimeout(resizeMiniBasket, 500);
-			});
-
-			loyaltyHandler = $scope.$watch('currentShoppingCart.customerLoyalty', function () {
-				resizeMiniBasket();
-			});
-
-			if ($rootScope.IziBoxConfiguration.StepEnabled) {
-				settingService.getStepNamesAsync().then(function (stepNames) {
-					$scope.stepNames = stepNames;
-				});
-			}
-
-			orderServiceHandler = $rootScope.$on('orderShoppingCartChanged', function () {
-				$scope.initOrder();
-			});
-		};
-
-		$scope.initOrder = function () {
-			$scope.orders = orderShoppingCartService.orders;
-			$scope.ordersInProgress = orderShoppingCartService.ordersInProgress;
-		};
+            updateCurrentShoppingCart();
 
 
-		$scope.setDeliveryType = function (value) {
-			$scope.deliveryType = value;
-			$scope.$evalAsync();
-		};
+            //ResizeEvent
+            window.addEventListener('resize', function () {
+                resizeMiniBasket();
+            });
 
-		var updateCurrentShoppingCart = function () {
-			$scope.totalDivider = 1;
-			$scope.filteredTaxDetails = undefined;
+            $scope.tempStep = 0;
+            $scope.deliveryType = shoppingCartModel.getDeliveryType();
 
-			if (itemsHandler) itemsHandler();
+            $scope.accordionStatus = {
+                paiementOpen: false,
+                ticketOpen: true
+            };
+
+
+            // Causes infinite digest loop
+            // BUGFIX: The loyalty div was modified after the miniBasketResize()
+            $scope.$watch(function () {
+                return document.getElementById("loyaltyRow").clientHeight;
+            }, function () {
+                resizeMiniBasket();
+            });
+
+
+            var currentShoppingCartHandler = $scope.$watchCollection('currentShoppingCart', function () {
+                if ($scope.currentShoppingCart) {
+                    $scope.filteredTaxDetails = taxesService.groupTaxDetail($scope.currentShoppingCart.TaxDetails);
+                    $scope.$evalAsync();
+                }
+            });
+
+            deliveryTypeHandler = $scope.$watch('deliveryType', function () {
+                shoppingCartModel.setDeliveryType($scope.deliveryType);
+            });
+
+            accordionHandler = $scope.$watch('accordionStatus.ticketOpen', function () {
+                setTimeout(resizeMiniBasket, 500);
+            });
+
+            loyaltyHandler = $scope.$watch('currentShoppingCart.customerLoyalty', function () {
+                resizeMiniBasket();
+            });
+
+            if ($rootScope.IziBoxConfiguration.StepEnabled) {
+                settingService.getStepNamesAsync().then(function (stepNames) {
+                    $scope.stepNames = stepNames;
+                });
+            }
+
+            orderServiceHandler = $rootScope.$on('orderShoppingCartChanged', function () {
+                $scope.initOrder();
+            });
+        };
+
+        $scope.initOrder = function () {
+            $scope.orders = orderShoppingCartService.orders;
+            $scope.ordersInProgress = orderShoppingCartService.ordersInProgress;
+        };
+
+
+        $scope.setDeliveryType = function (value) {
+            $scope.deliveryType = value;
+            $scope.$evalAsync();
+        };
+
+        var updateCurrentShoppingCart = function () {
+            $scope.totalDivider = 1;
+            $scope.filteredTaxDetails = undefined;
+
+            if (itemsHandler) itemsHandler();
 
             $scope.currentShoppingCart = shoppingCartModel.getCurrentShoppingCart();
             $scope.viewmodel.lastShoppingCart = shoppingCartModel.getLastShoppingCart();
             $scope.$evalAsync();
 
-			if ($scope.currentShoppingCart) {
-				$scope.deliveryType = shoppingCartModel.getDeliveryType();
-				updateBalancePassages();
+            if ($scope.currentShoppingCart) {
+                $scope.deliveryType = shoppingCartModel.getDeliveryType();
+                updateBalancePassages();
 
-				itemsHandler = $scope.$watchCollection('currentShoppingCart.Items', function () {
-					updateCurrentLines();
-				});
-			}
+                itemsHandler = $scope.$watchCollection('currentShoppingCart.Items', function () {
+                    updateCurrentLines();
+                });
+            }
 
-			shoppingCartModel.calculateLoyalty();
-			resizeMiniBasket();
-		};
+            shoppingCartModel.calculateLoyalty();
+            resizeMiniBasket();
+        };
 
-		var updateCurrentLines = function () {
-			if (!$scope.currentShoppingCart) {
-				$scope.shoppingCartLines = undefined;
-			} else {
-				if ($rootScope.IziBoxConfiguration.StepEnabled) {
-					var groupedLinesStep = [];
+        var updateCurrentLines = function () {
+            if (!$scope.currentShoppingCart) {
+                $scope.shoppingCartLines = undefined;
+            } else {
+                if ($rootScope.IziBoxConfiguration.StepEnabled) {
+                    var groupedLinesStep = [];
 
-					var addItemToStep = function (item, step) {
-						//On recherche si le step existe déjà
-						var currentLine = Enumerable.from(groupedLinesStep).firstOrDefault("line => line.Step == " + step);
+                    var addItemToStep = function (item, step) {
+                        //On recherche si le step existe déjà
+                        var currentLine = Enumerable.from(groupedLinesStep).firstOrDefault("line => line.Step == " + step);
 
-						//Si il n'existe pas on créer le step
-						if (!currentLine) {
-							currentLine = { Step: step, Items: [] };
-							groupedLinesStep.push(currentLine);
-						}
+                        //Si il n'existe pas on créer le step
+                        if (!currentLine) {
+                            currentLine = { Step: step, Items: [] };
+                            groupedLinesStep.push(currentLine);
+                        }
 
-						//Si le step ne contient pas déjà l'item, on l'ajoute
-						if (currentLine.Items.indexOf(item) == -1) {
-							currentLine.Items.push(item);
-						}
-					};
+                        //Si le step ne contient pas déjà l'item, on l'ajoute
+                        if (currentLine.Items.indexOf(item) == -1) {
+                            currentLine.Items.push(item);
+                        }
+                    };
 
 
-					Enumerable.from($scope.currentShoppingCart.Items).forEach(function (item) {
-						//Formule
+                    Enumerable.from($scope.currentShoppingCart.Items).forEach(function (item) {
+                        //Formule
                         if (item.Attributes && item.Attributes.length > 0) {
-							Enumerable.from(item.Attributes).forEach(function (attr) {
-								addItemToStep(item, attr.Step);
-							});
-						} else {
-							addItemToStep(item, item.Step);
-						}
-					});
+                            Enumerable.from(item.Attributes).forEach(function (attr) {
+                                addItemToStep(item, attr.Step);
+                            });
+                        } else {
+                            addItemToStep(item, item.Step);
+                        }
+                    });
 
-					//Tri des lignes par no de step
-					var lastStep = Enumerable.from(groupedLinesStep).select("x=>x.Step").orderByDescending().firstOrDefault();
+                    //Tri des lignes par no de step
+                    var lastStep = Enumerable.from(groupedLinesStep).select("x=>x.Step").orderByDescending().firstOrDefault();
 
-					if (!lastStep || lastStep < $scope.currentShoppingCart.CurrentStep) {
-						lastStep = $scope.currentShoppingCart.CurrentStep;
-					}
+                    if (!lastStep || lastStep < $scope.currentShoppingCart.CurrentStep) {
+                        lastStep = $scope.currentShoppingCart.CurrentStep;
+                    }
 
-					for (var s = lastStep; s >= 0; s--) {
-						var lineExists = Enumerable.from(groupedLinesStep).any("line => line.Step == " + s);
-						if (!lineExists) {
+                    for (var s = lastStep; s >= 0; s--) {
+                        var lineExists = Enumerable.from(groupedLinesStep).any("line => line.Step == " + s);
+                        if (!lineExists) {
 
-							groupedLinesStep.push({ Step: s, Items: [] });
-						}
-					}
+                            groupedLinesStep.push({ Step: s, Items: [] });
+                        }
+                    }
 
-					$scope.shoppingCartLines = Enumerable.from(groupedLinesStep).orderBy("x => x.Step").toArray();
+                    $scope.shoppingCartLines = Enumerable.from(groupedLinesStep).orderBy("x => x.Step").toArray();
 
-				} else {
+                } else {
 
-					$scope.shoppingCartLines = [];
-					$scope.shoppingCartLines.push({ Step: 0, Items: $scope.currentShoppingCart.Items });
-				}
-			}
+                    $scope.shoppingCartLines = [];
+                    $scope.shoppingCartLines.push({ Step: 0, Items: $scope.currentShoppingCart.Items });
+                }
+            }
 
-			$scope.$evalAsync();
-		};
+            $scope.$evalAsync();
+        };
 
-		/**
-		 * Events on ShoppingCartItem
-		 */
-		var shoppingCartChangedHandler = $rootScope.$on('shoppingCartChanged', function (event, args) {
-			updateCurrentShoppingCart();
-		});
+        /**
+         * Events on ShoppingCartItem
+         */
+        var shoppingCartChangedHandler = $rootScope.$on('shoppingCartChanged', function (event, args) {
 
-		var shoppingCartStepChangedHandler = $rootScope.$on('shoppingCartStepChanged', function (event, shoppingCart) {
-			updateCurrentLines();
+            updateCurrentShoppingCart();
+        });
 
-			$timeout(function () {
-				var selectedStep = document.getElementById("step" + shoppingCart.CurrentStep);
+        var shoppingCartStepChangedHandler = $rootScope.$on('shoppingCartStepChanged', function (event, shoppingCart) {
+            updateCurrentLines();
 
-				if (selectedStep) {
-					selectedStep.scrollIntoView(false);
-				}
-			}, 250);
+            $timeout(function () {
+                var selectedStep = document.getElementById("step" + shoppingCart.CurrentStep);
 
-		});
+                if (selectedStep) {
+                    selectedStep.scrollIntoView(false);
+                }
+            }, 250);
 
-		var shoppingCartClearedHandler = $rootScope.$on('shoppingCartCleared', function (event, args) {
-			$scope.currentShoppingCart = undefined;
-			$scope.balancePassages = undefined;
-			$scope.filteredTaxDetails = undefined;
-			$scope.accordionStatus.paiementOpen = false;
+        });
+
+        var shoppingCartClearedHandler = $rootScope.$on('shoppingCartCleared', function (event, args) {
+            $scope.currentShoppingCart = undefined;
+            $scope.balancePassages = undefined;
+            $scope.filteredTaxDetails = undefined;
+            $scope.accordionStatus.paiementOpen = false;
             $scope.accordionStatus.ticketOpen = true;
             $scope.viewmodel.lastShoppingCart = shoppingCartModel.getLastShoppingCart();
             $scope.$evalAsync();
-		});
+        });
 
-		var shoppingCartItemAddedHandler = $rootScope.$on('shoppingCartItemAdded', function (event, args) {
-			resizeMiniBasket();
+        var shoppingCartItemAddedHandler = $rootScope.$on('shoppingCartItemAdded', function (event, args) {
+            scrollToItem(args);
+        });
 
-			var updatedItemElem = document.getElementById("itemRow" + args.hashkey);
+        var scrollToItem = function (item) {
+            resizeMiniBasket();
 
-			if (updatedItemElem) {
-				updatedItemElem.scrollIntoView(false);
-			}
-		});
+            var updatedItemElem = document.getElementById("itemRow" + item.hashkey);
 
-		var shoppingCartItemRemovedHandler = $rootScope.$on('shoppingCartItemRemoved', function (event, args) {
-			resizeMiniBasket();
-		});
+            if (updatedItemElem) {
+                updatedItemElem.scrollIntoView({ block: "end", inline: "nearest", behavior: "smooth" });
 
-		/**
-		 * Events on payment modes
-		 */
-		var paymentModesAvailableChangedHandler = $rootScope.$on('paymentModesAvailableChanged', function (event, args) {
-			if (args) {
-				args = Enumerable.from(args).orderBy("x => x.PaymentType").toArray();
-			}
-			$scope.paymentModesAvailable = args;
-			resizeMiniBasket();
-		});
+            }
+        };
 
-		var paymentModesChangedHandler = $rootScope.$on('paymentModesChanged', function (event, args) {
-			resizeMiniBasket();
-		});
+        var shoppingCartItemRemovedHandler = $rootScope.$on('shoppingCartItemRemoved', function (event, args) {
+            resizeMiniBasket();
+        });
 
-		/**
-		 * Events on fid
-		 */
-		var customerLoyaltyChangedHandler = $rootScope.$on('customerLoyaltyChanged', function (event, args) {
-			updateBalancePassages();
-			resizeMiniBasket();
-		});
+        /**
+         * Events on payment modes
+         */
+        var paymentModesAvailableChangedHandler = $rootScope.$on('paymentModesAvailableChanged', function (event, args) {
+            if (args) {
+                args = Enumerable.from(args).orderBy("x => x.PaymentType").toArray();
+            }
+            $scope.paymentModesAvailable = args;
+            resizeMiniBasket();
+        });
 
-		var shoppingCartDiscountChangedHandler = $rootScope.$on('shoppingCartDiscountRemoved', function (event, args) {
-			//
-			resizeMiniBasket();
-		});
+        var paymentModesChangedHandler = $rootScope.$on('paymentModesChanged', function (event, args) {
+            resizeMiniBasket();
+        });
 
-		$scope.$on("$destroy", function () {
-			if (deliveryTypeHandler) deliveryTypeHandler();
-			if (itemsHandler) itemsHandler();
-			if (accordionHandler) accordionHandler();
-			if (loyaltyHandler) loyaltyHandler();
-			shoppingCartChangedHandler();
-			shoppingCartClearedHandler();
-			shoppingCartItemAddedHandler();
-			shoppingCartItemRemovedHandler();
-			paymentModesAvailableChangedHandler();
-			paymentModesChangedHandler();
-			customerLoyaltyChangedHandler();
-			orderServiceHandler();
-			currentShoppingCartUpdatedHandler();
-		});
+        /**
+         * Events on fid
+         */
+        var customerLoyaltyChangedHandler = $rootScope.$on('customerLoyaltyChanged', function (event, args) {
+            updateBalancePassages();
+            resizeMiniBasket();
+        });
 
-		//#endregion
+        var shoppingCartDiscountChangedHandler = $rootScope.$on('shoppingCartDiscountRemoved', function (event, args) {
+            //
+            resizeMiniBasket();
+        });
 
-		//#region Actions on item
-		$scope.incrementQuantity = function (cartItem) {
-			shoppingCartModel.incrementQuantity(cartItem);
-		};
+        $scope.$on("$destroy", function () {
+            if (deliveryTypeHandler) deliveryTypeHandler();
+            if (itemsHandler) itemsHandler();
+            if (accordionHandler) accordionHandler();
+            if (loyaltyHandler) loyaltyHandler();
+            shoppingCartChangedHandler();
+            shoppingCartClearedHandler();
+            shoppingCartItemAddedHandler();
+            shoppingCartItemRemovedHandler();
+            paymentModesAvailableChangedHandler();
+            paymentModesChangedHandler();
+            customerLoyaltyChangedHandler();
+            orderServiceHandler();
+            currentShoppingCartUpdatedHandler();
+        });
 
-		$scope.decrementQuantity = function (cartItem) {
-			shoppingCartModel.decrementQuantity(cartItem);
-		};
+        //#endregion
 
-		$scope.removeItem = function (cartItem) {
-			shoppingCartModel.removeItem(cartItem);
-		};
+        //#region Actions on item
+        $scope.incrementQuantity = function (cartItem) {
+            shoppingCartModel.incrementQuantity(cartItem);
+        };
 
-		$scope.chooseOffer = function (cartItem) {
+        $scope.decrementQuantity = function (cartItem) {
+            shoppingCartModel.decrementQuantity(cartItem);
+        };
+
+        $scope.removeItem = function (cartItem) {
+            shoppingCartModel.removeItem(cartItem);
+        };
+
+        $scope.chooseOffer = function (cartItem) {
             console.log(cartItem);
             var modalInstance = $uibModal.open({
                 templateUrl: 'modals/modalChooseOffer.html',
@@ -285,267 +295,445 @@ app.controller('MiniBasketController', ['$scope', '$rootScope', '$state', '$uibM
             });
 
             modalInstance.result.then(function (result) {
-				if(result.action.localeCompare("Offer") == 0){
-					//Offer
+                if (result.action.localeCompare("Offer") == 0) {
+                    //Offer
                     shoppingCartModel.offerItem(cartItem);
 
 
-				} else if(result.action.localeCompare("Discount") == 0){
-					//Discount
-					if(result.type.localeCompare("item") == 0){
+                } else if (result.action.localeCompare("Discount") == 0) {
+                    //Discount
+                    if (result.type.localeCompare("item") == 0) {
                         shoppingCartModel.addCartItemDiscount(cartItem, result.montant, result.isPercent);
-					}
+                    }
 
-                    if(result.type.localeCompare("line") == 0){
+                    if (result.type.localeCompare("line") == 0) {
                         shoppingCartModel.addCartLineDiscount(cartItem, result.montant, result.isPercent);
 
                     }
 
-				}
-                shoppingCartModel.calculateTotalFor();
+                }
+                shoppingCartModel.calculateTotal();
                 shoppingCartModel.calculateLoyalty();
                 resizeMiniBasket();
             }, function () {
                 console.log('Erreur');
             });
-		};
+        };
 
-        $scope.removeOffer = function (cartItem){
-        	console.log(cartItem);
-        	cartItem.DiscountET = 0;
-        	cartItem.DiscountIT = 0;
-		};
+        $scope.removeOffer = function (cartItem) {
+            cartItem.DiscountET = 0;
+            cartItem.DiscountIT = 0;
+            console.log("Remove free/discount", cartItem);
+            shoppingCartModel.calculateTotal();
+            shoppingCartModel.calculateLoyalty();
+        };
 
 
-		$scope.editMenu = function (cartItem) {
-			shoppingCartModel.editMenu(cartItem);
-		};
+        $scope.editMenu = function (cartItem) {
+            shoppingCartModel.editMenu(cartItem);
+        };
 
-		$scope.editComment = function (cartItem) {
-			shoppingCartModel.editComment(cartItem);
-		};
-		//#endregion
+        $scope.editComment = function (cartItem) {
+            shoppingCartModel.editComment(cartItem);
+        };
+        //#endregion
 
-		//#region Payments
-		$scope.removePayment = function (selectedPaymentMode) {
+        //#region Phone Order Action
 
-			//reset des tickets resto
-			if (selectedPaymentMode.PaymentType == 4) {
-				shoppingCartModel.removeTicketRestaurantFromCart();
-			}
-			selectedPaymentMode.Total = 0;
-			shoppingCartModel.setPaymentMode(selectedPaymentMode);
-		};
+        $scope.pickTime = function () {
+            var modalInstance = $uibModal.open({
+                templateUrl: 'modals/modalPhoneOrderTime.html',
+                controller: 'ModalPhoneOrderTimeController',
+                resolve: {
+                    currentTimeOffset: function () {
+                        return $scope.TimeOffset;
+                    }
+                },
+                backdrop: 'static'
+            });
 
-		$scope.removeBalanceUpdate = function () {
-			shoppingCartModel.removeBalanceUpdate();
-		};
+            modalInstance.result.then(function (model) {
+                console.log(model);
+                console.log("On a finit");
+                if (60 * model.heure + model.minute >= $rootScope.IziBoxConfiguration.OrdersPrepareMinutes) {
+                    $scope.TimeOffset = 60 * model.heure + model.minute;
+                } else {
+                    $scope.TimeOffset = $rootScope.IziBoxConfiguration.OrdersPrepareMinutes;
+                }
+            }, function () {
+                console.log("On a cancel");
+            });
 
-		$scope.selectPaymentMode = function (selectedPaymentMode) {
+        };
 
-			// Attention à la fonction d'arrondi
-			var customValue = $scope.totalDivider > 1 ? parseFloat((Math.round($scope.currentShoppingCart.Total / $scope.totalDivider * 100) / 100).toFixed(2)) : undefined;
 
-			shoppingCartModel.selectPaymentMode(selectedPaymentMode, customValue, $rootScope.IziPosConfiguration.IsDirectPayment);
-		};
+        $scope.setShoppingCartTime = function () {
+            $scope.currentShoppingCart.DatePickup = new Date().addMinutes($scope.TimeOffset).toString("dd/MM/yyyy HH:mm:ss");
+            $scope.currentShoppingCart.id = new Date().addMinutes($scope.TimeOffset).getTime();
+        };
 
-		$scope.splitShoppingCart = function () {
-			if (posUserService.isEnable('SPLIT')) {
-				var modalInstance = $uibModal.open({
-					templateUrl: 'modals/modalShoppingCartSplit.html',
-					controller: 'ModalShoppingCartSplitController',
-					backdrop: 'static',
-					size: 'lg',
-					resolve: {
-						defaultValue: function () {
-							return true;
-						}
-					}
-				});
-			}
-		};
+        $scope.minutesToDisplay = function (minutes) {
+            var minutesDisp = 0;
+            var heuresDisp = 0;
+            var retour = "";
+            if (minutes >= 60) {
+                heuresDisp = Math.trunc(minutes / 60);
+                minutesDisp = minutes % 60;
+                retour = heuresDisp + "h" + minutesDisp + "min";
 
-		$scope.divideTotal = function () {
-			var modalInstance = $uibModal.open({
-				templateUrl: 'modals/modalTotalDivider.html',
-				controller: 'ModalTotalDividerController',
-				resolve: {
-					currentTotalDivider: function () {
-						return $scope.totalDivider;
-					}
-				},
-				size: 'sm',
-				backdrop: 'static'
-			});
+            } else {
+                minutesDisp = minutes;
+                retour = minutesDisp + "min";
+            }
 
-			modalInstance.result.then(function (divider) {
-				$scope.totalDivider = divider;
-			}, function () {
-			});
+            return retour;
 
-		};
-		//#endregion
+        };
 
-		//#region Actions on cart
-		$scope.addStep = function () {
-			shoppingCartModel.nextStep();
-		};
+        //#endregion
 
-		$scope.selectStep = function (step) {
-			shoppingCartModel.setStep(step);
-		};
 
-		$scope.unfreezeShoppingCart = function () {
-			shoppingCartModel.unfreezeShoppingCart();
-		};
+        //#region Payments
+        $scope.removePayment = function (selectedPaymentMode) {
 
-		$scope.freezeShoppingCart = function () {
-			shoppingCartModel.freezeShoppingCart();
-		};
+            //reset des tickets resto
+            if (selectedPaymentMode.PaymentType == PaymentType.TICKETRESTAURANT) {
+                shoppingCartModel.removeTicketRestaurantFromCart();
+            }
+            selectedPaymentMode.Total = 0;
+            shoppingCartModel.setPaymentMode(selectedPaymentMode);
+        };
 
-		$scope.validShoppingCart = function (ignorePrintTicket) {
-			shoppingCartModel.validShoppingCart(ignorePrintTicket);
-		};
+        $scope.removeBalanceUpdate = function () {
+            shoppingCartModel.removeBalanceUpdate();
+        };
 
-		$scope.openModalDelivery = function (parameter) {
-			shoppingCartModel.openModalDelivery(parameter);
-		};
+        $scope.selectPaymentMode = function (selectedPaymentMode) {
 
-		$scope.openCustomActionModal = function () {
-			shoppingCartModel.openCustomActionModal();
-		};
+            // Attention à la fonction d'arrondi
+            var customValue = $scope.totalDivider > 1 ? parseFloat((Math.round($scope.currentShoppingCart.Total / $scope.totalDivider * 100) / 100).toFixed(2)) : undefined;
 
-		$scope.printProdShoppingCart = function () {
-			if ($scope.currentShoppingCart != undefined && $scope.currentShoppingCart.Items.length > 0) 
-			{				
-				shoppingCartModel.printProdShoppingCart();
-			}
-		};
+            shoppingCartModel.selectPaymentMode(selectedPaymentMode, customValue, $rootScope.IziPosConfiguration.IsDirectPayment);
+        };
 
-		$scope.printStepProdShoppingCart = function () {
-			if ($scope.currentShoppingCart != undefined && $scope.currentShoppingCart.Items.length > 0) 
-			{		
-				shoppingCartModel.printStepProdShoppingCart();
-			}
-		};
+        $scope.splitShoppingCart = function () {
+            if ($scope.currentShoppingCart && $scope.currentShoppingCart.Items.length > 0) {
+                if (posUserService.isEnable('SPLIT')) {
+                    var modalInstance = $uibModal.open({
+                        templateUrl: 'modals/modalShoppingCartSplit.html',
+                        controller: 'ModalShoppingCartSplitController',
+                        backdrop: 'static',
+                        size: 'lg',
+                        resolve: {
+                            defaultValue: function () {
+                                return true;
+                            }
+                        }
+                    });
+                }
+            }
+        };
 
-		$scope.cancelShoppingCart = function () {
-			//Impossible de supprimer le shopping cart si il contient des item splitté
-			// TODO: Logger action
-			if (posUserService.isEnable('DELT')) {
-				swal({ title: $translate.instant("Supprimer le ticket ?"), text: "", type: "warning", showCancelButton: true, confirmButtonColor: "#d83448", confirmButtonText: $translate.instant("Oui"), cancelButtonText: $translate.instant("Non"), closeOnConfirm: true },
-					function () {
-						shoppingCartModel.cancelShoppingCartAndSend();
-					});
-			}			
-		};
-		//#endregion
+        $scope.divideTotal = function () {
+            if ($scope.currentShoppingCart && $scope.currentShoppingCart.Items.length > 0) {
+                var modalInstance = $uibModal.open({
+                    templateUrl: 'modals/modalTotalDivider.html',
+                    controller: 'ModalTotalDividerController',
+                    resolve: {
+                        currentTotalDivider: function () {
+                            return $scope.totalDivider;
+                        }
+                    },
+                    size: 'sm',
+                    backdrop: 'static'
+                });
 
-		//#region Discount
-		$scope.removeShoppingCartDiscount = function (item) {
-			shoppingCartModel.removeShoppingCartDiscount(item);
-		};
-		//#endregion
+                modalInstance.result.then(function (divider) {
+                    //$scope.totalDivider = divider;
 
-		//#region FID
-		$scope.openClientModal = function () {
-			var modalInstance = $uibModal.open({
-				templateUrl: 'modals/modalCustomer.html',
-				controller: 'ModalCustomerController',
-				backdrop: 'static',
-				size: 'lg'
-			});
-		};
+                    shoppingCartModel.createDividedShoppingCartsAsync($scope.currentShoppingCart, divider).then(function () {
+                        console.log('Shopping cart queue', $scope.currentShoppingCart.shoppingCartQueue);
+                    }, function (err) {
+                        //alert erreur
+                    });
 
-		$scope.chooseRelevantOffer = function () {
-			shoppingCartModel.chooseRelevantOffer();
-		};
+                }, function () {
+                });
+            }
+        };
 
-		var updateBalancePassages = function () {
-			if ($scope.currentShoppingCart && $scope.currentShoppingCart.customerLoyalty && $scope.currentShoppingCart.customerLoyalty.Balances) {
-				$scope.balancePassages = Enumerable.from($scope.currentShoppingCart.customerLoyalty.Balances).firstOrDefault(function (b) {
-					return b.BalanceType == "Passages";
-				});
 
-				resizeMiniBasket();
-			} else {
-				$scope.balancePassages = undefined;
-			}
-		};
-		//#endregion
+        function tryMatch(itemIn, shoppingCartTo) {
+            if (shoppingCartTo.Items) {
+                var matchedItem = Enumerable.from(shoppingCartTo.Items).firstOrDefault(function (itemTo) {
+                    return itemTo.hashkey == itemIn.hashkey && itemTo.Product.Name == itemIn.Product.Name;
+                });
 
-		//#region Misc
-		
-		/**
-		 * Refresh the miniBasket
-		 * */
-		var resizeMiniBasket = function () {
-			var miniBasketDiv = document.getElementById("miniBasket");
+                if (matchedItem) {
+                    var miq = new Decimal(matchedItem.Quantity);
+                    var iiq = new Decimal(itemIn.Quantity);
+                    matchedItem.Quantity = parseFloat(miq.plus(iiq));
 
-			if (miniBasketDiv) {
-				var height = miniBasketDiv.parentElement.clientHeight;
+                    var midit = new Decimal(matchedItem.DiscountIT);
+                    var iidit = new Decimal(itemIn.DiscountIT);
+                    matchedItem.DiscountIT = parseFloat(midit.plus(iidit));
 
-				var textFieldHeight = 38;
-				var totalHeight = 62;
-				var headerHeight = 42 * 2;
-				var switchHeight = 43;
-				var divHeight = 0;
-				var marginHeight = 30;
+                    var midet = new Decimal(matchedItem.DiscountET);
+                    var iidet = new Decimal(itemIn.DiscountET);
+                    matchedItem.DiscountET = parseFloat(midet.plus(iidet));
 
-				var miniBasketItemsDiv = document.getElementById("miniBasketItems");
-				var miniBasketInfosDiv = document.getElementById("miniBasketInfos");
-				var buttonBarDiv = document.getElementById("buttonbar");
-				var loyaltyRowDiv = document.getElementById("loyaltyRow");
-				var paymentModesDiv = document.getElementById("paymentModes");
+                } else {
+                    shoppingCartTo.Items.push(itemIn)
+                }
+            } else {
+                shoppingCartTo.Items.push(itemIn)
+            }
+        }
 
-				if (buttonBarDiv) {
-					divHeight = buttonBarDiv.clientHeight;
-				}
 
-				if (loyaltyRowDiv) {
-					divHeight += loyaltyRowDiv.clientHeight;
-				}
+        $scope.mergeDividedTickets = function () {
+            //Prend tout les item de chaque shopping cart de la queue
+            //les stock dans un meme shoppingcart
+            Enumerable.from($scope.currentShoppingCart.shoppingCartQueue).forEach(function (shoppingCart) {
+                Enumerable.from(shoppingCart.Items).forEach(function (item) {
+                    tryMatch(item, $scope.currentShoppingCart)
+                });
+            });
 
-				if (paymentModesDiv) {
-					divHeight += paymentModesDiv.clientHeight;
-				}
+            //On multiplie la valeur du discount € par le nombre de shopping cart divisé
+            Enumerable.from($scope.currentShoppingCart.Discounts).forEach(function (discount) {
+                if (!discount.IsPercent) {
+                    discount.Value *= $scope.currentShoppingCart.shoppingCartQueue.length + 1;
+                }
+            });
 
-				var itemsHeight = height - textFieldHeight - switchHeight - totalHeight - headerHeight - divHeight - marginHeight;
+            $scope.currentShoppingCart.shoppingCartQueue = [];
+            shoppingCartModel.calculateTotal();
+            shoppingCartModel.calculateLoyalty();
+            $rootScope.$emit("shoppingCartChanged", $scope.currentShoppingCart);
+            resizeMiniBasket();
 
-				if (miniBasketItemsDiv) {
-					miniBasketItemsDiv.style.maxHeight = itemsHeight + "px";
-				}
+        };
+        //#endregion
 
-				if (miniBasketInfosDiv) {
-					miniBasketInfosDiv.style.maxHeight = itemsHeight + "px";
-				}
-			}
+        //#region Actions on cart
+        $scope.addStep = function () {
+            shoppingCartModel.nextStep();
+        };
 
-		};
-		//#endregion
+        $scope.selectStep = function (step) {
+            shoppingCartModel.setStep(step);
+        };
 
-		$scope.selectTable = function () {
-			shoppingCartModel.selectTableNumber();
-		};
+        $scope.unfreezeShoppingCart = function () {
+            shoppingCartModel.unfreezeShoppingCart();
+        };
 
-		$scope.isMenuDisable = function (item) {
-			var ret = Enumerable.from(item.Attributes).any('attr=>attr.Printed') || item.IsFree || item.Product.ProductAttributes.length == 0;
-			return (false);
-			return (ret);
-		};
+        $scope.freezeShoppingCart = function () {
+            if ($rootScope.PhoneOrderMode) {
+                if ($scope.currentShoppingCart.Items.length > 0) {
+                    if ($scope.currentShoppingCart.Residue == 0) {
+                        $scope.currentShoppingCart.isPayed = true;
+                    }
+                    $scope.setShoppingCartTime();
+                    $rootScope.PhoneOrderMode = false;
+                    shoppingCartModel.freezeShoppingCart();
+                } else {
+                    swal("Le ticket doit contenir au moins un produit !");
+                    return;
+                }
+            } else {
+                shoppingCartModel.freezeShoppingCart();
+            }
 
-		/** Clear the loyalty info linked to the ticket */
-		$scope.removeLoyaltyInfo = function () {
-			// Il faut suppr les paymentModesAvailable lié a la fid
+        };
+
+        $scope.validShoppingCart = function (ignorePrintTicket) {
+            shoppingCartModel.validShoppingCart(ignorePrintTicket);
+        };
+
+        $scope.openModalDelivery = function (parameter) {
+            shoppingCartModel.openModalDelivery(parameter);
+        };
+
+        $scope.openCustomActionModal = function () {
+            shoppingCartModel.openCustomActionModal();
+        };
+
+        $scope.printProdShoppingCart = function () {
+            if ($scope.currentShoppingCart != undefined && $scope.currentShoppingCart.Items.length > 0 && !$scope.printProdDisabled) {
+                $scope.printProdDisabled = true;
+                shoppingCartModel.printProdShoppingCartAsync().then(function (msg) {
+                    //Enable
+                    setTimeout(function () {
+                        $scope.printProdDisabled = false;
+                    }, 700);
+
+                }, function (err) {
+                    //Enable
+                    setTimeout(function () {
+                        $scope.printProdDisabled = false;
+                    }, 700);
+                });
+                //Desactiver le bouton Print Prod (bleu) tant que la requete n'a pas timeout / n'est pas resolu
+            }
+        };
+
+        $scope.printStepProdShoppingCart = function () {
+
+            if ($scope.currentShoppingCart != undefined && $scope.currentShoppingCart.Items.length > 0 && !$scope.printStepProdDisabled) {
+                //Disable button prind prod step
+                $scope.printStepProdDisabled = true;
+                shoppingCartModel.printStepProdShoppingCartAsync().then(function (msg) {
+                    //Enable
+                    setTimeout(function () {
+                        $scope.printStepProdDisabled = false;
+                    }, 700);
+                }, function (err) {
+                    //Enable
+                    setTimeout(function () {
+                        $scope.printStepProdDisabled = false;
+                    }, 700);
+                });
+            }
+        };
+
+        $scope.cancelShoppingCart = function () {
+            //Impossible de supprimer le shopping cart si il contient des item splitté
+            // TODO: Logger action
+            if (posUserService.isEnable('DELT')) {
+                var errMess = $scope.shoppingCartQueue && $scope.shoppingCartQueue.length > 0 ? "Vous allez supprimer toutes les parts d'un ticket partagé" : "";
+                swal({
+                    title: $translate.instant("Supprimer le ticket ?"),
+                    text: errMess, type: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: "#d83448",
+                    confirmButtonText: $translate.instant("Oui"),
+                    cancelButtonText: $translate.instant("Non"),
+                    closeOnConfirm: true
+                },
+                    function () {
+                        $scope.shoppingCartQueue = [];
+                        shoppingCartModel.cancelShoppingCartAndSend();
+                    });
+            }
+        };
+        //#endregion
+
+        //#region Discount
+        $scope.removeShoppingCartDiscount = function (item) {
+            shoppingCartModel.removeShoppingCartDiscount(item);
+        };
+        //#endregion
+
+        //#region FID
+        $scope.openClientModal = function () {
+            var modalInstance = $uibModal.open({
+                templateUrl: 'modals/modalCustomer.html',
+                controller: 'ModalCustomerController',
+                backdrop: 'static',
+                size: 'lg'
+            });
+        };
+
+        $scope.chooseRelevantOffer = function () {
+            shoppingCartModel.chooseRelevantOffer();
+        };
+
+        var updateBalancePassages = function () {
+            if ($scope.currentShoppingCart && $scope.currentShoppingCart.customerLoyalty && $scope.currentShoppingCart.customerLoyalty.Balances) {
+                $scope.balancePassages = Enumerable.from($scope.currentShoppingCart.customerLoyalty.Balances).firstOrDefault(function (b) {
+                    return b.BalanceType == "Passages";
+                });
+
+                resizeMiniBasket();
+            } else {
+                $scope.balancePassages = undefined;
+            }
+        };
+        //#endregion
+
+        //#region Misc
+        $scope.selectLine = function (item) {
+            $scope.viewmodel.selectedLine == item ? $scope.viewmodel.selectedLine = undefined : $scope.viewmodel.selectedLine = item;
+            $scope.$evalAsync();
+
+            setTimeout(function () { scrollToItem(item); });
+        };
+
+        /**
+         * Refresh the miniBasket
+         * */
+        var resizeMiniBasket = function () {
+            var miniBasketDiv = document.getElementById("miniBasket");
+
+            if (miniBasketDiv) {
+                var height = miniBasketDiv.parentElement.clientHeight;
+
+                var textFieldHeight = 38;
+                var totalHeight = 62;
+                var headerHeight = 42 * 2;
+                var switchHeight = 43;
+                var divHeight = 0;
+                var marginHeight = 35;
+
+                var miniBasketItemsDiv = document.getElementById("miniBasketItems");
+                var miniBasketInfosDiv = document.getElementById("miniBasketInfos");
+                var buttonBarDiv = document.getElementById("buttonbar");
+                var loyaltyRowDiv = document.getElementById("loyaltyRow");
+                var paymentModesDiv = document.getElementById("paymentModes");
+
+                if (buttonBarDiv) {
+                    divHeight = buttonBarDiv.clientHeight;
+                }
+
+                if (loyaltyRowDiv) {
+                    divHeight += loyaltyRowDiv.clientHeight;
+                }
+
+                if (paymentModesDiv) {
+                    divHeight += paymentModesDiv.clientHeight;
+                }
+
+                var itemsHeight = height - textFieldHeight - switchHeight - totalHeight - headerHeight - divHeight - marginHeight;
+
+                if (miniBasketItemsDiv) {
+                    miniBasketItemsDiv.style.maxHeight = itemsHeight + "px";
+                }
+
+                if (miniBasketInfosDiv) {
+                    miniBasketInfosDiv.style.maxHeight = itemsHeight + "px";
+                }
+            }
+
+        };
+        //#endregion
+
+        $scope.selectTable = function () {
+            shoppingCartModel.selectTableNumber();
+        };
+
+        $scope.isMenuDisable = function (item) {
+            var ret = Enumerable.from(item.Attributes).any('attr=>attr.Printed') || item.IsFree || !item.Product.ProductAttributes || (item.Product.ProductAttributes && item.Product.ProductAttributes.length == 0);
+            return (false);
+            return (ret);
+        };
+
+        /** Clear the loyalty info linked to the ticket */
+        $scope.removeLoyaltyInfo = function () {
+            //Une commande telephonique est forcement lié a un client
+            //Si on supprime, un client, on sort donc du mode commande telephonique
+            $rootScope.PhoneOrderMode = false;
+            // Il faut suppr les paymentModesAvailable lié a la fid
             console.log($scope.paymentModesAvailable);
-            $scope.paymentModesAvailable = $scope.paymentModesAvailable.filter(function(pma){
-            	return !pma.IsBalance;
-			});
+            $scope.paymentModesAvailable = $scope.paymentModesAvailable.filter(function (pma) {
+                return !pma.IsBalance;
+            });
             $rootScope.$emit('paymentModesAvailableChanged', $scope.paymentModesAvailable);
-			$scope.currentShoppingCart.customerLoyalty = null;
-			$rootScope.$emit("customerLoyaltyChanged", $scope.currentShoppingCart.customerLoyalty);
-			$rootScope.$emit("shoppingCartChanged", $scope.currentShoppingCart);
-			resizeMiniBasket();
-		}
-	}
+            $scope.currentShoppingCart.customerLoyalty = null;
+            $rootScope.$emit("customerLoyaltyChanged", $scope.currentShoppingCart.customerLoyalty);
+            $rootScope.$emit("shoppingCartChanged", $scope.currentShoppingCart);
+            resizeMiniBasket();
+        }
+    }
 ]);

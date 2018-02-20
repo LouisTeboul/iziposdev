@@ -2,6 +2,7 @@
     $scope.closable = false;
     $scope.authService = authService;
     $scope.docToSynchronize = 0;
+    $scope.phoneOrderEnable = $rootScope.IziBoxConfiguration.PhoneOrderEnable;
 
     $scope.init = function () {
         var btnMenus = document.getElementsByClassName("btn-menu-closable");
@@ -45,10 +46,20 @@
                 $scope.docToSynchronize = Enumerable.from(result.rows).count(function (item) {
                     return item.id.indexOf("PosLog_") === -1;
                 });
-
                 $scope.$evalAsync();
 
-                loop();
+                $rootScope.dbValidatePool.allDocs({
+                    include_docs: false,
+                    attachments: false
+                }).then(function (resPool) {
+                    $scope.docToSynchronize += resPool.rows.length;
+                    $scope.$evalAsync();
+                    loop();                    
+                }).catch(function () {
+                    loop();
+                });
+
+
             }).catch(function (err) {
                 loop();
             });
@@ -210,6 +221,32 @@
             var configApiUrl = "http://" + $rootScope.IziBoxConfiguration.LocalIpIziBox + ":" + $rootScope.IziBoxConfiguration.RestPort + "/open/" + $rootScope.PrinterConfiguration.POSPrinter;
             $http.get(configApiUrl, { timeout: 10000 });
         }
+    };
+
+    $scope.openPhoneOrder = function(){
+        $scope.closeDrawerMenu();
+
+        //Active le mode commande telephonique
+        //Ce mode du mini basket permet la création de ticket speciaux pour les commandes telephoniques
+        // Il n'est pas possible de "valider" la commande
+        // On doit lui attribuer une heure de retrait relative à l'heure actuelle
+        // On peut la regler
+        // Une fois le ticket realiser, on le met dans le freeze
+
+        var modalInstance = $uibModal.open({
+            templateUrl: 'modals/modalCustomerForPhone.html',
+            controller: 'ModalCustomerForPhoneController',
+            size: 'lg',
+            backdrop: 'static'
+        });
+
+        modalInstance.result.then(function () {
+            console.log("On a add un client");
+            $rootScope.PhoneOrderMode = true;
+        }, function () {
+            console.log("On a annulé");
+            $rootScope.PhoneOrderMode = false;
+        });
     };
 
     $scope.logout = function () {

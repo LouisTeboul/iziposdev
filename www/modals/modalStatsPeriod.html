@@ -1,13 +1,13 @@
 <section ng-init="init()">
     <div class="modal-header">
-        <h1 class="modal-title">{{titleText}}</h1>
+        <h1 class="modal-title" translate>{{titleText}}</h1>
     </div>
 
     <div class="form-panel modal-body">
         <table class=" table table-striped">
             <thead>
             <tr>
-                <th class="zheader" ng-repeat="zheader in zheaders">{{zheader}}</th>
+                <th class="zheader" ng-repeat="zheader in zheaders" translate>{{zheader}}</th>
             </tr>
             </thead>
             <tbody>
@@ -15,7 +15,7 @@
                 <td class="zvalue" ng-repeat="zvalue in zline track by $index">{{zvalue}}</td>
             </tr>
             <tr>
-                <td class="zvalue" ng-repeat="ztot in ztotal track by $index">{{ztot}}</td>
+                <td class="zvalue" ng-repeat="ztot in ztotal track by $index" translate>{{ztot}}</td>
             </tr>
             <tr>
                 <td class="zvalue" ng-repeat="ztotET in ztotalET track by $index">{{ztotET}}</td>
@@ -23,7 +23,7 @@
             </tbody>
         </table>
         <div ng-if="zpos.employees && zpos.employees.length > 0" style="margin-top:20px">
-            <b>Total par utilisateur : </b>
+            <b translate>Total par utilisateur : </b>
             <div ng-repeat="employee in zpos.employees">
                 <b style="margin-right:20px">{{employee.name}}</b>{{employee.total | CurrencyFormat}}
             </div>
@@ -33,15 +33,19 @@
 
     <div class="modal-footer">
         <div class="form-check" ng-show="zlines.length > 1">
-            <label class="form-check-label">
-                <input class="form-check-input" type="checkbox" ng-model="printY">
-                Impression du detail des services
+            <input class="form-check-input" type="checkbox" ng-model="printY" style="width: 20px; height: 20px;">
+            <label class="form-check-label" translate>
+                Inclure le detail des services
             </label>
         </div>
-        <button ng-if="IziBoxConfiguration.EmailSmtpTargetZpos" class="btn btn-green" ng-click="emailZPos()">Envoyer par email</button>
-        <button class="btn btn-green" ng-click="closePos(mode)" ng-if="!closePosParameters.yperiod || !closePosParameters.yperiod.endDate" ng-disabled="mode==0">{{closePosText}}</button>
-        <button class="btn btn-green" ng-click="printZPos()">Imprimer</button>
-        <button class="btn btn-rose" ng-click="cancel()">Annuler</button>
+        <button ng-if="IziBoxConfiguration.EmailSmtpTargetZpos" class="btn btn-green" ng-click="emailZPos()" translate>Envoyer par email</button>
+        <button class="btn btn-green" ng-click="closePos(mode)"
+                ng-if="!closePosParameters.yperiod || !closePosParameters.yperiod.endDate"
+                ng-disabled="mode==0" translate>{{closePosText}}</button>
+        <button class="btn btn-green"
+                ng-click="printZPos()" translate>Imprimer</button>
+        <button class="btn btn-rose"
+                ng-click="cancel()" translate>Annuler</button>
     </div>
 
 </section>

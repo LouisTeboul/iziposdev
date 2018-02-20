@@ -18,6 +18,7 @@ app.controller('LoadingController', function ($scope, $rootScope, $location, $ti
             $scope.$apply(function () {
                 $scope.percentProgress = GetPercentage(args);
                 $scope.loading = true;
+                $scope.gauges.loading.set($scope.percentProgress);
             });
         }
     });
@@ -26,6 +27,7 @@ app.controller('LoadingController', function ($scope, $rootScope, $location, $ti
         $scope.$apply(function () {
             $scope.freezeProgress = GetPercentage(args);
             $scope.freezeLoading = true;
+            $scope.gauges.freezeloading.set($scope.freezeProgress);
         });
     });
 
@@ -33,6 +35,7 @@ app.controller('LoadingController', function ($scope, $rootScope, $location, $ti
         $scope.$apply(function () {
             $scope.replicProgress = GetPercentage(args);
             $scope.replicLoading = true;
+            $scope.gauges.replicloading.set($scope.replicProgress);
         });
     });
 
@@ -40,6 +43,7 @@ app.controller('LoadingController', function ($scope, $rootScope, $location, $ti
         $scope.$apply(function () {
             $scope.orderProgress = GetPercentage(args);
             $scope.orderLoading = true;
+            $scope.gauges.orderloading.set($scope.orderProgress);
         });
     });
 
@@ -148,7 +152,7 @@ app.controller('LoadingController', function ($scope, $rootScope, $location, $ti
             $rootScope.modelDb.databaseReady = true;
             $rootScope.$evalAsync();
 
-            initServices($rootScope,$injector);
+            initServices($rootScope, $injector);
         }
     };
 
@@ -162,6 +166,8 @@ app.controller('LoadingController', function ($scope, $rootScope, $location, $ti
         $scope.downloading = false;
         $scope.downloadProgress = 0;
 
+        initGauges();
+
         if ($rootScope.modelDb && $rootScope.modelDb.databaseReady) {
             $rootScope.loaded = true;
             console.log("Loading : init db ready");
@@ -169,10 +175,56 @@ app.controller('LoadingController', function ($scope, $rootScope, $location, $ti
         }
     };
 
+    var initGauges = function () {
+        $scope.gauges = {};
+
+        var opts = {
+            angle: 0.5, // The span of the gauge arc
+            lineWidth: 0.07, // The line thickness
+            radiusScale: 1, // Relative radius
+            pointer: {
+                length: 0.6, // // Relative to gauge radius
+                strokeWidth: 0.035, // The thickness
+                color: '#000000' // Fill color
+            },
+            limitMax: false,     // If false, max value increases automatically if value > maxValue
+            limitMin: false,     // If true, the min value of the gauge will be fixed
+            colorStart: '#d83448',   // Colors
+            colorStop: '#d83448',    // just experiment with them
+            strokeColor: '#EEEEEE',  // to see which ones work best for you
+            generateGradient: true,
+            highDpiSupport: true,     // High resolution support
+        };
+
+        var createGauge = function (gaugeName) {
+            var target = document.getElementById('gauge' + gaugeName); // your canvas element
+            var gaugeValue = document.getElementById('gauge' + gaugeName + 'Value');
+            var gauge = new Donut(target).setOptions(opts); // create sexy gauge!
+            gauge.setTextField(gaugeValue);
+            gauge.maxValue = 100; // set max gauge value
+            gauge.setMinValue(0);  // Prefer setter over gauge.minValue = 0
+            gauge.animationSpeed = 20; // set animation speed (32 is default value)
+            gauge.set(0); // set actual value
+            return gauge;
+        };
+
+        $scope.gauges.loading = createGauge('Loading');
+        $scope.gauges.freezeloading = createGauge('FreezeLoading');
+        $scope.gauges.replicloading = createGauge('ReplicLoading');
+        $scope.gauges.orderloading = createGauge('OrderLoading');
+    };
+
     var next = function () {
         // console.log("Loading complete");
         var nextLocation = function () {
-            $location.path("/catalog");
+            $scope.gauges.loading.set(100);
+            $scope.gauges.freezeloading.set(100);
+            $scope.gauges.replicloading.set(100);
+            $scope.gauges.orderloading.set(100);
+
+            setTimeout(function () {
+                $location.path("/catalog");
+            }, 500);
         };
 
         // Initializing empty iziposconfiguration

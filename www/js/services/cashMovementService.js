@@ -13,7 +13,7 @@
             });
 
             return cashMovementDefer.promise;
-        }
+        };
 
         /**
          * Get movement types
@@ -98,6 +98,28 @@
             return cashMovementTypesDefer.promise;
         }
 
+        /**
+         * Get open service movement 
+         * */
+        this.getMovementTypeOpenServiceAsync = function () {
+            var cashMovementTypesDefer = $q.defer();
+
+            $rootScope.dbInstance.rel.find('CashMovementType').then(function (resMovementTypes) {
+                var cashMovementType = undefined;
+
+                Enumerable.from(resMovementTypes.CashMovementTypes).forEach(function (cmt) {
+                    if (cmt.CashIn && cmt.IsSystem && cmt.DisplayOnCashMachine) {
+                        cashMovementType = cmt;
+                    }
+                });
+
+                cashMovementTypesDefer.resolve(cashMovementType);
+            }, function (err) {
+                cashMovementTypesDefer.reject(err);
+            });
+
+            return cashMovementTypesDefer.promise;
+        }
         // TODO : everything related to cash movement should be done here
 
         // open drawer authorisation  & log

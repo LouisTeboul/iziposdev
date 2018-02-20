@@ -13,22 +13,28 @@
             <md-button aria-label="NavigAttr"  class="md-fab md-mini" ng-click="moveStep(1)"><span class="glyphicon glyphicon-plus"></span></md-button>
         </div>
         <div layout="row" layout-align="center center" ng-show="$mdMedia('gt-sm')">
-            <md-button aria-label="NavigAttr" ng-repeat="attr in product.ProductAttributes track by $index" class="md-raised navigAction" ng-click="scrollTo(attr.Name)">{{attr.Name | Truncate:16}}</md-button>
+            <md-button aria-label="NavigAttr" ng-repeat="attr in product.ProductAttributes track by $index" class="md-raised navigAction" ng-click="scrollTo(attr.Id)">{{attr.Name | Truncate:16}}</md-button>
         </div>
     </div>
 
     <md-content class="attributes" id="attributes" layout-padding>        
-        <div id="{{attribute.Name}}" ng-repeat="attribute in product.ProductAttributes track by $index">
+        <div id="a{{attribute.Id}}" ng-repeat="attribute in product.ProductAttributes track by $index">
             <div class="attributesPanel" layout="column">
                 <div class="attributesPanelInfos" layout="row">
-                    <span class="title">{{attribute.Name}}</span>
+                    <span class="title">{{attribute.Name}}
+                        <span ng-if="attribute.Min || attribute.Max">
+                            <span ng-if="attribute.Min">({{attribute.Min}}</span><span ng-if="attribute.Min && attribute.Max">-</span><span ng-if="attribute.Max">{{attribute.Max}}</span>)</span>
+                        </span>
+
                     <span class="info" data-ng-bind-html="attribute.Description" ng-show="$mdMedia('gt-sm')"></span>
                 </div>
 
 
                 <div layout="row" layout-wrap>
-                    <div ng-repeat="v in attribute.ProductAttributeValues track by $index">
-                        <md-button aria-label="attributeBox" layout-fill class="attributeBox" ng-class="v.DisableBuyButton ? 'disable' : (v.Selected == 1 ? 'active' : '')" ng-click="v.DisableBuyButton ? null : selectAttributeValue(v.ProductAttributeId,v.Id)">
+                    <div ng-repeat="v in attribute.ProductAttributeValues track by $index" style="margin-bottom:10px">
+                        <md-button aria-label="attributeBox" layout-fill class="attributeBox"
+                                   ng-class="v.DisableBuyButton ? 'disable' : (v.Selected == 1 ? 'active' : '')"
+                                   ng-click="v.DisableBuyButton ? null : selectAttributeValue(v.ProductAttributeId,v.Id,null, $event)">
                             <div layout="column" layout-fill>
                                 <div class="attributeInfo-text">
                                     <div ng-if="v.LinkedProduct" data-ng-bind-html="v.LinkedProduct.Name"></div>
@@ -38,7 +44,7 @@
                                 <span flex></span>
 
                                 <div layout="row" layout-align="start center">
-                                    <img class="imgAttribute" ng-src="{{v.DefaultPictureUrl}}" />
+                                    <img class="imgAttribute" ng-src="{{v.DefaultPictureUrl}}"/>
                                     <span flex></span>
                                     <div class="attributeInfo-text" layout="column" layout-align="center center">
                                         <div ng-if="v.DisableBuyButton"><i class="glyphicon glyphicon-warning-sign"></i> Rupture</div>

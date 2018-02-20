@@ -21,15 +21,18 @@ app.controller('ConfigurationController', function ($scope, $rootScope, $locatio
 
 	$rootScope.$on('searchIziBoxProgress', function (event, args) {
 		$scope.searchIziBoxProgression.total = args.total;
-		$scope.searchIziBoxProgression.step = args.step;
+		$scope.searchIziBoxProgression.step = args.step+1;
 		$scope.searchIziBoxProgression.find = args.find;
 		if (args.total > 0) {
 			$scope.searchIziBoxProgression.percent = (args.step * 100) / args.total;
-		}
+        }
+
+        $scope.gauge.set(args.step+1);
 	});
 
 	$scope.init = function () {
         $scope.Model = {};
+        $rootScope.PhoneOrderMode = false;
 
         $rootScope.modelPos.posNumber = window.localStorage.getItem("PosNumber");
         if (!$rootScope.modelPos.posNumber) $rootScope.modelPos.posNumber = 1;
@@ -74,9 +77,34 @@ app.controller('ConfigurationController', function ($scope, $rootScope, $locatio
 		}
 
         $scope.closable = $rootScope.isWindowsContainer;
+
+        setTimeout(initGauge,100);
 	};
 
+    var initGauge = function () {
 
+        var opts = {
+            angle: 0.5, // The span of the gauge arc
+            lineWidth: 0.03, // The line thickness
+            radiusScale: 1, // Relative radius
+            limitMax: true,     // If false, max value increases automatically if value > maxValue
+            limitMin: false,     // If true, the min value of the gauge will be fixed
+            colorStart: '#2ebbd0',   // Colors
+            colorStop: '#2ebbd0',    // just experiment with them
+            strokeColor: '#EEEEEE',  // to see which ones work best for you
+            generateGradient: false,
+            highDpiSupport: true,     // High resolution support
+        };
+
+        var target = document.getElementById('gaugeIzibox'); // your canvas element
+        var gauge = new Donut(target).setOptions(opts); // create sexy gauge!
+        gauge.maxValue = 254; // set max gauge value
+        gauge.setMinValue(1);  // Prefer setter over gauge.minValue = 0
+        gauge.animationSpeed = 20; // set animation speed (32 is default value)
+        gauge.set(1); // set actual value
+
+        $scope.gauge = gauge;
+    };
 
 	/**
 	 * Empty the data cache
@@ -113,13 +141,24 @@ app.controller('ConfigurationController', function ($scope, $rootScope, $locatio
 		}).then(function (result) {
 			var docToSynchronize = Enumerable.from(result.rows).any(function (item) {
 				return item.id.indexOf("PosLog_") === -1;
-			});
+            });
 
-			if (docToSynchronize) {
-				swal({ title: "Attention", text: "Il reste des documents à synchroniser, vous ne pouvez pas supprimer le cache.", type: "warning", showCancelButton: false, confirmButtonColor: "#d83448", confirmButtonText: "Ok", closeOnConfirm: true });
-			} else {
-				deleteCache();
-			}
+            $rootScope.dbValidatePool.allDocs({
+                include_docs: false,
+                attachments: false
+            }).then(function (resPool) {
+                docToSynchronize += resPool.rows.length;
+
+                if (docToSynchronize) {
+                    swal({ title: "Attention", text: "Il reste des documents à synchroniser, vous ne pouvez pas supprimer le cache.", type: "warning", showCancelButton: false, confirmButtonColor: "#d83448", confirmButtonText: "Ok", closeOnConfirm: true });
+                } else {
+                    deleteCache();
+                }
+
+            }).catch(function () {
+                deleteCache();
+            });
+
 		}).catch(function (err) {
 			deleteCache();
 		});

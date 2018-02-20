@@ -15,14 +15,14 @@
                 <div class="btn-group">
                     <label class="btn btn-primary" ng-model="mode" ng-click="result.action='Offer'; submitItem()" uib-btn-radio="'Offre'"><x translate>Offrir</x></label>
                     <label class="btn btn-primary" ng-model="mode" ng-click="result.action='Discount'; result.isPercent=true; setFocus()" uib-btn-radio="'Remise %'"><x translate>Remise %</x></label>
-                    <label class="btn btn-primary" ng-model="mode" ng-click="result.action='Discount'; result.isPercent=false; setFocus()" uib-btn-radio="'Remise €'"><x translate>Remise €</x></label>
+                    <label class="btn btn-primary" ng-model="mode" ng-click="result.action='Discount'; result.isPercent=false; setFocus()" uib-btn-radio="'Remise €'"><x translate>Remise</x> {{IziPosConfiguration.Currency.currencySymbol}}</label>
                 </div>
             </div>
             <br/>
             <div class="center inp">
                 <label ng-if="mode=='Remise %'"><x translate>Pourcentage</x> :</label>
                 <label ng-if="mode=='Remise €'"><x translate>Montant</x> :</label>
-                <text-field ng-if="mode=='Remise %'" id="txtAmount" ng-model="result.value" location="end-start" type="numeric" validfunction="ok" style="width:160px"></text-field>
+                <text-field ng-if="mode=='Remise %'" id="txtAmount" ng-model="result.value" location="end-start" type="decimal" validfunction="ok" style="width:160px"></text-field>
                 <text-field ng-if="mode=='Remise €'" id="txtAmount" ng-model="result.value" location="end-start" type="decimal" validfunction="ok" style="width:160px"></text-field>
             </div>
             <div class="inp" ng-if="errorMessage">

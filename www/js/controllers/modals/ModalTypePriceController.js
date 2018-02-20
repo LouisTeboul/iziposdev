@@ -1,6 +1,6 @@
 ﻿app.controller('ModalTypePriceController', function ($scope, $rootScope, $uibModalInstance, currentPrice, minPrice, maxPrice, $translate, $filter) {
-	var currencyFormat = $filter('CurrencyFormat');
-	$scope.valuePrice = currentPrice;
+    var currencyFormat = $filter('CurrencyFormat');
+    $scope.valuePrice = currentPrice;
 
     $scope.init = function () {
         setTimeout(function () {
@@ -17,22 +17,22 @@
         if (isNaN(newValue)) {
             $scope.errorMessage = $translate.instant("Valeur non valide");
         } else if (newValue < minPrice || newValue > maxPrice) {
-        	$scope.errorMessage = $translate.instant("Le prix doit être compris entre ") + currencyFormat(minPrice) + " " + $translate.instant("et") + " " + currencyFormat(maxPrice);
+            $scope.errorMessage = $translate.instant("Le prix doit être compris entre ") + currencyFormat(minPrice) + " " + $translate.instant("et") + " " + currencyFormat(maxPrice);
         } else {
-        	$uibModalInstance.close(newValue);
+            $uibModalInstance.close(newValue);
         }
 
         setTimeout(function () {
-        	$rootScope.closeKeyboard();
-        	$rootScope.closeKeyboard();
+            $rootScope.closeKeyboard();
+            $rootScope.closeKeyboard();
         }, 500);
     };
 
     $scope.cancel = function () {
-    	$uibModalInstance.dismiss('cancel');
-    	setTimeout(function () {
-    		$rootScope.closeKeyboard();
-    		$rootScope.closeKeyboard();
-    	}, 500);
+        $uibModalInstance.dismiss('cancel');
+        setTimeout(function () {
+            $rootScope.closeKeyboard();
+            $rootScope.closeKeyboard();
+        }, 500);
     }
 });

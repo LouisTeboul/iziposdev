@@ -1,21 +1,25 @@
 <section ng-init="init()">
     <div class="modal-header">
-        <h1 class="modal-title" translate>Choisissez les services à fermer</h1>
+        <h1 class="modal-title" translate>Fermetures</h1>
     </div>
 
     <div class="form-panel modal-body" ng-cloak>
 
         <div id="caisseContainer">
 
-            <button class="btn btn-default" ng-repeat="line in model.hids" ng-click="setHid(line.hid, $index); " ng-class="{true:'activeButton'}[activeHidBtn == $index]" style="margin: 5px">
-                {{line.alias ?  line.alias : line.hid}}
+            <h2 translate>Choisissez votre caisse :</h2>
+
+
+            <button class="btn btn-default" ng-repeat="line in model.hids" ng-click="setHid(line.hid, $index); "
+                    ng-class="{true:'activeButton'}[activeHidBtn == $index]" style="margin: 5px">
+                {{line.alias ? line.alias : line.hid}}
             </button>
 
-            
+
             <button class="btn btn-default" ng-if="model.closingEnable" ng-click="setHid('*', $index)"
                     ng-class="{true:'activeButton'}[activeHidBtn == $index]"
                     style="margin: 5px" translate>
-                Toutes les caisses
+                Fermeture de journée
             </button>
 
             <hr>
@@ -23,12 +27,14 @@
         </div>
 
 
+        <div id="yperiodContainer" style="padding-top:10px" ng-if="model.chosenHid">
 
-        <div id="yperiodContainer" ng-if="model.chosenHid">
+            <!-- Cette div est peuplé quand on selectionne une caisse -->
+            <h2 translate>Choisissez votre service :</h2>
 
-            <!-- Cette div est peuplé dans on selectionne une caisse -->
 
-            <button class="btn btn-default" ng-repeat="yperiod in yperiods track by $index" ng-click="setYPeriod(yperiod, $index)"
+            <button class="btn btn-default" ng-repeat="yperiod in yperiods track by $index"
+                    ng-click="setYPeriod(yperiod, $index)"
                     ng-class="{activeButton : activeYpidBtn == $index, closedPeriod : yperiod.endDate, emptyPeriod: yperiod.isEmpty}"
                     style="margin: 5px">
                 {{printDate(yperiod)}}
@@ -43,13 +49,11 @@
         </div>
 
 
-
     </div>
 
     <div class="modal-footer">
-        <button class="btn btn-green" ng-click="closePos(model.mode)" ng-if="isClosingEnabled"> Fermeture </button>
-        <button class="btn btn-green"
-                ng-click="openZ()" translate>Afficher le Z</button>
+        <button class="btn btn-green" ng-click="closePos(model.mode)" ng-if="isClosingEnabled" translate> Fermeture</button>
+        <button class="btn btn-green" ng-click="openZ()" translate ng-if="isDisplayZEnabled" translate>Afficher le Z</button>
         <button class="btn btn-rose" ng-click="cancel()" translate>Annuler</button>
     </div>
 

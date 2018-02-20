@@ -1,8 +1,12 @@
-﻿app.service('posService', ['$rootScope', '$q', '$http',
-    function ($rootScope, $q, $http) {
+﻿app.service('posService', ['$rootScope', '$q', '$http', 'eventService',
+    function ($rootScope, $q, $http, eventService) {
 
         var current = this;
         var _daemonIziboxStarted = false;
+        var _sending = false;
+        var _degradeState = false;
+        var _degradeStateTime = undefined;
+
         /**
          * Get Pos Name Infos
          * */
@@ -79,12 +83,71 @@
                 var iziboxDaemon = function () {
                     setTimeout(function () {
                         $http.get(pingApiUrl, { timeout: 1000 }).then(function (data) {
-                            $rootScope.modelPos.iziboxConnected = true;
+                            //Ancienne version izibox
+                            if (!data.data.localDb) {
+                                data.data.localDb = true;
+                                data.data.distantDb = true;
+                            }
+
+                            var iziboxConnected = data.data && data.data.localDb != undefined ? data.data.localDb : true;
+
+                            if ($rootScope.modelPos.iziboxConnected != iziboxConnected) {
+                                $rootScope.modelPos.iziboxConnected = iziboxConnected;
+                                $rootScope.$emit("iziboxConnected", $rootScope.modelPos.iziboxConnected);
+                            }
+
+                            $rootScope.modelPos.iziboxStatus = data.data;
+
                             $rootScope.$evalAsync();
+
+                            if (_degradeState && !_sending) {
+
+                                _sending = true;
+                                var event = {
+                                    Code: 70,
+                                    Description: "Début mode dégradé",
+                                    OperatorCode: $rootScope.PosUserId,
+                                    TerminalCode: $rootScope.PosLog.HardwareId,
+                                    Type: "Technical",
+                                    Informations: ["Start at : " + _degradeStateTime]
+                                };
+                                eventService.sendEvent(event).then(function () {
+                                    event = {
+                                        Code: 120,
+                                        Description: "Fin mode dégradé",
+                                        OperatorCode: $rootScope.PosUserId,
+                                        TerminalCode: $rootScope.PosLog.HardwareId,
+                                        Type: "Technical",
+                                        Informations: ["End at : " + moment().format("DD/MM/YYYY HH:mm:ss")]
+                                    };
+                                    eventService.sendEvent(event).then(function () {
+                                        _degradeState = false;
+                                        _sending = false;
+                                    }, function () {
+                                        _sending = false;
+                                    });
+                                }, function () {
+                                    _sending = false;
+                                });
+
+
+                            }
+
                             if (_daemonIziboxStarted && !checkOnly) iziboxDaemon();
-                        }).catch(function (err) {
-                            $rootScope.modelPos.iziboxConnected = false;
+                        }, function (err) {
+
+                            if ($rootScope.modelPos.iziboxConnected) {
+                                $rootScope.modelPos.iziboxConnected = false;
+                                $rootScope.$emit("iziboxConnected", $rootScope.modelPos.iziboxConnected);
+                            }
+
                             $rootScope.$evalAsync();
+
+                            if (!_degradeState) {
+                                _degradeState = true;
+                                _degradeStateTime = moment().format("DD/MM/YYYY HH:mm:ss");
+                            }
+
                             if (_daemonIziboxStarted && !checkOnly) iziboxDaemon();
                         });
                     }, timerRepeat);
@@ -95,7 +158,13 @@
         };
 
         this.initRkCounterListener = function () {
-            $rootScope.$on('dbUtilsUpdated', function (event, args) {
+            $rootScope.$on('iziboxConnected', function (event, args) {
+                current.getTotalRkCounterValueAsync().then(function (totalRk) {
+                    $rootScope.modelPos.rkCounter = totalRk;
+                });
+            });
+
+            $rootScope.$on('dbFreezeChange', function (event, args) {
                 current.getTotalRkCounterValueAsync().then(function (totalRk) {
                     $rootScope.modelPos.rkCounter = totalRk;
                 });
@@ -106,7 +175,7 @@
             var retDefer = $q.defer();
 
             this.getUpdDailyTicketAsync(hardwareId, changeValue).then(function (res) {
-                retDefer.resolve($rootScope.modelPos.posNumber + res.count.toString().padStart(3, "0"));
+                retDefer.resolve($rootScope.modelPos.posNumber + padLeft(res.count.toString(), 3, "0"));
             }, function (errGet) {
                 retDefer.resolve($rootScope.modelPos.posNumber + "001");
             });
@@ -114,10 +183,10 @@
             return retDefer.promise;
         };
 
-        this.getUpdDailyTicketAsync = function (hardwareId,changeValue) {
+        this.getUpdDailyTicketAsync = function (hardwareId, changeValue) {
             var retDefer = $q.defer();
 
-            $rootScope.dbUtils.rel.find('Dailyticket', hardwareId).then(function (res) {
+            $rootScope.dbFreeze.rel.find('Dailyticket', hardwareId).then(function (res) {
                 var dateNow = new Date().toString("dd/MM/yyyy");
 
                 var currentDailyTicket = Enumerable.from(res.Dailytickets).firstOrDefault();
@@ -145,7 +214,7 @@
                 }
 
                 if (mustSave) {
-                    $rootScope.dbUtils.rel.save('Dailyticket', currentDailyTicket).then(function (resSave) {
+                    $rootScope.dbFreeze.rel.save('Dailyticket', currentDailyTicket).then(function (resSave) {
                         var currentDailyTicket = resSave.Dailytickets[0];
 
                         retDefer.resolve(currentDailyTicket);
@@ -165,7 +234,7 @@
         this.getTotalRkCounterValueAsync = function () {
             var retDefer = $q.defer();
 
-            $rootScope.dbUtils.rel.find('RkCounter').then(function (res) {
+            $rootScope.dbFreeze.rel.find('RkCounter').then(function (res) {
 
                 var totalRkCounter = 0;
 
@@ -184,7 +253,7 @@
         this.getUpdRkCounterValueAsync = function (hardwareId, changeValue) {
             var retDefer = $q.defer();
 
-            $rootScope.dbUtils.rel.find('RkCounter', hardwareId).then(function (res) {
+            $rootScope.dbFreeze.rel.find('RkCounter', hardwareId).then(function (res) {
 
                 var currentRkCounter = Enumerable.from(res.RkCounters).firstOrDefault();
 
@@ -194,7 +263,7 @@
                     currentRkCounter = {
                         id: hardwareId,
                         hardwareId: hardwareId,
-                        count:0
+                        count: 0
                     };
 
                     mustSave = true;
@@ -207,10 +276,11 @@
                 }
 
                 if (mustSave) {
-                    $rootScope.dbUtils.rel.save('RkCounter', currentRkCounter).then(function (resSave) {
+                    $rootScope.dbFreeze.rel.save('RkCounter', currentRkCounter).then(function (resSave) {
                         var currentRkCounter = resSave.RkCounters[0];
-
                         retDefer.resolve(currentRkCounter.count);
+                        $rootScope.$emit("dbFreezeChange");
+
                     }, function (errSave) {
                         retDefer.reject(errSave);
                     });
@@ -218,6 +288,7 @@
                     retDefer.resolve(currentRkCounter.count);
                 }
             }, function (errGet) {
+                console.log(errGet);
                 retDefer.reject(errGet);
             });
 

@@ -3,11 +3,11 @@
 
     $scope.ok = function () {
         $uibModalInstance.close('ok');
-    }
+    };
 
     $scope.cancel = function () {
         $uibModalInstance.dismiss('cancel');
-    }
+    };
 
     $scope.useOfferText = function (offerText) {
         shoppingCartModel.useOfferText(offerText);

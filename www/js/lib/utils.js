@@ -8,11 +8,21 @@ var roundValue = function (value) {
     } else {
         return value;
     }
-}
+};
+
+var adjustDividedQuantity = function (originalQuantity, value, divider) {
+    if(value != 0 ){
+        var delta = originalQuantity - (parseFloat(value) * divider);
+        delta = parseFloat(delta.toFixed(3));
+        value = parseFloat(value) + delta;
+    }
+    return value
+};
 
 var clone = function (objToClone) {
+    return angular.copy(objToClone);
+    /*
     var newObj = undefined;
-    
     if (objToClone) {
     	if (Array.isArray(objToClone)) {
     		newObj = [];
@@ -23,15 +33,18 @@ var clone = function (objToClone) {
     		newObj = jQuery.extend(true, {}, objToClone);
     	}
     }
-
     return newObj;
+    */
 };
 
+var padLeft = function (str, size, ctopad) {
+    return Array(size - String(str).length + 1).join(ctopad || '0') + str;
+};
 
 var dateFormat = function (date) {
 
     var ts = Date.parse(date);
-    if(!isNaN(ts)){
+    if (!isNaN(ts)) {
 
         var tmpDate = new Date(date);
         return tmpDate.toLocaleDateString() + " - " + tmpDate.toLocaleTimeString();
@@ -41,7 +54,7 @@ var dateFormat = function (date) {
 };
 
 var uniq = function (a) {
-    return a.sort().filter(function(item, pos, ary) {
+    return a.sort().filter(function (item, pos, ary) {
         return !pos || item != ary[pos - 1];
     })
 };

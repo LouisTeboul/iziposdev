@@ -19,26 +19,30 @@ app.getConfigIziBoxAsync = function ($rootScope, $q, $http, ipService, $translat
 	var configJSON = window.localStorage.getItem("IziBoxConfiguration");
 	var existingConfig = false;
 
-	if (!configJSON) {
-		defaultConfig = {
-			UrlSmartStoreApi: undefined,
-			UrlCouchDb: undefined,
-			IdxCouchDb: undefined,
-			RestPort: 8080,
-			LocalIpIziBox: undefined,
-			UseFID: false,
-			ConfirmPrint: false,
-			CanFreezeShoppingCart: false,
-			UseProdPrinter: false,
-			UseTable: false,
-			StoreId: undefined,
-			UseCashMovement: false,
-			LoginRequired: false,
-			LoginTimeout: 0
-		};
-	} else {
-		defaultConfig = JSON.parse(configJSON);
-		existingConfig = true;
+    var defaultConfig = {
+        UrlSmartStoreApi: undefined,
+        UrlCouchDb: undefined,
+        IdxCouchDb: undefined,
+        RestPort: 8080,
+        LocalIpIziBox: undefined,
+        UseFID: false,
+        ConfirmPrint: false,
+        CanFreezeShoppingCart: false,
+        UseProdPrinter: false,
+        UseTable: false,
+        StoreId: undefined,
+        UseCashMovement: false,
+        LoginRequired: false,
+        LoginTimeout: 0
+    };
+
+	if (configJSON) {
+        var savedConfig = JSON.parse(configJSON);
+
+        if (!savedConfig.IndexIsNotDefined) {
+            existingConfig = true;
+            defaultConfig = savedConfig;
+        } 
 	}
 
 	if (/*!defaultConfig.WithoutIzibox*/true) {
@@ -67,55 +71,59 @@ app.getConfigIziBoxAsync = function ($rootScope, $q, $http, ipService, $translat
 							ips.push(newIp);
 						}
 					}
-				}
+                } else if (ip.izibox) {
+                    ips.push(ip.izibox);
+                }
 
-				// Get Settings and store them in the browser cache
-				searchRestConfigurationAsync($rootScope, $q, $http, ips, $translate, existingConfig).then(function (configs) {
-					var returnResult = function (selectedConfig) {
-						window.localStorage.setItem("IziBoxConfiguration", selectedConfig);
-						config = JSON.parse(selectedConfig);
-						config.deleteCouchDb = config.IdxCouchDb != defaultConfig.IdxCouchDb;
-						configDefer.resolve(config);
-					};
+                // Get Settings and store them in the browser cache
+                setTimeout(function () {
+                    searchRestConfigurationAsync($rootScope, $q, $http, ips, $translate, existingConfig).then(function (configs) {
+                        var returnResult = function (selectedConfig) {
+                            window.localStorage.setItem("IziBoxConfiguration", selectedConfig);
+                            config = JSON.parse(selectedConfig);
+                            config.deleteCouchDb = config.IdxCouchDb != defaultConfig.IdxCouchDb;
+                            configDefer.resolve(config);
+                        };
 
-					if (configs.length === 1) {
-						returnResult(configs[0]);
-					} else {
-						var modalInstance = $uibModal.open({
-							templateUrl: 'modals/modalSelectConfig.html',
-							controller: 'ModalSelectConfigController',
-							resolve: {
-								configs: function () {
-									return configs;
-								}
-							},
-							backdrop: 'static'
-						});
+                        if (configs.length === 1) {
+                            returnResult(configs[0]);
+                        } else {
+                            var modalInstance = $uibModal.open({
+                                templateUrl: 'modals/modalSelectConfig.html',
+                                controller: 'ModalSelectConfigController',
+                                resolve: {
+                                    configs: function () {
+                                        return configs;
+                                    }
+                                },
+                                backdrop: 'static'
+                            });
 
-						modalInstance.result.then(function (selectedConfig) {
-							returnResult(selectedConfig);
-						});
-					}
+                            modalInstance.result.then(function (selectedConfig) {
+                                returnResult(selectedConfig);
+                            });
+                        }
 
-				}, function (errSearch) {
-					swal({
-						title: $translate.instant("Izibox non trouvée !"),
-						showCancelButton: true,
-						confirmButtonText: $translate.instant("Continuer"),
-						cancelButtonText: $translate.instant("Réessayer"),
-						closeOnConfirm: true,
-						closeOnCancel: true
-					}, function (isConfirm) {
-						if (isConfirm) {
-							$rootScope.noIzibox = true;
-							config = defaultConfig;
-							configDefer.resolve(defaultConfig);
-						} else {
-							window.location.reload();
-							configDefer.reject();
-						}
-					});
-				});
+                    }, function (errSearch) {
+                        swal({
+                            title: $translate.instant("Izibox non trouvée !"),
+                            showCancelButton: true,
+                            confirmButtonText: $translate.instant("Continuer"),
+                            cancelButtonText: $translate.instant("Réessayer"),
+                            closeOnConfirm: true,
+                            closeOnCancel: true
+                        }, function (isConfirm) {
+                            if (isConfirm) {
+                                $rootScope.noIzibox = true;
+                                config = defaultConfig;
+                                configDefer.resolve(defaultConfig);
+                            } else {
+                                window.location.reload();
+                                configDefer.reject();
+                            }
+                        });
+                    });
+                }, 500);
 			});
 		}
 	} else {
@@ -155,12 +163,12 @@ var searchRestConfigurationAsync = function ($rootScope,$q, $http, ips, $transla
 
                 // We're scanning the ping rest service and THEN retrieving configuration because there was too much delay
                 // with the configuration service causing the BOX not being detected by the POS
-                var timeoutSearch = existingConfig && i == 0 ? 500 : 200;
+                var timeoutSearch = existingConfig && i == 0 ? 1000 : 200;
                 $http.get(pingApiUrl, { timeout: timeoutSearch }).
                 success(function (data, status, headers, config) {
 
                     getRestConfigurationAsync($q, $http, ip, 8080).then(function (config) {
-
+                        config.LocalIpIziBox = ip;
                         configs.push(config);
                         if (i === 0 && existingConfig) {
                             searchDefer.resolve(configs);

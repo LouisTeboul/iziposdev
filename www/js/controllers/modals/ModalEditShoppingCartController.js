@@ -1,6 +1,7 @@
 app.controller('ModalEditShoppingCartController', function ($scope, $rootScope, $uibModal, $uibModalInstance,ngToast, settingService,shoppingCartService, zposService, shoppingCart) {
 
     $scope.shoppingCart = shoppingCart;
+    $scope.paymentType = PaymentType;
 
     $scope.init = function () {
 
@@ -40,10 +41,10 @@ app.controller('ModalEditShoppingCartController', function ($scope, $rootScope, 
 
                                 if (!Enumerable.from(newPaymentValues.PaymentValues).any(function (v) { return v.Value == balance.BalanceName; })) {
                                     balanceUpdateValue = shoppingCart.BalanceUpdate.UpdateValue;
-                                    // PaymentType = 6 : AUTRE
+                                    // PaymentType = 9 : FIDELITE
                                     var addPaymentModeFid = {
-                                        PaymentType: 6,
-                                        Value: balance.BalanceName,
+                                        PaymentType: PaymentType.FIDELITE,
+                                        Value: "Ma Cagnotte",
                                         Text: balance.BalanceName,
                                         Total: balanceUpdateValue,
                                         IsBalance: true
@@ -77,7 +78,7 @@ app.controller('ModalEditShoppingCartController', function ($scope, $rootScope, 
                 var cashTypeFound = false;
                 Enumerable.from(paymentValues).forEach(function (p) {
 
-                    if (p.PaymentType == 1 && !cashTypeFound) {
+                    if (p.PaymentType == PaymentType.ESPECE && !cashTypeFound) {
                         p.Total = p.Total - repaid;
                         cashTypeFound = false;
                     }
@@ -96,7 +97,7 @@ app.controller('ModalEditShoppingCartController', function ($scope, $rootScope, 
                 var creditTypeFound = false;
                 Enumerable.from(paymentValues).forEach(function (p) {
 
-                    if (p.PaymentType == 4 && !creditTypeFound) {
+                    if (p.PaymentType == PaymentType.TICKETRESTAURANT && !creditTypeFound) {
                         p.Total = p.Total - credit;
                         creditTypeFound = true;
                     }
@@ -106,7 +107,7 @@ app.controller('ModalEditShoppingCartController', function ($scope, $rootScope, 
                     // Si Avoir for display and binding
                     Enumerable.from(paymentValues).forEach(function (p) {
 
-                        if (p.PaymentType == 5 && !creditTypeFound) {
+                        if (p.PaymentType == PaymentType.AVOIR && !creditTypeFound) {
                             p.Total = p.Total - credit;
                             creditTypeFound = true;
                         }
@@ -126,11 +127,13 @@ app.controller('ModalEditShoppingCartController', function ($scope, $rootScope, 
 
         var newTotal = 0;
         Enumerable.from($scope.newPaymentValues.PaymentValues).forEach(function (p) {
+            console.log(p);
         	p.Total = parseFloat(p.Total);
         	newTotal = roundValue(p.Total + newTotal);
 
             if (isNaN(p.Total)) {
                 p.Total = 0;
+                validPaymentModes.push(p);
             }
 
             if (p.Total > 0) {
@@ -138,7 +141,7 @@ app.controller('ModalEditShoppingCartController', function ($scope, $rootScope, 
             }
         });
 
-        var totalPayment = shoppingCart.TotalPayment
+        var totalPayment = shoppingCart.TotalPayment;
         if (shoppingCart.Repaid && shoppingCart.Repaid > 0) {
             totalPayment -= parseFloat(shoppingCart.Repaid);
         }
@@ -148,6 +151,8 @@ app.controller('ModalEditShoppingCartController', function ($scope, $rootScope, 
 
         // le total des moyens de paiement doit être égal au total avant modification
         if (newTotal == totalPayment) {
+            console.log('Nouveau total ok!');
+            console.log(validPaymentModes);
         	shoppingCart.PaymentModes = validPaymentModes;
 
         	var paymentEdit = {

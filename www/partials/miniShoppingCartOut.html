@@ -1,82 +1,116 @@
 ﻿<div class="shoppingCartSplit">
 
-	<uib-accordion close-others="false">
+    <uib-accordion close-others="false">
 
-		<uib-accordion-group id="panelTotal" class="panel panel-default miniBasket panel-total" is-open="true">
-			<uib-accordion-heading>
-				<span>{{currentShoppingCartOut.Total | CurrencyFormat}}</span>
-			</uib-accordion-heading>
+        <uib-accordion-group id="panelTotal" class="panel panel-default miniBasket panel-total" is-open="true">
+            <uib-accordion-heading>
+                <span>{{currentShoppingCartOut.Total | CurrencyFormat}}</span>
+            </uib-accordion-heading>
 
-			<div class="panel-body itemsPanel">
-				<div style="margin-top: -1px;">
-					<div ng-repeat="item in currentShoppingCartOut.Discounts" class="itemRow">
-						<div class="productLine col-md-8">
-							<strong translate>REMISE</strong>
+            <div class="panel-body itemsPanel">
+                <div style="margin-top: -1px;">
+                    <div ng-show="currentShoppingCartOut.TableCutleries" style="margin-top:8px">
+                        <label for="nbCouvert" translate>Couvert(s)</label>
 
-							<strong> {{item.Value}}</strong>
-							<strong ng-if="item.IsPercent == false"> {{IziPosConfiguration.Currency.currencySymbol}}</strong>
-							<strong ng-if="item.IsPercent == true"> %</strong>
+                        <span id="nbCouvert"> {{currentShoppingCartOut.TableCutleries - result.nb}}</span>
+                    </div>
+                    <div ng-repeat="item in currentShoppingCartOut.Discounts" class="itemRow">
+                        <div class="productLine col-md-8">
+                            <strong translate>REMISE</strong>
 
-							<span>( {{item.Total | CurrencyFormat}} )</span>
+                            <strong> {{item.Value}}</strong>
+                            <strong ng-if="item.IsPercent == false">
+                                {{IziPosConfiguration.Currency.currencySymbol}}</strong>
+                            <strong ng-if="item.IsPercent == true"> %</strong>
 
-						</div>
+                            <span>( {{item.Total | CurrencyFormat}} )</span>
 
-					</div>
-				</div>
-			</div>
+                        </div>
 
-		</uib-accordion-group>
+                    </div>
+                </div>
+            </div>
 
-
-
-
-		<uib-accordion-group heading="En Attente" id="miniBasketHeader" is-open="true" class="panel panel-default miniBasket">
-			<div id="miniBasketItems" class="panel-body shoppingCartPanel">
-				<div style="margin-top: -1px;">
-					<div ng-repeat="item in currentShoppingCartOut.Items track by $index" class="itemRow" ng-attr-id="{{'itemRow'+item.$$hashKey}}" layout="column">
-						<div layout="column">
-							<div layout="row">
-								<div class="productLine" layout="column" flex>
-									<strong>{{item.Product.Name}}</strong>
-
-									<div style="margin-left:10px" layout="row" ng-if="item.Quantity > 0">
-										<strong ng-show="item.Quantity > 1 && !item.isPartSplitItem">x {{item.Quantity}}</strong>
-										<strong ng-show="item.isPartSplitItem">x {{(item.Product.Price + item.splittedAmount)/item.Product.Price | RoundedValue}}</strong>
-
-										<span>( </span>
-										<span ng-if="item.IsFree"> {{0 | CurrencyFormat}}</span>
-										<span ng-if="!item.IsFree">
-											{{(item.Product.Price * item.Quantity) + item.splittedAmount | CurrencyFormat}}
-										</span>
-										<span ng-if="(item.DiscountIT && item.DiscountIT!=0)"> - {{ item.DiscountIT | CurrencyFormat }} </span>
-										<span>)</span>
-									</div>
-
-								</div>
-								<div class="row">
-									<md-button aria-label="splitToIn" ng-click="splitToIn(item)" class="md-small">
-										<md-icon md-svg-icon="img/icons/split-item.svg"></md-icon>
-									</md-button>
-									<md-button aria-label="sendToIn" ng-click="sendToIn(item)" class="md-small">
-										<span class="glyphicon glyphicon-arrow-right"></span>
-									</md-button>
-								</div>
-							</div>
-						</div>
-						<div>
-							<div ng-repeat="attr in item.Attributes" style="margin-left:5px;margin-right:-10px">
-								<div style="padding:0" data-ng-bind-html="attr.Name"></div>
-								<div ng-if="attr.PriceAdjustment && attr.PriceAdjustment!=0" style="padding:0;text-align:right">+ {{attr.PriceAdjustment | CurrencyFormat }}</div>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-
-		</uib-accordion-group>
+        </uib-accordion-group>
 
 
+        <uib-accordion-group heading="En Attente" id="miniBasketHeader" is-open="true"
+                             class="panel panel-default miniBasket">
+            <div id="miniBasketItems" class="panel-body shoppingCartPanel">
+                <div style="margin-top: -1px;">
+                    <div ng-repeat="item in currentShoppingCartOut.Items track by $index" class="itemRow"
+                         ng-attr-id="{{'itemRow'+item.$$hashKey}}" layout="column">
+                        <div layout="column">
+                            <div layout="row">
+                                <div class="productLine" layout="column" flex>
+                                    <strong>{{item.Product.Name}}</strong>
 
-	</uib-accordion>
+                                    <div style="margin-left:10px" layout="row" ng-if="item.Quantity > 0">
+                                        <!-- ng-show="item.Quantity > 1 && !item.isPartSplitItem" -->
+                                        <strong ng-if="item.Quantity !=1">x
+                                            {{item.Quantity | number : 2}}
+                                        </strong>
+
+                                        <!--
+                                        <strong ng-show="item.isPartSplitItem">x
+
+
+                                            <span ng-if="!item.dispFraction">
+                                                {{(item.Product.Price + item.splittedAmount) / item.Product.Price | number : 2}}
+                                            </span>
+
+                                            <div class="frac" ng-if="item.dispFraction == true">
+                                                <span>1</span>
+                                                <span class="symbol"></span>
+                                                <span class="bottom">
+                                                      {{ 1 / ((item.Product.Price +
+                                                      item.splittedAmount)/item.Product.Price) |
+                                                      number : 0}}
+                                                </span>
+                                            </div>
+
+
+                                        </strong>
+                                        -->
+
+                                        <div style="display: flex; align-items: center; margin-left: 5px;">
+                                            <span>( </span>
+                                            <span ng-if="item.IsFree"> {{0 | CurrencyFormat}}</span>
+                                            <span ng-if="!item.IsFree">
+											    {{(item.Product.Price * item.Quantity) | CurrencyFormat}}
+                                            </span>
+                                            <span ng-if="(item.DiscountIT && item.DiscountIT!=0)"> - {{ item.DiscountIT | CurrencyFormat }} </span>
+                                            <span>)</span>
+                                        </div>
+
+                                    </div>
+
+                                </div>
+                                <div class="row">
+                                    <md-button aria-label="splitToIn" ng-click="splitToIn(item)" class="md-icon-button">
+                                        <md-icon md-svg-icon="img/icons/split-item.svg"></md-icon>
+                                    </md-button>
+                                    <md-button aria-label="sendToIn" ng-click="sendToIn(item)" class="md-icon-button" style="margin-right : 20px">
+                                        <span class="glyphicon glyphicon-arrow-right"></span>
+                                    </md-button>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <div ng-repeat="attr in item.Attributes" style="margin-left:5px;margin-right:-10px">
+                                <div style="padding:0" data-ng-bind-html="attr.Name"></div>
+                                <div ng-if="attr.PriceAdjustment && attr.PriceAdjustment!=0"
+                                     style="padding:0;text-align:right">+ {{attr.PriceAdjustment | CurrencyFormat }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </uib-accordion-group>
+
+
+    </uib-accordion>
 </div>
 

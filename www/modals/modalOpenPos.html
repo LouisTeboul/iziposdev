@@ -18,7 +18,7 @@
                             <span style="margin-top:8px;float:right" class="caret"></span>
                         </button>
                         <ul class="dropdown-menu" style="width:270px" role="menu" aria-labelledby="single-button">
-                            <li ng-repeat="m in motifs" role="menuitem" class="item"><a ng-click="selectMotif(m)">{{m.Name}}</a></li>
+                            <li ng-repeat="m in motifs" role="menuitem" class="item"><a ng-click="selectMotif(m)"><x ng-if="m.CashIn">+</x><x ng-if="!m.CashIn">-</x> {{m.Name}}</a></li>
                         </ul>
                     </div>
                 </div>
@@ -30,23 +30,33 @@
                     <div class="title" ng-if="openPosParameters.previousYPeriod"><x translate>Montant théorique en caisse</x> :</div>
                 </div>
                 <div style="width:50%;float:left">
-                    <div class="title">{{model.total | CurrencyFormat}}</div>
+                    <div class="title">{{model.totalKnown | CurrencyFormat}}</div>
                 </div>
             </div>
 
-            <div class="row" >
+            <div class="row" ng-show="!openPosParameters.previousYPeriod">
                 <div style="width:40%;float:left">
-                    <div class="title" ng-if="!openPosParameters.previousYPeriod"><x translate>Montant du mouvement</x> :</div>
-                    <div class="title" ng-if="openPosParameters.previousYPeriod"><x translate>Montant réel en caisse</x> :</div>
+                    <div class="title"><x translate>Montant du mouvement</x> :</div>
                 </div>
                 <div style="width:230px;float:left">
-                   <!-- <input type="tel" id="txtAmount" ng-model="openPosValues.CashMovementLines[0].PaymentMode.Total" style="line-height: 29px; vertical-align: middle; width: 100%;font-size: 18px" ng-keypress="$event.stopPropagation();" />-->
-					<text-field id="txtAmount" ng-model="openPosValues.CashMovementLines[0].PaymentMode.Total" location="end-start" type="decimal" validfunction="ok" style="line-height: 29px; vertical-align: middle; width: 100%;font-size: 18px"></text-field>
+                    <!-- <input type="tel" id="txtAmount" ng-model="openPosValues.CashMovementLines[0].PaymentMode.Total" style="line-height: 29px; vertical-align: middle; width: 100%;font-size: 18px" ng-keypress="$event.stopPropagation();" />-->
+                    <text-field id="txtAmount" ng-model="openPosValues.CashMovementLines[0].PaymentMode.Total" location="end-start" type="decimal" validfunction="ok" style="line-height: 29px; vertical-align: middle; width: 100%;font-size: 18px"></text-field>
                 </div>
                 <div style="width:30px;float:left">
                     <a class="btn btn-xs btn-default" style="margin-left:3px;padding:5px" ng-click="$event.stopPropagation();editCashValues()">
                         <img class="itemAction" src="img/coins.png" />
                     </a>
+                </div>
+            </div>
+            <div class="row" ng-show="openPosParameters.previousYPeriod">
+                <div style="width:70%;float:left">
+                    <div class="title" ><x translate>Montant saisi lors de la dernière fermeture</x> :</div>
+                </div>
+                <div style="width:30%;float:left">
+                   <input type="tel" id="txtAmountService" readonly ng-model="model.total" style="line-height: 29px; vertical-align: middle; width: 100%;font-size: 18px" />
+                </div>
+                <div style="width:100%;float:left">
+                    <p>Si le montant ne correspond pas, veuillez le justifier dans le menu Gestion d'espèces</p>
                 </div>
             </div>
         </div>
@@ -55,8 +65,8 @@
     <div class="modal-footer">
         <button class="btn btn-info" ng-click="openDrawer()" translate>Ouvrir le tiroir</button>
         <button class="btn btn-green" ng-if="!openPosParameters.isOpenPos" ng-click="openRecap()" translate>Mouvements d'espèces</button>
-        <button class="btn btn-green" ng-click="ok()">OK</button>
-        <button class="btn btn-rose" ng-click="cancel()" translate>Annuler</button>
+        <button class="btn btn-green" ng-click="ok()" ng-disabled="model.validateDisabled">OK</button>
+        <button class="btn btn-rose" ng-if="!openPosParameters.forceOpen" ng-click="cancel()" translate>Annuler</button>
     </div>
 
 </section>

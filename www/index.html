@@ -22,11 +22,14 @@
     <meta charset="utf-8" />
     <meta name="format-detection" content="telephone=no" />
     <meta name="msapplication-tap-highlight" content="no" />
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
     <!-- WARNING: for iOS 7, remove the width=device-width and height=device-height attributes. See https://issues.apache.org/jira/browse/CB-4323 -->
     <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width" />
     <!--<meta http-equiv="Content-Security-Policy" content="default-src * blob:;media-src * blob:;img-src * 'self' blob: data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline' 'unsafe-eval'" />-->
     <meta http-equiv="Content-Security-Policy" />
     <!-- Styles -->
+    <link rel="icon" href="favicon.ico" />
     <link href="bootstrap/css/bootstrap.css" rel="stylesheet" />
     <!--<link href="css/lib/bootstrap-switch.min.css" rel="stylesheet" />-->
     <link href="css/lib/angular-toggle-switch.css" rel="stylesheet" />
@@ -93,9 +96,12 @@
     <script src="js/lib/aes.js"></script>
     <script src="js/lib/aes-ctr.js"></script>
     <script src="js/lib/angular-gage.min.js"></script>
+    <script src="js/lib/gauge.js"></script>
+    <!-- NE PLUS DECOMMENTER ;)-->
     <script src="js/lib/fastclick.js"></script>
     <script src="js/lib/randomColor.js"></script>
     <script src="js/lib/angular-uuid2.min.js"></script>
+    <script src="js/lib/decimal.min.js"></script>
 
 
     <!-- App COMMENT THIS TO ACTIVATE DEMO -->
@@ -107,7 +113,6 @@
     <!--<script src="js/appDemo.js"></script>
     <script src="js/configPouchDbDemo.js"></script>
     <script src="js/configIziBoxDemo.js"></script>-->
-
     <!-- Admin libs -->
     <script src="js/lib/AdminLibs/adminLibs.js"></script>
     <script src="js/lib/AdminLibs/fullcalendar-2.6.1/moment.min.js"></script>
@@ -120,6 +125,7 @@
 
     <!-- Controllers -->
     <script src="js/controllers/AppController.js"></script>
+    <script src="js/controllers/InitIziboxController.js"></script>
     <script src="js/controllers/LoadingController.js"></script>
     <script src="js/controllers/ConfigurationController.js"></script>
     <script src="js/controllers/CatalogController.js"></script>
@@ -165,7 +171,12 @@
     <script src="js/controllers/modals/ModalChooseOfferController.js"></script>
     <script src="js/controllers/modals/ModalSplitItemController.js"></script>
     <script src="js/controllers/modals/ModalDetailsServicesCountController.js"></script>
-    
+    <script src="js/controllers/modals/ModalClosePosJustificationController.js"></script>
+    <script src="js/controllers/modals/ModalCustomerForPhoneController.js"></script>
+    <script src="js/controllers/modals/ModalPhoneOrderTimeController.js"></script>
+    <script src="js/controllers/modals/ModalPromptDeliveryAddressController.js"></script>
+    <script src="js/controllers/modals/ModalAddAddressFormController.js"></script>
+
     <!-- Partials Controllers -->
     <script src="js/controllers/partials/BarcodeTextFieldController.js"></script>
 
@@ -221,6 +232,8 @@
 
     <!-- Cordova -->
     <script src="cordova.js"></script>
+    <script src="on-izibox.js"></script>
+    <script src="ip-izibox.js"></script>
 
     <title>IziPos</title>
 </head>
@@ -229,13 +242,13 @@
     <toast></toast>
     <div class="keyboardContainer layout-row layout-align-{{keyboardLocation}}">
         <div id="keyboard-decimal" ng-if="currentKeyboardType == 'decimal'" data-ng-keypad="keyboard-decimal" class="numpad relative">
-            <div ng-include="'partials/decimal.html'" layout-fill layout-padding></div>
+            <div ng-include="'partials/decimal.html'" layout-fill></div>
         </div>
         <div id="keyboard-numeric" ng-if="currentKeyboardType == 'numeric'" data-ng-keypad="keyboard-numeric" class="numpad relative">           
-            <div ng-include="'partials/numeric.html'" layout-fill layout-padding></div>
+            <div ng-include="'partials/numeric.html'" layout-fill></div>
         </div>
         <div id="keyboard-azerty" ng-if="currentKeyboardType == 'azerty'" data-ng-keypad="keyboard-azerty" class="azerty relative" ng-class="{'phone': $mdMedia('gt-sm') == false}">
-            <div ng-include="'partials/azerty.html'" layout-fill layout-padding></div>
+            <div ng-include="'partials/azerty.html'" layout-fill></div>
         </div>
     </div>
     <div layout="column" layout-fill ui-view></div>

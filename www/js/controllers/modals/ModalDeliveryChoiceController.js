@@ -1,7 +1,9 @@
-﻿app.controller('ModalDeliveryChoiceController', function ($scope, $rootScope, $uibModalInstance, $uibModal, shoppingCartService, ngToast, parameter, shoppingCartModel) {
+﻿app.controller('ModalDeliveryChoiceController', function ($scope, $rootScope, $timeout, $uibModalInstance, $uibModal, shoppingCartService, ngToast, parameter, shoppingCartModel) {
 
     var deliveryTypeHandler = undefined;
-    $scope.parameter = parameter;
+
+    //Indique si on imprime le ticket ou non
+    $scope.printTicket = parameter;
 
     $scope.DeliveryTypes = DeliveryTypes;
 
@@ -11,26 +13,31 @@
         deliveryTypeHandler = $scope.$watch('deliveryType', function () {
             shoppingCartModel.setDeliveryType($scope.deliveryType);
         });
+
     };
 
     $scope.setDeliveryType = function (value) {
-        $scope.deliveryType = value;       
-        $scope.$evalAsync();
+        $scope.deliveryType = value;
+        $timeout(function(){
+                $scope.$evalAsync();
+                $scope.close();
+        },200)
+
     };
 
     $scope.close = function () {
-        if ($scope.parameter) {
-            shoppingCartModel.validShoppingCart(true);
-            shoppingCartModel.setDeliveryType(0);
-        } else {
-            shoppingCartModel.validShoppingCart();
-            shoppingCartModel.setDeliveryType(0);
-        }
+
+        shoppingCartModel.validShoppingCart($scope.printTicket);
+        shoppingCartModel.setDeliveryType($scope.deliveryType);
         $uibModalInstance.close();
     };
 
+    $scope.cancel = function(){
+        $uibModalInstance.dismiss("cancel");
+    };
+
     $scope.$on("$destroy", function () {
-        if (deliveryTypeHandler) deliveryTypeHandler();    
+        if (deliveryTypeHandler) deliveryTypeHandler();
     });
 
 

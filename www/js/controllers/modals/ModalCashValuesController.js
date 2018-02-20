@@ -31,9 +31,9 @@ app.controller('ModalCashValuesController', function ($scope, $rootScope, $uibMo
             "bills":
                 [
                     {
-                        "value":500,
+                        "value": 500,
                         "picture": "img/money/billet-500e.png",
-                        "count":0
+                        "count": 0
                     },
                     {
                         "value": 200,
@@ -112,7 +112,7 @@ app.controller('ModalCashValuesController', function ($scope, $rootScope, $uibMo
         };
 
         //Si l'objet currency est defini (il existe dans le fichier settings)
-        if(currency) {
+        if (currency) {
             //Si les propriété symbole ou code existe
             if (currency.currencySymbol || currency.CurrencyCode) {
                 //Si le symbole est $
@@ -263,9 +263,8 @@ app.controller('ModalCashValuesController', function ($scope, $rootScope, $uibMo
         }
 
 
-
         for (i = 0; i < $scope.money.bills.length; i++) {
-            billsHandler = $scope.$watch("money.bills["+i+"].count", function () {
+            billsHandler = $scope.$watch("money.bills[" + i + "].count", function () {
                 $scope.updateTotal();
             });
         }
@@ -288,7 +287,7 @@ app.controller('ModalCashValuesController', function ($scope, $rootScope, $uibMo
         if (otherHandler) otherHandler();
     });
 
-    $scope.editMoneyCount = function (evt,obj) {
+    $scope.editMoneyCount = function (evt, obj) {
 
         $scope.model.keypad = "partials/numeric.html";
 
@@ -309,12 +308,12 @@ app.controller('ModalCashValuesController', function ($scope, $rootScope, $uibMo
         var params = {
             position: {
                 x: 0,
-                y:0
+                y: 0
             }
         };
 
-        params.position.x = elementBounds.left > $(window).width() / 2 ? ($(window).width()/2)-215 : ($(window).width()/2);
-        params.position.y = ($(window).height() / 2)-250;
+        params.position.x = elementBounds.left > $(window).width() / 2 ? ($(window).width() / 2) - 215 : ($(window).width() / 2);
+        params.position.y = ($(window).height() / 2) - 250;
 
         $scope.$emit(Keypad.OPEN, "moneyKeypad", params);
         current.currentEdit = obj;

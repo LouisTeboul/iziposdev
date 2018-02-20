@@ -17,17 +17,17 @@
 	 * Update HTML meta for zooming
      */
 	var updateMeta = function () {
-		if ($rootScope.RatioConfiguration) {
-			var body = $("body")[0];
+		//if ($rootScope.RatioConfiguration) {
+		//	var body = $("body")[0];
 
-			if ($(window).width() < $(window).height()) {
-				if ($rootScope.RatioConfiguration.PortraitRatio < 10) $rootScope.RatioConfiguration.PortraitRatio = 100;
-				body.style.zoom = $rootScope.RatioConfiguration.PortraitRatio+"%";
-			} else {
-				if ($rootScope.RatioConfiguration.LandscapeRatio < 10) $rootScope.RatioConfiguration.LandscapeRatio = 100;
-				body.style.zoom = $rootScope.RatioConfiguration.LandscapeRatio+"%";
-			}
-		}
+		//	if ($(window).width() < $(window).height()) {
+		//		if ($rootScope.RatioConfiguration.PortraitRatio < 10) $rootScope.RatioConfiguration.PortraitRatio = 100;
+		//		body.style.zoom = $rootScope.RatioConfiguration.PortraitRatio+"%";
+		//	} else {
+		//		if ($rootScope.RatioConfiguration.LandscapeRatio < 10) $rootScope.RatioConfiguration.LandscapeRatio = 100;
+		//		body.style.zoom = $rootScope.RatioConfiguration.LandscapeRatio+"%";
+		//	}
+		//}
 	};
 
 	$scope.keyboardLocation = "center-center";

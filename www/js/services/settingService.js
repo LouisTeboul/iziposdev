@@ -130,6 +130,9 @@
                             if (PosSetting.SettingKey =='TaxNumber') {
                                 companyInfo.NafCode = PosSetting.SettingValue;
                             }
+                            if (PosSetting.SettingKey == 'VatId') {
+                                companyInfo.VatNumber = PosSetting.SettingValue;
+                            }
                         }
 
                         cacheCompanyInfo = companyInfo;
@@ -292,7 +295,10 @@
 												break;
 											case "CAD":
 												currencySymbol = "$";
-												break;
+                                                break;
+                                            case "KMF":
+                                                currencySymbol = "F";
+                                                break;
 										}
 									}
 									cacheCurrency.currencySymbol = currencySymbol;

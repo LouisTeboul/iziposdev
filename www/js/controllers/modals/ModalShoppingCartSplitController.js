@@ -1,28 +1,45 @@
-﻿app.controller('ModalShoppingCartSplitController', function ($scope, $rootScope, $uibModalInstance, $uibModal, defaultValue, shoppingCartModel,posService) {
+﻿app.controller('ModalShoppingCartSplitController', function ($scope, $rootScope, $uibModalInstance, $uibModal, defaultValue, shoppingCartModel, posService) {
     $scope.errorMessage = undefined;
     $scope.value = defaultValue;
     $scope.result = {
-        "nb" : 1
+        "nb": 0
     };
 
     $scope.init = function () {
-        $scope.currentShoppingCartOut = cloneShoppingCart(shoppingCartModel.getCurrentShoppingCartOut() || shoppingCartModel.createShoppingCartOut());
         $scope.currentShoppingCartIn = cloneShoppingCart(shoppingCartModel.getCurrentShoppingCartIn() || shoppingCartModel.createShoppingCartIn());
+        $scope.currentShoppingCartOut = cloneShoppingCart(shoppingCartModel.getCurrentShoppingCartOut() || shoppingCartModel.createShoppingCartOut());
 
-        if($scope.currentShoppingCartOut.TableNumber){
+        if(!$scope.currentShoppingCartIn.dailyTicketId){
+            posService.getUpdDailyTicketValueAsync($scope.currentShoppingCartIn.hardwareId, 1).then(function (cashRegisterTicketId) {
+                $scope.currentShoppingCartIn.dailyTicketId = cashRegisterTicketId;
+            }).then(function () {
+                $rootScope.$emit("shoppingCartChanged", $scope.currentShoppingCartIn);
+            });
+        }
+
+
+        if ($scope.currentShoppingCartOut.TableNumber) {
             $scope.currentShoppingCartIn.TableNumber = $scope.currentShoppingCartOut.TableNumber;
         }
 
-        if($scope.currentShoppingCartOut.Discounts.length > 0){
+        if ($scope.currentShoppingCartOut.Discounts.length > 0) {
             $scope.currentShoppingCartIn.Discounts = [];
         }
     };
 
     $scope.sendToIn = function (item) {
-        shoppingCartModel.addItemTo($scope.currentShoppingCartIn, $scope.currentShoppingCartOut, item);
+
+        if (!$scope.currentShoppingCartIn) {
+            $scope.currentShoppingCartIn = shoppingCartModel.createShoppingCartIn();
+        }
+        if (!$scope.currentShoppingCartOut) {
+            $scope.currentShoppingCartOut = shoppingCartModel.createShoppingCartOut();
+        }
+        this.tryMatch($scope.currentShoppingCartOut, $scope.currentShoppingCartIn, item);
+
     };
 
-    $scope.splitToIn = function (item){
+    $scope.splitToIn = function (item) {
 
         var modalInstance = $uibModal.open({
             templateUrl: 'modals/modalSplitItem.html',
@@ -32,78 +49,115 @@
                 defaultValue: function () {
                     return true;
                 },
-                itemPrice: function(){
-                    return item.PriceIT;
+                item: function () {
+                    return item;
                 }
             }
         });
 
         modalInstance.result.then(function (result) {
-        	console.log(item.splittedAmount);
+            console.log(result);
+            if (result.montant) {
+                if (result.montant <= item.PriceIT - item.DiscountIT && !result.makeParts) {
+                    shoppingCartModel.splitItemTo($scope.currentShoppingCartIn, $scope.currentShoppingCartOut, item, result.montant);
+                    shoppingCartModel.calculateTotalFor($scope.currentShoppingCartOut);
+                    shoppingCartModel.calculateTotalFor($scope.currentShoppingCartIn);
 
-        	if(result <= item.PriceIT - item.splittedAmount - item.DiscountIT) {
-                shoppingCartModel.splitItemTo($scope.currentShoppingCartIn, $scope.currentShoppingCartOut, item, result);
-                shoppingCartModel.calculateTotalFor($scope.currentShoppingCartOut);
-                shoppingCartModel.calculateTotalFor($scope.currentShoppingCartIn);
-			}
-			else {
-        	    // Afficher une erreur
+                }
+                else {
+                    /* TODO : Afficher une erreur */
+                }
+
+                if (result.makeParts && result.nbPart) {
+                    shoppingCartModel.makeParts($scope.currentShoppingCartOut, item, result.nbPart);
+                    shoppingCartModel.calculateTotalFor($scope.currentShoppingCartOut);
+                    shoppingCartModel.calculateTotalFor($scope.currentShoppingCartIn);
+                }
             }
-
         }, function () {
             console.log('Erreur');
         });
+    };
 
-	};
+
+    $scope.tryMatch = function (from, to, itemIn) {
+        //on cherche a match une partie de produit split avec son parent
+        //Pour cela, on utilise les hashkey
+        //Si les hashkey sont identique, on regroupe les deux items
 
 
-    $scope.splitToOut = function(itemIn) {
-    	//on cherche a match une partie de produit split avec son parent
-		//Pour cela, on utilise les hashkey
-		//Si les hashkey sont identique, on regroupe les deux items
+        var matchedItem = Enumerable.from(to.Items).firstOrDefault(function (itemOut) {
+            return itemOut.hashkey == itemIn.hashkey && itemOut.ProductId == itemIn.ProductId && itemOut.Step == itemIn.Step && itemOut.Product.Price == itemIn.Product.Price;
+        });
 
-		Enumerable.from($scope.currentShoppingCartOut.Items).forEach(function(itemOut){
-			if(itemOut.hashkey == itemIn.hashkey && itemOut.isPartSplitItem){
-				itemOut.splittedAmount += itemIn.splittedAmount + itemIn.Product.Price;
-                shoppingCartModel.removeItemFrom($scope.currentShoppingCartIn, itemIn);
-                console.log(itemOut);
-                if(itemOut.splittedAmount == 0) {
-                    itemOut.isPartSplitItem = false;
-				}
-			}
-            shoppingCartModel.calculateTotalFor($scope.currentShoppingCartOut);
-            shoppingCartModel.calculateTotalFor($scope.currentShoppingCartIn);
-		});
-	};
+        if (matchedItem) {
+            if (Number.isInteger(itemIn.Quantity) || itemIn.Quantity >= 1) {
+                var qty = 1
+            } else {
+                var qty = itemIn.Quantity;
+            }
+            matchedItem.Quantity += qty;
+            itemIn.Quantity -= qty;
+
+            /*
+
+            var ratio = qty / itemIn.Quantity;
+            matchedItem.DiscountIT += ratio * clone(itemIn.DiscountIT);
+            matchedItem.DiscountET += ratio * clone(itemIn.DiscountET);
+
+            itemIn.DiscountIT -= ratio * clone(itemIn.DiscountIT);
+            itemIn.DiscountET -= ratio * clone(itemIn.DiscountET);
+
+            */
+
+            if(itemIn.Quantity ==0){
+                //Transfer le discout en même temps que le dernier item de la ligne.
+                //Pose probleme dans le cas ou le discount ligne > prix unitaire de l'article
+
+                matchedItem.DiscountIT += itemIn.DiscountIT;
+                matchedItem.DiscountET += itemIn.DiscountET;
+
+                shoppingCartModel.removeItemFrom(from, itemIn);
+            }
+
+            console.log(matchedItem);
+            if (matchedItem.Quantity % 1 == 0) {
+                matchedItem.isPartSplitItem = false;
+            }
+        } else {
+            shoppingCartModel.addItemTo(to, from, itemIn);
+        }
+
+        shoppingCartModel.calculateTotalFor(to);
+        shoppingCartModel.calculateTotalFor(from);
+    };
 
     $scope.sendToOut = function (item) {
-    	if(item.isPartSplitItem == true){
-            this.splitToOut(item);
-		} else {
-            shoppingCartModel.addItemTo($scope.currentShoppingCartOut,$scope.currentShoppingCartIn, item);
-		}
-
+        if (!item.dispFraction) {
+            this.tryMatch($scope.currentShoppingCartIn, $scope.currentShoppingCartOut, item);
+        }
     };
 
 
     $scope.ok = function () {
-    	if ($scope.currentShoppingCartIn.Items.length > 0) {
-    	    //Si le nb de couvert du ticket split est superieur au nb de couvert du ticket d'origine
-            if($scope.result.nb == $scope.currentShoppingCartOut.TableCutleries
-                && $scope.currentShoppingCartOut.Items.length > 0){
+        if ($scope.currentShoppingCartIn.Items.length > 0) {
+            //Si le nb de couvert du ticket split est superieur au nb de couvert du ticket d'origine
+            if ($scope.result.nb == $scope.currentShoppingCartOut.TableCutleries
+                && $scope.currentShoppingCartOut.Items.length > 0) {
 
                 $scope.errorMessage = "Le ticket d'origine doit être vide pour transferer tout les couverts au ticket secondaire";
 
             } else {
-                if($scope.result.nb > $scope.currentShoppingCartOut.TableCutleries){
+                if ($scope.result.nb > $scope.currentShoppingCartOut.TableCutleries) {
 
                     $scope.errorMessage = "Le nombre de couvert dans le ticket secondaire doit être inferieur ou égal au ticket d'origine";
 
 
                 } else {
-                    $scope.currentShoppingCartIn.TableCutleries = $scope.result.nb;
-                    $scope.currentShoppingCartOut.TableCutleries -= $scope.result.nb;
-
+                    if ($scope.currentShoppingCartOut.TableCutleries) {
+                        $scope.currentShoppingCartIn.TableCutleries = $scope.result.nb;
+                        $scope.currentShoppingCartOut.TableCutleries -= $scope.result.nb;
+                    }
                     console.log($scope.currentShoppingCartOut, $scope.currentShoppingCartIn);
                     shoppingCartModel.setCurrentShoppingCartIn($scope.currentShoppingCartIn);
                     shoppingCartModel.setCurrentShoppingCartOut($scope.currentShoppingCartOut);
@@ -112,16 +166,14 @@
                 }
             }
 
-    		
-    	} else {
-    		shoppingCartModel.setCurrentShoppingCartIn(undefined);
-    		shoppingCartModel.setCurrentShoppingCartOut(undefined);
-    		shoppingCartModel.setCurrentShoppingCart($scope.currentShoppingCartOut);
+
+        } else {
+            shoppingCartModel.setCurrentShoppingCartIn(undefined);
+            shoppingCartModel.setCurrentShoppingCartOut(undefined);
+            shoppingCartModel.setCurrentShoppingCart($scope.currentShoppingCartOut);
             $uibModalInstance.close($scope.value);
-    	}
+        }
 
-
-        
     };
 
     $scope.cancel = function () {
@@ -136,28 +188,28 @@
     };
 
     var cloneShoppingCart = function (shoppingCart) {
-    	var ret = clone(shoppingCart);
+        var ret = clone(shoppingCart);
 
-    	var cloneItemsArray = [];
+        var cloneItemsArray = [];
 
-    	Enumerable.from(shoppingCart.Items).forEach(function (item) {
-    		if (item.Quantity > 0) {
-    			cloneItemsArray.push(clone(item));
-    		}
-    	});
+        Enumerable.from(shoppingCart.Items).forEach(function (item) {
+            if (item.Quantity > 0) {
+                cloneItemsArray.push(clone(item));
+            }
+        });
 
-    	ret.Items = cloneItemsArray;
+        ret.Items = cloneItemsArray;
 
-    	ret.Discounts = [];
+        ret.Discounts = [];
 
-    	if (shoppingCart.Discounts && shoppingCart.Discounts.length > 0) {
-    		Enumerable.from(shoppingCart.Discounts).forEach(function (d) {
-    			var newDiscount = clone(d);
-    			newDiscount.Total = 0;
-    			ret.Discounts.push(newDiscount);
-    		});
-    	}
+        if (shoppingCart.Discounts && shoppingCart.Discounts.length > 0) {
+            Enumerable.from(shoppingCart.Discounts).forEach(function (d) {
+                var newDiscount = clone(d);
+                newDiscount.Total = 0;
+                ret.Discounts.push(newDiscount);
+            });
+        }
 
-    	return ret;
+        return ret;
     }
 });

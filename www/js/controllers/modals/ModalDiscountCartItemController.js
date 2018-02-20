@@ -1,8 +1,8 @@
 ﻿app.controller('ModalDiscountCartItemController', function ($scope, $rootScope, $uibModalInstance) {
     $scope.errorMessage = undefined;
     $scope.result = {
-        value : 0,
-        isPercent : true
+        value: 0,
+        isPercent: true
     };
 
     $scope.init = function () {

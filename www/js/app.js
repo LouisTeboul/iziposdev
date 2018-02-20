@@ -2,6 +2,11 @@ var app = angular.module('app', ['ui.router', 'ngMaterial', 'ui.bootstrap', 'ngS
 var controllerProvider = null;
 var $routeProviderReference = null;
 var angularLocation = null;
+
+$(function () {
+    FastClick.attach(document.body);
+});
+
 app.config(function ($stateProvider, $urlRouterProvider, ngToastProvider, $translateProvider, $httpProvider, $sceDelegateProvider, $controllerProvider, $mdIconProvider) {
 
 	controllerProvider = $controllerProvider;
@@ -35,7 +40,7 @@ app.run(function ($rootScope, $location, $q, $http, ipService, zposService, $tra
 	try {
 		angularLocation = $location;
 
-		$rootScope.Version = "3.0.0.21111";
+        $rootScope.Version = "3.0.2.20021";
 		$rootScope.adminMode = { state: false };
         $rootScope.loading = 0;
 
@@ -83,9 +88,23 @@ app.run(function ($rootScope, $location, $q, $http, ipService, zposService, $tra
 		if (navigator.userAgent.match(/(iPhone|iPod|iPad|Android|BlackBerry|IEMobile)/)) {
             $rootScope.isBrowser = false;
             $rootScope.isWindowsContainer = false;
-			document.addEventListener("deviceready", function () {
-				init($rootScope, $location, $q, $http, ipService, zposService, $translate, $uibModal);
-			}, false);
+
+            var deviceInit = false;
+
+            document.addEventListener("deviceready", function () {
+                if (!deviceInit) {
+                    deviceInit = true;
+                    init($rootScope, $location, $q, $http, ipService, zposService, $translate, $uibModal);
+                }
+            }, false);
+
+            setTimeout(function () {
+                if (!deviceInit) {
+                    deviceInit = true;
+                    init($rootScope, $location, $q, $http, ipService, zposService, $translate, $uibModal);
+                }
+            },5000);
+            
 
 			if (navigator.userAgent.match(/(iPhone|iPod|iPad)/)) {
 				FastClick.attach(document.body);                
@@ -109,7 +128,6 @@ app.run(function ($rootScope, $location, $q, $http, ipService, zposService, $tra
 var initServices = function ($rootScope,$injector) {
 
     syncValidatePoolDb($rootScope);
-    syncUtilsDb($rootScope);
 
     var zposService = $injector.get('zposService');
     zposService.init();
@@ -121,27 +139,34 @@ var initServices = function ($rootScope,$injector) {
 
     var posPeriodService = $injector.get('posPeriodService');
     posPeriodService.initPeriodListener();
+    posPeriodService.startPeriodDaemon();
 };
 
 var init = function ($rootScope, $location, $q, $http, ipService, zposService, $translate, $uibModal) {
 	// IziBoxConfiguration
 	app.getConfigIziBoxAsync($rootScope, $q, $http, ipService, $translate, $location, $uibModal).then(function (config) {
 
-		$rootScope.IziBoxConfiguration = config;
+        if (config.IndexIsNotDefined) {
+            $rootScope.IziBoxTempConfiguration = config;
+            $location.path("/initizibox");
+        } else {
 
-		// Convert settings from 'string' to 'boolean'
-		for (var prop in config) {
-			if (config[prop] == "true") {
-				config[prop] = true;
-			}
+            $rootScope.IziBoxConfiguration = config;
 
-			if (config[prop] == "false") {
-				config[prop] = false;
-			}
-		}
+            // Convert settings from 'string' to 'boolean'
+            for (var prop in config) {
+                if (config[prop] == "true") {
+                    config[prop] = true;
+                }
 
-		// BackButton
-		app.configHWButtons($rootScope, $translate);
+                if (config[prop] == "false") {
+                    config[prop] = false;
+                }
+            }
+
+            // BackButton
+            app.configHWButtons($rootScope, $translate);
+        }
 		
 	});
 

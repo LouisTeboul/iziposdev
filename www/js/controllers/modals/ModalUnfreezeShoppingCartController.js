@@ -1,4 +1,4 @@
-﻿app.controller('ModalUnfreezeShoppingCartController', function ($scope, $rootScope, $uibModalInstance, shoppingCartService, shoppingCartModel,$translate,orderShoppingCartService) {
+﻿app.controller('ModalUnfreezeShoppingCartController', function ($scope, $rootScope, $uibModalInstance, shoppingCartService, shoppingCartModel, $translate, orderShoppingCartService) {
     var tryGetFreezed = 0;
     var isClosed = false;
 
@@ -12,17 +12,19 @@
     $scope.initFreezed = function () {
         $scope.shoppingCarts = [];
         shoppingCartService.getFreezedShoppingCartsAsync().then(function (shoppingCarts) {
-        	$scope.shoppingCarts = Enumerable.from(shoppingCarts).orderBy(function (s) {
-        		if (s.TableNumber != undefined) {
-        			return s.TableNumber;
-        		} else {
-        			return s.Timestamp;
-        		}
-        	}).toArray();
+            $scope.shoppingCarts = Enumerable.from(shoppingCarts).orderBy(function (s) {
+                if (s.TableNumber != undefined) {
+                    return s.TableNumber;
+                } else {
+                    return s.Timestamp;
+                }
+            }).toArray();
         }, function (err) {
             if (tryGetFreezed < 3) {
                 tryGetFreezed = tryGetFreezed + 1;
-                setTimeout(function () { $scope.initFreezed(); }, 3000);
+                setTimeout(function () {
+                    $scope.initFreezed();
+                }, 3000);
             }
         });
         $scope.$evalAsync();
@@ -55,7 +57,7 @@
             itemCount = itemCount + i.Quantity;
         });
 
-        return itemCount;
+        return roundValue(itemCount);
     };
 
     $scope.checkShoppingCart = function (shoppingCart, event) {
@@ -70,21 +72,30 @@
     };
 
     $scope.removeShoppingCart = function (shoppingCart) {
-        swal({ title: $translate.instant("Supprimer le ticket ?"), text: "", type: "warning", showCancelButton: true, confirmButtonColor: "#d83448", confirmButtonText: $translate.instant("Oui"), cancelButtonText: $translate.instant("Non"), closeOnConfirm: true },
-        function () {
-            shoppingCartService.unfreezeShoppingCartAsync(shoppingCart).then(function () {
-               $scope.initFreezed();
-            }, function () {
-                swal($translate.instant("Erreur !"), $translate.instant("Le ticket n'a pas été supprimé."), "error");
+        swal({
+                title: $translate.instant("Supprimer le ticket ?"),
+                text: "",
+                type: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#d83448",
+                confirmButtonText: $translate.instant("Oui"),
+                cancelButtonText: $translate.instant("Non"),
+                closeOnConfirm: true
+            },
+            function () {
+                shoppingCartService.unfreezeShoppingCartAsync(shoppingCart).then(function () {
+                    $scope.initFreezed();
+                }, function () {
+                    swal($translate.instant("Erreur !"), $translate.instant("Le ticket n'a pas été supprimé."), "error");
+                });
             });
-        });
     };
 
     $scope.select = function (shoppingCart) {
         shoppingCartService.unfreezeShoppingCartAsync(shoppingCart).then(function () {
             $uibModalInstance.close(shoppingCart);
         }, function () {
-        	swal($translate.instant("Erreur !"), $translate.instant("Le ticket n'a pas été supprimé."), "error");
+            swal($translate.instant("Erreur !"), $translate.instant("Le ticket n'a pas été supprimé."), "error");
         });
     };
 
@@ -94,32 +105,43 @@
         });
     };
 
-    //ATTENTION
-    //Comportement avec les dailyticket, et RKCompteur
-    //DT : il faut que le ticket produit par la fusion soit indexé a la suite des autres
-    //RKC : Il faut que les entrées des deux ticket combiné soit décrémenté
-    //Il ne faut pas que les entrées soit groupé non plus
     $scope.join = function () {
-        swal({ title: $translate.instant("Joindre les tickets sélectionnés ?"), text: "", type: "warning", showCancelButton: true, confirmButtonColor: "#d83448", confirmButtonText: $translate.instant("Oui"), cancelButtonText: $translate.instant("Non"), closeOnConfirm: true },
-        function () {
+        swal({
+                title: $translate.instant("Joindre les tickets sélectionnés ?"),
+                text: "",
+                type: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#d83448",
+                confirmButtonText: $translate.instant("Oui"),
+                cancelButtonText: $translate.instant("Non"),
+                closeOnConfirm: true
+            },
+            function () {
 
-            var toJoin = Enumerable.from($scope.selectedShoppingCarts).orderBy("s=>s.Timestamp").toArray();
+                var toJoin = Enumerable.from($scope.selectedShoppingCarts).orderBy("s=>s.Timestamp").toArray();
 
-            Enumerable.from($scope.selectedShoppingCarts).forEach(function (s) {
-                shoppingCartService.unfreezeShoppingCartAsync(s);
-            });
+                Enumerable.from($scope.selectedShoppingCarts).forEach(function (s) {
+                    //ATTENTION
+                    //Bricolage, a amélioré
+                    //Permet que le RK compteur soit décrémenté correctement
+                    //Sinon on a des pn de missing rev
+                    setTimeout(function(){
+                        shoppingCartService.unfreezeShoppingCartAsync(s);
+                    },100)
 
-            var joinedShoppingCart = toJoin[0];
-
-            for (var i = 1; i < toJoin.length; i++) {
-                var curShoppingCart = toJoin[i];
-
-                Enumerable.from(curShoppingCart.Items).forEach(function(item){
-                    shoppingCartModel.addItemTo(joinedShoppingCart, undefined, item, item.Quantity);
                 });
-            }
 
-            $uibModalInstance.close(joinedShoppingCart);
+                var joinedShoppingCart = toJoin[0];
+
+                for (var i = 1; i < toJoin.length; i++) {
+                    var curShoppingCart = toJoin[i];
+
+                    Enumerable.from(curShoppingCart.Items).forEach(function (item) {
+                        shoppingCartModel.addItemTo(joinedShoppingCart, undefined, item, item.Quantity);
+                    });
+                }
+
+                $uibModalInstance.close(joinedShoppingCart);
 
             });
     };

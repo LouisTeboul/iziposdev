@@ -33,12 +33,12 @@
                     </div>
                     <div style="width:15%;float:left;min-height:60px;">
                         <div class="title centered">
-                            <p ng-if="l.PaymentMode.PaymentType != 99">{{l.Count}}</p>
+                            <p>{{l.Count}}</p>
                         </div>
                     </div>
                     <div style="width:20%;float:left;min-height:60px;">
                         <div class="title centered">
-                            <p class="title centered" ng-if="l.PaymentMode.PaymentType != 99">{{l.PaymentMode.Total | CurrencyFormat}}</p>
+                            <p class="title centered" ng-if="l.PaymentMode.PaymentType !== paymentType.FIDELITE || l.PaymentMode.PaymentType !== paymentType.INTERNET">{{l.PaymentMode.Total | CurrencyFormat}}</p>
                         </div>
                     </div>
                     <div style="width:20%;float:left;min-height:60px;">
@@ -48,7 +48,7 @@
                     </div>
                     <div style="width:15%;float:left;min-height:60px;">
                         <div class="title centered">
-                            <p class="title centered green" ng-if="l.PaymentMode.PaymentType != 99" ng-class="{ red : l.cashDiscrepancy !== 0}">{{l.cashDiscrepancy | CurrencyFormat}}</p>
+                            <p class="title centered green" ng-if="l.PaymentMode.PaymentType !== paymentType.FIDELITE || l.PaymentMode.PaymentType !== paymentType.INTERNET" ng-class="{ red : l.cashDiscrepancy !== 0}">{{l.cashDiscrepancy | CurrencyFormat}}</p>
                         </div>
                     </div>
                     
