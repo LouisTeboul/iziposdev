@@ -31,7 +31,11 @@
 
 
                 <div layout="row" layout-wrap>
+<<<<<<< HEAD
                     <div ng-repeat="v in attribute.ProductAttributeValues track by $index" style="margin-bottom:10px">
+=======
+                    <div ng-repeat="v in attribute.ProductAttributeValues track by $index">
+>>>>>>> 9101faf73f812b9db686d8ab2bdb953304ed7f87
                         <md-button aria-label="attributeBox" layout-fill class="attributeBox"
                                    ng-class="v.DisableBuyButton ? 'disable' : (v.Selected == 1 ? 'active' : '')"
                                    ng-click="v.DisableBuyButton ? null : selectAttributeValue(v.ProductAttributeId,v.Id,null, $event)">

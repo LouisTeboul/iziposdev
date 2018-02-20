@@ -139,26 +139,40 @@ app.controller('ModalCustomerController', function ($scope, $rootScope, $q, $htt
         barcode = barcode.trim();
         if (barcode) {
             $rootScope.showLoading();
+<<<<<<< HEAD
 
 
+=======
+
+
+>>>>>>> 9101faf73f812b9db686d8ab2bdb953304ed7f87
             loyaltyService.getLoyaltyObjectAsync(barcode).then(function (loyalty) {
                 if (loyalty && loyalty.CustomerId != 0) {
                     if ($scope.currentShoppingCart == undefined) {
                         shoppingCartModel.createShoppingCart();
                     }
                     $scope.currentShoppingCart = shoppingCartModel.getCurrentShoppingCart();
+<<<<<<< HEAD
+=======
+
+>>>>>>> 9101faf73f812b9db686d8ab2bdb953304ed7f87
                     $scope.currentShoppingCart.Barcode = barcode;
                     $scope.currentShoppingCart.customerLoyalty = loyalty;
                     $rootScope.$emit("customerLoyaltyChanged", loyalty);
                     $rootScope.$emit("shoppingCartChanged", $scope.currentShoppingCart);
                     $scope.clientSelected = true;
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 9101faf73f812b9db686d8ab2bdb953304ed7f87
                     setTimeout(function () {
                         $rootScope.hideLoading();
                     }, 500);
 
                 } else {
                     sweetAlert($translate.instant("Carte de fidélité introuvable !"));
+<<<<<<< HEAD
                     $rootScope.hideLoading();
                 }
             }, function (err) {
@@ -197,10 +211,37 @@ app.controller('ModalCustomerController', function ($scope, $rootScope, $q, $htt
             return false;
         }
 
+=======
+                }
+            }, function (err) {
+                console.log(err);
+                sweetAlert($translate.instant("Le serveur de fidélité n'a pas répondu !"));
+            });
+        }
+    };
+
+    $scope.validEmail = function (strEmail) {
+        var re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+        var myResult = re.test(strEmail);
+        return myResult;
+    };
+
+    $scope.validPhone = function (strPhone) {
+        var reFrance = /^0[1-9][0-9]{8}$/;
+        var resultFrance = reFrance.test(strPhone);
+
+        //Numero de telephone canadien.
+        // Indicatif entre parenthese facultatif
+        // Separateur soit : rien, espace, ou tiret.
+        var reCanada = /^\(?([0-9]{3})\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})$/;
+        var resultCanada = reCanada.test(strPhone);
+        return (resultCanada || resultFrance);
+>>>>>>> 9101faf73f812b9db686d8ab2bdb953304ed7f87
     };
 
 
     $scope.validZipPostCode = function (strZip) {
+<<<<<<< HEAD
         if(strZip){
             var reFrance = /^[0-9]{5}$/;
             var resultFrance = reFrance.test(strZip);
@@ -213,6 +254,15 @@ app.controller('ModalCustomerController', function ($scope, $rootScope, $q, $htt
             return false;
         }
 
+=======
+        var reFrance = /^[0-9]{5}$/;
+        var resultFrance = reFrance.test(strZip);
+
+        //Post Code canadien, avec espace facultatif
+        var reCanada = /[ABCEGHJKLMNPRSTVXY][0-9][ABCEGHJKLMNPRSTVWXYZ] ?[0-9][ABCEGHJKLMNPRSTVWXYZ][0-9]/;
+        var resultCanada = reCanada.test(strZip.toUpperCase());
+        return (resultCanada || resultFrance);
+>>>>>>> 9101faf73f812b9db686d8ab2bdb953304ed7f87
     };
 
 
@@ -241,6 +291,7 @@ app.controller('ModalCustomerController', function ($scope, $rootScope, $q, $htt
             }, function () {
             });
         }
+<<<<<<< HEAD
     };
 
     $scope.setBarcodeFocus = function () {
@@ -269,6 +320,36 @@ app.controller('ModalCustomerController', function ($scope, $rootScope, $q, $htt
         $rootScope.closeKeyboard();
     };
 
+=======
+    };
+
+    $scope.setBarcodeFocus = function () {
+        var test = document.getElementById("txtBarcodeCustomer");
+        test.focus();
+
+    };
+
+    $scope.changeOperation = function (strOperation) {
+        $scope.registerOperation = strOperation;
+
+        //Put the focus in the barcode input for a direct scan
+        if (strOperation == "registerFid") {
+            /*
+
+            setTimeout(function () {
+                document.getElementById("txtBarcodeCustomer").focus();
+            }, 0);
+
+            */
+        }
+    };
+
+    $scope.ok = function () {
+        delete $rootScope.currentPage;
+        $rootScope.closeKeyboard();
+    };
+
+>>>>>>> 9101faf73f812b9db686d8ab2bdb953304ed7f87
     $scope.validCustomer = function () {
         $scope.validDisabled = true;
         // No register if no customer is selected
@@ -323,7 +404,11 @@ app.controller('ModalCustomerController', function ($scope, $rootScope, $q, $htt
             return;
         }
 
+<<<<<<< HEAD
         // Get the current Shopping Cart
+=======
+        // Get the current Shopping CArt
+>>>>>>> 9101faf73f812b9db686d8ab2bdb953304ed7f87
         var curShoppingCart = shoppingCartModel.getCurrentShoppingCart();
 
         if (curShoppingCart == undefined) {
@@ -336,8 +421,13 @@ app.controller('ModalCustomerController', function ($scope, $rootScope, $q, $htt
         if ($scope.registerOperation == "registerFid") {
             try {
                 function isFormComplete() {
+<<<<<<< HEAD
                     // Si un parametre est requiered dans signInSettings
                     // On verifie si le champs du formulaire qui lui est associé est valide
+=======
+                    //Si un parametre est requiered dans signInSettings
+                    //On verifie si le champs du formulaire qui lui est associé est valide
+>>>>>>> 9101faf73f812b9db686d8ab2bdb953304ed7f87
                     // Si non, la methode retourne false
                     try {
                         Enumerable.from($scope.signInSettings).forEach(function (field) {
@@ -405,13 +495,20 @@ app.controller('ModalCustomerController', function ($scope, $rootScope, $q, $htt
 
 
                         }
+<<<<<<< HEAD
                     }, function(err){
                         swal($translate.instant("Une erreur s'est produite !"));
                         $scope.validDisabled = false;
+=======
+>>>>>>> 9101faf73f812b9db686d8ab2bdb953304ed7f87
                     });
 
                 } else {
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 9101faf73f812b9db686d8ab2bdb953304ed7f87
                     // On récupère le loyalty si il existe
                     // Si le client n'a pas de loyalty on l'enregistre en partiel
                     loyaltyService.getLoyaltyObjectAsync($scope.newLoyalty.barcode.barcodeValue).then(function (loyalty) {
@@ -469,7 +566,10 @@ app.controller('ModalCustomerController', function ($scope, $rootScope, $q, $htt
 
                     }, function (err) { //response
                         $scope.validDisabled = false;
+<<<<<<< HEAD
                         swal($translate.instant("Le serveur de fidélité n'est pas joignable ..."));
+=======
+>>>>>>> 9101faf73f812b9db686d8ab2bdb953304ed7f87
                         console.log(err);
                     });
                 }

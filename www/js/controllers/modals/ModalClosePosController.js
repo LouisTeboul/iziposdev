@@ -1,17 +1,31 @@
 ﻿app.controller('ModalClosePosController', function ($scope, $rootScope, $uibModal, $uibModalInstance, settingService, shoppingCartService, eventService, cashMovementService, zposService, $translate, posPeriodService, closePosParameters, modalStats, posUserService, posService, $http) {
     $scope.closePosParameters = closePosParameters;
     $scope.paymentType = PaymentType;
+<<<<<<< HEAD
 
     $scope.init = function (reload = false, savedModel = {}) {
+=======
+>>>>>>> 9101faf73f812b9db686d8ab2bdb953304ed7f87
 
         /*
         if (savedModel) {
             console.log(savedModel);
 
+<<<<<<< HEAD
             function getmatchedPmTotal(hid, paymentType) {
                 var matchedHidMdl = Enumerable.from(savedModel).firstOrDefault(function (hidModel) {
                     return hidModel.hid == hid;
                 });
+=======
+        $scope.model = {
+            hardwareIdModels: [],
+            emptyCash: false,
+            zRecap: [],
+            hasAtLeastOneCashMachineWithSeveralService: false,
+            closingEnable: posUserService.isEnable('CLOS', true),
+            showCloseButton: true
+        };
+>>>>>>> 9101faf73f812b9db686d8ab2bdb953304ed7f87
 
                 if (matchedHidMdl) {
                     var matchedCm = Enumerable.from(matchedHidMdl.CashMovementLines).firstOrDefault(function (cml) {
@@ -42,7 +56,6 @@
             $scope.model.zRecap = [];
         }
         */
-
 
         settingService.getPaymentModesAsync().then(function (paymentSetting) {
 
@@ -196,7 +209,10 @@
                                         // Pré-renseigner le nombre attendu
                                         lineClose.Count = l.Count;
                                         // Pré-renseigné du montant attendu
+<<<<<<< HEAD
 
+=======
+>>>>>>> 9101faf73f812b9db686d8ab2bdb953304ed7f87
                                         lineClose.PaymentMode.Total = roundValue(l.PaymentMode.Total);
                                         lineClose.TotalKnown = roundValue(l.PaymentMode.Total);
                                     }
@@ -254,9 +270,13 @@
                                             // Pré-renseigner le nombre attendu
                                             lineClose.Count = l.Count;
                                             // Pré-renseigner du montant attendu
+<<<<<<< HEAD
 
 
                                             lineClose.PaymentMode.Total = l.PaymentMode.Total;
+=======
+                                            // lineClose.PaymentMode.Total = l.PaymentMode.Total;
+>>>>>>> 9101faf73f812b9db686d8ab2bdb953304ed7f87
                                             lineClose.TotalKnown = roundValue(l.PaymentMode.Total);
                                         }
                                         else {
@@ -282,9 +302,11 @@
                                                 lineCloseRecap.TotalKnown = roundValue(l.PaymentMode.Total);
                                             }
                                         }
+
                                     });
                                     // Renseigner ce que le ou les utilisateurs on déjà renseigné lors de la fermeture du(des) services 
                                     posPeriodService.getYCountLinesByHidAsync($scope.closePosParameters.zperiod.id, cashmachine.hid).then(function (yPeriodCash) {
+<<<<<<< HEAD
 
                                         if (yPeriodCash) {
                                             newHidModel.nbY = yPeriodCash.nbY;
@@ -292,6 +314,15 @@
                                                 $scope.model.hasAtLeastOneCashMachineWithSeveralService = yPeriodCash.nbY !== 1;
                                             }
 
+=======
+
+                                        if (yPeriodCash) {
+                                            newHidModel.nbY = yPeriodCash.nbY;
+                                            if (!$scope.model.hasAtLeastOneCashMachineWithSeveralService) {
+                                                $scope.model.hasAtLeastOneCashMachineWithSeveralService = yPeriodCash.nbY !== 1;
+                                            }
+
+>>>>>>> 9101faf73f812b9db686d8ab2bdb953304ed7f87
                                             Enumerable.from(yPeriodCash.YCountLines).forEach(function (l) {
                                                 var lineClose = Enumerable.from(newHidModel.CashMovementLines).firstOrDefault(function (x) {
                                                     return x.PaymentMode.Value == l.PaymentMode.Value && x.PaymentMode.PaymentType == l.PaymentMode.PaymentType;
@@ -300,6 +331,10 @@
                                                 if (lineClose) {
                                                     // Pré-renseigner du montant saisi précédement (somme des services)
                                                     lineClose.PaymentMode.Total = roundValue(l.PaymentMode.Total);
+<<<<<<< HEAD
+=======
+
+>>>>>>> 9101faf73f812b9db686d8ab2bdb953304ed7f87
                                                     // Renseigner du montant saisi précédement (somme des services)
                                                     lineClose.TotalYs = roundValue(l.PaymentMode.Total);
                                                     lineClose.CashDiscrepancyYs = roundValue(l.PaymentMode.Total - l.TotalKnown);
@@ -336,6 +371,7 @@
                             });
                         });
                     });
+<<<<<<< HEAD
                     /*
                     if (reload) {
                         //On parcours les Hid model
@@ -351,6 +387,8 @@
                         });
                     }
                     */
+=======
+>>>>>>> 9101faf73f812b9db686d8ab2bdb953304ed7f87
                     break;
             }
 
@@ -445,12 +483,20 @@
                         backdrop: 'static'
                     });
                     modalInstance.result.then(function () {
+<<<<<<< HEAD
                         $scope.init(true);
+=======
+                        $scope.init();
+>>>>>>> 9101faf73f812b9db686d8ab2bdb953304ed7f87
                     }, function () {
                     });
                 }
                 else if (yPeriod && yPeriod.endDate) {
+<<<<<<< HEAD
                     $scope.init(true);
+=======
+                    $scope.init();
+>>>>>>> 9101faf73f812b9db686d8ab2bdb953304ed7f87
                 }
             }, function () {
                 sweetAlert({title: $translate.instant("Veuillez renseigner le fond de caisse")}, function () {
@@ -524,7 +570,11 @@
             modalInstance.result.then(function (ret) {
 
                 if (ret && ret.refresh) {
+<<<<<<< HEAD
                     $scope.init(true)
+=======
+                    $scope.init()
+>>>>>>> 9101faf73f812b9db686d8ab2bdb953304ed7f87
                 }
                 else {
                     checkForFreeze();
@@ -560,14 +610,20 @@
     $scope.cancel = function () {
         $uibModalInstance.dismiss('cancel');
 
+<<<<<<< HEAD
         /*
+=======
+>>>>>>> 9101faf73f812b9db686d8ab2bdb953304ed7f87
         $uibModal.open({
             templateUrl: 'modals/modalYperiodPick.html',
             controller: 'ModalYperiodPickController',
             size: 'lg',
             backdrop: 'static'
         });
+<<<<<<< HEAD
         */
+=======
+>>>>>>> 9101faf73f812b9db686d8ab2bdb953304ed7f87
 
         setTimeout(function () {
             $rootScope.closeKeyboard();
@@ -575,17 +631,29 @@
         }, 500);
     };
 
+<<<<<<< HEAD
     var checkForFreeze = function () {
         var nbFreeze = undefined;
         shoppingCartService.getFreezedShoppingCartsAsync().then(function (r) {
             closeCashMachine(r.length)
         }, function (err) {
+=======
+    var checkForFreeze = function(){
+        var nbFreeze = undefined;
+        shoppingCartService.getFreezedShoppingCartsAsync().then(function(r){
+            closeCashMachine(r.length)
+        }, function(err){
+>>>>>>> 9101faf73f812b9db686d8ab2bdb953304ed7f87
             closeCashMachine(undefined)
         });
     };
 
     var closeCashMachine = function (nbFreeze) {
+<<<<<<< HEAD
         var textFreeze = nbFreeze && nbFreeze > 0 ? "Vous avez " + nbFreeze + " ticket en attente" : "";
+=======
+        var textFreeze = nbFreeze && nbFreeze >0 ? "Vous avez " + nbFreeze + " ticket en attente" : "";
+>>>>>>> 9101faf73f812b9db686d8ab2bdb953304ed7f87
         swal({
                 title: $translate.instant($scope.closePosParameters.mode.text),
                 text: textFreeze,
@@ -684,9 +752,15 @@
                     Informations: []
                 };
 
+<<<<<<< HEAD
 
                 Enumerable.from(updPaymentModes).forEach(function (pm) {
                     event.Informations.push(pm.PaymentMode.Text + "(" + pm.Count + "):" + pm.TotalKnown);
+=======
+               
+                Enumerable.from(updPaymentModes).forEach(function (pm) {
+                    event.Informations.push(pm.PaymentMode.Text+ "(" + pm.Count + "):" + pm.TotalKnown);
+>>>>>>> 9101faf73f812b9db686d8ab2bdb953304ed7f87
                 });
 
                 eventService.sendEvent(event);

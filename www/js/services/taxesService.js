@@ -546,6 +546,7 @@ app.service('taxesService', ['$rootScope', '$q','settingService',
         this.calculateTotalFor = function (shoppingCart) {
             if (shoppingCart) {
                 console.log("Calcul du shopping cart ", shoppingCart);
+<<<<<<< HEAD
                 //On suppose que le shopping cart n'a pas d'item split
                 shoppingCart.hasSplitItems = false;
 
@@ -553,10 +554,19 @@ app.service('taxesService', ['$rootScope', '$q','settingService',
                 var totalET = 0;
                 var totalIT = 0;
                 var totalQty = 0;
+=======
+                var taxDetails = [];
+                var totalET = 0;
+                var totalIT = 0;
+
+                var totalQty = 0;
+
+>>>>>>> 9101faf73f812b9db686d8ab2bdb953304ed7f87
                 var shipping = shoppingCart.Shipping;
                 var discount = Enumerable.from(shoppingCart.Discounts).firstOrDefault();
 
                 // Pour chaque article
+<<<<<<< HEAD
                 Enumerable.from(shoppingCart.Items).forEach(function (i,index) {
                     //Si on rencontre un item avec un quantité decimale
                     if(!Number.isInteger(i.Quantity)){
@@ -566,6 +576,10 @@ app.service('taxesService', ['$rootScope', '$q','settingService',
                     totalQty += i.Quantity;
 
                     i.LineNumber = index + 1;
+=======
+                Enumerable.from(shoppingCart.Items).forEach(function (i) {
+                    totalQty += i.Quantity;
+>>>>>>> 9101faf73f812b9db686d8ab2bdb953304ed7f87
 
                     // On calcul le prix 
                     calculateCartItemTotal(shoppingCart, i, shoppingCart.DeliveryType);
@@ -575,6 +589,10 @@ app.service('taxesService', ['$rootScope', '$q','settingService',
 
                     totalIT = roundValue(totalIT + i.PriceIT - (discount ? 0 : i.DiscountIT));
                     totalET = roundValue(totalET + i.PriceET - (discount ? 0 : i.DiscountET));
+<<<<<<< HEAD
+=======
+
+>>>>>>> 9101faf73f812b9db686d8ab2bdb953304ed7f87
 
                     // On récupère les taxes de l'article
                     Enumerable.from(i.TaxDetails).forEach(function (itemTaxDetail) {
@@ -595,6 +613,13 @@ app.service('taxesService', ['$rootScope', '$q','settingService',
                     });
                 });
 
+<<<<<<< HEAD
+=======
+                if(Number.isInteger(totalQty)){
+                    shoppingCart.hasSplitItems = false;
+                }
+
+>>>>>>> 9101faf73f812b9db686d8ab2bdb953304ed7f87
                 if(shipping){
                     Enumerable.from(shipping.TaxDetails).forEach(function (shippingTaxDetail) {
                         totalIT = roundValue(totalIT + shippingTaxDetail.PriceIT);

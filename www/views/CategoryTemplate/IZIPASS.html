@@ -1,6 +1,7 @@
 ﻿<md-content class="IZIPASSTemplate" ng-controller="IZIPASSController" ng-init="init()" layout="column" ng-cloak>
 
     <div layout="column" class="subCategoriesHeading"
+<<<<<<< HEAD
          ng-class="{'subCategoriesHeading-large' : subCategories.length >= 10}"
          ng-if="subCategories && subCategories.length > 0">
         <div layout="row" layout-align="center center" layout-wrap >
@@ -25,11 +26,38 @@
     </div>
 
     <md-content id="allCategories" layout="column" style="padding: 3px;">
+=======
+         ng-if="subCategories && subCategories.length > 0">
+        <div layout="row" layout-align="center center" ng-show="$mdMedia('gt-sm')">
+            <md-button aria-label="NavigAttr"
+                       class="md-raised navigAction" ng-click="scrollTo('Main')">{{category.Name | Truncate:16}}
+            </md-button>
+            <md-button aria-label="NavigAttr"
+                       ng-repeat="subCat in subCategories track by $index"
+                       ng-if="subCat.products && subCat.products.length >0"
+                       class="md-raised navigAction" ng-click="scrollTo(subCat.Id)">{{subCat.Name | Truncate:16}}
+            </md-button>
+            <md-button aria-label="NavigAttr"
+                       ng-repeat="ssCat in subSubCategories track by $index"
+                       ng-if="ssCat.products && ssCat.products.length >0"
+                       class="md-raised navigAction" ng-click="scrollTo(ssCat.Id)">{{ssCat.Name | Truncate:16}}
+            </md-button>
+        </div>
+    </div>
+
+    <md-content id="allCategories" layout="column" style="padding: 3px;">
+
+
+>>>>>>> 9101faf73f812b9db686d8ab2bdb953304ed7f87
         <div id="cMain">
             <h1>{{category.Name}}</h1>
 
             <div layout="row" layout-wrap>
+<<<<<<< HEAD
                 <div ng-repeat="product in products track by $index" style="margin-bottom:4px">
+=======
+                <div ng-repeat="product in products track by $index">
+>>>>>>> 9101faf73f812b9db686d8ab2bdb953304ed7f87
                     <md-button class="productboxIZIPASS" md-no-ink ng-click="addToCart(product)" layout-fill>
                         <div layout="column" layout-fill>
 

@@ -121,6 +121,7 @@
                 var toJoin = Enumerable.from($scope.selectedShoppingCarts).orderBy("s=>s.Timestamp").toArray();
 
                 Enumerable.from($scope.selectedShoppingCarts).forEach(function (s) {
+<<<<<<< HEAD
                     //ATTENTION
                     //Bricolage, a amélioré
                     //Permet que le RK compteur soit décrémenté correctement
@@ -129,6 +130,9 @@
                         shoppingCartService.unfreezeShoppingCartAsync(s);
                     },100)
 
+=======
+                    shoppingCartService.unfreezeShoppingCartAsync(s);
+>>>>>>> 9101faf73f812b9db686d8ab2bdb953304ed7f87
                 });
 
                 var joinedShoppingCart = toJoin[0];

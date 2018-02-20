@@ -288,6 +288,10 @@
                                                     </strong>
 
                                                     <!--
+<<<<<<< HEAD
+=======
+
+>>>>>>> 9101faf73f812b9db686d8ab2bdb953304ed7f87
                                                     <strong ng-show="item.isPartSplitItem">x
                                                         <div class="frac" ng-if="item.dispFraction == true">
                                                             <span>1</span>
@@ -299,6 +303,10 @@
                                                             </span>
                                                         </div>
                                                     </strong>
+<<<<<<< HEAD
+=======
+
+>>>>>>> 9101faf73f812b9db686d8ab2bdb953304ed7f87
                                                     -->
 
                                                     <div style="display: flex; align-items: center; margin-left: 5px;">
@@ -326,7 +334,7 @@
 
                                                     <!-- Increment quantity -->
                                                     <md-button aria-label="incrementQty"
-                                                               ng-disabled="item.Offer != undefined"
+                                                               ng-disabled="item.Offer != undefined "
                                                                class="itemAction md-fab md-mini"
                                                                ng-click="$event.stopPropagation();incrementQuantity(item);">
                                                         <span class="glyphicon glyphicon-plus"></span>
@@ -421,12 +429,24 @@
                             <span style="font-size: 14px;padding-top: 3px;"
                                   ng-if="currentShoppingCart && totalDivider > 1">{{currentShoppingCart.Total | CurrencyFormat}} / {{totalDivider}} = {{(currentShoppingCart.Total/totalDivider) | CurrencyFormat}}</span>
                             <span flex></span>
+<<<<<<< HEAD
 
                             <a ng-if="currentShoppingCart && !currentShoppingCart.hasSplitItems && (!currentShoppingCart.shoppingCartQueue || currentShoppingCart.shoppingCartQueue.length ==0)"
+=======
+                            <!--
+                            <a ng-if="currentShoppingCart && shoppingCartQueue.length > 0"
+                               class="btn btn-warning btnRemerge"
+                               ng-click="$event.stopPropagation(); mergeQueue()">
+                                <i class="glyphicon glyphicon-magnet"></i>
+                            </a>
+                            -->
+                            <a ng-if="currentShoppingCart && !currentShoppingCart.hasSplitItems && (!shoppingCartQueue || shoppingCartQueue.length ==0)"
+>>>>>>> 9101faf73f812b9db686d8ab2bdb953304ed7f87
                                class="btn btn-warning btnDivideTotal"
                                ng-click="$event.stopPropagation();divideTotal();">
                                 <img style="width:26px;" alt="Image" src="img/divideUser.png">
                             </a>
+<<<<<<< HEAD
 
                             <div layout="row">
                                 <a ng-if="currentShoppingCart && currentShoppingCart.shoppingCartQueue.length > 0"
@@ -454,11 +474,22 @@
                                     </div>
                                 </a>
                             </div>
+=======
+                            <a ng-if="currentShoppingCart && shoppingCartQueue.length > 0"
+                               class="btn btn-warning btnDivideTotal"
+                               ng-click="$event.stopPropagation(); mergeDividedTickets();">
+                                <img style="width:26px;" alt="Image" src="img/merge.png">
+                            </a>
+>>>>>>> 9101faf73f812b9db686d8ab2bdb953304ed7f87
 
 
                             <a ng-if="currentShoppingCart"
                                class="btn btn-warning btnDivideReceipt"
+<<<<<<< HEAD
                                ng-class="{'disabled' : currentShoppingCart.shoppingCartQueue.length > 0}"
+=======
+                               ng-class="{'disabled' : shoppingCartQueue.length > 0}"
+>>>>>>> 9101faf73f812b9db686d8ab2bdb953304ed7f87
                                ng-click="$event.stopPropagation();splitShoppingCart();">
                                 <img style="width:26px;" alt="Image" src="img/divideReceipt.png">
                             </a>

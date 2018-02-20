@@ -14,7 +14,11 @@
         $rootScope.closeKeyboard();
         var totalDividerValue = parseInt($scope.valueDivider);
 
+<<<<<<< HEAD
         if (isNaN(totalDividerValue) || totalDividerValue <= 0 || !Number.isInteger(totalDividerValue)) {
+=======
+        if (isNaN(totalDividerValue) || totalDividerValue <= 0) {
+>>>>>>> 9101faf73f812b9db686d8ab2bdb953304ed7f87
             $scope.errorMessage = $translate.instant("Valeur non valide");
         } else {
             $uibModalInstance.close(totalDividerValue);

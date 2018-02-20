@@ -75,6 +75,7 @@ app.getConfigIziBoxAsync = function ($rootScope, $q, $http, ipService, $translat
                     ips.push(ip.izibox);
                 }
 
+<<<<<<< HEAD
                 // Get Settings and store them in the browser cache
                 setTimeout(function () {
                     searchRestConfigurationAsync($rootScope, $q, $http, ips, $translate, existingConfig).then(function (configs) {
@@ -103,6 +104,35 @@ app.getConfigIziBoxAsync = function ($rootScope, $q, $http, ipService, $translat
                                 returnResult(selectedConfig);
                             });
                         }
+=======
+				// Get Settings and store them in the browser cache
+				searchRestConfigurationAsync($rootScope, $q, $http, ips, $translate, existingConfig).then(function (configs) {
+					var returnResult = function (selectedConfig) {
+						window.localStorage.setItem("IziBoxConfiguration", selectedConfig);
+						config = JSON.parse(selectedConfig);
+						config.deleteCouchDb = config.IdxCouchDb != defaultConfig.IdxCouchDb;
+						configDefer.resolve(config);
+					};
+
+					if (configs.length === 1) {
+						returnResult(configs[0]);
+					} else {
+						var modalInstance = $uibModal.open({
+							templateUrl: 'modals/modalSelectConfig.html',
+							controller: 'ModalSelectConfigController',
+							resolve: {
+								configs: function () {
+									return configs;
+								}
+							},
+							backdrop: 'static'
+						});
+
+						modalInstance.result.then(function (selectedConfig) {
+							returnResult(selectedConfig);
+						});
+					}
+>>>>>>> 9101faf73f812b9db686d8ab2bdb953304ed7f87
 
                     }, function (errSearch) {
                         swal({
