@@ -3,7 +3,7 @@
 
     <div layout="column" flex>
 
-        <div layout="row">
+        <div layout="row" ng-if="!currentShoppingCart.ParentTicket">
             <ng-barcodetextfield flex></ng-barcodetextfield>
             <!--<md-button aria-label="client" class="btnAction"><span class="glyphicon glyphicon-user"></span></md-button>-->
             <md-button aria-label="client" class="btnAction" ng-click="openClientModal()"><span
@@ -76,27 +76,30 @@
             </div>
         </div>
 
-        <center>
+        <div class="center">
             <div class="switch-toggle switch-3 switch-candy"
                  ng-if="!$rootScope.IziBoxConfiguration.ForceDeliveryChoice">
 
-                <input id="forhere" name="state-d" type="radio" ng-checked="deliveryType == DeliveryTypes.FORHERE">
-                <label for="forhere" ng-click="setDeliveryType(DeliveryTypes.FORHERE)">
-                    <x translate>Sur place</x>
+                <input id="forhere" name="state-d" type="radio"
+                       ng-click="$event.stopPropagation();setDeliveryType(DeliveryTypes.FORHERE);">
+                <label for="forhere">
+                    <x ng-click="$event.stopPropagation();setDeliveryType(DeliveryTypes.FORHERE);" translate>Sur place</x>
                 </label>
 
-                <input id="takeout" name="state-d" type="radio" ng-checked="deliveryType == DeliveryTypes.TAKEOUT">
-                <label for="takeout" ng-click="setDeliveryType(DeliveryTypes.TAKEOUT)">
-                    <x translate>Emporté</x>
+                <input id="takeout" name="state-d" type="radio"
+                       ng-click="$event.stopPropagation();setDeliveryType(DeliveryTypes.TAKEOUT)">
+                <label for="takeout">
+                    <x ng-click="$event.stopPropagation();setDeliveryType(DeliveryTypes.TAKEOUT)" translate>Emporté</x>
                 </label>
 
-                <input id="delivery" name="state-d" type="radio" ng-checked="deliveryType == DeliveryTypes.DELIVERY">
-                <label for="delivery" ng-click="setDeliveryType(DeliveryTypes.DELIVERY)">
-                    <x translate>Livré</x>
+                <input id="delivery" name="state-d" type="radio"
+                       ng-click="$event.stopPropagation();setDeliveryType(DeliveryTypes.DELIVERY)">
+                <label for="delivery">
+                    <x ng-click="$event.stopPropagation();setDeliveryType(DeliveryTypes.DELIVERY)" translate>Livré</x>
                 </label>
                 <a></a>
             </div>
-        </center>
+        </div>
 
         <div layout="column">
             <uib-accordion close-others="false">
@@ -105,7 +108,9 @@
                                      ng-click="accordionStatus.ticketOpen=!accordionStatus.paiementOpen">
                     <uib-accordion-heading>
                         <div style="height:40px; margin-right:-10px">
-                            <a ng-if="IziBoxConfiguration.UseTable" ng-click="$event.stopPropagation();selectTable();"
+                            <a ng-if="IziBoxConfiguration.UseTable"
+                               ng-disabled="currentShoppingCart.ParentTicket"
+                               ng-click="$event.stopPropagation();selectTable();"
                                class="btn btn-info btnTable">
                                 <div layout="column" layout-align="center center" layout-fill>
                                     <span ng-if="currentShoppingCart.TableNumber || !currentShoppingCart.TableCutleries"><x
@@ -244,7 +249,7 @@
                                      ng-click="accordionStatus.paiementOpen=!accordionStatus.ticketOpen"
                                      class="panel panel-default miniBasket">
                     <uib-accordion-heading>
-                        <div layout="row">
+                        <div layout="row" ng-if="!currentShoppingCart.ParentTicket">
                             <img style="width: 25px;height: 20px;margin-left: -12px;" alt="Image" src="img/receipt.png">
                             <span flex></span>
                             <span ng-if="IziBoxConfiguration.StepEnabled && currentShoppingCart">{{currentShoppingCart.CurrentStep | StepName:stepNames}}</span>
@@ -287,20 +292,6 @@
                                                         {{item.Quantity | number : 2}}
                                                     </strong>
 
-                                                    <!--
-                                                    <strong ng-show="item.isPartSplitItem">x
-                                                        <div class="frac" ng-if="item.dispFraction == true">
-                                                            <span>1</span>
-                                                            <span class="symbol"></span>
-                                                            <span class="bottom">
-                                                              {{ 1 / ((item.Product.Price +
-                                                              item.splittedAmount)/item.Product.Price) |
-                                                              number : 0}}
-                                                            </span>
-                                                        </div>
-                                                    </strong>
-                                                    -->
-
                                                     <div style="display: flex; align-items: center; margin-left: 5px;">
                                                         <span> ( </span>
                                                         <span ng-if="item.IsFree"> {{0 | CurrencyFormat}}</span>
@@ -314,11 +305,11 @@
 
                                             </div>
                                             <div style="max-width:120px" layout="column"
-                                                 ng-if="!currentShoppingCart.isPayed">
-                                                <div layout="row">
+                                                 ng-if="!currentShoppingCart.isPayed ">
+                                                <div layout="row" ng-if="!currentShoppingCart.ParentTicket">
                                                     <!-- Decrement quantity -->
                                                     <md-button aria-label="decrementQty"
-                                                               ng-disabled="item.Offer != undefined || item.Quantity - 1 <= 0 "
+                                                               ng-disabled="(item.Offer != undefined || item.Quantity - 1 <= 0 )"
                                                                class="itemAction md-fab md-mini"
                                                                ng-click="$event.stopPropagation();decrementQuantity(item);">
                                                         <span class="glyphicon glyphicon-minus"></span>
@@ -326,7 +317,7 @@
 
                                                     <!-- Increment quantity -->
                                                     <md-button aria-label="incrementQty"
-                                                               ng-disabled="item.Offer != undefined"
+                                                               ng-disabled="item.Offer != undefined "
                                                                class="itemAction md-fab md-mini"
                                                                ng-click="$event.stopPropagation();incrementQuantity(item);">
                                                         <span class="glyphicon glyphicon-plus"></span>
@@ -341,7 +332,7 @@
                                                     </md-button>
                                                 </div>
                                                 <div layout="row"
-                                                     ng-if="viewmodel.selectedLine == item && item.Quantity > 0">
+                                                     ng-if="(viewmodel.selectedLine == item && item.Quantity > 0) || !currentShoppingCart.ParentTicket">
                                                     <!-- edit configurable menu -->
                                                     <md-button aria-label="editMenu" class="itemAction md-fab md-mini"
                                                                ng-disabled="isMenuDisable(item)"
@@ -422,51 +413,54 @@
                                   ng-if="currentShoppingCart && totalDivider > 1">{{currentShoppingCart.Total | CurrencyFormat}} / {{totalDivider}} = {{(currentShoppingCart.Total/totalDivider) | CurrencyFormat}}</span>
                             <span flex></span>
 
-                            <a ng-if="currentShoppingCart && !currentShoppingCart.hasSplitItems && (!currentShoppingCart.shoppingCartQueue || currentShoppingCart.shoppingCartQueue.length ==0)"
-                               class="btn btn-warning btnDivideTotal"
-                               ng-click="$event.stopPropagation();divideTotal();">
-                                <img style="width:26px;" alt="Image" src="img/divideUser.png">
-                            </a>
+                            <div ng-if="!currentShoppingCart.ParentTicket" layout="row">
 
-                            <div layout="row">
-                                <a ng-if="currentShoppingCart && currentShoppingCart.shoppingCartQueue.length > 0"
+                                <a ng-if="currentShoppingCart && !currentShoppingCart.hasSplitItems && (!currentShoppingCart.shoppingCartQueue || currentShoppingCart.shoppingCartQueue.length ==0)"
                                    class="btn btn-warning btnDivideTotal"
-                                   ng-click="$event.stopPropagation(); mergeDividedTickets();" flex>
-                                    <div style="white-space:normal" layout="row" layout-align="center center"
-                                         layout-fill>
-                                        <div flex="60">
-                                            <img style="width:26px;" alt="Image" src="img/merge.png">
-                                        </div>
+                                   ng-click="$event.stopPropagation();divideTotal();">
+                                    <img style="width:26px;" alt="Image" src="img/divideUser.png">
+                                </a>
 
-                                        <div flex="30">
+                                <div layout="row">
+                                    <a ng-if="currentShoppingCart && currentShoppingCart.shoppingCartQueue.length > 0"
+                                       class="btn btn-warning btnDivideTotal"
+                                       ng-click="$event.stopPropagation(); mergeDividedTickets();" flex>
+                                        <div style="white-space:normal" layout="row" layout-align="center center"
+                                             layout-fill>
+                                            <div flex="60">
+                                                <img style="width:26px;" alt="Image" src="img/merge.png">
+                                            </div>
 
-                                            <div layout="column" layout-align="space-around center"
-                                                 ng-if="currentShoppingCart.shoppingCartQueue.length >0">
+                                            <div flex="30">
 
-                                                <div class="tabNotif mini " style="margin-top:3px">
+                                                <div layout="column" layout-align="space-around center"
+                                                     ng-if="currentShoppingCart.shoppingCartQueue.length >0">
+
+                                                    <div class="tabNotif mini " style="margin-top:3px">
                                                     <span class="tabNotif-text">
                                                         {{currentShoppingCart.shoppingCartQueue.length}}
                                                     </span>
+                                                    </div>
                                                 </div>
-                                            </div>
 
+                                            </div>
                                         </div>
-                                    </div>
+                                    </a>
+                                </div>
+
+
+                                <a ng-if="currentShoppingCart"
+                                   class="btn btn-warning btnDivideReceipt"
+                                   ng-class="{'disabled' : currentShoppingCart.shoppingCartQueue.length > 0}"
+                                   ng-click="$event.stopPropagation();splitShoppingCart();">
+                                    <img style="width:26px;" alt="Image" src="img/divideReceipt.png">
                                 </a>
                             </div>
-
-
-                            <a ng-if="currentShoppingCart"
-                               class="btn btn-warning btnDivideReceipt"
-                               ng-class="{'disabled' : currentShoppingCart.shoppingCartQueue.length > 0}"
-                               ng-click="$event.stopPropagation();splitShoppingCart();">
-                                <img style="width:26px;" alt="Image" src="img/divideReceipt.png">
-                            </a>
                         </div>
                     </uib-accordion-heading>
                     <div>
                         <div id="paymentModes"
-                             ng-if="currentShoppingCart && currentShoppingCart.Items && currentShoppingCart.Items.length > 0"
+                             ng-if="(currentShoppingCart && currentShoppingCart.Items && currentShoppingCart.Items.length > 0) && !currentShoppingCart.ParentTicket"
                              layout="row" layout-wrap layout-align="center center">
                             <div ng-repeat="paymentMode in paymentModesAvailable">
                                 <a class="btn btn-payment btn-block" ng-click="selectPaymentMode(paymentMode)"
@@ -503,7 +497,7 @@
             </a>
         </div>
 
-        <div ng-if="IziBoxConfiguration.CanFreezeShoppingCart && accordionStatus.ticketOpen"
+        <div ng-if="IziBoxConfiguration.CanFreezeShoppingCart && accordionStatus.ticketOpen && !currentShoppingCart.ParentTicket"
              class="shoppingCartActionsBar" layout="row">
             <a class="shoppingCartAction btn btn-info btnFreeze" style="padding:0"
                ng-class="{'disabled' : currentShoppingCart}"
@@ -537,7 +531,9 @@
                 </div>
             </a>
 
-            <a class="shoppingCartAction btn btn-warning btnFreeze" ng-click="freezeShoppingCart()" flex>
+            <a class="shoppingCartAction btn btn-warning btnFreeze"
+               ng-if="!currentShoppingCart.ParentTicket"
+               ng-click="freezeShoppingCart()" flex>
                 <span style="white-space:normal"><img class="btn-action-image" alt="Image" src="img/freeze.png"></span>
             </a>
         </div>
@@ -552,7 +548,7 @@
                 <span style="white-space:normal"><img class="btn-action-image" alt="Image" src="img/valid.png"></span>
             </a>
 
-            <a ng-if="PrinterConfiguration.POSPrinterCount > 0 && IziBoxConfiguration.LocalIpIziBox"
+            <a ng-if="PrinterConfiguration.POSPrinterCount > 0 && IziBoxConfiguration.LocalIpIziBox && !currentShoppingCart.ParentTicket"
                class="shoppingCartAction btn btn-success"
                ng-click="$rootScope.IziBoxConfiguration.ForceDeliveryChoice ? openModalDelivery() : validShoppingCart() "
                ng-class="{ 'disabled' : PhoneOrderMode }"
@@ -565,14 +561,14 @@
                 </span>
             </a>
             <a class="shoppingCartAction btn btn-info"
+               ng-if="!currentShoppingCart.ParentTicket"
                ng-disabled="printProdDisabled"
                ng-click="printProdShoppingCart()" flex>
                 <span style="white-space:normal"><img style="width:35px" alt="Image" src="img/printProd.png"></span>
             </a>
             <a class="shoppingCartAction btn btn-danger"
                ng-click="cancelShoppingCart()" flex
-               ng-if="!currentShoppingCart.isPayed
-                   && !currentShoppingCart.hasSplitItems">
+               ng-if=" (!currentShoppingCart.isPayed && !currentShoppingCart.hasSplitItems) || currentShoppingCart.ParentTicket ">
                 <span style="white-space:normal"><img class="btn-action-image" alt="Image" src="img/trash.png"></span>
             </a>
         </div>

@@ -83,8 +83,15 @@ app.controller('MiniBasketController', ['$scope', '$rootScope', '$state', '$uibM
 
 
         $scope.setDeliveryType = function (value) {
-            $scope.deliveryType = value;
-            $scope.$evalAsync();
+            if($scope.currentShoppingCart) {
+                if(!$scope.currentShoppingCart.ParentTicket){
+                    $scope.deliveryType = value;
+                    $scope.$evalAsync();
+                }
+            } else {
+                $scope.deliveryType = value;
+                $scope.$evalAsync();
+            }
         };
 
         var updateCurrentShoppingCart = function () {
@@ -107,6 +114,7 @@ app.controller('MiniBasketController', ['$scope', '$rootScope', '$state', '$uibM
             }
 
             shoppingCartModel.calculateLoyalty();
+            shoppingCartModel.calculateTotal();
             resizeMiniBasket();
         };
 
@@ -599,24 +607,29 @@ app.controller('MiniBasketController', ['$scope', '$rootScope', '$state', '$uibM
         };
 
         $scope.cancelShoppingCart = function () {
-            //Impossible de supprimer le shopping cart si il contient des item splitté
-            // TODO: Logger action
-            if (posUserService.isEnable('DELT')) {
-                var errMess = $scope.shoppingCartQueue && $scope.shoppingCartQueue.length > 0 ? "Vous allez supprimer toutes les parts d'un ticket partagé" : "";
-                swal({
-                    title: $translate.instant("Supprimer le ticket ?"),
-                    text: errMess, type: "warning",
-                    showCancelButton: true,
-                    confirmButtonColor: "#d83448",
-                    confirmButtonText: $translate.instant("Oui"),
-                    cancelButtonText: $translate.instant("Non"),
-                    closeOnConfirm: true
-                },
-                    function () {
-                        $scope.shoppingCartQueue = [];
-                        shoppingCartModel.cancelShoppingCartAndSend();
-                    });
+
+            if(!$scope.currentShoppingCart.ParentTicket){
+                if (posUserService.isEnable('DELT')) {
+                    var errMess = $scope.shoppingCartQueue && $scope.shoppingCartQueue.length > 0 ? "Vous allez supprimer toutes les parts d'un ticket partagé" : "";
+                    swal({
+                            title: $translate.instant("Supprimer le ticket ?"),
+                            text: errMess, type: "warning",
+                            showCancelButton: true,
+                            confirmButtonColor: "#d83448",
+                            confirmButtonText: $translate.instant("Oui"),
+                            cancelButtonText: $translate.instant("Non"),
+                            closeOnConfirm: true
+                        },
+                        function () {
+                            $scope.shoppingCartQueue = [];
+                            shoppingCartModel.cancelShoppingCartAndSend();
+                        });
+                }
+            } else {
+                shoppingCartModel.clearShoppingCart();
             }
+
+
         };
         //#endregion
 

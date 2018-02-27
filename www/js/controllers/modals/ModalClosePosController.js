@@ -4,7 +4,7 @@
 
     $scope.init = function (reload = false, savedModel = {}) {
 
-        /*
+
         if (savedModel) {
             console.log(savedModel);
 
@@ -25,7 +25,7 @@
             }
 
         }
-        */
+
 
         $scope.model =
             {
@@ -37,11 +37,10 @@
                 showCloseButton: true
             };
 
-        /*
+
         if (reload) {
             $scope.model.zRecap = [];
         }
-        */
 
 
         settingService.getPaymentModesAsync().then(function (paymentSetting) {
@@ -133,25 +132,26 @@
                                         newHidModel.CashMovementLines.push(l);
                                     }
                                 });
+
+                                if (reload) {
+                                    //On parcours les Hid model
+                                    Enumerable.from($scope.model.hardwareIdModels).forEach(function (hidm) {
+                                        var currentHid = hidm.hid;
+                                        Enumerable.from(hidm.CashMovementLines).forEach(function (cm) {
+                                            var currentPmId = cm.PaymentMode.PaymentType;
+                                            if (getmatchedPmTotal(currentHid, currentPmId)) {
+                                                cm.PaymentMode.Total = getmatchedPmTotal(currentHid, currentPmId);
+                                            }
+                                        })
+
+                                    });
+                                }
+
                             }
                         });
                         console.log(newHidModel);
                     });
-                    /*
-                    if(reload){
-                        //On parcours les Hid model
-                        Enumerable.from($scope.model.hardwareIdModels).forEach(function(hidm){
-                            var currentHid = hidm.hid;
-                            Enumerable.from(hidm.CashMovementLines).forEach(function(cm){
-                                var currentPmId = cm.PaymentMode.PaymentType;
-                                if(getmatchedPmTotal(currentHid, currentPmId)){
-                                    cm.PaymentMode.Total = getmatchedPmTotal(currentHid, currentPmId);
-                                }
-                            })
 
-                        });
-                    }
-                    */
                     break;
 
 
@@ -205,24 +205,25 @@
                                         newHidModel.CashMovementLines.push(l);
                                     }
                                 });
+
+                                if (reload) {
+                                    //On parcours les Hid model
+                                    Enumerable.from($scope.model.hardwareIdModels).forEach(function (hidm) {
+                                        var currentHid = hidm.hid;
+                                        Enumerable.from(hidm.CashMovementLines).forEach(function (cm) {
+                                            var currentPmId = cm.PaymentMode.PaymentType;
+                                            if (getmatchedPmTotal(currentHid, currentPmId)) {
+                                                cm.PaymentMode.Total = getmatchedPmTotal(currentHid, currentPmId);
+                                            }
+                                        })
+
+                                    });
+                                }
                             }
                         });
                     });
-                    /*
-                    if (reload) {
-                        //On parcours les Hid model
-                        Enumerable.from($scope.model.hardwareIdModels).forEach(function (hidm) {
-                            var currentHid = hidm.hid;
-                            Enumerable.from(hidm.CashMovementLines).forEach(function (cm) {
-                                var currentPmId = cm.PaymentMode.PaymentType;
-                                if (getmatchedPmTotal(currentHid, currentPmId)) {
-                                    cm.PaymentMode.Total = getmatchedPmTotal(currentHid, currentPmId);
-                                }
-                            })
 
-                        });
-                    }
-                    */
+
                     break;
                 case 3:
                     // Fermeture du Z (fermeture journée)
@@ -331,26 +332,27 @@
                                                 }
                                             });
                                         }
+
+
+                                        if (reload) {
+                                            //On parcours les Hid model
+                                            Enumerable.from($scope.model.hardwareIdModels).forEach(function (hidm) {
+                                                var currentHid = hidm.hid;
+                                                Enumerable.from(hidm.CashMovementLines).forEach(function (cm) {
+                                                    var currentPmId = cm.PaymentMode.PaymentType;
+                                                    if (getmatchedPmTotal(currentHid, currentPmId)) {
+                                                        cm.PaymentMode.Total = getmatchedPmTotal(currentHid, currentPmId);
+                                                    }
+                                                })
+
+                                            });
+                                        }
                                     });
                                 }
                             });
                         });
                     });
-                    /*
-                    if (reload) {
-                        //On parcours les Hid model
-                        Enumerable.from($scope.model.hardwareIdModels).forEach(function (hidm) {
-                            var currentHid = hidm.hid;
-                            Enumerable.from(hidm.CashMovementLines).forEach(function (cm) {
-                                var currentPmId = cm.PaymentMode.PaymentType;
-                                if (getmatchedPmTotal(currentHid, currentPmId)) {
-                                    cm.PaymentMode.Total = getmatchedPmTotal(currentHid, currentPmId);
-                                }
-                            })
 
-                        });
-                    }
-                    */
                     break;
             }
 

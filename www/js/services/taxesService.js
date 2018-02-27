@@ -393,7 +393,7 @@ app.service('taxesService', ['$rootScope', '$q','settingService',
             cartItem.PriceET = 0;
             cartItem.TaxDetails = [];
 
-            cartItem.Quantity = roundValue(cartItem.Quantity );
+            //cartItem.Quantity = roundValue(cartItem.Quantity );
 
 
             // If the item is flagged as free

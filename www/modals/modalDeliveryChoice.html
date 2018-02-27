@@ -6,14 +6,14 @@
     <center>
         <div class="switch-toggle switch-3 switch-candy" >
 
-            <input id="forhere" name="state-d" type="radio">
-            <label for="forhere" ng-click="setDeliveryType(DeliveryTypes.FORHERE)"><x translate>Sur place</x></label>
+            <input id="forhere" name="state-d" type="radio" ng-click="$event.stopPropagation();setDeliveryType(DeliveryTypes.FORHERE);">
+            <label for="forhere"><x ng-click="$event.stopPropagation();setDeliveryType(DeliveryTypes.FORHERE);" translate>Sur place</x></label>
 
-            <input id="takeout" name="state-d" type="radio">
-            <label for="takeout" ng-click="setDeliveryType(DeliveryTypes.TAKEOUT)"><x translate>Emporté</x></label>
+            <input id="takeout" name="state-d" type="radio" ng-click="$event.stopPropagation();setDeliveryType(DeliveryTypes.TAKEOUT);">
+            <label for="takeout"><x ng-click="$event.stopPropagation();setDeliveryType(DeliveryTypes.TAKEOUT);" translate>Emporté</x></label>
 
-            <input id="delivery" name="state-d" type="radio">
-            <label for="delivery" ng-click="setDeliveryType(DeliveryTypes.DELIVERY)"><x translate>Livré</x></label>
+            <input id="delivery" name="state-d" type="radio" ng-click="$event.stopPropagation();setDeliveryType(DeliveryTypes.DELIVERY);">
+            <label for="delivery"><x ng-click="$event.stopPropagation();setDeliveryType(DeliveryTypes.DELIVERY);" translate>Livré</x></label>
             <a></a>
         </div>
     </center>

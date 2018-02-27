@@ -1,4 +1,4 @@
-app.controller('ModalAllShoppingCartsController', function ($scope, $rootScope, $uibModalInstance, $uibModal, zposService, shoppingCartService, shoppingCartModel, posPeriodService) {
+app.controller('ModalAllShoppingCartsController', function ($scope, $rootScope, $uibModalInstance, $uibModal, zposService, shoppingCartService, shoppingCartModel, posPeriodService, taxesService) {
 	var currentDateStart = undefined;
 	var currentDateEnd = undefined;
 	var currentFilterAlias = undefined;
@@ -13,21 +13,27 @@ app.controller('ModalAllShoppingCartsController', function ($scope, $rootScope, 
 		$scope.gridColumns = [
             { field: "alias", title: "Caisse" },
             { field: "PosUserName", title: "Opérateur" },
-            { field: "Date", title: "Date", type: "date", format: "{0:dd/MM/yyyy HH:mm:ss}" },
+            { field: "Date", title: "Date", type: "date", format: "{0:dd/MM/yyyy HH:mm:ss}", width: 120 },
             { field: "Timestamp", title: "No Ticket", width: 150 },
             { field: "TableNumber", title: "Table", width: 80 },
             { field: "Total", title: "Total", width: 80 },
             { template: "" +
 
-                "<div class='center'>"+
-                    "<span ng-show='dataItem.Canceled' class='glyphicon glyphicon-remove' style='color:red; display:inline-block'></span>" +
-
-
-                    "<button class=\"btn btn-default\"  ng-init='isServiceOpen(dataItem)' ng-show='modelItem[dataItem.yPeriodId]' ng-click=\"editShopCartItem(dataItem)\" style='display:inline-block'>" +
+                "<div layout-align='center center' layout='column'>"+
+                    "<div><span ng-show='dataItem.Canceled' class='glyphicon glyphicon-remove' style='color:red; display:inline-block'></span></div>" +
+                    "<button class='btn btn-default spaced'  ng-init='isServiceOpen(dataItem)' ng-show='modelItem[dataItem.yPeriodId]' ng-click='editShopCartItem(dataItem)' style='display:inline-block'>" +
                         "<span class='glyphicon glyphicon-pencil'></span>" +
                     "</button>"+
+                    /*"<button class='btn btn-rose spaced' ng-init='isServiceOpen(dataItem)' ng-show='modelItem[dataItem.yPeriodId]' ng-click='cancelShopCart(dataItem)'>"
+                        "<img style='width:20px;'  alt='Image' src='img/trash.png'>" +
+                    "</button>"+*/
                 "</div>", title: " ", width: 80 },
-            { template: "<button class=\"btn btn-info\" ng-click=\"printNote(dataItem)\"><img style=\"width:20px;\" alt=\"Image\" src=\"img/receipt.png\"></button><button class=\"btn btn-rose\" style=\"margin-left:5px\" ng-click=\"selectShopCartItem(dataItem)\"><img style=\"width:20px;\" alt=\"Image\" src=\"img/print.png\"></button>", title: " ", width: 133 }
+            { template: ""+
+                "<div layout-align='center center' layout='column'>"+
+                    "<button class='btn btn-info spaced' ng-click='printNote(dataItem)'><img style='width:20px;' alt='Image' src='img/receipt.png'></button>" +
+                    "<button class='btn btn-warning spaced' ng-click='selectShopCartItem(dataItem)'><img style='width:20px;' alt='Image' src='img/print.png'></button>"+
+                "</div>"
+                , title: " ", width: 80 }
 		];
 
 		$scope.dateStart = new Date();
@@ -133,7 +139,8 @@ app.controller('ModalAllShoppingCartsController', function ($scope, $rootScope, 
 	$scope.displayShoppingCarts = function(shoppingCarts) {
 	    console.log(shoppingCarts);
 
-        $scope.gridDatas = new kendo.data.DataSource({
+        $scope.gridDatas =
+            new kendo.data.DataSource({
             schema: {
                 model: {
                     fields: {
@@ -186,7 +193,6 @@ app.controller('ModalAllShoppingCartsController', function ($scope, $rootScope, 
             },
             backdrop: 'static'
         });
-
         modalInstance.result.then(function () {}, function () {});
     };
 
@@ -260,8 +266,50 @@ app.controller('ModalAllShoppingCartsController', function ($scope, $rootScope, 
 		shoppingCartService.reprintShoppingCartAsync(selectedShoppingCart);
 	};
 
-	$scope.isServiceOpen = function (line){
-	    console.log(line);
+    $scope.cancelShopCart = function (selectedShoppingCart) {
+
+        console.log(selectedShoppingCart);
+
+        // On s'assure qu'il n'existe pas de shopping cart
+        if(!shoppingCartModel.getCurrentShoppingCart()){
+            shoppingCartModel.createShoppingCart();
+
+            var csp = shoppingCartModel.getCurrentShoppingCart();
+            csp.ParentTicket = selectedShoppingCart.Id ;
+
+            //Recupere la category de taxe du produit
+            taxesService.getTaxCategoriesAsync().then(function(alltaxCategories){
+
+                Enumerable.from(selectedShoppingCart.Items).forEach(function(i){
+                    //Recup les taxDetails de l'item
+                    console.log(i.Product);
+                    var matchedTaxCategory = Enumerable.from(alltaxCategories).firstOrDefault(function(x){
+                        return x.TaxCategoryId == i.Product.TaxCategoryId;
+                    });
+
+                    if(matchedTaxCategory){
+                        i.Product.TaxCategory = matchedTaxCategory;
+                        //Met la quantité en negatif
+                        i.Quantity *= -1;
+                        i.MinQuantity = clone(i.Quantity);
+                        shoppingCartModel.addCartItem(i);
+                    }
+                });
+
+                Enumerable.from(selectedShoppingCart.PaymentModes).forEach(function(pm){
+                    pm.Total *= -1;
+                    shoppingCartModel.addPaymentMode(pm, true);
+                });
+
+
+
+                $uibModalInstance.close();
+            });
+        }
+    };
+
+
+    $scope.isServiceOpen = function (line){
         $scope.modelItem[line.yPeriodId] = false;
         posPeriodService.getYPeriodAsync(line.HardwareId, null, false, false).then(function(yp){
             $scope.modelItem[line.yPeriodId] =  yp.id == line.yPeriodId;

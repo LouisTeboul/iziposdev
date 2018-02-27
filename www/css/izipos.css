@@ -135,12 +135,11 @@ html {
 }
 
 .activeButton, .activeButton:focus, .activeButton:hover {
-    border: #0a9ec7 3px solid;
+    border: #47bedf 3px solid;
 }
 
-
 .closedPeriod, .closedPeriod:focus, .closedPeriod:hover {
-    background-color: #69ff5d;
+    background-color: #8cff8c;
 }
 
 .emptyPeriod, .emptyPeriod:focus, .emptyPeriod:hover {
@@ -341,6 +340,10 @@ text-field {
     width: 85%;
     margin-bottom: 5px;
     margin-top: 5px;
+}
+
+.btn.spaced {
+    margin : 2px;
 }
 
 .checkbox-menu {

@@ -52,10 +52,14 @@ app.controller('ModalYperiodPickController', function ($scope, $rootScope, $uibM
 
 
     };
-    var getYperiods = function (hid, currentyPeriod) {
+    var getYperiods = function (hid, currentyPeriod, andClose=false, andShow=false) {
         if (hid == '*') {
             $scope.model.chosenHid = undefined;
             $scope.model.chosenYpid = undefined;
+
+            if(andClose)$scope.closePos();
+            if(andShow)$scope.openZ();
+
         } else {
             $scope.model.chosenHid = hid;
             posPeriodService.getAllYPeriodAsync(hid).then(function (ys) {
@@ -66,40 +70,31 @@ app.controller('ModalYperiodPickController', function ($scope, $rootScope, $uibM
                 // Préselectionner du YPeriod Courant :
                 var indexY = -1;
                 Enumerable.from(ys).forEach(function (y) {
-                    /*
-                    posPeriodService.getYPaymentValuesAsync(y.id).then(function(p){
 
-                        console.log(p.PaymentLines);
-                        y.isEmpty = p ? false : true;
-                        */
                     indexY++;
                     if (currentyPeriod && y.id == currentyPeriod.id) {
                         $scope.setYPeriod(y, indexY);
                     }
-                    /*
                 });
-                */
-
-                });
-
-
             });
         }
-
     };
 
-    $scope.setHid = function (hid, index) {
+    $scope.setHid = function (hid, index, andClose=false, andShow=false) {
 
-        $scope.activeHidBtn = index;
-        $scope.activeYpidBtn = undefined;
-        $scope.yperiods = [];
+        if ($scope.activeHidBtn != index) {
 
-        posPeriodService.getYPeriodAsync(hid, undefined, false, false).then(function (currentyPeriod) {
-            getYperiods(hid, currentyPeriod);
+            $scope.activeHidBtn = index;
+            $scope.activeYpidBtn = undefined;
+            $scope.yperiods = [];
 
-        }, function (err) {
-            getYperiods(hid, undefined);
-        });
+            posPeriodService.getYPeriodAsync(hid, undefined, false, false).then(function (currentyPeriod) {
+                getYperiods(hid, currentyPeriod, andClose, andShow);
+
+            }, function (err) {
+                getYperiods(hid, undefined, andClose, andShow);
+            });
+        }
     };
 
     $scope.printDate = function (yp) {
@@ -130,12 +125,11 @@ app.controller('ModalYperiodPickController', function ($scope, $rootScope, $uibM
             //Si non, il faut bloquer l'affichage du Z
         }
 
-
     };
     $scope.determineMode = function () {
         /** Il faut set le mode
          *  Mode 1 : Fermeture Service = Une caisse une periode
-         *  Mode 2 : Fermeture Caisse = Une caisse toutes les periodes
+         *  Mode 2 : Fermeture Caisse = Une caisse toutes les periodes <-- Sert a rien ? Car impossible d'avoir plus d'une periode par caisse
          *  Mode 3 : Fermeture journée = toutes les caisses (ou caisse unique) toutes les periodes
          */
 
@@ -183,7 +177,6 @@ app.controller('ModalYperiodPickController', function ($scope, $rootScope, $uibM
                         yperiods: $scope.yperiods,
                         yperiod: $scope.currentYPeriod,
                         mode: $scope.model.mode
-
                     }
                 }
             }
@@ -193,7 +186,6 @@ app.controller('ModalYperiodPickController', function ($scope, $rootScope, $uibM
 
     $scope.closePos = function () {
         $uibModalInstance.close();
-
 
         $scope.determineMode();
         $scope.currentYPeriod = $scope.model.chosenYpid ? Enumerable.from($scope.yperiods).firstOrDefault(function (yP) {
@@ -215,7 +207,6 @@ app.controller('ModalYperiodPickController', function ($scope, $rootScope, $uibM
                         zperiod: $scope.zp
                     };
                     return closePosParameters;
-
                 },
                 modalStats: function () {
                     return $uibModalInstance

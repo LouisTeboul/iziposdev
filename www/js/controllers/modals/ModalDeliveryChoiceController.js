@@ -16,6 +16,10 @@
 
     };
 
+    $scope.switchChange = function (arg) {
+        console.log(arg);
+    };
+
     $scope.setDeliveryType = function (value) {
         $scope.deliveryType = value;
         $timeout(function(){

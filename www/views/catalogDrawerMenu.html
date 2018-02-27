@@ -1,5 +1,5 @@
 ﻿<div id="menu-principal" ng-controller="CatalogDrawerMenuController" ng-init="init()" layout="column" layout-align="center center" layout-fill>
-	<button class="btn btn-menu" ng-click="shoppingCartDiscount()" translate>Remise sur ticket</button>
+	<button class="btn btn-menu" ng-click="shoppingCartDiscount()" ng-disabled="isValidCancelledTicket()" translate>Remise sur ticket</button>
 	<!--<button class="btn btn-menu btn-menu-closable" ng-click="shoppingCartSplit()" translate>Partager un ticket</button>-->
 	<button class="btn btn-menu btn-menu-closable" ng-click="printLastShoppingCart()" ng-disabled="!modelPos.iziboxConnected" translate>Imprimer le dernier ticket</button>
 	<button class="btn btn-menu btn-menu-closable" ng-click="printShoppingCartNote()" ng-disabled="!modelPos.iziboxConnected" translate>Imprimer une note</button>
@@ -12,7 +12,7 @@
 	<button class="btn btn-menu btn-menu-closable" ng-click="openDrawer()" ng-disabled="!modelPos.iziboxConnected" translate>Ouvrir le tiroir</button>
 	<button class="btn btn-menu btn-menu-closable" ng-if="IziBoxConfiguration.UseCashMovement" ng-disabled="!modelPos.iziboxConnected" ng-click="pickClose()" translate>Fermeture</button>
 	<button class="btn btn-menu btn-menu-closable" ng-if="IziBoxConfiguration.LoginRequired" ng-click="changeUser()" translate>Changer d'utilisateur</button>
-	<button class="btn btn-tel btn-menu-closable" ng-if="phoneOrderEnable" ng-click="openPhoneOrder()" translate>Commande telephonique</button>
+	<button class="btn btn-tel btn-menu-closable" ng-if="phoneOrderEnable" ng-disabled="isValidCancelledTicket()" ng-click="openPhoneOrder()" translate>Commande telephonique</button>
 	<button class="btn btn-logout btn-menu-closable"  ng-if="PosUserId>0" ng-click="logout()" translate>Déconnecter</button>
 	<button class="btn btn-logout btn-menu-closable" ng-if="closable" ng-click="exit()" translate>Fermer l'application</button>
 	<span flex></span>

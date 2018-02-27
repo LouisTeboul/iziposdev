@@ -146,6 +146,7 @@ app.controller('ModalCustomerForPhoneController', function ($scope, $rootScope, 
             loyaltyService.getLoyaltyObjectAsync(barcode).then(function (loyalty) {
                 if (loyalty && loyalty.CustomerId != 0) {
                     if ($scope.currentShoppingCart == undefined) {
+                        shoppingCartModel.setDeliveryType(1);
                         shoppingCartModel.createShoppingCart();
                     }
                     $scope.currentShoppingCart = shoppingCartModel.getCurrentShoppingCart();
@@ -392,9 +393,6 @@ app.controller('ModalCustomerForPhoneController', function ($scope, $rootScope, 
                         });
 
                     }
-
-
-
 
                     $scope.validDisabled = false;
                     curShoppingCart.customerLoyalty = loyalty;
