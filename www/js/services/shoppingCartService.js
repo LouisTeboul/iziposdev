@@ -359,7 +359,6 @@ app.service('shoppingCartService', ["$http", "$rootScope", "$q", "$filter", "zpo
         };
 
         /**
-         *
          * @param shoppingCart
          */
         this.reprintShoppingCartAsync = function (shoppingCart) {
@@ -435,9 +434,17 @@ app.service('shoppingCartService', ["$http", "$rootScope", "$q", "$filter", "zpo
          * @param retry Number of retry
          */
         this.printShoppingCartPOST = function (printerApiUrl, shoppingCartPrinterReq, printDefer, retry) {
-
             console.log(printerApiUrl);
-            $http.post(printerApiUrl, shoppingCartPrinterReq, {timeout: 3000}).then(function (obj) {
+
+            /* TODO :
+            Faire un timeout en fonction du nombre total de steps sur la requete
+            -Recup la valeur de step max pas dans les attributs
+            -Recup la valeur de step max dans les items
+            -Fais le max entre ces deux valeur
+            -Multiplie par 3000 pour avoir le timeout
+            */
+
+            $http.post(printerApiUrl, shoppingCartPrinterReq, {timeout: 20000}).then(function (obj) {
                 console.log("succes post ticket", obj);
                 //Set the coucbDb Id and the timestamp that come from the box
                 if (shoppingCartPrinterReq.ShoppingCart != undefined) {
