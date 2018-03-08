@@ -86,11 +86,9 @@ app.controller('MiniBasketController', ['$scope', '$rootScope', '$state', '$uibM
             if($scope.currentShoppingCart) {
                 if(!$scope.currentShoppingCart.ParentTicket){
                     $scope.deliveryType = value;
-                    $scope.$evalAsync();
                 }
             } else {
                 $scope.deliveryType = value;
-                $scope.$evalAsync();
             }
         };
 
@@ -167,7 +165,6 @@ app.controller('MiniBasketController', ['$scope', '$rootScope', '$state', '$uibM
                             groupedLinesStep.push({ Step: s, Items: [] });
                         }
                     }
-
                     $scope.shoppingCartLines = Enumerable.from(groupedLinesStep).orderBy("x => x.Step").toArray();
 
                 } else {
@@ -176,7 +173,6 @@ app.controller('MiniBasketController', ['$scope', '$rootScope', '$state', '$uibM
                     $scope.shoppingCartLines.push({ Step: 0, Items: $scope.currentShoppingCart.Items });
                 }
             }
-
             $scope.$evalAsync();
         };
 
@@ -184,7 +180,10 @@ app.controller('MiniBasketController', ['$scope', '$rootScope', '$state', '$uibM
          * Events on ShoppingCartItem
          */
         var shoppingCartChangedHandler = $rootScope.$on('shoppingCartChanged', function (event, args) {
-
+            if($scope.PhoneOrderMode){
+                console.log($scope.TimeOffset);
+                $scope.setShoppingCartTime();
+            }
             updateCurrentShoppingCart();
         });
 
@@ -198,7 +197,6 @@ app.controller('MiniBasketController', ['$scope', '$rootScope', '$state', '$uibM
                     selectedStep.scrollIntoView(false);
                 }
             }, 250);
-
         });
 
         var shoppingCartClearedHandler = $rootScope.$on('shoppingCartCleared', function (event, args) {
@@ -592,7 +590,7 @@ app.controller('MiniBasketController', ['$scope', '$rootScope', '$state', '$uibM
             if ($scope.currentShoppingCart != undefined && $scope.currentShoppingCart.Items.length > 0 && !$scope.printStepProdDisabled) {
                 //Disable button prind prod step
                 $scope.printStepProdDisabled = true;
-                shoppingCartModel.printStepProdShoppingCartAsync().then(function (msg) {
+                shoppingCartModel.printStepProdShoppingCartAsync(undefined, $scope.shoppingCartLines.length).then(function (msg) {
                     //Enable
                     setTimeout(function () {
                         $scope.printStepProdDisabled = false;

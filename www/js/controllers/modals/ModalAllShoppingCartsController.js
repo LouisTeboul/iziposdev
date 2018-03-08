@@ -24,9 +24,9 @@ app.controller('ModalAllShoppingCartsController', function ($scope, $rootScope, 
                     "<button class='btn btn-default spaced'  ng-init='isServiceOpen(dataItem)' ng-show='modelItem[dataItem.yPeriodId]' ng-click='editShopCartItem(dataItem)' style='display:inline-block'>" +
                         "<span class='glyphicon glyphicon-pencil'></span>" +
                     "</button>"+
-                    /*"<button class='btn btn-rose spaced' ng-init='isServiceOpen(dataItem)' ng-show='modelItem[dataItem.yPeriodId]' ng-click='cancelShopCart(dataItem)'>"
+                    "<button class='btn btn-rose spaced' ng-init='isServiceOpen(dataItem)' ng-show='modelItem[dataItem.yPeriodId] && !dataItem.Deleted && !dataItem.ParentTicket' ng-click='cancelShopCart(dataItem)'>" +
                         "<img style='width:20px;'  alt='Image' src='img/trash.png'>" +
-                    "</button>"+*/
+                    "</button>"+
                 "</div>", title: " ", width: 80 },
             { template: ""+
                 "<div layout-align='center center' layout='column'>"+
@@ -273,9 +273,8 @@ app.controller('ModalAllShoppingCartsController', function ($scope, $rootScope, 
         // On s'assure qu'il n'existe pas de shopping cart
         if(!shoppingCartModel.getCurrentShoppingCart()){
             shoppingCartModel.createShoppingCart();
-
             var csp = shoppingCartModel.getCurrentShoppingCart();
-            csp.ParentTicket = selectedShoppingCart.Id ;
+            csp.ParentTicket = parseInt(selectedShoppingCart.Timestamp);
 
             //Recupere la category de taxe du produit
             taxesService.getTaxCategoriesAsync().then(function(alltaxCategories){

@@ -51,20 +51,16 @@ app.controller('IZIPASSController', function ($scope, $rootScope, $stateParams, 
                 console.log(err);
             });
 
-
             categoryService.getSubCategoriesByParentAsync(categoryId).then(function (subCategories) {
                 //Recupere toutes les sous categories du parent
                 $scope.subCategories = subCategories;
 
                 Enumerable.from($scope.subCategories).forEach(function (subCat) {
-
-
                     categoryService.getSubCategoriesByParentAsync(subCat.Id).then(function (subSubCategories) {
                         //Recupere toutes les sous categories du parent
-                        if(subSubCategories) {
-                            Enumerable.from(subSubCategories).forEach(function(c){
-                                $scope.subSubCategories.push(c);
-                            });
+                        if (subSubCategories) {
+
+                            $scope.subSubCategories = subSubCategories;
                             subCat.subCategories = subSubCategories;
 
                             Enumerable.from(subSubCategories).forEach(function (subCat) {

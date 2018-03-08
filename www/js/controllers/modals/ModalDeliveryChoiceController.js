@@ -23,16 +23,15 @@
     $scope.setDeliveryType = function (value) {
         $scope.deliveryType = value;
         $timeout(function(){
-                $scope.$evalAsync();
-                $scope.close();
+            $scope.close();
         },200)
 
     };
 
     $scope.close = function () {
 
-        shoppingCartModel.validShoppingCart($scope.printTicket);
         shoppingCartModel.setDeliveryType($scope.deliveryType);
+        shoppingCartModel.validShoppingCart($scope.printTicket);
         $uibModalInstance.close();
     };
 

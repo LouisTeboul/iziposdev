@@ -245,6 +245,9 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
          * @param isPercent, % or flat ?
          */
         this.addCartItemDiscount = function (cartItem, discountAmount, isPercent) {
+            var cacheTaxProvider = null;
+            var cacheIsPricesIncludedTax = null;
+
             // User privilege
             if (posUserService.isEnable('OFFI')) {
                 if (!isNaN(discountAmount)) {
@@ -264,32 +267,60 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
                         currentShoppingCart.Items.splice(idx + 1, 0, cartItemDiscounted);
                     }
 
-                    if (isPercent) {
-                        //If this is a % discount
-                        if (discountAmount <= 100) {
-                            // The discount has to be less than 100%
-                            // Set the discount property
-                            cartItemDiscounted.DiscountIT = cartItemDiscounted.Product.Price * (discountAmount / 100);
-                            cartItemDiscounted.DiscountET = cartItemDiscounted.Product.Price / (1 + (Number(cartItemDiscounted.TaxDetails[0].TaxRate) / 100)) * (discountAmount / 100);
-                            //Can use ETtoIT function ?
-                        } else
-                            sweetAlert($translate.instant("Impossible de faire une remise de plus de 100% !"));
+                    taxesService.getTaxProviderAsync().then(function (ctp) {
+                        cacheTaxProvider = ctp;
+                        var taxRate = getTaxRateFromProvider(cartItemDiscounted.TaxCategory, cacheTaxProvider, cartItemDiscounted.DeliveryType);
 
-                    } else if (!isPercent) {
-                        //If this is a flat discount
-                        if (discountAmount <= cartItemDiscounted.Product.Price) {
-                            //The discount has to be less than the product price
-                            cartItemDiscounted.DiscountET = discountAmount / (1 + (Number(cartItemDiscounted.TaxDetails[0].TaxRate) / 100));
-                            cartItemDiscounted.DiscountIT = discountAmount;
-                        } else
-                            sweetAlert($translate.instant("Impossible de faire une remise superieur au prix du produit !"));
+                        if (isPercent) {
+                            //If this is a % discount
+                            if (discountAmount <= 100) {
+                                // The discount has to be less than 100%
+                                // Set the discount property
+                                taxesService.getPricesIncludedTaxAsync().then(function (cpit) {
 
-                    }
+                                    cacheIsPricesIncludedTax = cpit;
 
-                    $rootScope.$emit("shoppingCartItemChanged", cartItem);
-                    $rootScope.$emit("shoppingCartItemChanged", cartItemDiscounted);
-                    this.calculateTotal();
-                    this.calculateLoyalty();
+                                    switch (cacheTaxProvider) {
+                                        case "Tax.FixedRate" :
+                                            cartItemDiscounted.DiscountIT = cartItemDiscounted.Product.Price * (discountAmount / 100);
+                                            cartItemDiscounted.DiscountET = ITtoET(cartItemDiscounted.DiscountIT, taxRate);
+                                            break;
+                                        case "Tax.Quebec":
+                                            if (cacheIsPricesIncludedTax) {
+                                                cartItemDiscounted.DiscountIT = cartItemDiscounted.Product.Price * (discountAmount / 100);
+                                                cartItemDiscounted.DiscountET = ITtoET(cartItemDiscounted.DiscountIT, taxRate);
+                                            } else {
+                                                cartItemDiscounted.DiscountIT = cartItemDiscounted.PriceIT * (discountAmount / 100);
+                                                cartItemDiscounted.DiscountET = ITtoET(cartItemDiscounted.DiscountIT, taxRate);
+                                            }
+                                            break;
+                                    }
+                                    $rootScope.$emit("shoppingCartItemChanged", cartItem);
+                                    $rootScope.$emit("shoppingCartItemChanged", cartItem);
+                                    current.calculateTotal();
+                                    current.calculateLoyalty();
+                                });
+                            } else {
+                                sweetAlert($translate.instant("Impossible de faire une remise de plus de 100% !"));
+                            }
+
+                        } else if (!isPercent) {
+                            //If this is a flat discount
+                            if (discountAmount <= cartItemDiscounted.Product.Price) {
+                                //The discount has to be less than the product price
+
+                                cartItemDiscounted.DiscountIT = discountAmount;
+                                cartItemDiscounted.DiscountET = ITtoET(cartItemDiscounted.DiscountIT, taxRate);
+                            } else{
+                                sweetAlert($translate.instant("Impossible de faire une remise superieur au prix du produit !"));
+                            }
+                            $rootScope.$emit("shoppingCartItemChanged", cartItem);
+                            $rootScope.$emit("shoppingCartItemChanged", cartItemDiscounted);
+                            current.calculateTotal();
+                            current.calculateLoyalty();
+                        }
+                    });
+
 
                 } else {
                     sweetAlert($translate.instant("Valeur de remise invalide"));
@@ -308,32 +339,68 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
          * @param isPercent, % or flat ?
          */
         this.addCartLineDiscount = function (cartItem, discountAmount, isPercent) {
+            var cacheTaxProvider = null;
+            var cacheIsPricesIncludedTax = null;
 
             if (posUserService.isEnable('OFFI')) {
                 if (!isNaN(discountAmount)) {
 
-                    if (isPercent) {
-                        //Remise en pourcentage
-                        if (discountAmount <= 100) {
-                            cartItem.DiscountIT = (cartItem.Product.Price * (discountAmount / 100)) * cartItem.Quantity;
-                            cartItem.DiscountET = (cartItem.Product.Price / (1 + (Number(cartItem.TaxDetails[0].TaxRate) / 100)) * (discountAmount / 100)) * cartItem.Quantity;
-                        } else
-                            sweetAlert($translate.instant("Impossible de faire une remise de plus de 100% !"));
 
-                    } else if (!isPercent) {
-                        if (discountAmount <= cartItem.Product.Price * cartItem.Quantity) {
-                            //Remise flat
+                    taxesService.getTaxProviderAsync().then(function (result) {
+                        cacheTaxProvider = result;
+                        var taxRate = getTaxRateFromProvider(cartItem.TaxCategory, cacheTaxProvider, cartItem.DeliveryType);
+                        if (isPercent) {
+                            //Remise en pourcentage
+                            if (discountAmount <= 100) {
+                                taxesService.getPricesIncludedTaxAsync().then(function (cpit) {
 
-                            cartItem.DiscountET = (discountAmount / (1 + (Number(cartItem.TaxDetails[0].TaxRate) / 100)));
-                            cartItem.DiscountIT = discountAmount;
-                        } else
-                            sweetAlert($translate.instant("Impossible de faire une remise superieur au prix de la ligne !"));
+                                    cacheIsPricesIncludedTax = cpit;
 
-                    }
 
-                    this.calculateTotal();
-                    this.calculateLoyalty();
-                    $rootScope.$emit("shoppingCartItemChanged", cartItem);
+                                    switch (cacheTaxProvider) {
+                                        case "Tax.FixedRate" :
+                                            cartItem.DiscountIT = (cartItem.Product.Price * (discountAmount / 100)) * cartItem.Quantity;
+                                            cartItem.DiscountET = ITtoET(cartItem.DiscountIT, taxRate);
+                                            break;
+                                        case "Tax.Quebec":
+                                            if (cacheIsPricesIncludedTax) {
+                                                cartItem.DiscountIT = (cartItem.Product.Price * (discountAmount / 100)) * cartItem.Quantity;
+                                                cartItem.DiscountET = ITtoET(cartItem.DiscountIT, taxRate);
+                                            } else {
+                                                cartItem.DiscountIT = (cartItem.PriceIT * (discountAmount / 100)) * cartItem.Quantity;
+                                                cartItem.DiscountET = ITtoET(cartItem.DiscountIT, taxRate);
+                                            }
+
+                                            break;
+                                    }
+                                    $rootScope.$emit("shoppingCartItemChanged", cartItem);
+                                    $rootScope.$emit("shoppingCartItemChanged", cartItem);
+                                    current.calculateTotal();
+                                    current.calculateLoyalty();
+
+                                });
+
+
+                            } else
+                                sweetAlert($translate.instant("Impossible de faire une remise de plus de 100% !"));
+
+                        } else if (!isPercent) {
+                            if (discountAmount <= cartItem.Product.Price * cartItem.Quantity) {
+                                //Remise flat
+                                cartItem.DiscountIT = discountAmount;
+                                cartItem.DiscountET = ITtoET(cartItem.DiscountIT, taxRate);
+
+                            } else
+                                sweetAlert($translate.instant("Impossible de faire une remise superieur au prix de la ligne !"));
+
+                            $rootScope.$emit("shoppingCartItemChanged", cartItem);
+                            $rootScope.$emit("shoppingCartItemChanged", cartItem);
+                            current.calculateTotal();
+                            current.calculateLoyalty();
+                        }
+                    });
+
+
                 } else {
                     sweetAlert($translate.instant("Valeur de remise invalide"));
                 }
@@ -395,7 +462,7 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
                     item.DiscountIT /= divider;
                     item.DiscountET /= divider;
                     item.isPartSplitItem = true;
-                    item.Quantity = (item.Quantity / divider).toFixed(3);
+                    item.Quantity = (item.Quantity / divider).toFixed(5);
                 });
 
                 var clonedShoppingCart = clone(shoppingCart);
@@ -409,7 +476,7 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
                     clonedShoppingCart.dailyTicketId = undefined;
 
                     //Derniere itération
-                    if(i == divider -2) {
+                    if (i == divider - 2) {
                         var csp = clone(shoppingCart);
                         //On ajuste quantité du dernier item pour corrigé les erreurs de nombre flottant de JS
                         Enumerable.from(csp.Items).forEach(function (item) {
@@ -421,7 +488,6 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
                     } else {
                         shoppingCart.shoppingCartQueue.push(clonedShoppingCart);
                     }
-
 
 
                 }
@@ -680,7 +746,7 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
         //TODO : refactor
         this.addToCart = function (product, forceinbasket, offer, isfree, formuleOfferte = false) {
             // The product is payed
-            if (this.getCurrentShoppingCart() && (this.getCurrentShoppingCart().isPayed || this.getCurrentShoppingCart().ParentTicket )) {
+            if (this.getCurrentShoppingCart() && (this.getCurrentShoppingCart().isPayed || this.getCurrentShoppingCart().ParentTicket)) {
                 return;
             }
 
@@ -940,8 +1006,17 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
                     return;
                 }
 
+                if (currentShoppingCart.ParentTicket) {
+                    var db = $rootScope.remoteDbZPos ? $rootScope.remoteDbZPos : $rootScope.dbZPos;
+                    db.rel.find('ShoppingCart', currentShoppingCart.ParentTicket).then(function (response) {
+                        response.ShoppingCarts[0].Deleted = true;
+                        console.log(response);
+                        db.rel.save('ShoppingCart', response.ShoppingCarts[0]);
+                    });
+                }
+
                 //Si le ticket est associé à une table
-                if(currentShoppingCart.TableNumber){
+                if (currentShoppingCart.TableNumber) {
                     //On stock l'info du temps d'activité de la table
                     currentShoppingCart.TableActiveTime = Date.now() - currentShoppingCart.Timestamp - 3600000;
 
@@ -980,8 +1055,6 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
                 } else {
                     periodValidation(ignorePrintTicket);
                 }
-
-
             }
         };
 
@@ -1075,11 +1148,16 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
                 true, $rootScope.PrinterConfiguration.POSPrinterCount, ignorePrintTicket).then(function (obj) {
 
                 if ($rootScope.IziBoxConfiguration.ForcePrintProdTicket) {
-                    //Print the Prod Ticket (Bleu button)
+                    //ForcePrintProd et Step Enabled devrait être exclusif
+                    //Il est illogique de gerer les steps, et d'imprimer automatiquement la premiere step lors de la validation du ticket en même temps
+
+                    //Print the Prod Ticket (toque)
                     if ($rootScope.IziBoxConfiguration.StepEnabled) {
-                        current.printStepProdShoppingCartAsync(lastShoppingCart);
+                        current.printStepProdShoppingCartAsync(lastShoppingCart).then(function(){
+
+                        });
                     }
-                    //Print the Prod Ticket (green button, toque)
+                    //Print the Prod Ticket (bouton bleu)
                     else {
                         current.printProdShoppingCartAsync(lastShoppingCart);
                     }
@@ -1126,11 +1204,8 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
             deliveryType = 0;
             if (currentShoppingCart != undefined) {
                 //console.log(currentShoppingCart);
-
                 var hdid = currentShoppingCart.HardwareId;
-
                 posService.getUpdDailyTicketAsync(hdid, -1);
-
                 $rootScope.showLoading();
 
                 var currentDate = new Date();
@@ -1139,7 +1214,6 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
 
                 var cancelContinue = function () {
                     $rootScope.hideLoading();
-
                     //Si la sauvegarde du ticket validé est ok, on supprime éventuellement les tickets splittés.
                     currentShoppingCartIn = undefined;
 
@@ -1201,7 +1275,7 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
 
         //Send the ticket to the production printer
         //The printing is managing the 'steps'
-        this.printStepProdShoppingCartAsync = function (forceShoppingCart) {
+        this.printStepProdShoppingCartAsync = function (forceShoppingCart, nbStep) {
             var printDefer = $q.defer();
 
             var shoppingCart = currentShoppingCart;
@@ -1215,7 +1289,7 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
 
                 var shoppingCartProd = clone(shoppingCart);
 
-                shoppingCartService.printProdAsync(shoppingCartProd, shoppingCart.CurrentStep, printDefer).then(function (req) {
+                shoppingCartService.printProdAsync(shoppingCartProd, shoppingCart.CurrentStep, printDefer, nbStep).then(function (req) {
                     Enumerable.from(shoppingCart.Items).forEach(function (item) {
                         if (item.Step == req.Step) {
                             item.Printed = true;
@@ -1990,7 +2064,6 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
                         currentShoppingCart.BalanceUpdate = undefined;
                     }
                 }
-
                 current.calculateTotal();
 
                 result = true;

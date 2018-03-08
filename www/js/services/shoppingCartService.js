@@ -392,7 +392,7 @@ app.service('shoppingCartService', ["$http", "$rootScope", "$q", "$filter", "zpo
          * @param step The production steps
          * @param printDefer : defer of the calling function
          */
-        this.printProdAsync = function (shoppingCart, step, printDefer) {
+        this.printProdAsync = function (shoppingCart, step, printDefer, nbStep) {
             //console.log(shoppingCart);
             //Si le printdefer n'a pas été fournis par l'appellant
             if(!printDefer){
@@ -414,7 +414,7 @@ app.service('shoppingCartService', ["$http", "$rootScope", "$q", "$filter", "zpo
                 var printerApiUrl = "http://" + $rootScope.IziBoxConfiguration.LocalIpIziBox + ":" + $rootScope.IziBoxConfiguration.RestPort + "/printprod";
                 console.log("PrinterApiUrl : " + printerApiUrl);
                 console.log(shoppingCartPrinterReq);
-                this.printShoppingCartPOST(printerApiUrl, shoppingCartPrinterReq, printDefer);
+                this.printShoppingCartPOST(printerApiUrl, shoppingCartPrinterReq, printDefer, null, nbStep);
 
             } else {
                 setTimeout(function () {
@@ -433,7 +433,7 @@ app.service('shoppingCartService', ["$http", "$rootScope", "$q", "$filter", "zpo
          * @param printDefer
          * @param retry Number of retry
          */
-        this.printShoppingCartPOST = function (printerApiUrl, shoppingCartPrinterReq, printDefer, retry) {
+        this.printShoppingCartPOST = function (printerApiUrl, shoppingCartPrinterReq, printDefer, retry, nbStep) {
             console.log(printerApiUrl);
 
             /* TODO :
@@ -444,7 +444,9 @@ app.service('shoppingCartService', ["$http", "$rootScope", "$q", "$filter", "zpo
             -Multiplie par 3000 pour avoir le timeout
             */
 
-            $http.post(printerApiUrl, shoppingCartPrinterReq, {timeout: 20000}).then(function (obj) {
+            var timeout = nbStep * 3000;
+
+            $http.post(printerApiUrl, shoppingCartPrinterReq, {timeout: timeout}).then(function (obj) {
                 console.log("succes post ticket", obj);
                 //Set the coucbDb Id and the timestamp that come from the box
                 if (shoppingCartPrinterReq.ShoppingCart != undefined) {
@@ -455,9 +457,7 @@ app.service('shoppingCartService', ["$http", "$rootScope", "$q", "$filter", "zpo
                         shoppingCartPrinterReq.ShoppingCart.id = data.ticketId;
                     }
                     if (data.timestamp != undefined) {
-
                         shoppingCartPrinterReq.ShoppingCart.Timestamp = data.timestamp;
-
                     }
                 }
                 printDefer.resolve(shoppingCartPrinterReq);

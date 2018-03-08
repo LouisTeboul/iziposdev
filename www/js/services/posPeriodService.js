@@ -609,7 +609,7 @@
                 db.rel.find('PaymentValues', yPeriodId).then(function (resPaymentValues) {
                     var paymentValues = Enumerable.from(resPaymentValues.AllPaymentValues).firstOrDefault();
                     // Recuperer les montant cagnotte dans la vue
-                    $rootScope.remoteDbZPos.query("zpos/balanceByPeriod", {
+                    db.query("zpos/balanceByPeriod", {
                         startkey: [zp.id, yPeriodId],
                         endkey: [zp.id, yPeriodId],
                         reduce: true,

@@ -1,28 +1,28 @@
 ﻿<md-content class="IZIPASSTemplate" ng-controller="IZIPASSController" ng-init="init()" layout="column" ng-cloak>
 
-    <div layout="column" class="subCategoriesHeading"
-         ng-class="{'subCategoriesHeading-large' : subCategories.length >= 10}"
-         ng-if="subCategories && subCategories.length > 0">
-        <div layout="row" layout-align="center center" layout-wrap >
 
-            <md-button aria-label="NavigAttr"
-                       class="md-raised navigAction"
-                       ng-click="scrollTo('Main')">{{category.Name | Truncate:16}}
-            </md-button>
-            <md-button aria-label="NavigAttr"
-                       ng-repeat="subCat in subCategories track by $index"
-                       ng-if="subCat.products && subCat.products.length >0"
-                       class="md-raised navigAction"
-                       ng-click="scrollTo(subCat.Id)">{{subCat.Name | Truncate:16}}
-            </md-button>
-            <md-button aria-label="NavigAttr"
-                       ng-repeat="ssCat in subSubCategories track by $index"
-                       ng-if="ssCat.products && ssCat.products.length >0"
-                       class="md-raised navigAction"
-                       ng-click="scrollTo(ssCat.Id)">{{ssCat.Name | Truncate:16}}
-            </md-button>
-        </div>
+    <div class="subCategoriesHeading-large"
+         ng-if="subCategories && subCategories.length > 0"
+         layout="row" layout-align="center center" layout-wrap>
+
+        <md-button aria-label="NavigAttr"
+                   class="md-raised navigAction scHeadingButton"
+                   ng-click="scrollTo('Main')">{{category.Name | Truncate:16}}
+        </md-button>
+        <md-button aria-label="NavigAttr"
+                   ng-repeat="subCat in subCategories track by $index"
+                   ng-if="subCat.products && subCat.products.length >0"
+                   class="md-raised navigAction scHeadingButton"
+                   ng-click="scrollTo(subCat.Id)">{{subCat.Name | Truncate:16}}
+        </md-button>
+        <md-button aria-label="NavigAttr"
+                   ng-repeat="ssCat in subSubCategories track by $index"
+                   ng-if="ssCat.products && ssCat.products.length >0"
+                   class="md-raised navigAction scHeadingButton"
+                   ng-click="scrollTo(ssCat.Id)">{{ssCat.Name | Truncate:16}}
+        </md-button>
     </div>
+
 
     <md-content id="allCategories" layout="column" style="padding: 3px;">
         <div id="cMain">

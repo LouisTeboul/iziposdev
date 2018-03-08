@@ -478,6 +478,9 @@ text-field {
     min-height: 100px;
 }
 
+.scHeadingButton {
+    min-width : 50px !important;
+}
 
 .ssCategory {
     margin-left: 40px;

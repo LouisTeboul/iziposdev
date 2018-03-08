@@ -76,26 +76,28 @@
             </div>
         </div>
 
-        <div class="center">
-            <div class="switch-toggle switch-3 switch-candy"
-                 ng-if="!$rootScope.IziBoxConfiguration.ForceDeliveryChoice">
+        <div class="center" ng-if="!currentShoppingCart.ParentTicket && !$rootScope.IziBoxConfiguration.ForceDeliveryChoice">
+            <div class="switch-toggle switch-3 switch-candy">
 
                 <input id="forhere" name="state-d" type="radio"
-                       ng-click="$event.stopPropagation();setDeliveryType(DeliveryTypes.FORHERE);">
-                <label for="forhere">
-                    <x ng-click="$event.stopPropagation();setDeliveryType(DeliveryTypes.FORHERE);" translate>Sur place</x>
+                       ng-checked="deliveryType == DeliveryTypes.FORHERE"
+                       ng-click="setDeliveryType(DeliveryTypes.FORHERE);">
+                <label for="forhere" translate>
+                    Sur place
                 </label>
 
                 <input id="takeout" name="state-d" type="radio"
-                       ng-click="$event.stopPropagation();setDeliveryType(DeliveryTypes.TAKEOUT)">
-                <label for="takeout">
-                    <x ng-click="$event.stopPropagation();setDeliveryType(DeliveryTypes.TAKEOUT)" translate>Emporté</x>
+                       ng-checked="deliveryType == DeliveryTypes.TAKEOUT"
+                       ng-click="setDeliveryType(DeliveryTypes.TAKEOUT)">
+                <label for="takeout" translate>
+                    Emporté
                 </label>
 
                 <input id="delivery" name="state-d" type="radio"
-                       ng-click="$event.stopPropagation();setDeliveryType(DeliveryTypes.DELIVERY)">
-                <label for="delivery">
-                    <x ng-click="$event.stopPropagation();setDeliveryType(DeliveryTypes.DELIVERY)" translate>Livré</x>
+                       ng-checked="deliveryType == DeliveryTypes.DELIVERY"
+                       ng-click="setDeliveryType(DeliveryTypes.DELIVERY)">
+                <label for="delivery" translate>
+                    Livré
                 </label>
                 <a></a>
             </div>
@@ -108,8 +110,7 @@
                                      ng-click="accordionStatus.ticketOpen=!accordionStatus.paiementOpen">
                     <uib-accordion-heading>
                         <div style="height:40px; margin-right:-10px">
-                            <a ng-if="IziBoxConfiguration.UseTable"
-                               ng-disabled="currentShoppingCart.ParentTicket"
+                            <a ng-if="IziBoxConfiguration.UseTable && !currentShoppingCart.ParentTicket"
                                ng-click="$event.stopPropagation();selectTable();"
                                class="btn btn-info btnTable">
                                 <div layout="column" layout-align="center center" layout-fill>
@@ -210,12 +211,13 @@
                                 </div>
                                 <div>
                                     <a class="btn" ng-click="$event.stopPropagation(); removePayment(paymentModeRow);"
-                                       ng-if="!currentShoppingCart.isPayed">
+                                       ng-if="!currentShoppingCart.isPayed && !currentShoppingCart.ParentTicket">
                                         <span class="glyphicon glyphicon-trash"></span>
                                     </a>
                                 </div>
                             </div>
                         </div>
+
                         <div class="panel-body itemsPanel">
                             <div style="margin-top: -1px;">
                                 <div ng-repeat="item in currentShoppingCart.Discounts" class="itemRow" layout="row">
@@ -262,8 +264,6 @@
                                ng-click="$event.stopPropagation();printStepProdShoppingCart();">
                                 <img style="width:20px;" alt="Image" src="img/chef-hat.png">
                             </a>
-
-
                             <a ng-if="IziBoxConfiguration.StepEnabled" class="btn btn-info btnAddStep"
                                ng-click="$event.stopPropagation();addStep();">
                                 +
@@ -296,7 +296,7 @@
                                                         <span> ( </span>
                                                         <span ng-if="item.IsFree"> {{0 | CurrencyFormat}}</span>
                                                         <span ng-if="!item.IsFree">
-                                                            {{ (item.PriceIT) | CurrencyFormat}}
+                                                            {{ (item.PriceIT + item.DiscountIT) | CurrencyFormat}}
                                                         </span>
                                                         <span ng-if="(item.DiscountIT && item.DiscountIT!=0)"> - {{ item.DiscountIT | CurrencyFormat }} </span>
                                                         <span>)</span>
@@ -332,7 +332,7 @@
                                                     </md-button>
                                                 </div>
                                                 <div layout="row"
-                                                     ng-if="(viewmodel.selectedLine == item && item.Quantity > 0) || !currentShoppingCart.ParentTicket">
+                                                     ng-if="(viewmodel.selectedLine == item && item.Quantity > 0) && !currentShoppingCart.ParentTicket">
                                                     <!-- edit configurable menu -->
                                                     <md-button aria-label="editMenu" class="itemAction md-fab md-mini"
                                                                ng-disabled="isMenuDisable(item)"
@@ -541,7 +541,7 @@
         <div class="shoppingCartActionsBar" layout="row">
             <a ng-if="PrinterConfiguration.POSPrinterCount == 0 || IziBoxConfiguration.ConfirmPrint || !IziBoxConfiguration.LocalIpIziBox"
                class="shoppingCartAction btn btn-success"
-               ng-click="$rootScope.IziBoxConfiguration.ForceDeliveryChoice ? openModalDelivery(true) : validShoppingCart(true) "
+               ng-click="($rootScope.IziBoxConfiguration.ForceDeliveryChoice && !currentShoppingCart.ParentTicket) ? openModalDelivery(true) : validShoppingCart(true) "
                ng-class="{ 'disabled' : PhoneOrderMode }"
                ng-disabled=" PhoneOrderMode == true"
                flex>
@@ -550,7 +550,7 @@
 
             <a ng-if="PrinterConfiguration.POSPrinterCount > 0 && IziBoxConfiguration.LocalIpIziBox && !currentShoppingCart.ParentTicket"
                class="shoppingCartAction btn btn-success"
-               ng-click="$rootScope.IziBoxConfiguration.ForceDeliveryChoice ? openModalDelivery() : validShoppingCart() "
+               ng-click="($rootScope.IziBoxConfiguration.ForceDeliveryChoice && !currentShoppingCart.ParentTicket) ? openModalDelivery() : validShoppingCart() "
                ng-class="{ 'disabled' : PhoneOrderMode }"
                ng-disabled=" PhoneOrderMode == true"
                flex>

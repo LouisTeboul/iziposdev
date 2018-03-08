@@ -166,7 +166,9 @@ app.controller('LoadingController', function ($scope, $rootScope, $location, $ti
         $scope.downloading = false;
         $scope.downloadProgress = 0;
 
-        initGauges();
+        setTimeout(function () {
+            initGauges();
+        }, 50);
 
         if ($rootScope.modelDb && $rootScope.modelDb.databaseReady) {
             $rootScope.loaded = true;
@@ -215,35 +217,30 @@ app.controller('LoadingController', function ($scope, $rootScope, $location, $ti
     };
 
     var next = function () {
-        // console.log("Loading complete");
-        var nextLocation = function () {
-            $scope.gauges.loading.set(100);
-            $scope.gauges.freezeloading.set(100);
-            $scope.gauges.replicloading.set(100);
-            $scope.gauges.orderloading.set(100);
-
-            setTimeout(function () {
-                $location.path("/catalog");
-            }, 500);
-        };
+        $scope.gauges.loading.set(100);
+        $scope.gauges.freezeloading.set(100);
+        $scope.gauges.replicloading.set(100);
+        $scope.gauges.orderloading.set(100);
 
         // Initializing empty iziposconfiguration
         if (!$rootScope.IziPosConfiguration) {
             $rootScope.IziPosConfiguration = {};
         }
 
-        // Loading currency
-        settingService.getCurrencyAsync().then(function (currency) {
-            if (currency) {
-                $rootScope.IziPosConfiguration.Currency = currency;
-            } else {
-                $rootScope.IziPosConfiguration.Currency = { DisplayLocale: "fr-FR", CurrencyCode: "EUR" }; // Default currency 
-            }
-            nextLocation();
-        }, function (err) {
-            $rootScope.IziPosConfiguration.Currency = { DisplayLocale: "fr-FR", CurrencyCode: "EUR" };
-            nextLocation();
-        })
+        setTimeout(function () {
+            // Loading currency
+            settingService.getCurrencyAsync().then(function (currency) {
+                if (currency) {
+                    $rootScope.IziPosConfiguration.Currency = currency;
+                } else {
+                    $rootScope.IziPosConfiguration.Currency = { DisplayLocale: "fr-FR", CurrencyCode: "EUR" }; // Default currency 
+                }
+                $location.path("/catalog");
+            }, function (err) {
+                $rootScope.IziPosConfiguration.Currency = { DisplayLocale: "fr-FR", CurrencyCode: "EUR" };
+                $location.path("/catalog");
+            })
+        }, 1000);
     };
 
 	/**
