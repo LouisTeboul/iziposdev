@@ -270,7 +270,7 @@
                                      ng-attr-id="{{'step'+step.Step}}" layout-align="center center" flex
                                      ng-click="selectStep(step.Step)">
                                     <span>{{step.Step | StepName:stepNames}}</span>
-                                    <a ng-if="IziBoxConfiguration.StepEnabled && currentShoppingCart"
+                                    <a ng-if="IziBoxConfiguration.StepEnabled && currentShoppingCart && !currentShoppingCart.ParentTicket"
                                        ng-disabled="printStepProdDisabled"
                                        class="btn btn-success btnPrintStep"
                                        ng-click="$event.stopPropagation();selectStep(step.Step);printStepProdShoppingCart();">
