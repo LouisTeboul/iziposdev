@@ -257,13 +257,6 @@
                             <span ng-if="IziBoxConfiguration.StepEnabled && currentShoppingCart">{{currentShoppingCart.CurrentStep | StepName:stepNames}}</span>
                             <span flex></span>
 
-
-                            <a ng-if="IziBoxConfiguration.StepEnabled && currentShoppingCart"
-                               ng-disabled="printStepProdDisabled"
-                               class="btn btn-success btnPrintStep"
-                               ng-click="$event.stopPropagation();printStepProdShoppingCart();">
-                                <img style="width:20px;" alt="Image" src="img/chef-hat.png">
-                            </a>
                             <a ng-if="IziBoxConfiguration.StepEnabled" class="btn btn-info btnAddStep"
                                ng-click="$event.stopPropagation();addStep();">
                                 +
@@ -277,6 +270,12 @@
                                      ng-attr-id="{{'step'+step.Step}}" layout-align="center center" flex
                                      ng-click="selectStep(step.Step)">
                                     <span>{{step.Step | StepName:stepNames}}</span>
+                                    <a ng-if="IziBoxConfiguration.StepEnabled && currentShoppingCart"
+                                       ng-disabled="printStepProdDisabled"
+                                       class="btn btn-success btnPrintStep"
+                                       ng-click="$event.stopPropagation();selectStep(step.Step);printStepProdShoppingCart();">
+                                        <img style="width:20px;" alt="Image" src="img/chef-hat.png">
+                                    </a>
                                 </div>
                                 <div ng-repeat="item in step.Items track by $index" layout="column" class="itemRow"
                                      ng-class="{'printed': item.Printed ,'partialPrinted ': item.PartialPrinted}"

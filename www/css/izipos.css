@@ -933,11 +933,13 @@ text-field {
 }
 
 .btnPrintStep {
-    margin: -6px 25px -6px -12px !important;
+    /*margin: -6px 25px -6px -12px !important;*/
     height: 34px;
     width: 70px;
     padding: 2px !important;
     font-size: 20px;
+    right : 2px;
+    position : absolute;
 }
 
 .btnDivideReceipt {
