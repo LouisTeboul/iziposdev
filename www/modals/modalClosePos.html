@@ -52,14 +52,17 @@
                         <div class="title centered">
                             <!--<input ng-if="p.PaymentMode.PaymentType != 1" type="tel" id="txtNb" ng-model="p.Count" style="line-height: 29px; vertical-align: middle; width: 60%;font-size: 18px; text-align:center" ng-keypress="$event.stopPropagation();" />-->
                             <p ng-model="p.Count" ng-if="p.PaymentMode.PaymentType === paymentType.FIDELITE || p.PaymentMode.PaymentType === paymentType.INTERNET"> {{p.Count}}</p>
-                            <text-field ng-if="p.PaymentMode.PaymentType !== paymentType.ESPECE && p.PaymentMode.PaymentType !== paymentType.FIDELITE && p.PaymentMode.PaymentType !== paymentType.INTERNET" id="txtNb" ng-model="p.Count" location="end-start" type="numeric" validfunction="ok" style="line-height: 29px; vertical-align: middle; width: 60%;font-size: 18px; text-align:center"></text-field>
+                            <text-field ng-if="p.PaymentMode.PaymentType !== paymentType.ESPECE && p.PaymentMode.PaymentType !== paymentType.FIDELITE && p.PaymentMode.PaymentType !== paymentType.INTERNET"
+                                        id="txtNb" ng-model="p.Count" location="end-start" type="numeric" validfunction="ok" style="line-height: 29px; vertical-align: middle; width: 60%;font-size: 18px; text-align:center"></text-field>
                         </div>
                     </div>
                     <div style="width:20%;float:left;">
                         <div class="title centered" layout="row">
                             <!--<input ng-style="p.PaymentMode.PaymentType == 1 && {'width':'60%'} || {'width':'80%'}" type="tel" id="txtAmount" ng-model="p.PaymentMode.Total" style="line-height: 29px; vertical-align: middle; width: 60%;font-size: 18px; text-align:center" ng-keypress="$event.stopPropagation();" />-->
                             <p ng-model="p.PaymentMode.Total" ng-if="p.PaymentMode.PaymentType === paymentType.FIDELITE || p.PaymentMode.PaymentType === paymentType.INTERNET"> {{p.PaymentMode.Total | CurrencyFormat}}</p>
-                            <text-field ng-if="p.PaymentMode.PaymentType !== paymentType.FIDELITE && p.PaymentMode.PaymentType !== paymentType.INTERNET" ng-style="p.PaymentMode.PaymentType === paymentType.ESPECE && {'width':'60%'} || {'width':'80%'}" id="txtAmount" ng-model="p.PaymentMode.Total" location="end-start" type="decimal" validfunction="ok" style="line-height: 29px; vertical-align: middle; width: 60%;font-size: 18px; text-align:center"></text-field>
+                            <text-field ng-if="p.PaymentMode.PaymentType !== paymentType.FIDELITE && p.PaymentMode.PaymentType !== paymentType.INTERNET"
+                                        ng-style="p.PaymentMode.PaymentType === paymentType.ESPECE && {'width':'60%'} || {'width':'80%'}"
+                                        id="txtAmount" ng-model="p.PaymentMode.Total" location="end-start" type="decimal" validfunction="ok" style="line-height: 29px; vertical-align: middle; width: 60%;font-size: 18px; text-align:center"></text-field>
                             <a ng-if="p.PaymentMode.PaymentType === paymentType.ESPECE" class="btn btn-xs btn-default" style="padding:5px" ng-click="$event.stopPropagation();editCashValues(p)">
                                 <img class="itemAction" src="img/coins.png"/>
                             </a>
@@ -89,7 +92,7 @@
         <!--<tab ng-if="closePosParameters.mode.idMode == 3 && model.hardwareIdModels.length > 1">-->
         <tab ng-if="closePosParameters.mode.idMode == 3">
             <tab-heading>
-                <x>Récapitulatif toutes caisses</x>
+                <x translate>Récapitulatif toutes caisses</x>
             </tab-heading>
             <div class="form-panel modal-body modal-closepos">
                 <div class="row" style="border-bottom: 1px solid lightgray;margin-bottom:10px">

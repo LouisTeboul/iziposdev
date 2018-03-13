@@ -6,6 +6,7 @@ app.service('zposService', ['$http', '$rootScope', '$q', 'posLogService', 'posPe
     function ($http, $rootScope, $q, posLogService, posPeriodService, posService) {
         var current = this;
         var hardwareId = undefined;
+        var allYperiods = [];
 
         this.init = function () {
             hardwareId = $rootScope.modelPos.hardwareId;
@@ -161,7 +162,7 @@ app.service('zposService', ['$http', '$rootScope', '$q', 'posLogService', 'posPe
 
             db.query("zpos/byHidAndDate", {
                 startkey: [hardwareId, dateStartKey],
-                endkey: [hardwareId,""],
+                endkey: [hardwareId, ""],
                 limit: 1,
                 descending: true
             }).then(function (resShoppingCarts) {
@@ -172,9 +173,9 @@ app.service('zposService', ['$http', '$rootScope', '$q', 'posLogService', 'posPe
                     queryDefer.reject();
                 }
 
-                }, function () {
-                    queryDefer.reject();
-                });
+            }, function () {
+                queryDefer.reject();
+            });
 
 
             return queryDefer.promise;
@@ -316,125 +317,6 @@ app.service('zposService', ['$http', '$rootScope', '$q', 'posLogService', 'posPe
             //Retourne un tableau de tout les shopping cart correspondant a un montant,
             // durant la periode renseigné
             return byAmountDate.promise;
-        };
-
-
-        /** Purge Zpos
-         * Delete tickets and reset the cash fund
-         */
-        this.purgeZPosAsync = function (all) {
-            var purgeZPosDefer = $q.defer();
-
-            if (!$rootScope.IziBoxConfiguration.UseCashMovement || all) {
-                if (all) {
-                    var purgeAllFuncAsync = function (db) {
-                        var purgeAllFuncDefer = $q.defer();
-
-                        $rootScope.dbZPos.rel.find('ShoppingCart').then(function (resShoppingCarts) {
-                            var shoppingCartsToPurge = resShoppingCarts.ShoppingCarts;
-
-                            var delDoc = function (idx) {
-                                if (idx < shoppingCartsToPurge.length) {
-                                    var shoppingCart = shoppingCartsToPurge[idx];
-
-                                    $rootScope.dbZPos.remove(shoppingCart._id, shoppingCart._rev).then(function (result) {
-                                        delDoc(idx + 1);
-                                    }).catch(function (err) {
-                                        delDoc(idx + 1);
-                                    });
-                                } else {
-                                    //TODO Suppression des paymentValues sur la fermeture caisse
-                                    //current.getPaymentValuesAsync().then(function (paymentValues) {
-                                    //    if (paymentValues) {
-                                    //        $rootScope.dbZPos.rel.del('PaymentValues', { id: paymentValues.id, rev: paymentValues.rev });
-                                    //        $rootScope.CashOpen = false;
-                                    //    }
-                                    //});
-                                    purgeAllFuncDefer.resolve();
-                                }
-                            };
-
-                            delDoc(0);
-
-                        }, function (err) {
-                            purgeAllFuncDefer.resolve();
-                        });
-
-                        return purgeAllFuncDefer.promise;
-                    };
-
-                    purgeAllFuncAsync($rootScope.dbZPos).then(function () {
-                        purgeAllFuncAsync($rootScope.remoteDbZPos).then(function () {
-                            purgeZPosDefer.resolve();
-                        });
-                    });
-
-                } else {
-
-                    var purgeDateFuncAsync = function (db) {
-                        var purgeDateFuncDefer = $q.defer();
-
-                        var dateToPurge = new Date();
-                        dateToPurge.setDate(dateToPurge.getDate() - 7);
-
-                        var dateEndKey = dateToPurge.toString("yyyyMMdd");
-
-                        db.allDocs({
-                            include_docs: true,
-                            startkey: 'ShoppingCart_',
-                            endkey: 'ShoppingCart_\uffff'
-                        })
-                            .then(function (result) {
-                                var allShoppingCarts = Enumerable.from(result.rows).where(function (x) {
-                                    var prefix = x.doc.data.Date.match(/^[^\s]+\s/);
-                                    var splitPref = prefix[0].trim().split("/");
-                                    var dateTk = parseInt(splitPref[2] + splitPref[1] + splitPref[0]);
-                                    return dateTk <= parseInt(dateEndKey);
-                                }).select("x => x.doc.data").toArray();
-
-                                var delDoc = function (idx) {
-
-                                    var info = {};
-                                    info.value = idx;
-                                    info.max = allShoppingCarts.length;
-                                    $rootScope.$emit("dbZposPurge", info);
-
-                                    if (idx < allShoppingCarts.length) {
-                                        var shoppingCart = allShoppingCarts[idx];
-
-                                        db.remove(shoppingCart._id, shoppingCart._rev).then(function (result) {
-                                            delDoc(idx + 1);
-                                        }).catch(function (err) {
-                                            delDoc(idx + 1);
-                                        });
-                                    } else {
-                                        //TODO suppression des paymentvalues sur fermeture caisse
-                                        //current.getPaymentValuesAsync().then(function (paymentValues) {
-                                        //    if (paymentValues) {
-                                        //        db.rel.del('PaymentValues', { id: paymentValues.id, rev: paymentValues.rev });
-                                        //        $rootScope.CashOpen = false;
-                                        //    }
-                                        //});
-
-                                        purgeDateFuncDefer.resolve();
-                                    }
-                                };
-                                delDoc(0);
-                            }, function (errGet) {
-                                purgeDateFuncDefer.resolve();
-                            });
-                    };
-                    purgeDateFuncAsync($rootScope.dbZPos).then(function () {
-                        purgeDateFuncAsync($rootScope.remoteDbZPos).then(function () {
-                            purgeZPosDefer.resolve();
-                        });
-                    });
-                }
-
-            } else {
-                purgeZPosDefer.resolve();
-            }
-            return purgeZPosDefer.promise;
         };
 
         /**
@@ -914,6 +796,15 @@ app.service('zposService', ['$http', '$rootScope', '$q', 'posLogService', 'posPe
             //zpos.totalsByPeriod = roundValue(zpos.totalsByPeriod);
             zposDefer.resolve(zpos);
         };
+        this.getDateYPeriod = function (zpid, ypid) {
+            var matchedYp = Enumerable.from(allYperiods).firstOrDefault(function (yPeriod) {
+                return yPeriod.zPeriodId == zpid && yPeriod.yPeriodId == ypid;
+            });
+
+            if(matchedYp){
+                return {start : matchedYp.startDate, end : matchedYp.endDate}
+            }
+        };
 
 
         this.getZPosValuesAsync_v2 = function (ZPeriodId, YPeriodId, HardwareId) {
@@ -974,159 +865,161 @@ app.service('zposService', ['$http', '$rootScope', '$q', 'posLogService', 'posPe
                     }
                 }
 
-                console.log(dbStartKey);
-                console.log(dbEndKey);
-                // Obtains all VAT
-                $rootScope.remoteDbZPos.query("zpos/TaxByPeriod", {
-                    startkey: dbStartKey,
-                    endkey: dbEndKey.concat([{}]),
-                    reduce: true,
-                    group: true
-                }).then(function (resTaxByPeriod) {
-                    var taxByPeriod = resTaxByPeriod.rows;
-                    Enumerable.from(taxByPeriod).forEach(function (tp) {
-                        posPeriodService.getDateYPeriodAsync(tp.key[0], tp.key[2]).then(function (dates) {
-                            tp.period = dates;
-                        });
-                    });
+                console.log('Recuperation des datas pour la composition du Z');
 
-                    // Obtains all paymentModes
-                    $rootScope.remoteDbZPos.query("zpos/paymentModesByPeriod", {
+                /**
+                 * BUG : Des fois, le remote ne repond pas assez vite, et on a une erreur timeout de pouchdb.
+                 * On est obliger de fermer et de relancer la modal pour reessayer
+                 */
+                posPeriodService.getYperiodFromZperiodAsync(zpid).then(function (yp) {
+                    allYperiods = yp;
+
+                    // Obtains all VAT
+                    $rootScope.remoteDbZPos.query("zpos/TaxByPeriod", {
                         startkey: dbStartKey,
-                        endkey: dbEndKey.concat([{}, {}]),
+                        endkey: dbEndKey.concat([{}]),
                         reduce: true,
                         group: true
-                    }).then(function (resPM) {
-
-                        var paymentModesByPeriod = resPM.rows;
-                        Enumerable.from(paymentModesByPeriod).forEach(function (pp) {
-                            posPeriodService.getDateYPeriodAsync(pp.key[0], pp.key[2]).then(function (dates) {
-                                pp.period = dates;
-                            });
+                    }).then(function (resTaxByPeriod) {
+                        console.log('Taxes OK');
+                        var taxByPeriod = resTaxByPeriod.rows;
+                        Enumerable.from(taxByPeriod).forEach(function (tp) {
+                            tp.period = current.getDateYPeriod(tp.key[0], tp.key[2]);
                         });
 
-                        // Obtains  thetotal repaid per date and substract from "especes"
-                        $rootScope.remoteDbZPos.query("zpos/repaidByPeriod", {
+                        // Obtains all paymentModes
+                        $rootScope.remoteDbZPos.query("zpos/paymentModesByPeriod", {
                             startkey: dbStartKey,
-                            endkey: dbEndKey,
+                            endkey: dbEndKey.concat([{}, {}]),
                             reduce: true,
                             group: true
-                        }).then(function (resRepaid) {
-                            var repaidByPeriod = resRepaid.rows;
-
-                            Enumerable.from(repaidByPeriod).forEach(function (rp) {
-                                posPeriodService.getDateYPeriodAsync(rp.key[0], rp.key[2]).then(function (dates) {
-                                    rp.period = dates;
-                                });
+                        }).then(function (resPM) {
+                            console.log('PaymentModes OK');
+                            var paymentModesByPeriod = resPM.rows;
+                            Enumerable.from(paymentModesByPeriod).forEach(function (pp) {
+                                pp.period = current.getDateYPeriod(pp.key[0], pp.key[2]);
                             });
 
-
-                            // Obtains number of shoppingcart and totals
-                            $rootScope.remoteDbZPos.query("zpos/countByPeriod", {
+                            // Obtains  thetotal repaid per date and substract from "especes"
+                            $rootScope.remoteDbZPos.query("zpos/repaidByPeriod", {
                                 startkey: dbStartKey,
                                 endkey: dbEndKey,
                                 reduce: true,
                                 group: true
-                            }).then(function (resCount) {
-                                var countByPeriod = resCount.rows;
-                                Enumerable.from(countByPeriod).forEach(function (cp) {
-                                    posPeriodService.getDateYPeriodAsync(cp.key[0], cp.key[2]).then(function (dates) {
-                                        cp.period = dates;
-                                    });
+                            }).then(function (resRepaid) {
+                                console.log('Repaid OK');
+                                var repaidByPeriod = resRepaid.rows;
+
+                                Enumerable.from(repaidByPeriod).forEach(function (rp) {
+                                    rp.period = current.getDateYPeriod(rp.key[0], rp.key[2]);
                                 });
 
-                                // Obtains number of cutleries
-                                $rootScope.remoteDbZPos.query("zpos/cutleriesByPeriod", {
+
+                                // Obtains number of shoppingcart and totals
+                                $rootScope.remoteDbZPos.query("zpos/countByPeriod", {
                                     startkey: dbStartKey,
                                     endkey: dbEndKey,
                                     reduce: true,
                                     group: true
-                                }).then(function (resCutleries) {
-                                    var cutleriesByPeriod = resCutleries.rows;
-                                    Enumerable.from(cutleriesByPeriod).forEach(function (cp) {
-                                        posPeriodService.getDateYPeriodAsync(cp.key[0], cp.key[2]).then(function (dates) {
-                                            cp.period = dates;
-                                        });
+                                }).then(function (resCount) {
+                                    console.log('Count OK');
+                                    var countByPeriod = resCount.rows;
+                                    Enumerable.from(countByPeriod).forEach(function (cp) {
+                                        cp.period = current.getDateYPeriod(cp.key[0], cp.key[2]);
                                     });
 
-                                    $rootScope.remoteDbZPos.query("zpos/creditByPeriod", {
+                                    // Obtains number of cutleries
+                                    $rootScope.remoteDbZPos.query("zpos/cutleriesByPeriod", {
                                         startkey: dbStartKey,
                                         endkey: dbEndKey,
                                         reduce: true,
                                         group: true
-                                    }).then(function (resCredit) {
-                                        var creditByPeriod = resCredit.rows;
-                                        Enumerable.from(creditByPeriod).forEach(function (cp) {
-                                            posPeriodService.getDateYPeriodAsync(cp.key[0], cp.key[2]).then(function (dates) {
-                                                cp.period = dates;
-                                            });
+                                    }).then(function (resCutleries) {
+                                        console.log('Couverts OK');
+                                        var cutleriesByPeriod = resCutleries.rows;
+                                        Enumerable.from(cutleriesByPeriod).forEach(function (cp) {
+                                            cp.period = current.getDateYPeriod(cp.key[0], cp.key[2]);
                                         });
 
-                                        // Obtains deliveries
-                                        $rootScope.remoteDbZPos.query("zpos/DeliveryTypeByPeriod", {
+                                        $rootScope.remoteDbZPos.query("zpos/creditByPeriod", {
                                             startkey: dbStartKey,
-                                            endkey: dbEndKey.concat([{}]),
+                                            endkey: dbEndKey,
                                             reduce: true,
                                             group: true
-                                        }).then(function (resDeliveryType) {
-                                            var deliveryTypeByPeriod = resDeliveryType.rows;
-                                            Enumerable.from(deliveryTypeByPeriod).forEach(function (dp) {
-                                                posPeriodService.getDateYPeriodAsync(dp.key[0], dp.key[2]).then(function (dates) {
-                                                    dp.period = dates;
-                                                });
+                                        }).then(function (resCredit) {
+                                            console.log('Credit OK');
+                                            var creditByPeriod = resCredit.rows;
+                                            Enumerable.from(creditByPeriod).forEach(function (cp) {
+                                                cp.period = current.getDateYPeriod(cp.key[0], cp.key[2]);
                                             });
 
-                                            // Obtains totalByEmployees
-                                            $rootScope.remoteDbZPos.query("zpos/userByPeriod", {
+                                            // Obtains deliveries
+                                            $rootScope.remoteDbZPos.query("zpos/DeliveryTypeByPeriod", {
                                                 startkey: dbStartKey,
                                                 endkey: dbEndKey.concat([{}]),
                                                 reduce: true,
                                                 group: true
-                                            }).then(function (resUser) {
-                                                var userByPeriod = resUser.rows;
-                                                Enumerable.from(userByPeriod).forEach(function (up) {
-                                                    posPeriodService.getDateYPeriodAsync(up.key[0], up.key[2]).then(function (dates) {
-                                                        up.period = dates;
-                                                    });
+                                            }).then(function (resDeliveryType) {
+                                                console.log('Delivery Type OK');
+                                                var deliveryTypeByPeriod = resDeliveryType.rows;
+                                                Enumerable.from(deliveryTypeByPeriod).forEach(function (dp) {
+                                                    dp.period = current.getDateYPeriod(dp.key[0], dp.key[2]);
                                                 });
+
                                                 // Obtains totalByEmployees
-                                                $rootScope.remoteDbZPos.query("zpos/balanceByPeriod", {
-                                                    startkey: bsk,
-                                                    endkey: bek,
+                                                $rootScope.remoteDbZPos.query("zpos/userByPeriod", {
+                                                    startkey: dbStartKey,
+                                                    endkey: dbEndKey.concat([{}]),
                                                     reduce: true,
                                                     group: true
-                                                }).then(function (resBalance) {
-                                                    var balanceByPeriod = resBalance.rows;
-                                                    Enumerable.from(balanceByPeriod).forEach(function (bp) {
-                                                        posPeriodService.getDateYPeriodAsync(bp.key[0], bp.key[1]).then(function (dates) {
-                                                            bp.period = dates;
-                                                        });
+                                                }).then(function (resUser) {
+                                                    console.log('User OK');
+                                                    var userByPeriod = resUser.rows;
+                                                    Enumerable.from(userByPeriod).forEach(function (up) {
+                                                        up.period = current.getDateYPeriod(up.key[0], up.key[2]);
                                                     });
+                                                    // Obtains totalByEmployees
+                                                    $rootScope.remoteDbZPos.query("zpos/balanceByPeriod", {
+                                                        startkey: bsk,
+                                                        endkey: bek,
+                                                        reduce: true,
+                                                        group: true
+                                                    }).then(function (resBalance) {
+                                                        console.log('Balance OK');
+                                                        var balanceByPeriod = resBalance.rows;
+                                                        Enumerable.from(balanceByPeriod).forEach(function (bp) {
+                                                            bp.period = current.getDateYPeriod(bp.key[0], bp.key[2]);
+                                                        });
 
 
-                                                    var startDate = [];
-                                                    var endDate = [];
+                                                        var startDate = [];
+                                                        var endDate = [];
 
-                                                    posPeriodService.getYperiodFromZperiodAsync(zpid).then(function (yp) {
-                                                        if (yp) {
-                                                            Enumerable.from(yp).forEach(function (yPeriod) {
-                                                                startDate.push(yPeriod.startDate);
-                                                                endDate.push(yPeriod.endDate);
-                                                            })
-                                                        }
-
-                                                        posPeriodService.getAllYPeriodAsync(hid).then(function (yp) {
+                                                        posPeriodService.getYperiodFromZperiodAsync(zpid).then(function (yp) {
+                                                            console.log('YPeriods du Z OK');
                                                             if (yp) {
-                                                                startDate = [];
-                                                                endDate = [];
                                                                 Enumerable.from(yp).forEach(function (yPeriod) {
                                                                     startDate.push(yPeriod.startDate);
                                                                     endDate.push(yPeriod.endDate);
                                                                 })
                                                             }
-                                                            createZPos_v2(zposDefer, startDate, endDate, taxByPeriod, paymentModesByPeriod, balanceByPeriod, repaidByPeriod, countByPeriod, cutleriesByPeriod, creditByPeriod, deliveryTypeByPeriod, userByPeriod);
 
+                                                            posPeriodService.getAllYPeriodAsync(hid).then(function (yp) {
+                                                                console.log('Tout les Y OK ', yp);
+                                                                if (yp) {
+                                                                    startDate = [];
+                                                                    endDate = [];
+                                                                    Enumerable.from(yp).forEach(function (yPeriod) {
+                                                                        startDate.push(yPeriod.startDate);
+                                                                        endDate.push(yPeriod.endDate);
+                                                                    });
+                                                                    createZPos_v2(zposDefer, startDate, endDate, taxByPeriod, paymentModesByPeriod, balanceByPeriod, repaidByPeriod, countByPeriod, cutleriesByPeriod, creditByPeriod, deliveryTypeByPeriod, userByPeriod);
 
+                                                                } else {
+                                                                    createZPos_v2(zposDefer, startDate, endDate, taxByPeriod, paymentModesByPeriod, balanceByPeriod, repaidByPeriod, countByPeriod, cutleriesByPeriod, creditByPeriod, deliveryTypeByPeriod, userByPeriod);
+
+                                                                }
+                                                            });
                                                         });
                                                     });
                                                 });
@@ -1136,10 +1029,14 @@ app.service('zposService', ['$http', '$rootScope', '$q', 'posLogService', 'posPe
                                 });
                             });
                         });
+                    }, function (err) {
+                        //Reessayer ?
+                        zposDefer.reject('Le couchdb distant n\'est pas joignable');
                     });
                 });
+
             } else {
-                zposDefer.resolve();
+                zposDefer.reject('Le couchdb distant n\'est pas joignable');
             }
 
             return zposDefer.promise;
@@ -1292,10 +1189,10 @@ app.service('zposService', ['$http', '$rootScope', '$q', 'posLogService', 'posPe
                 htmlLines.push("<td style='width:10%;text-align:center'>" + zpos.paymentModes[idxPM].count + "</td>");
 
                 if (zpos.paymentModes[idxPM].type.toUpperCase().indexOf("ESP") == 0) {
-                    htmlLines.push("<td style='width:25%;text-align:right'>" + roundValue(String(zpos.paymentModes[idxPM].total - zpos.repaid.total).substring(0, 4)) + "</td>");
+                    htmlLines.push("<td style='width:25%;text-align:right'>" + roundValue((zpos.paymentModes[idxPM].total - zpos.repaid.total).toFixed(2)) + "</td>");
                 }
                 else {
-                    htmlLines.push("<td style='width:25%;text-align:right'>" + zpos.paymentModes[idxPM].total + "</td>");
+                    htmlLines.push("<td style='width:25%;text-align:right'>" + zpos.paymentModes[idxPM].total.toFixed(2) + "</td>");
                 }
 
                 htmlLines.push("</tr>");
@@ -1305,9 +1202,9 @@ app.service('zposService', ['$http', '$rootScope', '$q', 'posLogService', 'posPe
             htmlLines.push("<br />");
             htmlLines.push("<p>Cagnotte : " + roundValue(zpos.balance.total) + "</p>");
             htmlLines.push("<br />");
-            htmlLines.push("<p>Rendu : " + -1*zpos.repaid.total + "</p>");
+            htmlLines.push("<p>Rendu : " + -1 * zpos.repaid.total + "</p>");
             htmlLines.push("<br />");
-            htmlLines.push("<p>Avoir émis : " + -1*zpos.credit.total + "</p>");
+            htmlLines.push("<p>Avoir émis : " + -1 * zpos.credit.total + "</p>");
             htmlLines.push("<br />");
             //Total payment
             htmlLines.push("<p>Recette :</p>");
@@ -1429,7 +1326,7 @@ app.service('zposService', ['$http', '$rootScope', '$q', 'posLogService', 'posPe
                             htmlLines.push("<td style='width:10%;text-align:center'>" + matchPM.count + "</td>");
 
                             if (zpos.paymentModes[idxPM].type_id == 1) {
-                                htmlLines.push("<td style='width:25%;text-align:right'>" + roundValue(String(matchPM.total - matchRP.total).substring(0, 4)) + "</td>");
+                                htmlLines.push("<td style='width:25%;text-align:right'>" + roundValue((matchPM.total - matchRP.total).toFixed(2)) + "</td>");
                             }
                             else {
                                 htmlLines.push("<td style='width:25%;text-align:right'>" + matchPM.total + "</td>");
@@ -1588,7 +1485,7 @@ app.service('zposService', ['$http', '$rootScope', '$q', 'posLogService', 'posPe
                 htmlLines.push("<td style='width:10%;text-align:center'>" + zpos.paymentModes[idxPM].count + "</td>");
 
                 if (zpos.paymentModes[idxPM].type_id == 1) {
-                    htmlLines.push("<td style='width:25%;text-align:right'>" + roundValue(String(zpos.paymentModes[idxPM].total - zpos.repaid.total).substring(0, 4)) + "</td>");
+                    htmlLines.push("<td style='width:25%;text-align:right'>" + roundValue((zpos.paymentModes[idxPM].total - zpos.repaid.total).toFixed(2)) + "</td>");
                 }
                 else {
                     htmlLines.push("<td style='width:25%;text-align:right'>" + zpos.paymentModes[idxPM].total + "</td>");
@@ -1712,7 +1609,7 @@ app.service('zposService', ['$http', '$rootScope', '$q', 'posLogService', 'posPe
         this.emailZPosAsync = function (zpos, isPeriod = false, printY = false) {
             console.log(zpos);
             var emailDefer = $q.defer();
-            if(!isPeriod){
+            if (!isPeriod) {
                 var html = this.createZPosHtml(zpos);
             } else {
                 var html = this.createZPosHtml_v2(zpos, printY);
@@ -1724,7 +1621,7 @@ app.service('zposService', ['$http', '$rootScope', '$q', 'posLogService', 'posPe
             console.log("EmailApiUrl : " + emailApiUrl);
 
             //Erreur
-            if(!isPeriod){
+            if (!isPeriod) {
                 var subject = "Z Du : " + Date.parseExact(zpos.dateStart, "yyyyMMdd").toString("dd/MM/yyyy") + (zpos.dateEnd != zpos.dateStart ? (" au " + Date.parseExact(zpos.dateEnd, "yyyyMMdd").toString("dd/MM/yyyy")) : "");
 
             } else {

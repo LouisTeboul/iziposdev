@@ -609,7 +609,7 @@
                 db.rel.find('PaymentValues', yPeriodId).then(function (resPaymentValues) {
                     var paymentValues = Enumerable.from(resPaymentValues.AllPaymentValues).firstOrDefault();
                     // Recuperer les montant cagnotte dans la vue
-                    $rootScope.remoteDbZPos.query("zpos/balanceByPeriod", {
+                    db.query("zpos/balanceByPeriod", {
                         startkey: [zp.id, yPeriodId],
                         endkey: [zp.id, yPeriodId],
                         reduce: true,
@@ -791,31 +791,6 @@
 
             return updateDefer.promise;
         };
-
-
-        this.getDateYPeriodAsync = function (zpid, ypid) {
-            var datePeriodDefer = $q.defer();
-            var datePeriod = {};
-            current.getAllYPeriodAsync('*').then(function (yPeriods) {
-                var dateNow = new Date();
-
-                Enumerable.from(yPeriods).firstOrDefault(function (yPeriod) {
-                    var isValidYPeriod = false;
-                    isValidYPeriod = yPeriod.id == ypid && dateNow > new Date(yPeriod.startDate) && yPeriod.zPeriodId == zpid;
-                    if (isValidYPeriod) {
-                        datePeriod.start = yPeriod.startDate;
-                        datePeriod.end = yPeriod.endDate;
-                    }
-                });
-
-                datePeriodDefer.resolve(datePeriod);
-            }, function () {
-                datePeriodDefer.reject();
-            });
-
-            return datePeriodDefer.promise;
-        };
-
 
         this.getYperiodFromZperiodAsync = function (zpid) {
 

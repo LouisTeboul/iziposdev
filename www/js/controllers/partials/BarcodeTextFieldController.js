@@ -1,4 +1,4 @@
-app.controller('BarcodeTextFieldController', function ($scope, $rootScope, $uibModal, shoppingCartModel,textFieldService) {
+app.controller('BarcodeTextFieldController', function ($scope, $rootScope, $uibModal, shoppingCartModel, textFieldService) {
 
     var txtBarcode;
 
@@ -8,35 +8,45 @@ app.controller('BarcodeTextFieldController', function ($scope, $rootScope, $uibM
         $scope.barcode = shoppingCartModel.getCurrentBarcode();
 
         $rootScope.$on(Keypad.KEY_PRESSED, function (event, data) {
-        	if (!textFieldService.getFocusedTextField() && document.getElementsByClassName("modal").length == 0) {
-        		$scope.$evalAsync(function () {
-        			focusTextField();
-        			$scope.barcode.barcodeValue += data;
-        		});
-        	}
+            if (!textFieldService.getFocusedTextField() && document.getElementsByClassName("modal").length == 0) {
+                $scope.$evalAsync(function () {
+                    focusTextField();
+                    $scope.barcode.barcodeValue += data;
+                });
+            }
+        });
+
+
+        $rootScope.$on(Keypad.MODIFIER_KEY_PRESSED, function (event, data) {
+            if(data === "NEXT"){
+                $scope.validTextField(false);
+            }
+            if(data === "CLEAR"){
+                $scope.barcode.barcodeValue = $scope.barcode.barcodeValue.substring(0, $scope.barcode.barcodeValue.length - 1);
+                $scope.$evalAsync();
+            }
         });
     };
 
     $scope.showKeyboard = function () {
-    	if ($rootScope.isKeyboardOpen("decimal")) {
-    		$rootScope.closeKeyboard();
-    	} 
-        else 
-        {
-    		focusTextField();
+        if ($rootScope.isKeyboardOpen("decimal")) {
+            $rootScope.closeKeyboard();
+        }
+        else {
+            focusTextField();
 
-    		var location = "end-center";
+            var location = "end-center";
 
-    		if ($scope.accordionStatus && !$scope.accordionStatus.ticketOpen) {
-    			location = "start-center";
-    		}
+            if ($scope.accordionStatus && !$scope.accordionStatus.ticketOpen) {
+                location = "start-center";
+            }
 
-    		$rootScope.openKeyboard("decimal", location);
-    		$rootScope.openKeyboard("decimal", location);
-    	}
+            $rootScope.openKeyboard("decimal", location);
+            //$rootScope.openKeyboard("decimal", location);
+        }
     };
 
-    var focusTextField = function () {        
+    var focusTextField = function () {
         if (txtBarcode) {
             txtBarcode.focus();
         }
@@ -53,9 +63,9 @@ app.controller('BarcodeTextFieldController', function ($scope, $rootScope, $uibM
             var barcode = $scope.barcode.barcodeValue.trim();
             barcode = barcode.replace(/.+\//, '');
             var barcodeLength = barcode.length;
-          
+
             if (barcodeLength > 0) {
-                if /* Freezed shoppingCart */ (barcode.indexOf("TK") == 0){
+                if /* Freezed shoppingCart */ (barcode.indexOf("TK") == 0) {
                     var id = barcode.replace("TK", "");
                     id = parseInt(id);
                     shoppingCartModel.unfreezeShoppingCartById(id);
@@ -67,7 +77,9 @@ app.controller('BarcodeTextFieldController', function ($scope, $rootScope, $uibM
                         console.log("Avoir : " + avoirValues + " Montant : " + avoirAmount);
 
                         var paymentModes = shoppingCartModel.getPaymentModesAvailable();
-                        var avoirPaymentMode = Enumerable.from(paymentModes).firstOrDefault(function (pm) { return pm.PaymentType == PaymentType.AVOIR; });
+                        var avoirPaymentMode = Enumerable.from(paymentModes).firstOrDefault(function (pm) {
+                            return pm.PaymentType == PaymentType.AVOIR;
+                        });
 
                         if (avoirPaymentMode) {
                             var paymentByAvoir = clone(avoirPaymentMode);
@@ -96,7 +108,7 @@ app.controller('BarcodeTextFieldController', function ($scope, $rootScope, $uibM
 
                     // Si on detecte une carte de fidelité, on verifie si le client a un ticket en attente
                     // Si oui, on le defreeze
-                    if(shoppingCartModel.getCurrentShoppingCart == undefined){
+                    if (shoppingCartModel.getCurrentShoppingCart == undefined) {
                         shoppingCartModel.unfreezeShoppingCartByBarcode(barcode);
                     } else {
                         shoppingCartModel.getLoyalty(barcode);

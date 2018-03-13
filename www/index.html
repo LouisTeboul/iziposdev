@@ -96,10 +96,12 @@
     <script src="js/lib/aes.js"></script>
     <script src="js/lib/aes-ctr.js"></script>
     <script src="js/lib/angular-gage.min.js"></script>
-    <!-- ATTENTION A DECOMMENTER POUR IOS -->
+    <script src="js/lib/gauge.js"></script>
+    <!-- NE PLUS DECOMMENTER ;)-->
     <script src="js/lib/fastclick.js"></script>
     <script src="js/lib/randomColor.js"></script>
     <script src="js/lib/angular-uuid2.min.js"></script>
+    <script src="js/lib/decimal.min.js"></script>
 
 
     <!-- App COMMENT THIS TO ACTIVATE DEMO -->
@@ -240,13 +242,13 @@
     <toast></toast>
     <div class="keyboardContainer layout-row layout-align-{{keyboardLocation}}">
         <div id="keyboard-decimal" ng-if="currentKeyboardType == 'decimal'" data-ng-keypad="keyboard-decimal" class="numpad relative">
-            <div ng-include="'partials/decimal.html'" layout-fill layout-padding></div>
+            <div ng-include="'partials/decimal.html'" layout-fill></div>
         </div>
         <div id="keyboard-numeric" ng-if="currentKeyboardType == 'numeric'" data-ng-keypad="keyboard-numeric" class="numpad relative">           
-            <div ng-include="'partials/numeric.html'" layout-fill layout-padding></div>
+            <div ng-include="'partials/numeric.html'" layout-fill></div>
         </div>
         <div id="keyboard-azerty" ng-if="currentKeyboardType == 'azerty'" data-ng-keypad="keyboard-azerty" class="azerty relative" ng-class="{'phone': $mdMedia('gt-sm') == false}">
-            <div ng-include="'partials/azerty.html'" layout-fill layout-padding></div>
+            <div ng-include="'partials/azerty.html'" layout-fill></div>
         </div>
     </div>
     <div layout="column" layout-fill ui-view></div>

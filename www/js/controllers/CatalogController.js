@@ -3,10 +3,10 @@
         .state('catalog', {
             url: '/catalog',
             templateUrl: 'views/catalog.html'
-        })
+        });
     IdleProvider.idle(15); // in seconds
     IdleProvider.timeout(15); // in seconds
-})
+});
 
 
 app.controller('CatalogController', function ($scope, $rootScope, $state, $uibModal, Idle, shoppingCartModel, posLogService, ngToast, $mdSidenav, $mdMedia,orderShoppingCartService) {
@@ -82,6 +82,10 @@ app.controller('CatalogController', function ($scope, $rootScope, $state, $uibMo
         if (!product.DisableBuyButton) {
             shoppingCartModel.addToCart(product);
         }
+    };
+
+    $scope.getNbItems = function () {
+        return shoppingCartModel.getNbItems();
     };
     //#endregion
 

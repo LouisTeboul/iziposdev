@@ -278,8 +278,9 @@
                 if (mustSave) {
                     $rootScope.dbFreeze.rel.save('RkCounter', currentRkCounter).then(function (resSave) {
                         var currentRkCounter = resSave.RkCounters[0];
-
                         retDefer.resolve(currentRkCounter.count);
+                        $rootScope.$emit("dbFreezeChange");
+
                     }, function (errSave) {
                         retDefer.reject(errSave);
                     });
@@ -287,6 +288,7 @@
                     retDefer.resolve(currentRkCounter.count);
                 }
             }, function (errGet) {
+                console.log(errGet);
                 retDefer.reject(errGet);
             });
 

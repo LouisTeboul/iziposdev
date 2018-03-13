@@ -22,7 +22,10 @@
 									</div>
 									<md-grid-tile-footer style="max-height:30px;background-color:{{table.ihm.backcolor}}">
 										<md-icon style="color:white;" md-svg-icon="img/icons/cutleries.svg"></md-icon>
+										<span ng-show="table.inUseCutleries"> {{table.inUseCutleries}} /</span>
 										<span>{{table.Cutleries}}</span>
+
+
 									</md-grid-tile-footer>
 								</md-grid-tile>
 							</md-grid-list>
@@ -44,6 +47,11 @@
 									<div class="inp" ng-if="errorMessage">
 										<span class="labelErr">{{errorMessage}}</span>
 									</div>
+                                    <br />
+                                    <div class="inp" ng-if="tableModel.activeTimer">
+                                        <label for="timer"><x translate> Active depuis</x> : </label>
+                                        <p id="timer">{{tableModel.activeTimer | date:'HH:mm:ss'}}</p>
+                                    </div>
 								</div>
 							</div>
 						</div>

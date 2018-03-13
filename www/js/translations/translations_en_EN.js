@@ -102,7 +102,7 @@
 		"Avoirs émis": "Emitted credit",
 		"Ticket introuvable": "The receipt can not be found",
 		"Vous avez déjà un ticket en cours": "You already have a processing receipt",
-		"Le serveur de fidélité n'a pas répondu !": "Loyalty server does not respond !",
+		"Le serveur de fidélité n'est pas joignable ...": "Loyalty server can't be reached ...",
 		"Carte de fidélité introuvable !": "Loyalty card can not be found !",
 		"Le ticket a déjà une remise": "A discount is already deducted from this receipt ",
 		"Le ticket-restaurant n'a pu être ajouté !": "Meal voucher can't be added",

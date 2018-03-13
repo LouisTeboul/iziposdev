@@ -2,16 +2,45 @@
     $scope.closePosParameters = closePosParameters;
     $scope.paymentType = PaymentType;
 
-    $scope.init = function () {
+    $scope.init = function (reload = false, savedModel = {}) {
 
-        $scope.model = {
-            hardwareIdModels: [],
-            emptyCash: false,
-            zRecap: [],
-            hasAtLeastOneCashMachineWithSeveralService: false,
-            closingEnable: posUserService.isEnable('CLOS', true),
-            showCloseButton: true
-        };
+
+        if (savedModel) {
+            console.log(savedModel);
+
+            function getmatchedPmTotal(hid, paymentType) {
+                var matchedHidMdl = Enumerable.from(savedModel).firstOrDefault(function (hidModel) {
+                    return hidModel.hid == hid;
+                });
+
+                if (matchedHidMdl) {
+                    var matchedCm = Enumerable.from(matchedHidMdl.CashMovementLines).firstOrDefault(function (cml) {
+                        return cml.PaymentMode.PaymentType == paymentType;
+                    });
+
+                    if (matchedCm) {
+                        return matchedCm.PaymentMode.Total;
+                    }
+                }
+            }
+
+        }
+
+
+        $scope.model =
+            {
+                hardwareIdModels: [],
+                emptyCash: false,
+                zRecap: [],
+                hasAtLeastOneCashMachineWithSeveralService: false,
+                closingEnable: posUserService.isEnable('CLOS', true),
+                showCloseButton: true
+            };
+
+
+        if (reload) {
+            $scope.model.zRecap = [];
+        }
 
 
         settingService.getPaymentModesAsync().then(function (paymentSetting) {
@@ -75,6 +104,7 @@
                             CashMovementLines: []
                         };
 
+
                         $scope.model.hardwareIdModels.push(newHidModel);
 
                         Enumerable.from($scope.closePosValues.CashMovementLines).forEach(function (line) {
@@ -102,9 +132,26 @@
                                         newHidModel.CashMovementLines.push(l);
                                     }
                                 });
+
+                                if (reload) {
+                                    //On parcours les Hid model
+                                    Enumerable.from($scope.model.hardwareIdModels).forEach(function (hidm) {
+                                        var currentHid = hidm.hid;
+                                        Enumerable.from(hidm.CashMovementLines).forEach(function (cm) {
+                                            var currentPmId = cm.PaymentMode.PaymentType;
+                                            if (getmatchedPmTotal(currentHid, currentPmId)) {
+                                                cm.PaymentMode.Total = getmatchedPmTotal(currentHid, currentPmId);
+                                            }
+                                        })
+
+                                    });
+                                }
+
                             }
                         });
+                        console.log(newHidModel);
                     });
+
                     break;
 
 
@@ -118,6 +165,7 @@
                         };
 
                         $scope.model.hardwareIdModels.push(newHidModel);
+
                         Enumerable.from($scope.closePosValues.CashMovementLines).forEach(function (line) {
                             newHidModel.CashMovementLines.push(clone(line));
                         });
@@ -148,6 +196,7 @@
                                         // Pré-renseigner le nombre attendu
                                         lineClose.Count = l.Count;
                                         // Pré-renseigné du montant attendu
+
                                         lineClose.PaymentMode.Total = roundValue(l.PaymentMode.Total);
                                         lineClose.TotalKnown = roundValue(l.PaymentMode.Total);
                                     }
@@ -156,9 +205,25 @@
                                         newHidModel.CashMovementLines.push(l);
                                     }
                                 });
+
+                                if (reload) {
+                                    //On parcours les Hid model
+                                    Enumerable.from($scope.model.hardwareIdModels).forEach(function (hidm) {
+                                        var currentHid = hidm.hid;
+                                        Enumerable.from(hidm.CashMovementLines).forEach(function (cm) {
+                                            var currentPmId = cm.PaymentMode.PaymentType;
+                                            if (getmatchedPmTotal(currentHid, currentPmId)) {
+                                                cm.PaymentMode.Total = getmatchedPmTotal(currentHid, currentPmId);
+                                            }
+                                        })
+
+                                    });
+                                }
                             }
                         });
                     });
+
+
                     break;
                 case 3:
                     // Fermeture du Z (fermeture journée)
@@ -171,6 +236,7 @@
                                 alias: alias,
                                 CashMovementLines: []
                             };
+
 
                             $scope.model.hardwareIdModels.push(newHidModel);
 
@@ -189,7 +255,9 @@
                                             // Pré-renseigner le nombre attendu
                                             lineClose.Count = l.Count;
                                             // Pré-renseigner du montant attendu
-                                            // lineClose.PaymentMode.Total = l.PaymentMode.Total;
+
+
+                                            lineClose.PaymentMode.Total = l.PaymentMode.Total;
                                             lineClose.TotalKnown = roundValue(l.PaymentMode.Total);
                                         }
                                         else {
@@ -215,7 +283,6 @@
                                                 lineCloseRecap.TotalKnown = roundValue(l.PaymentMode.Total);
                                             }
                                         }
-
                                     });
                                     // Renseigner ce que le ou les utilisateurs on déjà renseigné lors de la fermeture du(des) services 
                                     posPeriodService.getYCountLinesByHidAsync($scope.closePosParameters.zperiod.id, cashmachine.hid).then(function (yPeriodCash) {
@@ -234,7 +301,6 @@
                                                 if (lineClose) {
                                                     // Pré-renseigner du montant saisi précédement (somme des services)
                                                     lineClose.PaymentMode.Total = roundValue(l.PaymentMode.Total);
-
                                                     // Renseigner du montant saisi précédement (somme des services)
                                                     lineClose.TotalYs = roundValue(l.PaymentMode.Total);
                                                     lineClose.CashDiscrepancyYs = roundValue(l.PaymentMode.Total - l.TotalKnown);
@@ -266,11 +332,27 @@
                                                 }
                                             });
                                         }
+
+
+                                        if (reload) {
+                                            //On parcours les Hid model
+                                            Enumerable.from($scope.model.hardwareIdModels).forEach(function (hidm) {
+                                                var currentHid = hidm.hid;
+                                                Enumerable.from(hidm.CashMovementLines).forEach(function (cm) {
+                                                    var currentPmId = cm.PaymentMode.PaymentType;
+                                                    if (getmatchedPmTotal(currentHid, currentPmId)) {
+                                                        cm.PaymentMode.Total = getmatchedPmTotal(currentHid, currentPmId);
+                                                    }
+                                                })
+
+                                            });
+                                        }
                                     });
                                 }
                             });
                         });
                     });
+
                     break;
             }
 
@@ -278,6 +360,10 @@
         }, function (err) {
             console.log(err);
         });
+    };
+
+    $scope.reloadTickets = function () {
+
     };
 
     $scope.selectMotif = function (motif) {
@@ -332,7 +418,7 @@
 
 
         modalInstance.result.then(function () {
-            $scope.init();
+            $scope.init(true, $scope.model.hardwareIdModels);
         });
     };
 
@@ -361,12 +447,12 @@
                         backdrop: 'static'
                     });
                     modalInstance.result.then(function () {
-                        $scope.init();
+                        $scope.init(true);
                     }, function () {
                     });
                 }
                 else if (yPeriod && yPeriod.endDate) {
-                    $scope.init();
+                    $scope.init(true);
                 }
             }, function () {
                 sweetAlert({title: $translate.instant("Veuillez renseigner le fond de caisse")}, function () {
@@ -440,7 +526,7 @@
             modalInstance.result.then(function (ret) {
 
                 if (ret && ret.refresh) {
-                    $scope.init()
+                    $scope.init(true)
                 }
                 else {
                     checkForFreeze();
@@ -476,12 +562,14 @@
     $scope.cancel = function () {
         $uibModalInstance.dismiss('cancel');
 
+        /*
         $uibModal.open({
             templateUrl: 'modals/modalYperiodPick.html',
             controller: 'ModalYperiodPickController',
             size: 'lg',
             backdrop: 'static'
         });
+        */
 
         setTimeout(function () {
             $rootScope.closeKeyboard();
@@ -489,17 +577,17 @@
         }, 500);
     };
 
-    var checkForFreeze = function(){
+    var checkForFreeze = function () {
         var nbFreeze = undefined;
-        shoppingCartService.getFreezedShoppingCartsAsync().then(function(r){
+        shoppingCartService.getFreezedShoppingCartsAsync().then(function (r) {
             closeCashMachine(r.length)
-        }, function(err){
+        }, function (err) {
             closeCashMachine(undefined)
         });
     };
 
     var closeCashMachine = function (nbFreeze) {
-        var textFreeze = nbFreeze && nbFreeze >0 ? "Vous avez " + nbFreeze + " ticket en attente" : "";
+        var textFreeze = nbFreeze && nbFreeze > 0 ? "Vous avez " + nbFreeze + " ticket en attente" : "";
         swal({
                 title: $translate.instant($scope.closePosParameters.mode.text),
                 text: textFreeze,
@@ -598,9 +686,9 @@
                     Informations: []
                 };
 
-               
+
                 Enumerable.from(updPaymentModes).forEach(function (pm) {
-                    event.Informations.push(pm.PaymentMode.Text+ "(" + pm.Count + "):" + pm.TotalKnown);
+                    event.Informations.push(pm.PaymentMode.Text + "(" + pm.Count + "):" + pm.TotalKnown);
                 });
 
                 eventService.sendEvent(event);

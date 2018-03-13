@@ -118,7 +118,7 @@ app.controller('ModalEditShoppingCartController', function ($scope, $rootScope, 
         }
 
         return paymentValues;
-    };
+    }
 
     $scope.ok = function () {
     	$rootScope.closeKeyboard();

@@ -1,5 +1,5 @@
-app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$uibModal', 'shoppingCartService', 'productService', 'loyaltyService', 'settingService', 'posUserService', '$translate', 'storeMapService', 'taxesService', 'posPeriodService','posService','zposService',
-    function ($rootScope, $q, $state, $timeout, $uibModal, shoppingCartService, productService, loyaltyService, settingService, posUserService, $translate, storeMapService, taxesService, posPeriodService, posService,zposService) {
+app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$uibModal', 'shoppingCartService', 'productService', 'loyaltyService', 'settingService', 'posUserService', '$translate', 'storeMapService', 'taxesService', 'posPeriodService', 'posService', 'zposService',
+    function ($rootScope, $q, $state, $timeout, $uibModal, shoppingCartService, productService, loyaltyService, settingService, posUserService, $translate, storeMapService, taxesService, posPeriodService, posService, zposService) {
         var current = this;
 
         var lastShoppingCart = undefined;
@@ -11,9 +11,19 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
         var shoppingCartQueue = [];
         var paymentModesAvailable = undefined;
         var deliveryType = DeliveryTypes.FORHERE;
-        var currentBarcode = { barcodeValue: '' };
+        var currentBarcode = {barcodeValue: ''};
 
         //#region Actions on item
+        this.getNbItems = function(){
+            var count = 0;
+            if(currentShoppingCart && currentShoppingCart.Items.length > 0 ){
+                Enumerable.from(currentShoppingCart.Items).forEach(function(i){
+                    count += i.Quantity;
+                });
+            }
+            return count;
+        };
+
         this.incrementQuantity = function (cartItem) {
             cartItem.DiscountIT += cartItem.DiscountIT / cartItem.Quantity;
             cartItem.DiscountET += cartItem.DiscountET / cartItem.Quantity;
@@ -63,7 +73,8 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
                 } else {
                     cartItem.Comment = undefined;
                 }
-            }, function () { });
+            }, function () {
+            });
         };
 
         this.editMenu = function (cartItem) {
@@ -82,8 +93,9 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
             {
                 var idxToRemove = currentShoppingCart.Items.indexOf(cartItem);
 
-                if (idxToRemove > -1) {
+                if (idxToRemove > -1 || currentShoppingCart.ParentTicket) {
                     //If already printed in step mode we're setting the quantity to zero
+                    //Or if this is a valid cancel negative ticket
                     if ($rootScope.IziBoxConfiguration.StepEnabled && cartItem.Printed) {
                         cartItem.Quantity = 0;
                         $rootScope.$emit("shoppingCartItemChanged", cartItem);
@@ -125,8 +137,6 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
         // Used to transfer item from a ticket to another when splitting ticket
         this.splitItemTo = function (shoppingCartTo, shoppingCartFrom, cartItem, amount) {
             var itemExist = undefined;
-            shoppingCartTo.hasSplitItems = true;
-            shoppingCartFrom.hasSplitItems = true;
 
             //Ticket from an online order doesn't have empty product attributes
             if (!cartItem.Offer && !cartItem.Isfree && cartItem.Product.ProductAttributes && !cartItem.Product.ProductAttributes.length > 0) {
@@ -135,35 +145,39 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
                 });
             }
 
-            var ratio = amount / cartItem.Product.Price;
+            var ratio = roundValue(amount / cartItem.Product.Price);
 
+
+            //S'occuper du discount également
             if (itemExist) {
-                itemExist.Quantity = roundValue(itemExist.Quantity + ratio);
-                cartItem.Quantity = roundValue(cartItem.Quantity - ratio);
+                itemExist.Quantity = itemExist.Quantity + ratio;
+                cartItem.Quantity = cartItem.Quantity - ratio;
             } else {
                 var item = clone(cartItem);
                 //Si on split plus que le montant unitaire du produit,
-                if(ratio > 1){
+                if (ratio > 1) {
                     var j = 0;
-                    for(var i = ratio; i >= 1; i--, j++){
+                    for (var i = ratio; i >= 1; i--, j++) {
                         var newSplitItem = clone(cartItem);
+                        newSplitItem.DiscountIT = 0;
+                        newSplitItem.DiscountET = 0;
                         newSplitItem.Quantity = 1;
                         newSplitItem.hashkey = objectHash(newSplitItem);
                         newSplitItem.isPartSplitItem = true;
                         shoppingCartTo.Items.push(newSplitItem);
                     }
-
-
-                    item.Quantity = roundValue(ratio - j);
+                    item.Quantity = ratio - j;
+                    item.DiscountIT = 0;
+                    item.DiscountET = 0;
                     item.isPartSplitItem = true;
                     shoppingCartTo.Items.push(item);
-
                 } else {
-                    item.Quantity = roundValue(ratio);
+                    item.Quantity = ratio;
+                    item.DiscountIT = 0;
+                    item.DiscountET = 0;
                     item.isPartSplitItem = true;
                     shoppingCartTo.Items.push(item);
                 }
-
 
                 if (cartItem.Quantity > 1 && ratio < 1) {
                     var newCartItem = clone(cartItem);
@@ -174,8 +188,7 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
 
                     shoppingCartFrom.Items.push(newCartItem);
                 }
-
-                cartItem.Quantity = roundValue(cartItem.Quantity - ratio);
+                cartItem.Quantity = cartItem.Quantity - ratio;
                 cartItem.isPartSplitItem = true;
             }
         };
@@ -184,7 +197,7 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
         this.makeParts = function (shoppingCart, cartItem, nbPart) {
             //On crée une part
             //On l'insert autant de fois qu'il y a de part
-            for(var i=0; i< nbPart; i++){
+            for (var i = 0; i < nbPart; i++) {
                 var newPart = clone(cartItem);
                 newPart.DiscountIT /= nbPart;
                 newPart.DiscountET /= nbPart;
@@ -199,23 +212,25 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
         // Used to transfer item from a ticket to another when splitting ticket
         this.addItemTo = function (shoppingCartTo, shoppingCartFrom, cartItem, qty) {
             if (!qty) {
-                if(Number.isInteger(cartItem.Quantity) || cartItem.Quantity >= 1){
+                if (Number.isInteger(cartItem.Quantity) || cartItem.Quantity >= 1) {
                     qty = 1
                 } else {
                     qty = cartItem.Quantity;
                 }
             }
 
-            var itemExist = undefined;
-
-            //Ticket from an online order doesn't have empty product attributes
-            if (!cartItem.Offer && !cartItem.Isfree && cartItem.Product.ProductAttributes && !cartItem.Product.ProductAttributes.length > 0) {
-                itemExist = Enumerable.from(shoppingCartTo.Items).firstOrDefault(function (x) {
-                    return !x.Comment && !x.Offer && !x.IsFree && x.ProductId == cartItem.ProductId && x.Step == cartItem.Step && x.DiscountET == cartItem.DiscountET && (x.PriceIT == cartItem.PriceIT);
-                });
-            }
-
             var item = clone(cartItem);
+
+
+            /*
+            var ratio = qty / item.Quantity;
+            item.DiscountIT = ratio * clone(cartItem.DiscountIT);
+            item.DiscountET = ratio * clone(cartItem.DiscountET);
+
+            cartItem.DiscountIT -= item.DiscountIT;
+            cartItem.DiscountET -= item.DiscountET;
+            */
+
             item.Quantity = qty;
             item.DiscountIT = 0;
             item.DiscountET = 0;
@@ -234,12 +249,15 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
 
 
         /**
-		 * @description add a discount to a single cart item
+         * @description add a discount to a single cart item
          * @param cartItem, a cart item
          * @param discountAmount, the amount of the discount, provided by the user
          * @param isPercent, % or flat ?
          */
         this.addCartItemDiscount = function (cartItem, discountAmount, isPercent) {
+            var cacheTaxProvider = null;
+            var cacheIsPricesIncludedTax = null;
+
             // User privilege
             if (posUserService.isEnable('OFFI')) {
                 if (!isNaN(discountAmount)) {
@@ -259,32 +277,60 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
                         currentShoppingCart.Items.splice(idx + 1, 0, cartItemDiscounted);
                     }
 
-                    if (isPercent) {
-                        //If this is a % discount
-                        if (discountAmount <= 100) {
-                            // The discount has to be less than 100%
-                            // Set the discount property
-                            cartItemDiscounted.DiscountIT = cartItemDiscounted.Product.Price * (discountAmount / 100);
-                            cartItemDiscounted.DiscountET = cartItemDiscounted.Product.Price / (1 + (Number(cartItemDiscounted.TaxDetails[0].TaxRate) / 100)) * (discountAmount / 100);
-                            //Can use ETtoIT function ?
-                        } else
-                            sweetAlert($translate.instant("Impossible de faire une remise de plus de 100% !"));
+                    taxesService.getTaxProviderAsync().then(function (ctp) {
+                        cacheTaxProvider = ctp;
+                        var taxRate = getTaxRateFromProvider(cartItemDiscounted.TaxCategory, cacheTaxProvider, cartItemDiscounted.DeliveryType);
 
-                    } else if (!isPercent) {
-                        //If this is a flat discount
-                        if (discountAmount <= cartItemDiscounted.Product.Price) {
-                            //The discount has to be less than the product price
-                            cartItemDiscounted.DiscountET = discountAmount / (1 + (Number(cartItemDiscounted.TaxDetails[0].TaxRate) / 100));
-                            cartItemDiscounted.DiscountIT = discountAmount;
-                        } else
-                            sweetAlert($translate.instant("Impossible de faire une remise superieur au prix du produit !"));
+                        if (isPercent) {
+                            //If this is a % discount
+                            if (discountAmount <= 100) {
+                                // The discount has to be less than 100%
+                                // Set the discount property
+                                taxesService.getPricesIncludedTaxAsync().then(function (cpit) {
 
-                    }
+                                    cacheIsPricesIncludedTax = cpit;
 
-                    $rootScope.$emit("shoppingCartItemChanged", cartItem);
-                    $rootScope.$emit("shoppingCartItemChanged", cartItemDiscounted);
-                    this.calculateTotal();
-                    this.calculateLoyalty();
+                                    switch (cacheTaxProvider) {
+                                        case "Tax.FixedRate" :
+                                            cartItemDiscounted.DiscountIT = cartItemDiscounted.Product.Price * (discountAmount / 100);
+                                            cartItemDiscounted.DiscountET = ITtoET(cartItemDiscounted.DiscountIT, taxRate);
+                                            break;
+                                        case "Tax.Quebec":
+                                            if (cacheIsPricesIncludedTax) {
+                                                cartItemDiscounted.DiscountIT = cartItemDiscounted.Product.Price * (discountAmount / 100);
+                                                cartItemDiscounted.DiscountET = ITtoET(cartItemDiscounted.DiscountIT, taxRate);
+                                            } else {
+                                                cartItemDiscounted.DiscountIT = cartItemDiscounted.PriceIT * (discountAmount / 100);
+                                                cartItemDiscounted.DiscountET = ITtoET(cartItemDiscounted.DiscountIT, taxRate);
+                                            }
+                                            break;
+                                    }
+                                    $rootScope.$emit("shoppingCartItemChanged", cartItem);
+                                    $rootScope.$emit("shoppingCartItemChanged", cartItem);
+                                    current.calculateTotal();
+                                    current.calculateLoyalty();
+                                });
+                            } else {
+                                sweetAlert($translate.instant("Impossible de faire une remise de plus de 100% !"));
+                            }
+
+                        } else if (!isPercent) {
+                            //If this is a flat discount
+                            if (discountAmount <= cartItemDiscounted.Product.Price) {
+                                //The discount has to be less than the product price
+
+                                cartItemDiscounted.DiscountIT = discountAmount;
+                                cartItemDiscounted.DiscountET = ITtoET(cartItemDiscounted.DiscountIT, taxRate);
+                            } else{
+                                sweetAlert($translate.instant("Impossible de faire une remise superieur au prix du produit !"));
+                            }
+                            $rootScope.$emit("shoppingCartItemChanged", cartItem);
+                            $rootScope.$emit("shoppingCartItemChanged", cartItemDiscounted);
+                            current.calculateTotal();
+                            current.calculateLoyalty();
+                        }
+                    });
+
 
                 } else {
                     sweetAlert($translate.instant("Valeur de remise invalide"));
@@ -297,38 +343,74 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
 
 
         /**
-		 * @description add a discount to a cart line
+         * @description add a discount to a cart line
          * @param cartItem, a cart Item
          * @param discountAmount, the amount of the discount, provided by the user
          * @param isPercent, % or flat ?
          */
         this.addCartLineDiscount = function (cartItem, discountAmount, isPercent) {
+            var cacheTaxProvider = null;
+            var cacheIsPricesIncludedTax = null;
 
             if (posUserService.isEnable('OFFI')) {
                 if (!isNaN(discountAmount)) {
 
-                    if (isPercent) {
-                        //Remise en pourcentage
-                        if (discountAmount <= 100) {
-                            cartItem.DiscountIT = (cartItem.Product.Price * (discountAmount / 100)) * cartItem.Quantity;
-                            cartItem.DiscountET = (cartItem.Product.Price / (1 + (Number(cartItem.TaxDetails[0].TaxRate) / 100)) * (discountAmount / 100)) * cartItem.Quantity;
-                        } else
-                            sweetAlert($translate.instant("Impossible de faire une remise de plus de 100% !"));
 
-                    } else if (!isPercent) {
-                        if (discountAmount <= cartItem.Product.Price * cartItem.Quantity) {
-                            //Remise flat
+                    taxesService.getTaxProviderAsync().then(function (result) {
+                        cacheTaxProvider = result;
+                        var taxRate = getTaxRateFromProvider(cartItem.TaxCategory, cacheTaxProvider, cartItem.DeliveryType);
+                        if (isPercent) {
+                            //Remise en pourcentage
+                            if (discountAmount <= 100) {
+                                taxesService.getPricesIncludedTaxAsync().then(function (cpit) {
 
-                            cartItem.DiscountET = (discountAmount / (1 + (Number(cartItem.TaxDetails[0].TaxRate) / 100)));
-                            cartItem.DiscountIT = discountAmount;
-                        } else
-                            sweetAlert($translate.instant("Impossible de faire une remise superieur au prix de la ligne !"));
+                                    cacheIsPricesIncludedTax = cpit;
 
-                    }
 
-                    this.calculateTotal();
-                    this.calculateLoyalty();
-                    $rootScope.$emit("shoppingCartItemChanged", cartItem);
+                                    switch (cacheTaxProvider) {
+                                        case "Tax.FixedRate" :
+                                            cartItem.DiscountIT = (cartItem.Product.Price * (discountAmount / 100)) * cartItem.Quantity;
+                                            cartItem.DiscountET = ITtoET(cartItem.DiscountIT, taxRate);
+                                            break;
+                                        case "Tax.Quebec":
+                                            if (cacheIsPricesIncludedTax) {
+                                                cartItem.DiscountIT = (cartItem.Product.Price * (discountAmount / 100)) * cartItem.Quantity;
+                                                cartItem.DiscountET = ITtoET(cartItem.DiscountIT, taxRate);
+                                            } else {
+                                                cartItem.DiscountIT = (cartItem.PriceIT * (discountAmount / 100)) * cartItem.Quantity;
+                                                cartItem.DiscountET = ITtoET(cartItem.DiscountIT, taxRate);
+                                            }
+
+                                            break;
+                                    }
+                                    $rootScope.$emit("shoppingCartItemChanged", cartItem);
+                                    $rootScope.$emit("shoppingCartItemChanged", cartItem);
+                                    current.calculateTotal();
+                                    current.calculateLoyalty();
+
+                                });
+
+
+                            } else
+                                sweetAlert($translate.instant("Impossible de faire une remise de plus de 100% !"));
+
+                        } else if (!isPercent) {
+                            if (discountAmount <= cartItem.Product.Price * cartItem.Quantity) {
+                                //Remise flat
+                                cartItem.DiscountIT = discountAmount;
+                                cartItem.DiscountET = ITtoET(cartItem.DiscountIT, taxRate);
+
+                            } else
+                                sweetAlert($translate.instant("Impossible de faire une remise superieur au prix de la ligne !"));
+
+                            $rootScope.$emit("shoppingCartItemChanged", cartItem);
+                            $rootScope.$emit("shoppingCartItemChanged", cartItem);
+                            current.calculateTotal();
+                            current.calculateLoyalty();
+                        }
+                    });
+
+
                 } else {
                     sweetAlert($translate.instant("Valeur de remise invalide"));
                 }
@@ -337,8 +419,6 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
             }
 
         };
-
-
 
 
         this.offerItem = function (cartItem) {
@@ -373,12 +453,11 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
 
         //#region Actions on ShoppingCart
 
-        this.createDividedShoppingCartsAsync = function(shoppingCart, divider, spq){
+        this.createDividedShoppingCartsAsync = function (shoppingCart, divider) {
 
             var dividedDefer = $q.defer();
-            if(divider > 1 && Number.isInteger(divider)) {
-                shoppingCart.hasSplitItems = true;
-                shoppingCartQueue = spq ? spq : [];
+            if (divider > 1 && Number.isInteger(divider)) {
+
                 shoppingCart.isDividedShoppingCart = true;
                 Enumerable.from(shoppingCart.Discounts).forEach(function (discount) {
                     if (!discount.IsPercent) {
@@ -387,18 +466,44 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
                 });
 
                 Enumerable.from(shoppingCart.Items).forEach(function (item) {
+                    item.OriginalQuantity = item.Quantity;
+
+
                     item.DiscountIT /= divider;
                     item.DiscountET /= divider;
                     item.isPartSplitItem = true;
-                    item.Quantity /= divider;
+                    item.Quantity = (item.Quantity / divider).toFixed(5);
                 });
 
+                var clonedShoppingCart = clone(shoppingCart);
+
+
                 for (var i = 0; i < divider - 1; i++) {
-                    current.calculateTotalFor(shoppingCart);
-                    shoppingCartQueue.push(clone(shoppingCart));
+                    current.calculateTotalFor(clonedShoppingCart);
+                    //On declare le dailyticket omme undefined sur les shoppingcart de la queue
+                    //Il sera affecté en même temps que le shopping cart en question deviendra current
+                    //Car il est dependant du nombre de ticket validé
+                    clonedShoppingCart.dailyTicketId = undefined;
+
+                    //Derniere itération
+                    if (i == divider - 2) {
+                        var csp = clone(shoppingCart);
+                        //On ajuste quantité du dernier item pour corrigé les erreurs de nombre flottant de JS
+                        Enumerable.from(csp.Items).forEach(function (item) {
+
+                            item.Quantity = adjustDividedQuantity(item.OriginalQuantity, item.Quantity, divider);
+
+                        });
+                        shoppingCart.shoppingCartQueue.push(csp);
+                    } else {
+                        shoppingCart.shoppingCartQueue.push(clonedShoppingCart);
+                    }
+
+
                 }
 
-                dividedDefer.resolve(shoppingCartQueue);
+                current.calculateTotalFor(shoppingCart);
+                dividedDefer.resolve();
 
             } else {
                 dividedDefer.reject('Diviseur decimal ou inferieur ou egal a 1');
@@ -427,6 +532,8 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
                 currentShoppingCart.StoreId = $rootScope.IziBoxConfiguration.StoreId;
                 currentShoppingCart.CompanyInformation = settingService.getCompanyInfo();
                 currentShoppingCart.addCreditToBalance = false;
+                currentShoppingCart.PosVersion = $rootScope.Version;
+                currentShoppingCart.shoppingCartQueue = [];
 
                 $rootScope.$emit("shoppingCartChanged", currentShoppingCart);
 
@@ -470,6 +577,8 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
             currentShoppingCartIn.StoreId = $rootScope.IziBoxConfiguration.StoreId;
             currentShoppingCartIn.CompanyInformation = settingService.getCompanyInfo();
             currentShoppingCartIn.addCreditToBalance = false;
+            currentShoppingCartIn.PosVersion = $rootScope.Version;
+            currentShoppingCartIn.shoppingCartQueue = [];
 
             Enumerable.from(currentShoppingCartIn.Discounts).forEach(function (item) {
                 item.Total = 0;
@@ -491,11 +600,16 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
                 }
             });
 
+
+            /*
+            //Sert a rien
+
             posService.getUpdDailyTicketValueAsync(hdid, 1).then(function (cashRegisterTicketId) {
-                currentShoppingCart.dailyTicketId = cashRegisterTicketId;
+                currentShoppingCartIn.dailyTicketId = cashRegisterTicketId;
             }).then(function () {
                 $rootScope.$emit("shoppingCartChanged", currentShoppingCartIn);
             });
+            */
 
             return currentShoppingCartIn;
 
@@ -531,6 +645,8 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
                 currentShoppingCartOut.StoreId = $rootScope.IziBoxConfiguration.StoreId;
                 currentShoppingCartOut.CompanyInformation = settingService.getCompanyInfo();
                 currentShoppingCartOut.addCreditToBalance = false;
+                currentShoppingCartOut.PosVersion = $rootScope.Version;
+                currentShoppingCartOut.shoppingCartQueue = [];
 
                 var hdid = $rootScope.modelPos.hardwareId;
 
@@ -560,7 +676,7 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
                 posService.getUpdDailyTicketValueAsync(hdid, 1).then(function (value) {
                     currentShoppingCartOut.dailyTicketId = value;
                 }).then(function () {
-                    $rootScope.$emit("shoppingCartChanged", currentShoppingCart);
+                    $rootScope.$emit("shoppingCartChanged", currentShoppingCartOut);
                 });
 
                 var cloneItemsArray = [];
@@ -636,14 +752,14 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
                 } else {
                     sweetAlert($translate.instant("Produit introuvable"));
                 }
-            });;
+            });
         };
 
         //Add a product to the cart
         //TODO : refactor
         this.addToCart = function (product, forceinbasket, offer, isfree, formuleOfferte = false) {
             // The product is payed
-            if (this.getCurrentShoppingCart() && this.getCurrentShoppingCart().isPayed) {
+            if (this.getCurrentShoppingCart() && (this.getCurrentShoppingCart().isPayed || this.getCurrentShoppingCart().ParentTicket)) {
                 return;
             }
 
@@ -662,11 +778,11 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
                 }
 
                 //Test for a product with attributes
-                // POUR LES BURGERS / MENU
+                //POUR LES BURGERS / MENU
                 if (!forceinbasket && product.ProductTemplate && product.ProductTemplate.ViewPath != 'ProductTemplate.Simple') {
                     $rootScope.currentConfigurableProduct = product;
                     $rootScope.isConfigurableProductOffer = formuleOfferte;
-                    $state.go('catalog.' + product.ProductTemplate.ViewPath, { id: product.Id });
+                    $state.go('catalog.' + product.ProductTemplate.ViewPath, {id: product.Id, offer: offer});
 
                 }
                 else if (!forceinbasket && product.EmployeeTypePrice) {								//Product with a posuser defined price
@@ -750,7 +866,6 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
 
                         }
                         cartItem.hashkey = objectHash(cartItem);
-
                         currentShoppingCart.Items.push(cartItem);
                         if (cartItem.Product.ProductComments && cartItem.Product.ProductComments.length > 0) {
                             this.editComment(cartItem);
@@ -773,9 +888,9 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
             }
         };
 
-		/**
-		* Modal for the loyalty 'custom action' choice      
-		*/
+        /**
+         * Modal for the loyalty 'custom action' choice
+         */
         this.openCustomActionModal = function () {
             var modalInstance = $uibModal.open({
                 templateUrl: 'modals/modalCustomAction.html',
@@ -784,9 +899,9 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
                 size: 'lg',
             });
         };
-		/**
-		* Modal for the loyalty 'custom action' choice    
-		*/
+        /**
+         * Modal for the loyalty 'custom action' choice
+         */
         this.openModalDelivery = function (boolValue) {
 
             // Force the choice delivery on ticket validation
@@ -804,13 +919,14 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
             }
         };
 
-        function periodValidation(ignorePrintTicket){
+        function periodValidation(ignorePrintTicket) {
 
             // On recupere les periodes courantes et on les affecte au ticket
             // Si besoin est, on demande a l'utilisateur de renseigner le fond de caisse
             // Pour la nouvelle periode
-            posPeriodService.getYPeriodAsync(currentShoppingCart.HardwareId, currentShoppingCart.PosUserId, true, false).then(function(yp){
+            posPeriodService.getYPeriodAsync(currentShoppingCart.HardwareId, currentShoppingCart.PosUserId, true, false).then(function (yp) {
 
+                currentShoppingCart.yPeriodId = yp.id;
                 currentShoppingCart.yPeriodId = yp.id;
                 currentShoppingCart.zPeriodId = yp.zPeriodId;
                 var currentDate = new Date();
@@ -833,7 +949,7 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
                 // Once the ticket saved we delete the splitting ticket
                 currentShoppingCartIn = undefined;
 
-                if(currentShoppingCartOut || (shoppingCartQueue && shoppingCartQueue.length >= 1)) {
+                if (currentShoppingCartOut || (currentShoppingCart.shoppingCartQueue && currentShoppingCart.shoppingCartQueue.length >= 1)) {
                     if (currentShoppingCartOut) {
                         currentShoppingCart = clone(currentShoppingCartOut);
                         deliveryType = currentShoppingCart.DeliveryType;
@@ -842,66 +958,92 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
 
                     }
 
-                    if (shoppingCartQueue.length >= 1) {
-                        currentShoppingCart = clone(shoppingCartQueue[shoppingCartQueue.length -1]);
-                        shoppingCartQueue.splice(shoppingCartQueue.length -1, 1);
+                    if (currentShoppingCart.shoppingCartQueue.length >= 1) {
+                        //Stock la queue du ticket précédent
+                        var q = currentShoppingCart.shoppingCartQueue;
+
+                        //Affecte le shopping cart suivant de la queue
+                        currentShoppingCart = clone(currentShoppingCart.shoppingCartQueue[0]);
+                        //Raffecte la queue au nouveau current shoppingcart
+                        currentShoppingCart.shoppingCartQueue = q;
+                        currentShoppingCart.shoppingCartQueue.splice(0, 1);
                         deliveryType = currentShoppingCart.DeliveryType;
                         $rootScope.$emit("shoppingCartChanged", currentShoppingCart);
-                        if(shoppingCartQueue.length == 1){
-                            shoppingCartQueue = [];
+
+                        //Affecte le numéro dailyticket
+                        if (!currentShoppingCart.dailyTicketId) {
+                            posService.getUpdDailyTicketValueAsync(currentShoppingCart.hardwareId, 1).then(function (cashRegisterTicketId) {
+                                currentShoppingCart.dailyTicketId = cashRegisterTicketId;
+                            }).then(function () {
+                                $rootScope.$emit("shoppingCartChanged", currentShoppingCart);
+                                if (currentShoppingCart.shoppingCartQueue.length == 0) {
+                                    currentShoppingCart.shoppingCartQueue = [];
+                                }
+                            });
                         }
                     }
                 }
                 else {
-
+                    //Reset delivery type
+                    current.setDeliveryType(0);
                     current.clearShoppingCart();
                 }
-
+                $rootScope.hideLoading();
                 // Print Ticket
                 current.printPOSShoppingCart(toSave, ignorePrintTicket);
 
-            }, function(){
+            }, function () {
                 //Dans le cas ou le fetch / creation yPeriod echoue, on supprime le panier
                 $rootScope.hideLoading();
                 current.clearShoppingCart();
             });
         }
 
-		/**
-		*@ngdoc method
-		*@name validShoppingCart
-		*@methodOf shoppingCartModel
-		*@description 
-		*	Ticket validation
-		*@param {boolean} ignorePrintTicket printing is ignored
-		*@return {void}
-		*/
+        /**
+         *@ngdoc method
+         *@name validShoppingCart
+         *@methodOf shoppingCartModel
+         *@description
+         *    Ticket validation
+         *@param {boolean} ignorePrintTicket printing is ignored
+         *@return {void}
+         */
         this.validShoppingCart = function (ignorePrintTicket) {
             if (currentShoppingCart != undefined && currentShoppingCart.Items.length > 0) {
                 $rootScope.showLoading();
-                console.log(currentShoppingCart);
 
-                if (!currentShoppingCart.Residue == 0) {																	//The ticket must be paid
+                //The ticket must be paid
+                if (!currentShoppingCart.Residue == 0) {
                     $rootScope.hideLoading();
                     sweetAlert($translate.instant("Le ticket n'est pas soldé"));
                     return;
                 }
 
-                if(currentShoppingCart.Shipping){
+                if (currentShoppingCart.ParentTicket) {
+                    var db = $rootScope.remoteDbZPos ? $rootScope.remoteDbZPos : $rootScope.dbZPos;
+                    db.rel.find('ShoppingCart', currentShoppingCart.ParentTicket).then(function (response) {
+                        response.ShoppingCarts[0].Deleted = true;
+                        console.log(response);
+                        db.rel.save('ShoppingCart', response.ShoppingCarts[0]);
+                    });
+                }
+
+                //Si le ticket est associé à une table
+                if (currentShoppingCart.TableNumber) {
+                    //On stock l'info du temps d'activité de la table
+                    currentShoppingCart.TableActiveTime = Date.now() - currentShoppingCart.Timestamp - 3600000;
 
                 }
 
                 // Si le ticket est associé à un client
-                if(currentShoppingCart.customerLoyalty){
+                if (currentShoppingCart.customerLoyalty) {
                     //Si le client possède au moins une balance UseToPay
-                    var hasBalanceUseToPay = Enumerable.from(currentShoppingCart.customerLoyalty.Balances).firstOrDefault(function(balance){
+                    var hasBalanceUseToPay = Enumerable.from(currentShoppingCart.customerLoyalty.Balances).firstOrDefault(function (balance) {
                         return balance.UseToPay == true;
                     });
 
                     if (hasBalanceUseToPay && currentShoppingCart.Credit > 0) {
-
                         currentShoppingCart.utpId = hasBalanceUseToPay.Id;
-
                         // Propose à l'utilisateur de crediter son compte fidélité
                         swal({
                                 title: "Cagnotter l'avoir sur le compte fidélité ?",
@@ -920,25 +1062,24 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
                                 }
                                 periodValidation(ignorePrintTicket);
                             });
-
                     } else {
                         periodValidation(ignorePrintTicket);
                     }
-
                 } else {
                     periodValidation(ignorePrintTicket);
                 }
             }
         };
 
-		/**
-		 *  Print the last ticket
-		 */
+        /**
+         *  Print the last ticket
+         */
         this.printLastShoppingCart = function () {
 
             this.getLastShoppingCartAsync().then(function (lastShoppingCart) {
                 if (lastShoppingCart) {
-                    shoppingCartService.reprintShoppingCartAsync(lastShoppingCart).then(function () { },
+                    shoppingCartService.reprintShoppingCartAsync(lastShoppingCart).then(function () {
+                        },
                         function () {
                             sweetAlert($translate.instant("Erreur d'impression du dernier ticket !"));
                         });
@@ -965,10 +1106,10 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
             return lastShoppingCart;
         };
 
-		/***
-		 * Print a note for the customer - The note doesn't include the shopping cart details
-		 * @param shoppingCart
-		 */
+        /***
+         * Print a note for the customer - The note doesn't include the shopping cart details
+         * @param shoppingCart
+         */
         this.printShoppingCartNote = function (shoppingCart) {
 
             var continuePrint = function (shoppingCart) {
@@ -981,7 +1122,8 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
                     });
 
                     modalInstance.result.then(function (nbNote) {
-                        shoppingCartService.printShoppingCartAsync(shoppingCart, $rootScope.PrinterConfiguration.POSPrinter, false, 1, false, nbNote).then(function () { },
+                        shoppingCartService.printShoppingCartAsync(shoppingCart, $rootScope.PrinterConfiguration.POSPrinter, false, 1, false, nbNote).then(function () {
+                            },
                             function () {
                                 sweetAlert($translate.instant("Erreur d'impression de la note !"));
                             });
@@ -1007,72 +1149,76 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
 
         };
 
-		/**
-		 * Print the ticket
-		 * @param shoppingCart
-		 * @param ignorePrintTicket
-		 */
+        /**
+         * Print the ticket
+         * @param shoppingCart
+         * @param ignorePrintTicket
+         */
         this.printPOSShoppingCart = function (shoppingCart, ignorePrintTicket) {
 
             //The ticket is sent for printing
             shoppingCartService.printShoppingCartAsync(shoppingCart, $rootScope.PrinterConfiguration.POSPrinter,
                 true, $rootScope.PrinterConfiguration.POSPrinterCount, ignorePrintTicket).then(function (obj) {
 
-                    if ($rootScope.IziBoxConfiguration.ForcePrintProdTicket) {
-                        //Print the Prod Ticket (Bleu button)
-                        if ($rootScope.IziBoxConfiguration.StepEnabled) {
-                            current.printStepProdShoppingCart(lastShoppingCart);
-                        }
-                        //Print the Prod Ticket (green button, toque)
-                        else {
-                            current.printProdShoppingCart(lastShoppingCart);
-                        }
-                    }
+                if ($rootScope.IziBoxConfiguration.ForcePrintProdTicket) {
+                    //ForcePrintProd et Step Enabled devrait être exclusif
+                    //Il est illogique de gerer les steps, et d'imprimer automatiquement la premiere step lors de la validation du ticket en même temps
 
-                }, function (err) {
+                    //Print the Prod Ticket (toque)
+                    if ($rootScope.IziBoxConfiguration.StepEnabled) {
+                        current.printStepProdShoppingCartAsync(lastShoppingCart).then(function(){
 
-                    // Possible value in err.result :
-                    //  - Le service n'a pas répondu. Veuillez essayer de nouveau
-                    //  - Le ticket est vide, impossible de le valider
-                    //  - Aucun article n'a été ajouté au ticket, impossible de le valider
-                    //  - Les moyens de payment ne sont pas renseignés, impossible de valider le ticket
-                    if (!ignorePrintTicket) {
-                        if (err.error == undefined) {
-                            err.error = "Erreur d'impression caisse !";
-                        }
-                        sweetAlert($translate.instant(err.error));
-                        //sweetAlert($translate.instant("Erreur d'impression caisse !"));
+                        });
                     }
+                    //Print the Prod Ticket (bouton bleu)
+                    else {
+                        current.printProdShoppingCartAsync(lastShoppingCart);
+                    }
+                }
 
-                    //Sauvegarde de la requete dans PouchDb pour stockage ultérieur
-                    if (err.request) {
-                        err.request._id = err.request.ShoppingCart.id.toString();
-                        $rootScope.dbValidatePool.put(err.request);
+            }, function (err) {
+
+                // Possible value in err.result :
+                //  - Le service n'a pas répondu. Veuillez essayer de nouveau
+                //  - Le ticket est vide, impossible de le valider
+                //  - Aucun article n'a été ajouté au ticket, impossible de le valider
+                //  - Les moyens de payment ne sont pas renseignés, impossible de valider le ticket
+                if (!ignorePrintTicket) {
+                    if (err.error == undefined) {
+                        err.error = "Erreur d'impression caisse !";
                     }
-                });
+                    sweetAlert($translate.instant(err.error));
+                    //sweetAlert($translate.instant("Erreur d'impression caisse !"));
+                }
+
+                //Sauvegarde de la requete dans PouchDb pour stockage ultérieur
+                if (err.request) {
+                    err.request._id = err.request.ShoppingCart.id.toString();
+                    $rootScope.dbValidatePool.put(err.request);
+                }
+            });
         };
 
-		/**
-		 * Delete the current ticket
-		 * @deprecated
-		 */
+        /**
+         * Delete the current ticket
+         * @deprecated
+         */
         this.cancelShoppingCart = function () {
             this.clearShoppingCart();
         };
 
-		/**
-		 * Cancel the shopping cart - The event should be logged
-		 */
+        /**
+         * Cancel the shopping cart - The event should be logged
+         */
         this.cancelShoppingCartAndSend = function () {
             // Retabli le mode de fonctionnement normal
             $rootScope.PhoneOrderMode = false;
+            //Reset le mode de consommation à sur place
+            deliveryType = 0;
             if (currentShoppingCart != undefined) {
-                console.log(currentShoppingCart);
-
+                //console.log(currentShoppingCart);
                 var hdid = currentShoppingCart.HardwareId;
-
                 posService.getUpdDailyTicketAsync(hdid, -1);
-
                 $rootScope.showLoading();
 
                 var currentDate = new Date();
@@ -1081,7 +1227,6 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
 
                 var cancelContinue = function () {
                     $rootScope.hideLoading();
-
                     //Si la sauvegarde du ticket validé est ok, on supprime éventuellement les tickets splittés.
                     currentShoppingCartIn = undefined;
 
@@ -1098,23 +1243,25 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
 
                 shoppingCartService.printShoppingCartAsync(currentShoppingCart, $rootScope.PrinterConfiguration.POSPrinter,
                     true, $rootScope.PrinterConfiguration.POSPrinterCount, true).then(function (result) {
-                        cancelContinue();
-                    }, function (err) {
-                        //Sauvegarde de la requete dans PouchDb pour stockage ultérieur
-                        if (err.request) {
-                            err.request._id = err.request.ShoppingCart.id.toString();
-                            $rootScope.dbValidatePool.put(err.request);
-                        }
-                        cancelContinue();
-                    });
+                    cancelContinue();
+                }, function (err) {
+                    //Sauvegarde de la requete dans PouchDb pour stockage ultérieur
+                    if (err.request) {
+                        err.request._id = err.request.ShoppingCart.id.toString();
+                        $rootScope.dbValidatePool.put(err.request);
+                    }
+                    cancelContinue();
+                });
             }
 
         };
 
-		/**
-		 * Send a ticket for production
-		 */
-        this.printProdShoppingCart = function (forceShoppingCart) {
+        /**
+         * Send a ticket for production
+         */
+        this.printProdShoppingCartAsync = function (forceShoppingCart) {
+
+            var printDefer = $q.defer();
 
             var shoppingCart = currentShoppingCart;
 
@@ -1129,16 +1276,20 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
                 var toPrint = clone(shoppingCart);
                 toPrint.Items = Enumerable.from(shoppingCart.Items).where("item => item.Quantity > 0").toArray();
 
-                shoppingCartService.printShoppingCartAsync(toPrint, $rootScope.PrinterConfiguration.ProdPrinter, false, $rootScope.PrinterConfiguration.ProdPrinterCount, false, 0).then(function (msg) {
+                shoppingCartService.printShoppingCartAsync(toPrint, $rootScope.PrinterConfiguration.ProdPrinter, false, $rootScope.PrinterConfiguration.ProdPrinterCount, false, 0, printDefer).then(function (msg) {
+
                 }, function (err) {
                     sweetAlert($translate.instant("Erreur d'impression production !"));
                 });
             }
+
+            return printDefer.promise;
         };
 
         //Send the ticket to the production printer
         //The printing is managing the 'steps'
-        this.printStepProdShoppingCart = function (forceShoppingCart) {
+        this.printStepProdShoppingCartAsync = function (forceShoppingCart, nbStep) {
+            var printDefer = $q.defer();
 
             var shoppingCart = currentShoppingCart;
 
@@ -1151,7 +1302,7 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
 
                 var shoppingCartProd = clone(shoppingCart);
 
-                shoppingCartService.printProdAsync(shoppingCartProd, shoppingCart.CurrentStep).then(function (req) {
+                shoppingCartService.printProdAsync(shoppingCartProd, shoppingCart.CurrentStep, printDefer, nbStep).then(function (req) {
                     Enumerable.from(shoppingCart.Items).forEach(function (item) {
                         if (item.Step == req.Step) {
                             item.Printed = true;
@@ -1181,6 +1332,8 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
                     sweetAlert($translate.instant("Erreur d'impression production !"));
                 });
             }
+
+            return printDefer.promise;
         };
 
         //Put a ticket in a stand-by
@@ -1218,7 +1371,7 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
         this.unfreezeShoppingCartById = function (id) {
             if (currentShoppingCart == undefined) {
                 shoppingCartService.getFreezedShoppingCartByIdAsync(id).then(function (shoppingCart) {
-                    shoppingCartService.unfreezeShoppingCartAsync(shoppingCart).then(function(){
+                    shoppingCartService.unfreezeShoppingCartAsync(shoppingCart).then(function () {
                         currentShoppingCart = shoppingCart;
                         deliveryType = currentShoppingCart.DeliveryType;
                         current.calculateTotal();
@@ -1320,7 +1473,9 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
             var modalInstance;
 
             var resultSelectTable = function () {
+
                 modalInstance.result.then(function (tableValues) {
+                    current.setDeliveryType(0);
                     var updateSelectedTable = function (tableValues, isUnfreeze) {
                         var setValues = function (tableValues) {
                             currentShoppingCart.TableNumber = tableValues.tableNumber;
@@ -1498,14 +1653,15 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
                     }
                 }, function (err) {
                     console.log(err);
-                    swal($translate.instant("Le serveur de fidélité n'a pas répondu !"));
+                    swal($translate.instant("Le serveur de fidélité n'est pas joignable ..."));
+                    $rootScope.hideLoading();
                 });
             }
         };
 
-		/**
-		 * Delete balance and offer in the customer loyalty
-		 */
+        /**
+         * Delete balance and offer in the customer loyalty
+         */
         this.removeAllLoyalties = function () {
             if (currentShoppingCart.customerLoyalty) {
 
@@ -1525,10 +1681,10 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
             }
         };
 
-		/**
-		 * Empty Obj for loyalty operation
-		 * @returns {{Login: null, Password: null, Key: null, Barcode: (*|string), CustomerFirstName: *, CustomerLastName: *, CustomerEmail: *, OrderTotalIncludeTaxes: number, OrderTotalExcludeTaxes: number, CurrencyCode: string, Items: Array, BalanceUpdate: {}, OrderSpecificInfo: string}}
-		 */
+        /**
+         * Empty Obj for loyalty operation
+         * @returns {{Login: null, Password: null, Key: null, Barcode: (*|string), CustomerFirstName: *, CustomerLastName: *, CustomerEmail: *, OrderTotalIncludeTaxes: number, OrderTotalExcludeTaxes: number, CurrencyCode: string, Items: Array, BalanceUpdate: {}, OrderSpecificInfo: string}}
+         */
         this.createEmptyPassageObj = function () {
             if (currentShoppingCart != null && currentShoppingCart.customerLoyalty != null && currentShoppingCart.customerLoyalty.Barcodes.length > 0) {
                 return {
@@ -1553,9 +1709,9 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
             }
         };
 
-		/**
-		 * Apply offers - text offers are not available to use
-		 */
+        /**
+         * Apply offers - text offers are not available to use
+         */
         this.calculateLoyalty = function () {
             if (currentShoppingCart != undefined && currentShoppingCart.customerLoyalty != undefined && currentShoppingCart.customerLoyalty.Offers != undefined) {
                 var totalCart = currentShoppingCart != undefined && currentShoppingCart.Total != undefined ? currentShoppingCart.Total : 0;
@@ -1604,7 +1760,9 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
         this.removeBalances = function (balancesToRemove) {
             for (var i = 0; i < balancesToRemove.length; i++) {
                 var balance = balancesToRemove[i];
-                var idxToRemove = Enumerable.from(paymentModesAvailable).indexOf(function (p) { return p.Value == balance; });
+                var idxToRemove = Enumerable.from(paymentModesAvailable).indexOf(function (p) {
+                    return p.Value == balance;
+                });
                 if (idxToRemove > -1) {
                     paymentModesAvailable.splice(idxToRemove);
                 }
@@ -1615,7 +1773,9 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
         this.removeOffers = function (offersToRemove) {
             for (var i = 0; i < offersToRemove.length; i++) {
                 var offer = offersToRemove[i];
-                var cartItemToRemove = Enumerable.from(currentShoppingCart.Items).firstOrDefault(function (i) { return i.Offer == offer; });
+                var cartItemToRemove = Enumerable.from(currentShoppingCart.Items).firstOrDefault(function (i) {
+                    return i.Offer == offer;
+                });
                 if (cartItemToRemove) {
                     offer.isApplied = false;
                     this.removeItem(cartItemToRemove);
@@ -1624,7 +1784,7 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
         };
 
         this.applyBalances = function (balances) {
-            paymentModesAvailable = paymentModesAvailable.filter(function(pma){
+            paymentModesAvailable = paymentModesAvailable.filter(function (pma) {
                 return !pma.IsBalance;
             });
             // Il faut delete les autres balances avant d'ajouter celles ci
@@ -1678,7 +1838,7 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
                     //Apply offer price
                     product.Price = offerPrice > product.Price ? product.Price : offerPrice;
 
-                    if(product.ProductAttributes.length > 0) {
+                    if (product.ProductAttributes.length > 0) {
                         current.addToCart(product, false, offer);
                     } else {
                         current.addToCart(product, true, offer);
@@ -1866,7 +2026,7 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
             }
         };
 
-        this.addPaymentMode = function (selectedPaymentMode) {
+        this.addPaymentMode = function (selectedPaymentMode, isValidCancel) {
             var result = false;
 
             if (currentShoppingCart != undefined) {
@@ -1882,13 +2042,13 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
                     paymentMode.Total = roundValue(paymentMode.Total + selectedPaymentMode.Total);
                 }
 
-                result = current.setPaymentMode(paymentMode);
+                result = current.setPaymentMode(paymentMode, isValidCancel);
             }
 
             return result;
         };
 
-        this.setPaymentMode = function (paymentMode) {
+        this.setPaymentMode = function (paymentMode, isValidCancel) {
             var result = false;
 
             if (currentShoppingCart != undefined) {
@@ -1902,7 +2062,7 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
                 if (!paymentMode.IsBalance) {
                     var idxElem = currentShoppingCart.PaymentModes.indexOf(paymentMode);
 
-                    if (idxElem == -1 && paymentMode.Total > 0) {
+                    if (idxElem == -1 && (paymentMode.Total > 0 || isValidCancel)) {
                         currentShoppingCart.PaymentModes.push(paymentMode);
                     } else if (paymentMode.Total == 0) {
                         currentShoppingCart.PaymentModes.splice(idxElem, 1);
@@ -1919,7 +2079,6 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
                         currentShoppingCart.BalanceUpdate = undefined;
                     }
                 }
-
                 current.calculateTotal();
 
                 result = true;
@@ -2014,9 +2173,9 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
         //#endregion
 
         //#region Total Calcul
-		/**
-		 * @deprecated
-		 */
+        /**
+         * @deprecated
+         */
         this.calculateTotal = function () {
             this.calculateTotalFor(currentShoppingCart);
         };
@@ -2080,9 +2239,9 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
             current.calculateTotal();
         }, 500);
 
-		/**
-		* Event on PouchDbChanged
-		*/
+        /**
+         * Event on PouchDbChanged
+         */
 
         // Payment modes updates
         $rootScope.$on('pouchDBChanged', function (event, args) {

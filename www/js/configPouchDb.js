@@ -451,7 +451,7 @@ var setupDatabases = function ($rootScope, $q, zposService, posService) {
 
     //#region dbZPos
     $rootScope.InitDBZpos = function () {
-        $rootScope.dbZPos = new PouchDB('izipos_zpos', { adapter: settingsPouchDB.typeDB });
+        //$rootScope.dbZPos = new PouchDB('izipos_zpos', { adapter: settingsPouchDB.typeDB });
 
         var zposInfo = undefined;
 
@@ -470,63 +470,61 @@ var setupDatabases = function ($rootScope, $q, zposService, posService) {
                 }
             ]);
 
-            $rootScope.dbZPos.info().then(function (resInfo) {
-                zposInfo = resInfo;
-                if (!zposInfo) {
-                    $rootScope.modelDb.zposReady = true;
-                }
-            }).catch(function (err) {
-                $rootScope.modelDb.zposReady = true;
-            });
+            $rootScope.modelDb.zposReady = true;
+
+            //$rootScope.dbZPos.info().then(function (resInfo) {
+            //    zposInfo = resInfo;
+            //    if (!zposInfo) {
+            //        $rootScope.modelDb.zposReady = true;
+            //    }
+            //}).catch(function (err) {
+            //    $rootScope.modelDb.zposReady = true;
+            //});
 
             // TODO: remove
-            $rootScope.dbZPos.replicate.to($rootScope.remoteDbZPos, settingsPouchDB.optsReplicate)
-                .on('change', function (info) {
-                    if (!info) {
-                        info = {};
-                    }
-                    info.remoteInfo = zposInfo;
-                    $rootScope.modelDb.zposReady = false;
-                    info.status = "Change";
-                    $rootScope.$emit("dbZposChange", info);
-                })
-                .on('error', function (info) {
-                    $rootScope.modelDb.zposReady = true;
-                    $rootScope.$evalAsync();
-                })
-                //.on('complete', function () {
-                //    $rootScope.modelDb.zposReady = true;
-                //    $rootScope.$evalAsync();
-                //})
-                .on('paused', function (err) {
-                    //if (!err) {
+            //$rootScope.dbZPos.replicate.to($rootScope.remoteDbZPos, settingsPouchDB.optsReplicate)
+            //    .on('change', function (info) {
+            //        if (!info) {
+            //            info = {};
+            //        }
+            //        info.remoteInfo = zposInfo;
+            //        $rootScope.modelDb.zposReady = false;
+            //        info.status = "Change";
+            //        $rootScope.$emit("dbZposChange", info);
+            //    })
+            //    .on('error', function (info) {
+            //        $rootScope.modelDb.zposReady = true;
+            //        $rootScope.$evalAsync();
+            //    })
+            //    .on('paused', function (err) {
+            //        //if (!err) {
 
-                        if (!$rootScope.modelDb.zposReady) {
-                            $rootScope.modelDb.zposReady = true;
-                            $rootScope.dbZPos.destroy().then(function () {
-                                $rootScope.InitDBZpos();
-                            });
-                        }
+            //            if (!$rootScope.modelDb.zposReady) {
+            //                $rootScope.modelDb.zposReady = true;
+            //                $rootScope.dbZPos.destroy().then(function () {
+            //                    $rootScope.InitDBZpos();
+            //                });
+            //            }
 
-                        $rootScope.$evalAsync();
-                    //} else {
-                    //    console.error(err);
-                    //}
-                });
+            //            $rootScope.$evalAsync();
+            //        //} else {
+            //        //    console.error(err);
+            //        //}
+            //    });
         } else {
             $rootScope.modelDb.zposReady = true;
         }
 
-        $rootScope.dbZPos.setSchema([
-            {
-                singular: 'ShoppingCart',
-                plural: 'ShoppingCarts'
-            },
-            {
-                singular: 'PaymentValues',
-                plural: 'AllPaymentValues'
-            }
-        ]);
+        //$rootScope.dbZPos.setSchema([
+        //    {
+        //        singular: 'ShoppingCart',
+        //        plural: 'ShoppingCarts'
+        //    },
+        //    {
+        //        singular: 'PaymentValues',
+        //        plural: 'AllPaymentValues'
+        //    }
+        //]);
     };
 
 

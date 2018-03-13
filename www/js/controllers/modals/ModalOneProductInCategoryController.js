@@ -45,9 +45,9 @@
     };
 
     $scope.addToCart = function (product, forceinbasket, offer) {
-        if(!product.DisableBuyButton){
+        if (!product.DisableBuyButton) {
             // Si le produit en question est une formule
-            if(product.ProductAttributes.length > 0){
+            if (product.ProductAttributes.length > 0) {
                 shoppingCartModel.addToCart(product, false, $scope.offerOneProductInCategory, undefined, true);
             } else {
                 shoppingCartModel.addToCart(product, true, $scope.offerOneProductInCategory);

@@ -6,8 +6,17 @@
     };
 
     $scope.init = function () {
-        $scope.currentShoppingCartOut = cloneShoppingCart(shoppingCartModel.getCurrentShoppingCartOut() || shoppingCartModel.createShoppingCartOut());
         $scope.currentShoppingCartIn = cloneShoppingCart(shoppingCartModel.getCurrentShoppingCartIn() || shoppingCartModel.createShoppingCartIn());
+        $scope.currentShoppingCartOut = cloneShoppingCart(shoppingCartModel.getCurrentShoppingCartOut() || shoppingCartModel.createShoppingCartOut());
+
+        if(!$scope.currentShoppingCartIn.dailyTicketId){
+            posService.getUpdDailyTicketValueAsync($scope.currentShoppingCartIn.hardwareId, 1).then(function (cashRegisterTicketId) {
+                $scope.currentShoppingCartIn.dailyTicketId = cashRegisterTicketId;
+            }).then(function () {
+                $rootScope.$emit("shoppingCartChanged", $scope.currentShoppingCartIn);
+            });
+        }
+
 
         if ($scope.currentShoppingCartOut.TableNumber) {
             $scope.currentShoppingCartIn.TableNumber = $scope.currentShoppingCartOut.TableNumber;
@@ -78,24 +87,36 @@
 
 
         var matchedItem = Enumerable.from(to.Items).firstOrDefault(function (itemOut) {
-            return itemOut.hashkey == itemIn.hashkey;
+            return itemOut.hashkey == itemIn.hashkey && itemOut.ProductId == itemIn.ProductId && itemOut.Step == itemIn.Step && itemOut.Product.Price == itemIn.Product.Price;
         });
 
         if (matchedItem) {
-
             if (Number.isInteger(itemIn.Quantity) || itemIn.Quantity >= 1) {
                 var qty = 1
             } else {
                 var qty = itemIn.Quantity;
             }
-
-
             matchedItem.Quantity += qty;
-            //matchedItem.DiscountIT *= matchedItem.Quantity;
-            //matchedItem.DiscountET *= matchedItem.Quantity;
             itemIn.Quantity -= qty;
-            //itemIn.DiscountIT *= matchedItem.Quantity;
+
+            /*
+
+            var ratio = qty / itemIn.Quantity;
+            matchedItem.DiscountIT += ratio * clone(itemIn.DiscountIT);
+            matchedItem.DiscountET += ratio * clone(itemIn.DiscountET);
+
+            itemIn.DiscountIT -= ratio * clone(itemIn.DiscountIT);
+            itemIn.DiscountET -= ratio * clone(itemIn.DiscountET);
+
+            */
+
             if(itemIn.Quantity ==0){
+                //Transfer le discout en même temps que le dernier item de la ligne.
+                //Pose probleme dans le cas ou le discount ligne > prix unitaire de l'article
+
+                matchedItem.DiscountIT += itemIn.DiscountIT;
+                matchedItem.DiscountET += itemIn.DiscountET;
+
                 shoppingCartModel.removeItemFrom(from, itemIn);
             }
 

@@ -57,7 +57,7 @@
             itemCount = itemCount + i.Quantity;
         });
 
-        return itemCount;
+        return roundValue(itemCount);
     };
 
     $scope.checkShoppingCart = function (shoppingCart, event) {
@@ -105,11 +105,6 @@
         });
     };
 
-    //ATTENTION
-    //Comportement avec les dailyticket, et RKCompteur
-    //DT : il faut que le ticket produit par la fusion soit indexé a la suite des autres
-    //RKC : Il faut que les entrées des deux ticket combiné soit décrémenté
-    //Il ne faut pas que les entrées soit groupé non plus
     $scope.join = function () {
         swal({
                 title: $translate.instant("Joindre les tickets sélectionnés ?"),
@@ -126,7 +121,14 @@
                 var toJoin = Enumerable.from($scope.selectedShoppingCarts).orderBy("s=>s.Timestamp").toArray();
 
                 Enumerable.from($scope.selectedShoppingCarts).forEach(function (s) {
-                    shoppingCartService.unfreezeShoppingCartAsync(s);
+                    //ATTENTION
+                    //Bricolage, a amélioré
+                    //Permet que le RK compteur soit décrémenté correctement
+                    //Sinon on a des pn de missing rev
+                    setTimeout(function(){
+                        shoppingCartService.unfreezeShoppingCartAsync(s);
+                    },100)
+
                 });
 
                 var joinedShoppingCart = toJoin[0];

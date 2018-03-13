@@ -1,11 +1,11 @@
-app.service('taxesService', ['$rootScope', '$q','settingService',
+app.service('taxesService', ['$rootScope', '$q', 'settingService',
     function ($rootScope, $q, settingService) {
 
         var cacheTaxProvider = undefined;
         var cacheTaxCategories = undefined;
-        var cacheTaxDisplay = undefined;       
+        var cacheTaxDisplay = undefined;
         var cacheIsPricesIncludedTax = undefined;
-    	var self = this;
+        var self = this;
 
         $rootScope.$on('pouchDBChanged', function (event, args) {
             if (args.status == "Change" && args.id.indexOf('Setting') == 0) {
@@ -47,8 +47,8 @@ app.service('taxesService', ['$rootScope', '$q','settingService',
                 });
             }
             return taxDetails;
-        };
 
+        };
 
         //#region Données TAXE -> PouchDB
 
@@ -60,7 +60,7 @@ app.service('taxesService', ['$rootScope', '$q','settingService',
 
             if ($rootScope.modelDb.databaseReady) {
                 if (cacheIsPricesIncludedTax) {
-                    taxDisplayDefer.resolve(cacheIsPricesIncludedTax);
+                    pricesIncludedTaxDefer.resolve(cacheIsPricesIncludedTax);
                 } else {
                     $rootScope.dbInstance.rel.find('Setting').then(function (results) {
                         var pricesIncludedTax = Enumerable.from(results.Settings).firstOrDefault("s => s.Name.indexOf('taxsettings.pricesincludetax') == 0");
@@ -85,8 +85,8 @@ app.service('taxesService', ['$rootScope', '$q','settingService',
 
         /**
          * Gets if the product price is display with or without taxes
-        *@deprecated 
-        */
+         *@deprecated
+         */
         this.getTaxDisplayTypeAsync = function () {
             var taxDisplayDefer = $q.defer();
 
@@ -111,7 +111,7 @@ app.service('taxesService', ['$rootScope', '$q','settingService',
             }
             return taxDisplayDefer.promise;
         };
-        
+
         this.getTaxDisplayTypeAsync();
 
         this.getTaxDisplayType = function () {
@@ -209,42 +209,42 @@ app.service('taxesService', ['$rootScope', '$q','settingService',
             });
         };
 
-        /** Gets the different tax categories according to the tax system */        
+        /** Gets the different tax categories according to the tax system */
         this.getTaxCategoriesAsync = function () {
-        	var taxCategoriesDefer = $q.defer();
+            var taxCategoriesDefer = $q.defer();
 
-        	if ($rootScope.modelDb.databaseReady) {
-        		if (cacheTaxCategories) {
-        			taxCategoriesDefer.resolve(cacheTaxCategories);
-        		} else {
+            if ($rootScope.modelDb.databaseReady) {
+                if (cacheTaxCategories) {
+                    taxCategoriesDefer.resolve(cacheTaxCategories);
+                } else {
 
-        		    this.getTaxProviderAsync().then(function (displayType) {
-        		        switch (displayType) {
-        		            case "Tax.FixedRate":
-        		                getTaxFixedRate(taxCategoriesDefer);
-        		                break;
-        		            case "Tax.Quebec":
-        		                getTaxQuebec(taxCategoriesDefer);
-        		                break;
-        		        }
+                    this.getTaxProviderAsync().then(function (displayType) {
+                        switch (displayType) {
+                            case "Tax.FixedRate":
+                                getTaxFixedRate(taxCategoriesDefer);
+                                break;
+                            case "Tax.Quebec":
+                                getTaxQuebec(taxCategoriesDefer);
+                                break;
+                        }
 
-        		    }, function () {
-        		        // If provider undefined we're using the Fixed Rate provider by default
-        		        getTaxFixedRate(taxCategoriesDefer);
-        		    });        		   
-        		}
-        	} else {
-        		taxCategoriesDefer.reject("Database isn't ready !");
-        	}
-        	return taxCategoriesDefer.promise;
+                    }, function () {
+                        // If provider undefined we're using the Fixed Rate provider by default
+                        getTaxFixedRate(taxCategoriesDefer);
+                    });
+                }
+            } else {
+                taxCategoriesDefer.reject("Database isn't ready !");
+            }
+            return taxCategoriesDefer.promise;
         };
         //#endregion
 
 
         //#region Calculs Taxe
-        
+
         /** Get a list of tax for a given tax system */
-        var getTaxDetailLine = function (taxCategoryId,taxCode,taxRate,taxAmount,priceIT,priceET) {
+        var getTaxDetailLine = function (taxCategoryId, taxCode, taxRate, taxAmount, priceIT, priceET) {
             var taxDetail = {
                 TaxCategoryId: taxCategoryId,
                 TaxCode: taxCode,
@@ -259,33 +259,6 @@ app.service('taxesService', ['$rootScope', '$q','settingService',
 
         // TODO: The code below doesn't belong in this file 
         // It should be in the shoppingcartcontroller
-         
-        // Get tax value
-        var getTaxValue = function (valueET, taxRate) {
-            return (valueET * taxRate) / 100;
-        };
-
-        /**
-         * From price without tax to price included tax
-         * @param valueET
-         * @param taxRate
-         * @returns {number}
-         */
-        var ETtoIT = function (valueET, taxRate) {
-            var valueIT = valueET + getTaxValue(valueET, taxRate);
-            return valueIT;
-        };
-
-        /**
-         * From price included tax to price  without tax
-         * @param valueIT
-         * @param taxRate
-         * @returns {number}
-         */
-        var ITtoET = function (valueIT, taxRate) {
-            valueET = valueIT / ((taxRate / 100) + 1);
-            return valueET;
-        };
 
         var calculateTax = function (deliveryType, taxCategory, price, quantity, discountIT = 0, discountET = 0) {
             var priceIT = 0;
@@ -301,64 +274,63 @@ app.service('taxesService', ['$rootScope', '$q','settingService',
 
                     // Calculate excluding tax price
                     if (!cacheIsPricesIncludedTax) {
-                        if(quantity != 0){
-                            priceET = price ;//- (discountET / quantity);
+                        if (quantity != 0) {
+                            priceET = price - (discountET / quantity);
                             priceIT = ETtoIT(priceET, taxRate);
                         } else {
                             priceET = 0;
                             priceIT = 0;
                         }
-
                     }
 
                     // Calculate price including tax
                     else {
-                        if(quantity != 0) {
-                            priceIT = price ;//- (discountIT / quantity);
+                        if (quantity != 0) {
+                            priceIT = price - (discountIT / quantity);
                             priceET = ITtoET(priceIT, taxRate);
                         } else {
                             priceET = 0;
                             priceIT = 0;
                         }
                     }
-
                     // Add the result to the tax list
                     // ATTENTION au round value
                     var newTaxDetail = getTaxDetailLine(taxCategory.TaxCategoryId, "TVA", taxRate, roundValue(priceIT - priceET) * quantity, priceIT * quantity, priceET * quantity);
                     taxDetails.push(newTaxDetail);
-
-
 
                     break;
 
                 case "Tax.Quebec":
                     // Tps is the provincial tax and tvq is the quebec tax
                     var tpsAmount, tvqAmount;
-
                     // Price is without taxes
                     if (!cacheIsPricesIncludedTax) {
-                        priceET = price - (discountET / quantity);
 
-                        tpsAmount = getTaxValue(priceET, taxCategory.TPSValue);
-                        tvqAmount = getTaxValue(priceET, taxCategory.TVQValue);
+                        //console.log('Price ET : ', price - (discountET / quantity));
+                        priceET = Math.round10((price - (discountET / quantity)), -4);
 
-                        priceIT = priceET + tpsAmount + tvqAmount;
+                        //console.log('tpsAmount : ', getTaxValue(priceET, taxCategory.TPSValue));
+                        tpsAmount = Math.round10(getTaxValue(priceET, taxCategory.TPSValue), -4);
 
+                        //console.log('tvqAmount : ', getTaxValue(priceET, taxCategory.TVQValue));
+                        tvqAmount = Math.round10(getTaxValue(priceET, taxCategory.TVQValue), -4);
+
+                        //console.log('Price IT : ', priceET + tpsAmount + tvqAmount);
+                        priceIT = Math.round10((priceET + tpsAmount + tvqAmount), -4);
                     }
+
                     // Price includes taxes
                     else {
-                        priceIT = price - (discountIT / quantity);
+                        priceIT = (price - (discountIT / quantity));
                         priceET = ITtoET(priceIT, taxCategory.TPSValue + taxCategory.TVQValue);
                         tpsAmount = getTaxValue(priceET, taxCategory.TPSValue);
                         tvqAmount = getTaxValue(priceET, taxCategory.TVQValue);
                     }
-
                     // Adding the amount of taxes to the tax list
                     var newTaxDetailTPS = getTaxDetailLine(taxCategory.TaxCategoryId, "TPS", taxCategory.TPSValue, tpsAmount * quantity, priceIT * quantity, priceET * quantity);
                     var newTaxDetailTVQ = getTaxDetailLine(taxCategory.TaxCategoryId, "TVQ", taxCategory.TVQValue, tvqAmount * quantity, priceIT * quantity, priceET * quantity);
                     taxDetails.push(newTaxDetailTPS);
                     taxDetails.push(newTaxDetailTVQ);
-
                     break;
             }
 
@@ -372,6 +344,20 @@ app.service('taxesService', ['$rootScope', '$q','settingService',
             };
 
             return taxValues;
+        };
+
+        var getTaxRate = function (taxCategory, deliveryType = 0) {
+            var taxRate = 0;
+            switch (cacheTaxProvider) {
+                case "Tax.FixedRate":
+                    taxRate = deliveryType == DeliveryTypes.FORHERE ? taxCategory.VAT : taxCategory.altVAT;
+                    break;
+
+                case "Tax.Quebec":
+                    taxRate = taxCategory.TPSValue + taxCategory.TVQValue;
+                    break;
+            }
+            return taxRate;
         };
 
         /** Do the necessary calculation for a cart item - discount, sum, taxes .... */
@@ -392,6 +378,9 @@ app.service('taxesService', ['$rootScope', '$q','settingService',
             cartItem.PriceIT = 0;
             cartItem.PriceET = 0;
             cartItem.TaxDetails = [];
+
+            //cartItem.Quantity = roundValue(cartItem.Quantity );
+
 
             // If the item is flagged as free
             if (cartItem.IsFree) {
@@ -432,96 +421,99 @@ app.service('taxesService', ['$rootScope', '$q','settingService',
 
                 //Formule
                 if (isDispatchedTax) {
-                    //Récupération des produits liés
-                    var linkedProducts = [];
-                    var totalLinkedProducts = 0;
-                    var highestTax = taxToUse;
+                    switch (cacheTaxProvider) {
+                        case "Tax.FixedRate" :
+                            //Récupération des produits liés
+                            var linkedProducts = [];
+                            var totalLinkedProducts = 0;
+                            var highestTax = taxToUse;
 
-                    var productAttributesEnumerator = Enumerable.from(cartItem.Product.ProductAttributes);
+                            var productAttributesEnumerator = Enumerable.from(cartItem.Product.ProductAttributes);
 
-                    var getTaxRate = function (taxCategory) {
-                        var taxRate = 0;
-                        switch (cacheTaxProvider) {
-                            case "Tax.FixedRate":
-                                taxRate = deliveryType == DeliveryTypes.FORHERE ? taxCategory.VAT : taxCategory.altVAT;
-                                break;
-
-                            case "Tax.Quebec":
-                                taxRate = taxCategory.TPSValue;
-                                break;
-                        }
-                        return taxRate;
-                    };
-
-                    cartItem.Attributes.forEach(function (attr) {
-                        var productAttribute = productAttributesEnumerator.firstOrDefault(function (pAttr) {
-                            return attr.ProductAttributeId == pAttr.Id;
-                        });
-
-                        if (productAttribute) {
-                            var productAttributeValue = Enumerable.from(productAttribute.ProductAttributeValues).firstOrDefault(function (pAttrValue) {
-                                return pAttrValue.Id == attr.ProductAttributeValueId;
-                            });
-
-                            if (productAttributeValue && productAttributeValue.LinkedProduct) {
-
-                                //On stocke la taxe la plus élevée qui sera appliquée si le prix d'un attribut est 0
-                                if (productAttributeValue.LinkedProduct.TaxCategory && getTaxRate(productAttributeValue.LinkedProduct.TaxCategory) > getTaxRate(highestTax)) {
-                                    highestTax = productAttributeValue.LinkedProduct.TaxCategory;
-                                }
-
-                                if (productAttributeValue.LinkedProduct.Price == 0) {
-                                    isDispatchedTax = false;
-                                }
-
-                                totalLinkedProducts += productAttributeValue.LinkedProduct.Price;
-                                linkedProducts.push(productAttributeValue.LinkedProduct);  
-                            }
-                        }
-                    });
-
-                    if (!isDispatchedTax) {
-                        taxToUse = highestTax;
-                    }
-
-
-                    if (totalLinkedProducts > 0 || !isDispatchedTax) {
-                        Enumerable.from(linkedProducts).forEach(function (linkedProduct) {
-                            var priceToUse = (linkedProduct.Price * cartItemPrice) / totalLinkedProducts;
-                            var discountToUseIT = cartItem.DiscountIT / linkedProducts.length;
-                            var discountToUseET = cartItem.DiscountET / linkedProducts.length;
-
-                            var taxResult = calculateTax(deliveryType, linkedProduct.TaxCategory, priceToUse, cartItem.Quantity, discountToUseIT, discountToUseET);
-
-                            // On récupère les taxes de l'article
-                            Enumerable.from(taxResult.taxDetails).forEach(function (itemTaxDetail) {
-                                var existingTaxDetail = Enumerable.from(cartItem.TaxDetails).firstOrDefault(function (taxD) {
-                                    return taxD.TaxCategoryId == itemTaxDetail.TaxCategoryId &&
-                                        taxD.TaxCode == itemTaxDetail.TaxCode &&
-                                        taxD.TaxRate == itemTaxDetail.TaxRate;
+                            cartItem.Attributes.forEach(function (attr) {
+                                var productAttribute = productAttributesEnumerator.firstOrDefault(function (pAttr) {
+                                    return attr.ProductAttributeId == pAttr.Id;
                                 });
 
-                                // On ajoute le montant de la taxe 
-                                if (existingTaxDetail) {
-                                    existingTaxDetail.TaxAmount = roundValue(existingTaxDetail.TaxAmount + itemTaxDetail.TaxAmount);
-                                    existingTaxDetail.PriceIT = roundValue(existingTaxDetail.PriceIT + itemTaxDetail.PriceIT);
-                                    existingTaxDetail.PriceET = roundValue(existingTaxDetail.PriceET + itemTaxDetail.PriceET);
+                                if (productAttribute) {
+                                    var productAttributeValue = Enumerable.from(productAttribute.ProductAttributeValues).firstOrDefault(function (pAttrValue) {
+                                        return pAttrValue.Id == attr.ProductAttributeValueId;
+                                    });
 
-                                } else {
-                                    cartItem.TaxDetails.push(clone(itemTaxDetail));
+                                    if (productAttributeValue && productAttributeValue.LinkedProduct) {
+
+                                        //On stocke la taxe la plus élevée qui sera appliquée si le prix d'un attribut est 0
+                                        if (productAttributeValue.LinkedProduct.TaxCategory && getTaxRate(productAttributeValue.LinkedProduct.TaxCategory, shoppingCart.DeliveryType) > getTaxRate(highestTax, shoppingCart.DeliveryType)) {
+                                            highestTax = productAttributeValue.LinkedProduct.TaxCategory;
+                                        }
+
+                                        if (productAttributeValue.LinkedProduct.Price == 0) {
+                                            isDispatchedTax = false;
+                                        }
+
+                                        totalLinkedProducts += productAttributeValue.LinkedProduct.Price;
+                                        linkedProducts.push(productAttributeValue.LinkedProduct);
+                                    }
                                 }
                             });
 
-                            cartItem.PriceIT += taxResult.priceIT;
-                            cartItem.PriceET += taxResult.priceET;
+                            if (!isDispatchedTax) {
+                                taxToUse = highestTax;
+                            }
 
-                        });
-                    } else {
-                        //si le total des produits liés est à 0 on effectue le calcul de taxe comme pour un produit normal.
-                        isDispatchedTax = false;
-                        taxToUse = highestTax;
+
+                            if (totalLinkedProducts > 0 || !isDispatchedTax) {
+                                Enumerable.from(linkedProducts).forEach(function (linkedProduct) {
+                                    var priceToUse = (linkedProduct.Price * cartItemPrice) / totalLinkedProducts;
+                                    var discountToUseIT = cartItem.DiscountIT / linkedProducts.length;
+                                    var discountToUseET = cartItem.DiscountET / linkedProducts.length;
+
+                                    var taxResult = calculateTax(deliveryType, linkedProduct.TaxCategory, priceToUse, cartItem.Quantity, discountToUseIT, discountToUseET);
+
+                                    // On récupère les taxes de l'article
+                                    Enumerable.from(taxResult.taxDetails).forEach(function (itemTaxDetail) {
+                                        var existingTaxDetail = Enumerable.from(cartItem.TaxDetails).firstOrDefault(function (taxD) {
+                                            return taxD.TaxCategoryId == itemTaxDetail.TaxCategoryId &&
+                                                taxD.TaxCode == itemTaxDetail.TaxCode &&
+                                                taxD.TaxRate == itemTaxDetail.TaxRate;
+                                        });
+
+                                        // On ajoute le montant de la taxe
+                                        if (existingTaxDetail) {
+                                            existingTaxDetail.TaxAmount = roundValue(existingTaxDetail.TaxAmount + itemTaxDetail.TaxAmount);
+                                            existingTaxDetail.PriceIT = roundValue(existingTaxDetail.PriceIT + itemTaxDetail.PriceIT);
+                                            existingTaxDetail.PriceET = roundValue(existingTaxDetail.PriceET + itemTaxDetail.PriceET);
+
+                                        } else {
+                                            cartItem.TaxDetails.push(clone(itemTaxDetail));
+                                        }
+                                    });
+
+                                    cartItem.PriceIT += taxResult.priceIT;
+                                    cartItem.PriceET += taxResult.priceET;
+
+                                });
+                            } else {
+                                //si le total des produits liés est à 0 on effectue le calcul de taxe comme pour un produit normal.
+                                isDispatchedTax = false;
+                                taxToUse = highestTax;
+                            }
+                            break;
+                        case "Tax.Quebec":
+                            var cartItemPrice = cartItem.Product.Price;
+                            Enumerable.from(cartItem).forEach(function (attr) {
+
+                                cartItemPrice += attr.PriceAdjustment ? attr.PriceAdjustment : 0;
+                            });
+                            var taxResult = calculateTax(deliveryType, taxToUse, cartItemPrice, cartItem.Quantity, cartItem.DiscountIT, cartItem.DiscountET);
+                            // Quantity calculation
+                            cartItem.PriceIT = taxResult.priceIT;
+                            cartItem.PriceET = taxResult.priceET;
+
+                            // Add tax list to the cart item
+                            cartItem.TaxDetails = taxResult.taxDetails;
+                            break;
                     }
-
                 }
                 //Produit normal
                 if (!isDispatchedTax) {
@@ -535,7 +527,7 @@ app.service('taxesService', ['$rootScope', '$q','settingService',
                     cartItem.TaxDetails = taxResult.taxDetails;
                 }
             }
-        };       
+        };
 
         /**
          * Do the necessary calculation for a given ShoppingCart - discount, sum, taxes ....
@@ -543,18 +535,64 @@ app.service('taxesService', ['$rootScope', '$q','settingService',
         this.calculateTotalFor = function (shoppingCart) {
             if (shoppingCart) {
                 console.log("Calcul du shopping cart ", shoppingCart);
+                //On suppose que le shopping cart n'a pas d'item split
+                shoppingCart.hasSplitItems = false;
+
                 var taxDetails = [];
                 var totalET = 0;
                 var totalIT = 0;
-
                 var totalQty = 0;
-
                 var shipping = shoppingCart.Shipping;
                 var discount = Enumerable.from(shoppingCart.Discounts).firstOrDefault();
 
+
+                //TODO : passer le calcul à la ligne
+                //On calcule la remise si il y en a -- on le calcule aussi pour chaque montant de taxe
+
+                // If the shopping cart has a global discount attached to it
+                if (discount) {
+                    discount.Total = 0;
+
+                    // Calc discount on each item
+                    // And add it on top of existing discount
+                    Enumerable.from(shoppingCart.Items).forEach(function (i) {
+
+                        var taxRate = getTaxRate(i.TaxCategory, shoppingCart.DeliveryType);
+
+                        if (discount.IsPercent) {
+                            // Value% du prix de l'item
+                            switch (cacheTaxProvider) {
+                                case "Tax.FixedRate":
+                                    i.DiscountIT = (i.Product.Price * i.Quantity) * (discount.Value / 100);
+                                    break;
+                                case "Tax.Quebec" :
+                                    //On souhaite appliquer la remise sur le TTC dans tout les cas
+                                    if (cacheIsPricesIncludedTax) {
+                                        i.DiscountIT = i.Product.Price * (discount.Value / 100);
+                                    } else {
+                                        i.DiscountIT = i.PriceIT  * (discount.Value / 100);
+                                    }
+
+                                    break;
+                            }
+                        } else {
+                            i.DiscountIT = discount.Value / shoppingCart.Items.length;
+                        }
+                        i.DiscountET = ITtoET(i.DiscountIT, taxRate);
+                        discount.Total += i.DiscountIT;
+                    });
+                }
+
                 // Pour chaque article
-                Enumerable.from(shoppingCart.Items).forEach(function (i) {
+                Enumerable.from(shoppingCart.Items).forEach(function (i, index) {
+                    //Si on rencontre un item avec un quantité decimale
+                    if (!Number.isInteger(i.Quantity)) {
+                        //On flag le shopping cart
+                        shoppingCart.hasSplitItems = true;
+                    }
                     totalQty += i.Quantity;
+
+                    i.LineNumber = index + 1;
 
                     // On calcul le prix 
                     calculateCartItemTotal(shoppingCart, i, shoppingCart.DeliveryType);
@@ -562,9 +600,8 @@ app.service('taxesService', ['$rootScope', '$q','settingService',
                     // On ajoute le total TTC et HT de la ligne au montant total
                     // Check for discount on line only if there is no discount on receipt
 
-                    totalIT = roundValue(totalIT + i.PriceIT - (discount ? 0 : i.DiscountIT));
-                    totalET = roundValue(totalET + i.PriceET - (discount ? 0 : i.DiscountET));
-
+                    totalIT = roundValue(totalIT + i.PriceIT /*- (discount ? 0 : i.DiscountIT)*/);
+                    totalET = roundValue(totalET + i.PriceET /*- (discount ? 0 : i.DiscountET)*/);
 
                     // On récupère les taxes de l'article
                     Enumerable.from(i.TaxDetails).forEach(function (itemTaxDetail) {
@@ -583,16 +620,13 @@ app.service('taxesService', ['$rootScope', '$q','settingService',
                             taxDetails.push(clone(itemTaxDetail));
                         }
                     });
+
                 });
 
-                if(Number.isInteger(totalQty)){
-                    shoppingCart.hasSplitItems = false;
-                }
-
-                if(shipping){
+                if (shipping) {
                     Enumerable.from(shipping.TaxDetails).forEach(function (shippingTaxDetail) {
                         totalIT = roundValue(totalIT + shippingTaxDetail.PriceIT);
-                        totalIET = roundValue(totalET + shippingTaxDetail.PriceET);
+                        totalET = roundValue(totalET + shippingTaxDetail.PriceET);
 
                         var existingTaxDetail = Enumerable.from(taxDetails).firstOrDefault(function (taxD) {
                             return taxD.TaxCategoryId == shippingTaxDetail.TaxCategoryId &&
@@ -610,54 +644,6 @@ app.service('taxesService', ['$rootScope', '$q','settingService',
                         }
                     });
                 }
-
-
-
-
-                //TODO : passer le calcul à la ligne
-                //On calcule la remise si il y en a -- on le calcule aussi pour chaque montant de taxe
-
-                // If the shopping cart has a global discount attached to it
-                if (discount) {
-                    var totalDiscount = totalIT;
-
-                    // Calcul de la remise
-                    if (!discount.IsPercent) {
-                        valueDiscount = discount.Value;
-                        totalDiscount = totalIT - valueDiscount;
-                        var ratio = totalDiscount / totalIT;
-
-                      
-                    }
-                    // si la remise est en pourcentage
-                    else {
-                        valueDiscount = roundValue((totalIT * discount.Value) / 100);
-                        totalDiscount = roundValue(totalIT - valueDiscount);
-                        var ratio = roundValue(totalDiscount / totalIT);                       
-                        
-                    }        
-                    
-                      // Calcule la remise sur la tva total du panier
-                        Enumerable.from(taxDetails).forEach(function (i) {                                                     
-                            i.TaxAmount = i.TaxAmount - i.TaxAmount *(1- ratio);                                                    
-                        });
-                   
-                    // On récupère la remise totale sur le Hors-taxe
-                    totalETDiscount =(totalET * ratio);                    
-   
-                    totalIT = totalDiscount;
-                    totalET = totalETDiscount;
-
-                    discount.Total = valueDiscount;                                   
-                    
-                    // Calc discount on each item
-                    // And add it on top of existing discount
-                    Enumerable.from(shoppingCart.Items).forEach(function (i) {
-                        i.DiscountIT = roundValue(i.PriceIT - i.PriceIT * ratio);
-                        i.DiscountET = roundValue(i.PriceET - i.PriceET * ratio);
-                    });
-                }
-                
 
                 totalIT = roundValue(totalIT);
 
@@ -689,7 +675,7 @@ app.service('taxesService', ['$rootScope', '$q','settingService',
                         credit = residue * -1;
                     } else {
                         repaid = residue * -1;
-                    }                    
+                    }
                     residue = 0;
                 }
 

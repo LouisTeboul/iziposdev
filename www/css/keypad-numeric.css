@@ -1,17 +1,18 @@
 .numpad {
-	position: absolute;
-    height: 460px;
-    width: 270px;
+    position: absolute;
+    height: 435px;
+    width: 235px;
+    padding: 2px;
     z-index: 10000;
-    background: #E2E2E2;
-    border: solid 1px #272727;
+    background: #e4e4e4;
+    border: solid 1px #bfbdbd;
     -moz-border-radius: 10px;
     -ms-border-radius: 10px;
     -o-border-radius: 10px;
     border-radius: 10px;
-    -webkit-box-shadow: rgba(0, 0, 0, 0.4) 0 0 25px;
-    -moz-box-shadow: rgba(0, 0, 0, 0.4) 0 0 25px;
-    box-shadow: rgba(0, 0, 0, 0.4) 0 0 25px;
+    /*-webkit-box-shadow: rgba(95, 95, 95, 0.45) 0 0 25px;
+    -moz-box-shadow: rgba(95, 95, 95, 0.45) 0 0 25px;
+    box-shadow: rgba(95, 95, 95, 0.45) 0 0 25px;*/
 }
 
 .numpad.phone {
@@ -42,24 +43,34 @@
     height: 50px;
 }
 
-.numpad .button-wrapper button {
-    border-radius: 5px;
-    background-color: #FFFFFF;
-    box-sizing: border-box;
-    width: 70px;
-    height: 70px;
-    border: 1px solid #272727;
-    font-size: 20px;
-}
+    .numpad .button-wrapper button {
+        border-radius: 5px;
+        background-color: #FFFFFF;
+        box-sizing: border-box;
+        width: 70px;
+        height: 70px;
+        border: 1px solid #a5a5a5;
+        font-size: 20px;
+        -webkit-box-shadow: rgba(76, 76, 76, 0.55) 0px 0px 10px;
+        -moz-box-shadow: rgba(76, 76, 76, 0.55) 0px 0px 10px;
+        box-shadow: rgba(76, 76, 76, 0.55) 0px 0px 10px;
+    }
 
 .numpad .button-wrapper button[disabled] {
     background-color: #E2E2E2;
     color: gray;
 }
 
-.numpad .button-wrapper button.circle{
-	border-radius: 50%;
+.numpad .button-wrapper button.circle {
+    border-radius: 20%;
+    margin: 2px;
 }
+
+    .numpad .button-wrapper button.closekeyboard {
+        border-radius: 50%;
+        width: 60px;
+        height: 60px;
+    }
 
 .numpad .button-wrapper button.warning{
 	color: #fff;
@@ -87,9 +98,12 @@
   width: 82px;
 }
 
-.numpad .button-wrapper button.pressed {
-  background-color: #bebebe !important;
-}
+    .numpad .button-wrapper button.pressed {
+        /*background-color: #bebebe !important;*/
+        -webkit-box-shadow: none;
+        -moz-box-shadow: none;
+        box-shadow: none;
+    }
 
 .numpad .drag-indicator {
   position: absolute;

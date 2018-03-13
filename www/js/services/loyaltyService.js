@@ -133,7 +133,8 @@ app.service('loyaltyService', ["$http", "$rootScope", "$q", "$translate",
                         sweetAlert($translate.instant(response.statusText));
                     }
                     else {
-                        sweetAlert($translate.instant("Erreur lors de l'enregistrement du client"));
+                        //Si pas de reponse du serveur
+                        sweetAlert($translate.instant("Le serveur de fidélité n'est pas joignable ..."));
                     }
             });
 
@@ -188,7 +189,8 @@ app.service('loyaltyService', ["$http", "$rootScope", "$q", "$translate",
                         sweetAlert($translate.instant(response.statusText.replace('Ã©', 'é').replace('Ã', 'à').replace('Ã©', 'é')));
                     }
                     else {
-                        sweetAlert($translate.instant("Erreur lors de l'enregistrement du client"));
+                        //Si pas de réponse du serveur
+                        sweetAlert($translate.instant("Le serveur de fidélité n'est pas joignable ..."));
                     }
                 });
             return registerDefer.promise;

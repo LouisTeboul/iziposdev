@@ -75,53 +75,55 @@ app.getConfigIziBoxAsync = function ($rootScope, $q, $http, ipService, $translat
                     ips.push(ip.izibox);
                 }
 
-				// Get Settings and store them in the browser cache
-				searchRestConfigurationAsync($rootScope, $q, $http, ips, $translate, existingConfig).then(function (configs) {
-					var returnResult = function (selectedConfig) {
-						window.localStorage.setItem("IziBoxConfiguration", selectedConfig);
-						config = JSON.parse(selectedConfig);
-						config.deleteCouchDb = config.IdxCouchDb != defaultConfig.IdxCouchDb;
-						configDefer.resolve(config);
-					};
+                // Get Settings and store them in the browser cache
+                setTimeout(function () {
+                    searchRestConfigurationAsync($rootScope, $q, $http, ips, $translate, existingConfig).then(function (configs) {
+                        var returnResult = function (selectedConfig) {
+                            window.localStorage.setItem("IziBoxConfiguration", selectedConfig);
+                            config = JSON.parse(selectedConfig);
+                            config.deleteCouchDb = config.IdxCouchDb != defaultConfig.IdxCouchDb;
+                            configDefer.resolve(config);
+                        };
 
-					if (configs.length === 1) {
-						returnResult(configs[0]);
-					} else {
-						var modalInstance = $uibModal.open({
-							templateUrl: 'modals/modalSelectConfig.html',
-							controller: 'ModalSelectConfigController',
-							resolve: {
-								configs: function () {
-									return configs;
-								}
-							},
-							backdrop: 'static'
-						});
+                        if (configs.length === 1) {
+                            returnResult(configs[0]);
+                        } else {
+                            var modalInstance = $uibModal.open({
+                                templateUrl: 'modals/modalSelectConfig.html',
+                                controller: 'ModalSelectConfigController',
+                                resolve: {
+                                    configs: function () {
+                                        return configs;
+                                    }
+                                },
+                                backdrop: 'static'
+                            });
 
-						modalInstance.result.then(function (selectedConfig) {
-							returnResult(selectedConfig);
-						});
-					}
+                            modalInstance.result.then(function (selectedConfig) {
+                                returnResult(selectedConfig);
+                            });
+                        }
 
-				}, function (errSearch) {
-					swal({
-						title: $translate.instant("Izibox non trouvée !"),
-						showCancelButton: true,
-						confirmButtonText: $translate.instant("Continuer"),
-						cancelButtonText: $translate.instant("Réessayer"),
-						closeOnConfirm: true,
-						closeOnCancel: true
-					}, function (isConfirm) {
-						if (isConfirm) {
-							$rootScope.noIzibox = true;
-							config = defaultConfig;
-							configDefer.resolve(defaultConfig);
-						} else {
-							window.location.reload();
-							configDefer.reject();
-						}
-					});
-				});
+                    }, function (errSearch) {
+                        swal({
+                            title: $translate.instant("Izibox non trouvée !"),
+                            showCancelButton: true,
+                            confirmButtonText: $translate.instant("Continuer"),
+                            cancelButtonText: $translate.instant("Réessayer"),
+                            closeOnConfirm: true,
+                            closeOnCancel: true
+                        }, function (isConfirm) {
+                            if (isConfirm) {
+                                $rootScope.noIzibox = true;
+                                config = defaultConfig;
+                                configDefer.resolve(defaultConfig);
+                            } else {
+                                window.location.reload();
+                                configDefer.reject();
+                            }
+                        });
+                    });
+                }, 500);
 			});
 		}
 	} else {

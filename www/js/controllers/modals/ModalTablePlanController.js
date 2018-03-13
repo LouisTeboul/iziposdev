@@ -1,4 +1,4 @@
-﻿app.controller('ModalTablePlanController', function ($scope, $rootScope, $uibModalInstance, $translate, currentStoreMap, currentTableNumber, currentTableCutleries, shoppingCartService, $mdMedia, shoppingCartModel) {
+﻿app.controller('ModalTablePlanController', function ($scope, $rootScope, $uibModalInstance, $translate, $interval, currentStoreMap, currentTableNumber, currentTableCutleries, shoppingCartService, $mdMedia, shoppingCartModel) {
     var areaSelectedIndexHandler;
     var areaCanvas;
     var initCurrentTableNumber = currentTableNumber;
@@ -46,6 +46,13 @@
             }
 
             Enumerable.from($scope.currentArea.Objects).forEach(function (table) {
+                var isUsed = Enumerable.from($scope.freezedShoppingCarts).firstOrDefault(function (fsc) {
+                    return fsc.TableNumber == table.TableNumber;
+                });
+
+                if(isUsed){
+                    table.inUseCutleries = isUsed.TableCutleries;
+                }
                 table.ihm = {
                     backcolor: getTableColorStyle(table),
                     enabled: isCriteriaEnabled(table)
@@ -132,14 +139,13 @@
     };
 
     $scope.selectTable = function (table) {
+        $interval.cancel($scope.currentTimer);
+        delete $scope.tableModel.activeTimer;
+
         if (table) {
             //Si la table qu'on a selectionné est different de la table deja selectionné
-
-            console.log(table);
             //Retablir la couleur de la bordure de la table precedemment selectionné
             //Changer la couleur de la bordure de la table qu'on a cliquer
-
-            console.log($scope.tableModel.selectedTableId, table.Id);
             if ($scope.tableModel.selectedTableId && $scope.tableModel.selectedTableId != table.Id) {
                 //Si une table etait deja selectionné
                 //On change sa couleur en vert
@@ -149,7 +155,6 @@
                     Enumerable.from(oldTable).forEach(function(ot){
                         ot.style.backgroundColor = "green";
                     })
-
                 }
             }
             $scope.tableModel.selectedTableId = table.Id;
@@ -171,6 +176,9 @@
                 });
                 if (freezedShoppingCart) {
                     $scope.tableModel.valueCutleries = freezedShoppingCart.TableCutleries;
+                    $scope.currentTimer = $interval(function(){
+                        $scope.tableModel.activeTimer = Date.now() - freezedShoppingCart.Timestamp - 3600000;
+                    }, 1000);
                 }
             }
 
@@ -196,6 +204,9 @@
 
 
     $scope.ok = function () {
+        $interval.cancel($scope.currentTimer);
+        delete $scope.tableModel.activeTimer;
+
         $rootScope.closeKeyboard();
         var tableNumberValue = parseInt($scope.tableModel.valueTable);
         var tableCutleriesValue = parseInt($scope.tableModel.valueCutleries);
@@ -222,6 +233,9 @@
     };
 
     $scope.cancel = function () {
+        $interval.cancel($scope.currentTimer);
+        delete $scope.tableModel.activeTimer;
+
         $rootScope.closeKeyboard();
         $uibModalInstance.dismiss('cancel');
     }

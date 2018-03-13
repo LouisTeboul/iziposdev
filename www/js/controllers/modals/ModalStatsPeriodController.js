@@ -24,6 +24,7 @@ app.controller('ModalStatsPeriodController', function ($scope, $rootScope, $uibM
 
         var yperiodId = $scope.closePosParameters.yperiod ? $scope.closePosParameters.yperiod.id : undefined;
 
+
         zposService.getZPosValuesAsync_v2($scope.closePosParameters.zperiod.id, yperiodId, $scope.closePosParameters.hid).then(function (resZpos) {
             $scope.zpos = resZpos;
             console.log(resZpos);
@@ -197,6 +198,11 @@ app.controller('ModalStatsPeriodController', function ($scope, $rootScope, $uibM
             while ($scope.ztotalET.length < $scope.zheaders.length) {
                 $scope.ztotalET.push("");
             }
+        }, function (err) {
+            sweetAlert({title: $translate.instant(err)}, function () {
+
+            });
+
         });
     };
 

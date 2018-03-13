@@ -12,6 +12,7 @@ app.controller('IZIPASSController', function ($scope, $rootScope, $stateParams, 
 
     var pouchDBChangedHandler = $rootScope.$on('pouchDBChanged', function (event, args) {
         if (args.status == "Change" && (args.id.indexOf('Product') == 0 || args.id.indexOf('Category') == 0)) {
+            $scope.subSubCategories = [];
             $scope.init();
         }
     });
@@ -20,15 +21,10 @@ app.controller('IZIPASSController', function ($scope, $rootScope, $stateParams, 
         pouchDBChangedHandler();
     });
 
-
-
     $scope.init = function () {
-        $scope.subSubCategories = [];
         // Get selected category
         var categoryId = $stateParams.id;
         categoryService.getCategoryByIdAsync(categoryId).then(function (category) {
-            var c = new Category(category);
-
             $scope.category = category;
 
             // Get products for this category
@@ -55,20 +51,16 @@ app.controller('IZIPASSController', function ($scope, $rootScope, $stateParams, 
                 console.log(err);
             });
 
-
             categoryService.getSubCategoriesByParentAsync(categoryId).then(function (subCategories) {
                 //Recupere toutes les sous categories du parent
                 $scope.subCategories = subCategories;
 
                 Enumerable.from($scope.subCategories).forEach(function (subCat) {
-
-
                     categoryService.getSubCategoriesByParentAsync(subCat.Id).then(function (subSubCategories) {
                         //Recupere toutes les sous categories du parent
-                        if(subSubCategories) {
-                            Enumerable.from(subSubCategories).forEach(function(c){
-                                $scope.subSubCategories.push(c);
-                            });
+                        if (subSubCategories) {
+
+                            $scope.subSubCategories = subSubCategories;
                             subCat.subCategories = subSubCategories;
 
                             Enumerable.from(subSubCategories).forEach(function (subCat) {

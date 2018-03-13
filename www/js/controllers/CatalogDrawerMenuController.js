@@ -5,6 +5,7 @@
     $scope.phoneOrderEnable = $rootScope.IziBoxConfiguration.PhoneOrderEnable;
 
     $scope.init = function () {
+
         var btnMenus = document.getElementsByClassName("btn-menu-closable");
 
         for (i = 0; i < btnMenus.length; i++) {
@@ -26,6 +27,22 @@
 
         $scope.checkDocSynchro();
     };
+
+    $scope.isValidCancelledTicket = function(){
+        $scope.currentShoppingCart = shoppingCartModel.getCurrentShoppingCart();
+        if($scope.currentShoppingCart){
+            if($scope.currentShoppingCart.ParentTicket) {
+                return true;
+            } else {
+                return false;
+            }
+
+        } else {
+            return false
+        }
+    };
+
+
 
     /**
 	 * Check if there's still tickets in the replicate in every 3s
@@ -242,6 +259,7 @@
 
         modalInstance.result.then(function () {
             console.log("On a add un client");
+
             $rootScope.PhoneOrderMode = true;
         }, function () {
             console.log("On a annulé");

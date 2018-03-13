@@ -2,6 +2,10 @@
     $stateProvider
         .state('catalog.ProductTemplate.ConfigurableMenu', {
             url: '/configurablemenu/{id}',
+            params: {
+                id: null,
+                offer: null,
+            },
             templateUrl: 'views/ProductTemplate/configurableMenu.html'
         })
 });
@@ -45,7 +49,7 @@ app.controller('ConfigurableMenuController', function ($scope, $rootScope, $stat
         currentProductHandler();
     });
 
-    var loadProduct = function (selectedProduct) {
+    var loadProduct = function (selectedProduct, isOfferConsumed) {
         // Init Step
         if ($rootScope.IziBoxConfiguration.StepEnabled) {
             $scope.currentStep = 0;
@@ -60,8 +64,7 @@ app.controller('ConfigurableMenuController', function ($scope, $rootScope, $stat
         //Clone instance
         $scope.product = jQuery.extend(true, {}, selectedProduct);
 
-        if($rootScope.isConfigurableProductOffer == true){
-            $scope.initialProduct.Price = false;
+        if (($rootScope.isConfigurableProductOffer == true || ($stateParams.offer && $stateParams.offer.OfferParam.Price == 0)) && !isOfferConsumed) {
             $scope.TotalPrice = 0;
         } else {
             $scope.TotalPrice = $scope.initialProduct.Price;
@@ -97,8 +100,10 @@ app.controller('ConfigurableMenuController', function ($scope, $rootScope, $stat
 
     //#region Actions
     $scope.addToCart = function (product) {
-        shoppingCartModel.addToCart(product, true);
-        loadProduct($scope.initialProduct);
+        console.log($stateParams);
+        shoppingCartModel.addToCart(product, true, $stateParams.offer);
+        $stateParams.offer = null;
+        loadProduct($scope.initialProduct, true);
     };
     //#endregion
     $scope.moveStep = function (i) {
@@ -123,13 +128,13 @@ app.controller('ConfigurableMenuController', function ($scope, $rootScope, $stat
         var AttributeValue = Enumerable.from(Attribute.ProductAttributeValues).firstOrDefault("x => x.Id ==" + id);
         if (AttributeValue.Selected) {
             if (Attribute.IsRequired == false || Attribute.Type == 3) {
-                if(testSelectCheckbox(Attribute, AttributeValue, false)){
+                if (testSelectCheckbox(Attribute, AttributeValue, false)) {
                     if (AttributeValue.PriceAdjustment) $scope.TotalPrice = $scope.TotalPrice - AttributeValue.PriceAdjustment;
                 }
             }
         }
         else {
-            if(testSelectCheckbox(Attribute, AttributeValue, true)){
+            if (testSelectCheckbox(Attribute, AttributeValue, true)) {
                 if (!reload) {
                     Attribute.Step = $scope.currentStep;
 
@@ -179,13 +184,13 @@ app.controller('ConfigurableMenuController', function ($scope, $rootScope, $stat
             var nbSelect = container.querySelectorAll("button.attributeBox.active").length;
 
             // Si on veut selectionné et qu'on est en dessous du max, on autorise
-            if(nbSelect < max && state===true){
+            if (nbSelect < max && state === true) {
                 AttributeValue.Selected = state;
                 return true;
             }
 
             // Si on veut déselectionné et qu'on est au dessus du min, on autorise
-            if(nbSelect > min && state===false){
+            if (nbSelect > min && state === false) {
                 AttributeValue.Selected = state;
                 return true
             }
@@ -212,7 +217,6 @@ app.controller('ConfigurableMenuController', function ($scope, $rootScope, $stat
         }
         $scope.canAddToCart = retval;
     };
-
 
 
     $scope.scrollTo = function (elementId) {

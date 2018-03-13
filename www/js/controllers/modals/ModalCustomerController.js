@@ -147,13 +147,11 @@ app.controller('ModalCustomerController', function ($scope, $rootScope, $q, $htt
                         shoppingCartModel.createShoppingCart();
                     }
                     $scope.currentShoppingCart = shoppingCartModel.getCurrentShoppingCart();
-
                     $scope.currentShoppingCart.Barcode = barcode;
                     $scope.currentShoppingCart.customerLoyalty = loyalty;
                     $rootScope.$emit("customerLoyaltyChanged", loyalty);
                     $rootScope.$emit("shoppingCartChanged", $scope.currentShoppingCart);
                     $scope.clientSelected = true;
-
 
                     setTimeout(function () {
                         $rootScope.hideLoading();
@@ -161,41 +159,60 @@ app.controller('ModalCustomerController', function ($scope, $rootScope, $q, $htt
 
                 } else {
                     sweetAlert($translate.instant("Carte de fidélité introuvable !"));
+                    $rootScope.hideLoading();
                 }
             }, function (err) {
                 console.log(err);
-                sweetAlert($translate.instant("Le serveur de fidélité n'a pas répondu !"));
+                sweetAlert($translate.instant("Le serveur de fidélité n'est pas joignable ..."));
+                $rootScope.hideLoading();
+
             });
         }
+
     };
 
     $scope.validEmail = function (strEmail) {
-        var re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-        var myResult = re.test(strEmail);
-        return myResult;
+        if(strEmail){
+            var re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+            var myResult = re.test(strEmail);
+            return myResult;
+        } else {
+            return false;
+        }
+
     };
 
     $scope.validPhone = function (strPhone) {
-        var reFrance = /^0[1-9][0-9]{8}$/;
-        var resultFrance = reFrance.test(strPhone);
+        if(strPhone){
+            var reFrance = /^0[1-9][0-9]{8}$/;
+            var resultFrance = reFrance.test(strPhone);
 
-        //Numero de telephone canadien.
-        // Indicatif entre parenthese facultatif
-        // Separateur soit : rien, espace, ou tiret.
-        var reCanada = /^\(?([0-9]{3})\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})$/;
-        var resultCanada = reCanada.test(strPhone);
-        return (resultCanada || resultFrance);
+            //Numero de telephone canadien.
+            // Indicatif entre parenthese facultatif
+            // Separateur soit : rien, espace, ou tiret.
+            var reCanada = /^\(?([0-9]{3})\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})$/;
+            var resultCanada = reCanada.test(strPhone);
+            return (resultCanada || resultFrance);
+        } else {
+            return false;
+        }
+
     };
 
 
     $scope.validZipPostCode = function (strZip) {
-        var reFrance = /^[0-9]{5}$/;
-        var resultFrance = reFrance.test(strZip);
+        if(strZip){
+            var reFrance = /^[0-9]{5}$/;
+            var resultFrance = reFrance.test(strZip);
 
-        //Post Code canadien, avec espace facultatif
-        var reCanada = /[ABCEGHJKLMNPRSTVXY][0-9][ABCEGHJKLMNPRSTVWXYZ] ?[0-9][ABCEGHJKLMNPRSTVWXYZ][0-9]/;
-        var resultCanada = reCanada.test(strZip.toUpperCase());
-        return (resultCanada || resultFrance);
+            //Post Code canadien, avec espace facultatif
+            var reCanada = /[ABCEGHJKLMNPRSTVXY][0-9][ABCEGHJKLMNPRSTVWXYZ] ?[0-9][ABCEGHJKLMNPRSTVWXYZ][0-9]/;
+            var resultCanada = reCanada.test(strZip.toUpperCase());
+            return (resultCanada || resultFrance);
+        } else {
+            return false;
+        }
+
     };
 
 
@@ -306,7 +323,7 @@ app.controller('ModalCustomerController', function ($scope, $rootScope, $q, $htt
             return;
         }
 
-        // Get the current Shopping CArt
+        // Get the current Shopping Cart
         var curShoppingCart = shoppingCartModel.getCurrentShoppingCart();
 
         if (curShoppingCart == undefined) {
@@ -319,8 +336,8 @@ app.controller('ModalCustomerController', function ($scope, $rootScope, $q, $htt
         if ($scope.registerOperation == "registerFid") {
             try {
                 function isFormComplete() {
-                    //Si un parametre est requiered dans signInSettings
-                    //On verifie si le champs du formulaire qui lui est associé est valide
+                    // Si un parametre est requiered dans signInSettings
+                    // On verifie si le champs du formulaire qui lui est associé est valide
                     // Si non, la methode retourne false
                     try {
                         Enumerable.from($scope.signInSettings).forEach(function (field) {
@@ -388,10 +405,12 @@ app.controller('ModalCustomerController', function ($scope, $rootScope, $q, $htt
 
 
                         }
+                    }, function(err){
+                        swal($translate.instant("Une erreur s'est produite !"));
+                        $scope.validDisabled = false;
                     });
 
                 } else {
-
 
                     // On récupère le loyalty si il existe
                     // Si le client n'a pas de loyalty on l'enregistre en partiel
@@ -450,6 +469,7 @@ app.controller('ModalCustomerController', function ($scope, $rootScope, $q, $htt
 
                     }, function (err) { //response
                         $scope.validDisabled = false;
+                        swal($translate.instant("Le serveur de fidélité n'est pas joignable ..."));
                         console.log(err);
                     });
                 }

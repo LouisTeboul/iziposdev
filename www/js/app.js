@@ -2,6 +2,11 @@ var app = angular.module('app', ['ui.router', 'ngMaterial', 'ui.bootstrap', 'ngS
 var controllerProvider = null;
 var $routeProviderReference = null;
 var angularLocation = null;
+
+$(function () {
+    FastClick.attach(document.body);
+});
+
 app.config(function ($stateProvider, $urlRouterProvider, ngToastProvider, $translateProvider, $httpProvider, $sceDelegateProvider, $controllerProvider, $mdIconProvider) {
 
 	controllerProvider = $controllerProvider;
@@ -35,7 +40,7 @@ app.run(function ($rootScope, $location, $q, $http, ipService, zposService, $tra
 	try {
 		angularLocation = $location;
 
-        $rootScope.Version = "3.0.2.09021";
+        $rootScope.Version = "3.0.3.03131";
 		$rootScope.adminMode = { state: false };
         $rootScope.loading = 0;
 
