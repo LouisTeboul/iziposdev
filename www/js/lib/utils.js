@@ -13,7 +13,7 @@ var roundValue = function (value) {
 var adjustDividedQuantity = function (originalQuantity, value, divider) {
     if(value != 0 ){
         var delta = originalQuantity - (parseFloat(value) * divider);
-        delta = parseFloat(delta.toFixed(5));
+        delta = parseFloat(Math.round10(delta, -5));
         value = parseFloat(value) + delta;
     }
     return value

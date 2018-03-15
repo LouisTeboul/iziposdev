@@ -263,7 +263,9 @@
                         <div layout="row" ng-if="!currentShoppingCart.ParentTicket">
                             <img style="width: 25px;height: 20px;margin-left: -12px;" alt="Image" src="img/receipt.png">
                             <span flex></span>
+
                             <span ng-if="IziBoxConfiguration.StepEnabled && currentShoppingCart">{{currentShoppingCart.CurrentStep | StepName:stepNames}}</span>
+
                             <span flex></span>
 
                             <a ng-if="IziBoxConfiguration.StepEnabled" class="btn btn-info btnAddStep"
@@ -277,8 +279,11 @@
                             <div ng-repeat="step in shoppingCartLines track by $index">
                                 <div ng-if="IziBoxConfiguration.StepEnabled" layout="row" class="stepRow"
                                      ng-attr-id="{{'step'+step.Step}}" layout-align="center center" flex
-                                     ng-click="selectStep(step.Step)">
+                                     ng-click="selectStep(step.Step)"
+                                     ng-class="{'selectedStep' : currentShoppingCart.CurrentStep == step.Step}">
+
                                     <span>{{step.Step | StepName:stepNames}}</span>
+
                                     <a ng-if="IziBoxConfiguration.StepEnabled && currentShoppingCart && step.Items.length > 0 && !currentShoppingCart.ParentTicket"
                                        ng-disabled="printStepProdDisabled"
                                        class="btn btn-success btnPrintStep"

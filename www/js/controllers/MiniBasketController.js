@@ -18,7 +18,7 @@ app.controller('MiniBasketController', ['$scope', '$rootScope', '$state', '$uibM
          */
         $scope.init = function () {
             $scope.viewmodel = {};
-            $scope.TimeOffset = $rootScope.IziBoxConfiguration.OrdersPrepareMinutes;
+            $scope.TimeOffset = 0;
 
             updateCurrentShoppingCart();
 
@@ -361,11 +361,9 @@ app.controller('MiniBasketController', ['$scope', '$rootScope', '$state', '$uibM
             modalInstance.result.then(function (model) {
                 console.log(model);
                 console.log("On a finit");
-                if (60 * model.heure + model.minute >= $rootScope.IziBoxConfiguration.OrdersPrepareMinutes) {
-                    $scope.TimeOffset = 60 * model.heure + model.minute;
-                } else {
-                    $scope.TimeOffset = $rootScope.IziBoxConfiguration.OrdersPrepareMinutes;
-                }
+
+                $scope.TimeOffset = 60 * model.heure + model.minute;
+
             }, function () {
                 console.log("On a cancel");
             });

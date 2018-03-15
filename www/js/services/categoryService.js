@@ -40,7 +40,8 @@
             if ($rootScope.modelDb.databaseReady) {
                 $rootScope.dbInstance.rel.find('Category').then(function (results) {
                     //Filter pour n'avoir que les sous catégories du parent précisé
-                    results.Categories = results.Categories.filter(subCat => subCat.ParentCategoryId == parentId);
+                    //Qui sont enable
+                    results.Categories = results.Categories.filter(subCat => subCat.ParentCategoryId == parentId && subCat.IsEnabled);
                     var subCategories = self.composeCategories(results);
                     subCategoriesDefer.resolve(subCategories);
                 }, function (err) {
