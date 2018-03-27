@@ -1,5 +1,5 @@
 ﻿<md-toolbar class="catalogMenu" ng-controller="CatalogMenuController" ng-init="init()">
-    <div class="tools" layout="row" layout-align="space-between stretch">
+    <md-content class="tools" layout="row" layout-align="space-between stretch">
         <div layout="column" layout-align="center center" ng-click="onDrawerMenuClick()">
             <md-button class="md-icon-button logo" aria-label="drawerMenu">
                 <img class="imgLogo" src="img/fonctions.png"/>
@@ -7,12 +7,12 @@
             <div class="clock">
                 <horloge format="HH:mm"></horloge>
             </div>
-            <div class="version" layout="row" layout-align="end center">
+            <div class="version">
                 <horloge format="dd-MM-yyyy"></horloge>
             </div>
         </div>
         <md-divider class="vertical-divider"></md-divider>
-        <md-content layout="row" layout-align="space-between stretch" ng-show="$mdMedia('gt-sm')"
+        <md-content layout="row" layout-align="space-between stretch" ng-show="$mdMedia('(min-width: 799px)')"
                     style="background:transparent;">
             <div ng-repeat="category in categories track by $id(category)" class="itemCategory" layout="column"
                  layout-align="start center"
@@ -24,13 +24,13 @@
             </div>
         </md-content>
 
-        <div layout="column" layout-align="center center" ng-hide="$mdMedia('gt-sm')">
+        <div layout="column" layout-align="center center" ng-hide="$mdMedia('(min-width: 799px)')">
             <md-button class="md-icon-button logo" aria-label="categories" ng-click="$state.go('catalog.Categories')">
                 <img class="imgLogo" src="img/categories.png"/>
             </md-button>
         </div>
 
-        <div layout="column" layout-align="center center" ng-hide="$mdMedia('gt-sm')">
+        <div layout="column" layout-align="center center" ng-hide="$mdMedia('(min-width: 799px)')">
             <md-button class="md-icon-button logo" aria-label="categories"
                        ng-click="$rootScope.showShoppingCart = !$rootScope.showShoppingCart">
                 <img class="imgLogo" src="img/cart-drawer.png"/>
@@ -43,13 +43,13 @@
             </md-button>
         </div>
 
-        <div layout="column" flex style="min-width:160px;">
+        <div layout="column" flex style="min-width:250px;">
             <div class="version" layout="column">
                 <span>{{PosUserName}}</span>
                 <div layout="row" layout-align="end center">
                     <span>{{Version}}</span>
                     <span class="izibox"
-                          ng-class="{'connected':modelPos.iziboxConnected && modelPos.iziboxStatus.localDb && modelPos.iziboxStatus.distantDb, 'connectedwarning': modelPos.iziboxConnected && modelPos.iziboxStatus.localDb && !modelPos.iziboxStatus.distantDb }"></span>
+                          ng-class="{'connected':modelPos.iziboxConnected && modelPos.iziboxStatus.LocalDb && modelPos.iziboxStatus.DistantDb, 'connectedwarning': modelPos.iziboxConnected && modelPos.iziboxStatus.LocalDb && !modelPos.iziboxStatus.DistantDb }"></span>
 
                 </div>
                 <span>{{CashMachineName}}</span>
@@ -60,5 +60,5 @@
                 <span translate>Veuillez renseigner le fonds de caisse</span>
             </div>
         </div>
-    </div>
+    </md-content>
 </md-toolbar>

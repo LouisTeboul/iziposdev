@@ -15,6 +15,7 @@
 	<button class="btn btn-tel btn-menu-closable" ng-if="phoneOrderEnable" ng-disabled="isValidCancelledTicket()" ng-click="openPhoneOrder()" translate>Commande telephonique</button>
 	<button class="btn btn-logout btn-menu-closable"  ng-if="PosUserId>0" ng-click="logout()" translate>Déconnecter</button>
 	<button class="btn btn-logout btn-menu-closable" ng-if="closable" ng-click="exit()" translate>Fermer l'application</button>
+   <!-- <a href="http://exitkiosk" class="btn btn-logout btn-menu-closable" ng-if="isOnIzibox" translate>Fermer l'application</a>-->
 	<span flex></span>
 	<md-checkbox class="checkbox-menu" ng-checked="IziPosConfiguration.IsDirectPayment" ng-click="toggleDirectPayment()" style="color:white"><x translate>Paiement Rapide</x></md-checkbox>
 	<span flex></span>

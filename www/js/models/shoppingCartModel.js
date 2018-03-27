@@ -467,20 +467,17 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
 
                 Enumerable.from(shoppingCart.Items).forEach(function (item) {
                     item.OriginalQuantity = item.Quantity;
-
-
                     item.DiscountIT /= divider;
                     item.DiscountET /= divider;
                     item.isPartSplitItem = true;
-                    item.Quantity = (item.Quantity / divider).toFixed(5);
+                    item.Quantity = Math.round10((item.Quantity / divider), -5);
                 });
 
                 var clonedShoppingCart = clone(shoppingCart);
 
-
                 for (var i = 0; i < divider - 1; i++) {
                     current.calculateTotalFor(clonedShoppingCart);
-                    //On declare le dailyticket omme undefined sur les shoppingcart de la queue
+                    //On declare le dailyticket comme undefined sur les shoppingcart de la queue
                     //Il sera affecté en même temps que le shopping cart en question deviendra current
                     //Car il est dependant du nombre de ticket validé
                     clonedShoppingCart.dailyTicketId = undefined;
@@ -488,6 +485,7 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
                     //Derniere itération
                     if (i == divider - 2) {
                         var csp = clone(shoppingCart);
+
                         //On ajuste quantité du dernier item pour corrigé les erreurs de nombre flottant de JS
                         Enumerable.from(csp.Items).forEach(function (item) {
 
@@ -498,8 +496,6 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
                     } else {
                         shoppingCart.shoppingCartQueue.push(clonedShoppingCart);
                     }
-
-
                 }
 
                 current.calculateTotalFor(shoppingCart);
@@ -920,7 +916,6 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
         };
 
         function periodValidation(ignorePrintTicket) {
-
             // On recupere les periodes courantes et on les affecte au ticket
             // Si besoin est, on demande a l'utilisateur de renseigner le fond de caisse
             // Pour la nouvelle periode
@@ -939,8 +934,7 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
 
                 //TODO : Add the posuser to create a ticket from an online order
                 // Suppressing line with zero for quantity
-                toSave.Items = Enumerable.from(currentShoppingCart.Items).where("item => item.Quantity > 0").toArray();
-
+                toSave.Items = Enumerable.from(currentShoppingCart.Items).where("item => item.Quantity != 0").toArray();
                 lastShoppingCart = toSave;
 
                 //shoppingCartService.updatePaymentShoppingCartAsync(toSave).then(function (result) {
@@ -991,6 +985,9 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
                 $rootScope.hideLoading();
                 // Print Ticket
                 current.printPOSShoppingCart(toSave, ignorePrintTicket);
+                // Lock la fermeture de periode
+                $rootScope.closeLock = true;
+                // Jusqu'a ce que le PaymentValues de la Y period soit update
 
             }, function () {
                 //Dans le cas ou le fetch / creation yPeriod echoue, on supprime le panier
@@ -1159,6 +1156,7 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
             //The ticket is sent for printing
             shoppingCartService.printShoppingCartAsync(shoppingCart, $rootScope.PrinterConfiguration.POSPrinter,
                 true, $rootScope.PrinterConfiguration.POSPrinterCount, ignorePrintTicket).then(function (obj) {
+                    console.log('Suite de l\'impression');
 
                 if ($rootScope.IziBoxConfiguration.ForcePrintProdTicket) {
                     //ForcePrintProd et Step Enabled devrait être exclusif
@@ -1955,6 +1953,19 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
 
         this.addTicketRestaurant = function (barcode) {
             var result = false;
+
+
+            var currentTime = new Date();
+            var currentYear = currentTime.getFullYear().toString().substr(-1);
+
+            var TRYear = barcode.substr(23, 1);
+
+            //Si le ticket est périmé
+            /*
+            if(TRYear < currentYear){
+                sweetAlert($translate.instant("Ticket périmé !"));
+                return false;
+            }*/
 
             // If the ticket has already been added
             if (currentShoppingCart.TicketsResto != undefined && currentShoppingCart.TicketsResto.length > 0) {

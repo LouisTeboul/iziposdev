@@ -12,7 +12,7 @@
             <span class="stepName">{{currentStep | StepName:stepNames}}</span>
             <md-button aria-label="NavigAttr"  class="md-fab md-mini" ng-click="moveStep(1)"><span class="glyphicon glyphicon-plus"></span></md-button>
         </div>
-        <div layout="row" layout-align="center center" ng-show="$mdMedia('gt-sm')">
+        <div layout="row" layout-align="center center" ng-show="$mdMedia('(min-width: 799px)')">
             <md-button aria-label="NavigAttr" ng-repeat="attr in product.ProductAttributes track by $index" class="md-raised navigAction" ng-click="scrollTo(attr.Id)">{{attr.Name | Truncate:16}}</md-button>
         </div>
     </div>
@@ -26,7 +26,7 @@
                             <span ng-if="attribute.Min">({{attribute.Min}}</span><span ng-if="attribute.Min && attribute.Max">-</span><span ng-if="attribute.Max">{{attribute.Max}}</span>)</span>
                         </span>
 
-                    <span class="info" data-ng-bind-html="attribute.Description" ng-show="$mdMedia('gt-sm')"></span>
+                    <span class="info" data-ng-bind-html="attribute.Description" ng-show="$mdMedia('(min-width: 799px)')"></span>
                 </div>
 
 

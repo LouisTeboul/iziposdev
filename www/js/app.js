@@ -40,7 +40,7 @@ app.run(function ($rootScope, $location, $q, $http, ipService, zposService, $tra
 	try {
 		angularLocation = $location;
 
-        $rootScope.Version = "3.0.3.03131";
+        $rootScope.Version = "3.0.3.03271";
 		$rootScope.adminMode = { state: false };
         $rootScope.loading = 0;
 
@@ -117,6 +117,10 @@ app.run(function ($rootScope, $location, $q, $http, ipService, zposService, $tra
             $rootScope.isBrowser = true;
             $rootScope.isWindowsContainer = false;
             init($rootScope, $location, $q, $http, ipService, zposService, $translate, $uibModal); //this is the browser
+        }
+
+        if (navigator.platform == "Linux armv7l") {
+            $rootScope.isOnIzibox = true;
         }
 	}
 	catch (exAll) 

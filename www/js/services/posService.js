@@ -84,12 +84,12 @@
                     setTimeout(function () {
                         $http.get(pingApiUrl, { timeout: 1000 }).then(function (data) {
                             //Ancienne version izibox
-                            if (!data.data.localDb) {
-                                data.data.localDb = true;
-                                data.data.distantDb = true;
+                            if (!data.data.LocalDb) {
+                                data.data.LocalDb = true;
+                                data.data.DistantDb = true;
                             }
 
-                            var iziboxConnected = data.data && data.data.localDb != undefined ? data.data.localDb : true;
+                            var iziboxConnected = data.data && data.data.LocalDb != undefined ? data.data.LocalDb : true;
 
                             if ($rootScope.modelPos.iziboxConnected != iziboxConnected) {
                                 $rootScope.modelPos.iziboxConnected = iziboxConnected;

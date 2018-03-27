@@ -2,6 +2,7 @@
     function ($rootScope, $q, settingService, taxesService) {
 
         var cacheProductForCategory = {};
+        var useCache = true;
 
         $rootScope.$on('pouchDBChanged', function (event, args) {
             if (args.status == "Change" && (args.id.indexOf('Product') == 0 || args.id.indexOf('Category') == 0)) {
@@ -17,7 +18,7 @@
             //Obtains all productCategories for this category
             if ($rootScope.modelDb.databaseReady) {
 
-                if (cacheProductForCategory && cacheProductForCategory[categoryId]) {
+                if (useCache && cacheProductForCategory && cacheProductForCategory[categoryId]) {
                     productsDefer.resolve(cacheProductForCategory[categoryId]);
                 } else {
 
@@ -36,11 +37,13 @@
 
                             self.getProductByIdsAsync(productIds, productCategories).then(function (products) {
 
-                                if (!cacheProductForCategory) {
-                                    cacheProductForCategory = {};
-                                }
+                                if (useCache) {
+                                    if (!cacheProductForCategory) {
+                                        cacheProductForCategory = {};
+                                    }
 
-                                cacheProductForCategory[categoryId] = products;
+                                    cacheProductForCategory[categoryId] = products;
+                                }
 
                                 productsDefer.resolve(products);
                             }, function (errProducts) {

@@ -3,6 +3,8 @@
 
         var cacheProductPictures = undefined;
         var cachePictures = {};
+        var useCache = true;
+        var useBlob = true;
 
         $rootScope.$on('pouchDBChanged', function (event, args) {
             if (args.status == "Change" && (args.id.indexOf('Picture') == 0 || args.id.indexOf('ProductPicture') == 0)) {
@@ -19,13 +21,16 @@
 
             if ($rootScope.modelDb.databaseReady) {
 
-                if (cachePictures && cachePictures[id]) {
+                if (useCache && cachePictures && cachePictures[id]) {
                     pictureDefer.resolve(cachePictures[id]);
                 } else {
                     $rootScope.dbInstance.rel.find('Picture', id).then(function (results) {
                         var picture = Enumerable.from(results.Pictures).firstOrDefault();
 
-                        cachePictures[id] = picture;
+                        if (useCache) {
+                            cachePictures[id] = picture;
+                        }
+
                         pictureDefer.resolve(picture);
 
                     }, function (err) {
@@ -42,12 +47,15 @@
         this.getAllPicturesAsync = function () {
             var allPicturesDefer = $q.defer();
 
-            if (cacheProductPictures) {
+            if (useCache && cacheProductPictures) {
                 allPicturesDefer.resolve(cacheProductPictures);
             } else {
                 if ($rootScope.modelDb.databaseReady) {
                     $rootScope.dbInstance.rel.find('ProductPicture').then(function (results) {
-                        cacheProductPictures = results.ProductPictures;
+                        if (useCache) {
+                            cacheProductPictures = results.ProductPictures;
+                        }
+
                         allPicturesDefer.resolve(results.ProductPictures);
                     }, function (err) {
                         allPicturesDefer.reject();
@@ -64,7 +72,7 @@
             var pictureIdsDefer = $q.defer();
             idProduct = parseInt(idProduct);
             this.getAllPicturesAsync().then(function (productPictures) {
-                var pictureIds = Enumerable.from(productPictures).where("x => x.ProductId == "+idProduct).orderBy("x => x.DisplayOrder").select('x => x.PictureId').toArray();
+                var pictureIds = Enumerable.from(productPictures).where("x => x.ProductId == " + idProduct).orderBy("x => x.DisplayOrder").select('x => x.PictureId').toArray();
                 pictureIdsDefer.resolve(pictureIds);
 
             }, function (err) {
@@ -77,7 +85,11 @@
         this.getPictureUrlAsync = function (pictureId) {
             var pictureUrlDefer = $q.defer();
 
-            var pictureUrl = window.sessionStorage.getItem("Image"+pictureId);
+            var pictureUrl = undefined;
+
+            if (useCache) {
+                window.sessionStorage.getItem("Image" + pictureId);
+            }
 
             if (!pictureUrl) {
 
@@ -86,33 +98,40 @@
                         var contentType = picture.MimeType;
                         var base64Data = picture.PictureBinary;
 
-                        contentType = contentType || '';
-                        var sliceSize = 1024;
-                        var byteCharacters = atob(base64Data);
-                        var bytesLength = byteCharacters.length;
-                        var slicesCount = Math.ceil(bytesLength / sliceSize);
-                        var byteArrays = new Array(slicesCount);
+                        if (useBlob) {
+                            contentType = contentType || '';
+                            var sliceSize = 1024;
+                            var byteCharacters = atob(base64Data);
+                            var bytesLength = byteCharacters.length;
+                            var slicesCount = Math.ceil(bytesLength / sliceSize);
+                            var byteArrays = new Array(slicesCount);
 
-                        for (var sliceIndex = 0; sliceIndex < slicesCount; ++sliceIndex) {
-                            var begin = sliceIndex * sliceSize;
-                            var end = Math.min(begin + sliceSize, bytesLength);
+                            for (var sliceIndex = 0; sliceIndex < slicesCount; ++sliceIndex) {
+                                var begin = sliceIndex * sliceSize;
+                                var end = Math.min(begin + sliceSize, bytesLength);
 
-                            var bytes = new Array(end - begin);
-                            for (var offset = begin, i = 0 ; offset < end; ++i, ++offset) {
-                                bytes[i] = byteCharacters[offset].charCodeAt(0);
+                                var bytes = new Array(end - begin);
+                                for (var offset = begin, i = 0; offset < end; ++i, ++offset) {
+                                    bytes[i] = byteCharacters[offset].charCodeAt(0);
+                                }
+                                byteArrays[sliceIndex] = new Uint8Array(bytes);
                             }
-                            byteArrays[sliceIndex] = new Uint8Array(bytes);
-                        }
-                        var blob = new Blob(byteArrays, { type: contentType });                
+                            var blob = new Blob(byteArrays, { type: contentType });
 
-                        pictureUrl = URL.createObjectURL(blob);
-                        
-                        window.sessionStorage.setItem("Image" + pictureId, pictureUrl);
+                            pictureUrl = URL.createObjectURL(blob);
+                        } else {
+                            pictureUrl = "data:" + contentType + ";base64," + base64Data;
+                        }
+
+                        if (useCache) {
+                            window.sessionStorage.setItem("Image" + pictureId, pictureUrl);
+                        }
 
                     }
+
                     pictureUrlDefer.resolve(pictureUrl);
 
-                }, function (err) {})
+                }, function (err) { })
             }
             else {
                 pictureUrlDefer.resolve(pictureUrl);

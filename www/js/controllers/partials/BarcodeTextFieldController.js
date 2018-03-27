@@ -18,10 +18,10 @@ app.controller('BarcodeTextFieldController', function ($scope, $rootScope, $uibM
 
 
         $rootScope.$on(Keypad.MODIFIER_KEY_PRESSED, function (event, data) {
-            if(data === "NEXT"){
+            if (data === "NEXT") {
                 $scope.validTextField(false);
             }
-            if(data === "CLEAR"){
+            if (data === "CLEAR") {
                 $scope.barcode.barcodeValue = $scope.barcode.barcodeValue.substring(0, $scope.barcode.barcodeValue.length - 1);
                 $scope.$evalAsync();
             }
@@ -90,6 +90,7 @@ app.controller('BarcodeTextFieldController', function ($scope, $rootScope, $uibM
 
                     result = true;
                 } else if /* TicketResto */ (barcodeLength == 24 && !isNaN(barcode)) {
+
                     result = shoppingCartModel.addTicketRestaurant(barcode);
 
                     if (result) {
@@ -100,6 +101,8 @@ app.controller('BarcodeTextFieldController', function ($scope, $rootScope, $uibM
                             $scope.scanBarcode();
                         }
                     }
+
+
                 } else /* Product */ if (barcodeLength == 13 && !isNaN(barcode)) {
                     shoppingCartModel.addToCartBySku(barcode);
                     result = true;

@@ -52,7 +52,7 @@ app.controller('ModalYperiodPickController', function ($scope, $rootScope, $uibM
 
 
     };
-    var getYperiods = function (hid, currentyPeriod, andClose=false, andShow=false) {
+    var getYperiods = function (hid, currentyPeriod, andClose = false, andShow=false) {
         if (hid == '*') {
             $scope.model.chosenHid = undefined;
             $scope.model.chosenYpid = undefined;

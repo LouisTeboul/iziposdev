@@ -3,8 +3,6 @@
     $scope.paymentType = PaymentType;
 
     $scope.init = function (reload = false, savedModel = {}) {
-
-
         if (savedModel) {
             console.log(savedModel);
 
@@ -19,13 +17,11 @@
                     });
 
                     if (matchedCm) {
-                        return matchedCm.PaymentMode.Total;
+                        return roundValue(matchedCm.PaymentMode.Total);
                     }
                 }
             }
-
         }
-
 
         $scope.model =
             {
@@ -37,14 +33,11 @@
                 showCloseButton: true
             };
 
-
         if (reload) {
             $scope.model.zRecap = [];
         }
 
-
         settingService.getPaymentModesAsync().then(function (paymentSetting) {
-
             var paymentModesAvailable = paymentSetting;
             var dateClose = new Date().toString('dd/MM/yyyy H:mm:ss');
 

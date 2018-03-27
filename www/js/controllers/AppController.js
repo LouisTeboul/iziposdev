@@ -2,7 +2,7 @@
 	$scope.currentKeyboardType;
 	$scope.$mdMedia = $mdMedia;
 
-	$scope.init = function () {		
+    $scope.init = function () {
 	};
 
 	// Useful for the size options
@@ -49,7 +49,7 @@
      * @param alignment
      */
 	$rootScope.openKeyboard = function (type, alignment) {
-		if (!$mdMedia('gt-sm')) {
+        if (!$mdMedia('(min-width: 799px)')) {
 			alignment = "center-end";
 		}
 

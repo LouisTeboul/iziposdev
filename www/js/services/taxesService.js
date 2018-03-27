@@ -307,16 +307,16 @@ app.service('taxesService', ['$rootScope', '$q', 'settingService',
                     if (!cacheIsPricesIncludedTax) {
 
                         //console.log('Price ET : ', price - (discountET / quantity));
-                        priceET = Math.round10((price - (discountET / quantity)), -4);
+                        priceET = Math.round10((price - (discountET / quantity)), -5);
 
                         //console.log('tpsAmount : ', getTaxValue(priceET, taxCategory.TPSValue));
-                        tpsAmount = Math.round10(getTaxValue(priceET, taxCategory.TPSValue), -4);
+                        tpsAmount = Math.round10(getTaxValue(priceET, taxCategory.TPSValue), -5);
 
                         //console.log('tvqAmount : ', getTaxValue(priceET, taxCategory.TVQValue));
-                        tvqAmount = Math.round10(getTaxValue(priceET, taxCategory.TVQValue), -4);
+                        tvqAmount = Math.round10(getTaxValue(priceET, taxCategory.TVQValue), -5);
 
                         //console.log('Price IT : ', priceET + tpsAmount + tvqAmount);
-                        priceIT = Math.round10((priceET + tpsAmount + tvqAmount), -4);
+                        priceIT = Math.round10((priceET + tpsAmount + tvqAmount), -5);
                     }
 
                     // Price includes taxes
@@ -560,21 +560,15 @@ app.service('taxesService', ['$rootScope', '$q', 'settingService',
                         var taxRate = getTaxRate(i.TaxCategory, shoppingCart.DeliveryType);
 
                         if (discount.IsPercent) {
-                            // Value% du prix de l'item
-                            switch (cacheTaxProvider) {
-                                case "Tax.FixedRate":
-                                    i.DiscountIT = (i.Product.Price * i.Quantity) * (discount.Value / 100);
-                                    break;
-                                case "Tax.Quebec" :
-                                    //On souhaite appliquer la remise sur le TTC dans tout les cas
-                                    if (cacheIsPricesIncludedTax) {
-                                        i.DiscountIT = i.Product.Price * (discount.Value / 100);
-                                    } else {
-                                        i.DiscountIT = i.PriceIT  * (discount.Value / 100);
-                                    }
 
-                                    break;
+                            if (cacheIsPricesIncludedTax) {
+                                //Product price représente le prix toutes taxes
+                                i.DiscountIT = i.Product.Price * i.Quantity * (discount.Value / 100);
+                            } else {
+                                //Product price represente le prix hors taxe. On deduit le prix toute taxes a partir du taxRate
+                                i.DiscountIT = ETtoIT(i.Product.Price, taxRate) * i.Quantity  * (discount.Value / 100);
                             }
+
                         } else {
                             i.DiscountIT = discount.Value / shoppingCart.Items.length;
                         }
@@ -600,8 +594,8 @@ app.service('taxesService', ['$rootScope', '$q', 'settingService',
                     // On ajoute le total TTC et HT de la ligne au montant total
                     // Check for discount on line only if there is no discount on receipt
 
-                    totalIT = roundValue(totalIT + i.PriceIT /*- (discount ? 0 : i.DiscountIT)*/);
-                    totalET = roundValue(totalET + i.PriceET /*- (discount ? 0 : i.DiscountET)*/);
+                    totalIT = roundValue(totalIT + i.PriceIT);
+                    totalET = roundValue(totalET + i.PriceET);
 
                     // On récupère les taxes de l'article
                     Enumerable.from(i.TaxDetails).forEach(function (itemTaxDetail) {
