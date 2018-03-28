@@ -290,6 +290,12 @@ app.controller('ModalAllShoppingCartsController', function ($scope, $rootScope, 
                         i.Product.TaxCategory = matchedTaxCategory;
                         //Met la quantité en negatif
                         i.Quantity *= -1;
+                        if (i.DiscountIT) {
+                            i.DiscountIT *= -1;
+                        }
+                        if (i.DiscountET) {
+                            i.DiscountET *= -1;
+                        }
                         i.MinQuantity = clone(i.Quantity);
                         shoppingCartModel.addCartItem(i);
                     }
@@ -300,7 +306,15 @@ app.controller('ModalAllShoppingCartsController', function ($scope, $rootScope, 
                     shoppingCartModel.addPaymentMode(pm, true);
                 });
 
+                if (selectedShoppingCart.Barcode) {
+                    shoppingCartModel.getLoyalty(selectedShoppingCart.Barcode);
+                }
 
+                if (selectedShoppingCart.BalanceUpdate && selectedShoppingCart.BalanceUpdate.UpdateValue > 0) {
+                    var balanceUpdate = selectedShoppingCart.BalanceUpdate;
+                    balanceUpdate.UpdateValue *= -1;
+                    shoppingCartModel.addBalanceUpdate(balanceUpdate);
+                }
 
                 $uibModalInstance.close();
             });

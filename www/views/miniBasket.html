@@ -23,7 +23,7 @@
                 <img src="img/agreementFalse.png" ng-if="!currentShoppingCart.customerLoyalty.HasValidLegalDocument"
                      style="max-width: 15px;"/>
 
-                <span class="glyphicon glyphicon-remove" ng-click="removeLoyaltyInfo()"
+                <span class="glyphicon glyphicon-remove" ng-click="removeLoyaltyInfo()" ng-if="!currentShoppingCart.ParentTicket"
                       style="float:right;font-size: 18px; margin-top: 4px; margin-right: 4px;"></span>
             </div>
             <div ng-if="currentShoppingCart.customerLoyalty
@@ -38,7 +38,7 @@
                      style="max-width: 15px;"/>
                 <img src="img/agreementFalse.png" ng-if="!currentShoppingCart.customerLoyalty.HasValidLegalDocument"
                      style="max-width: 15px;"/>
-                <span class="glyphicon glyphicon-remove" ng-click="removeLoyaltyInfo()"
+                <span class="glyphicon glyphicon-remove" ng-click="removeLoyaltyInfo()" ng-if="!currentShoppingCart.ParentTicket"
                       style="float:right;font-size: 18px; margin-top: 4px; margin-right: 4px;"></span>
             </div>
             <div ng-if="currentShoppingCart.customerLoyalty
@@ -46,7 +46,7 @@
                 <strong>
                     <x translate>Carte sans compte :</x>
                     {{currentShoppingCart.customerLoyalty.Barcodes[0].Barcode}} </strong>
-                <span class="glyphicon glyphicon-remove" ng-click="removeLoyaltyInfo()"
+                <span class="glyphicon glyphicon-remove" ng-click="removeLoyaltyInfo()" ng-if="!currentShoppingCart.ParentTicket"
                       style="float:right;font-size: 18px; margin-top: 4px; margin-right: 4px;"></span>
             </div>
 
@@ -65,7 +65,7 @@
                     </div>
                     <div flex="50" style="text-align:center;">
                         <a class="" ng-click="openCustomActionModal();"
-                           ng-if="currentShoppingCart.customerLoyalty.CustomActions" style="cursor: pointer;">
+                           ng-if="currentShoppingCart.customerLoyalty.CustomActions && !currentShoppingCart.ParentTicket" style="cursor: pointer;">
                             <span class="btn btn-info" ng-if="currentShoppingCart.customerLoyalty.SelectedCustomAction">{{currentShoppingCart.customerLoyalty.SelectedCustomAction.Name}} </span>
                             <span ng-if="!currentShoppingCart.customerLoyalty.SelectedCustomAction"><span
                                     class="glyphicon glyphicon-retweet" style="font-size: 20Px;
@@ -121,7 +121,7 @@
                             </a>
                             <a class="btn btn-info btnOffersOnly"
                                ng-class="{'btnOffers' : IziBoxConfiguration.UseTable}"
-                               ng-if="currentShoppingCart.customerLoyalty && currentShoppingCart.customerLoyalty.RelevantOffers"
+                               ng-if="currentShoppingCart.customerLoyalty && currentShoppingCart.customerLoyalty.RelevantOffers && !currentShoppingCart.ParentTicket"
                                ng-data-notification-switch
                                ng-if-notification="{{currentShoppingCart.customerLoyalty != undefined && currentShoppingCart.customerLoyalty.RelevantOffers && currentShoppingCart.customerLoyalty.RelevantOffers.length > 0}}"
                                data-notifications="{{currentShoppingCart.customerLoyalty.RelevantOffers.length}}"
