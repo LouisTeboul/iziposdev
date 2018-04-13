@@ -1960,6 +1960,10 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
             currentShoppingCart.BalanceUpdate = balanceUpdate;
         };
 
+        this.addBalanceUpdate = function (balanceUpdate) {
+            currentShoppingCart.BalanceUpdate = balanceUpdate;
+        };
+
         this.useOfferText = function (offerText) {
             //console.log(offerText);
 
