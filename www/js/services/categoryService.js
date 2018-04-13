@@ -2,6 +2,7 @@
     function ($rootScope, $q) {
 
         var cacheCategories = undefined;
+        var useCache = true;
 
         $rootScope.$on('pouchDBChanged', function (event, args) {
             if (args.status == "Change" && args.id.indexOf('Category') == 0) {
@@ -14,14 +15,17 @@
             var categoriesDefer = $q.defer();
 
             if ($rootScope.modelDb.databaseReady) {
-                if (cacheCategories) {
+                if (useCache && cacheCategories) {
                     categoriesDefer.resolve(cacheCategories);
                 } else {
                     $rootScope.dbInstance.rel.find('Category').then(function (results) {
                         //Filter pour n'avoir que les catégories de plus haut niveau (qui n'ont pas de parent)
                         results.Categories = results.Categories.filter(cat => cat.ParentCategoryId == 0);
                         var categories = self.composeCategories(results);
-                        cacheCategories = categories;
+                        if (useCache) {
+                            cacheCategories = categories;
+                        }
+
                         categoriesDefer.resolve(categories);
                     }, function (err) {
                     });
@@ -60,7 +64,7 @@
             var id = parseInt(idStr);
 
             if ($rootScope.modelDb.databaseReady) {
-                if (cacheCategories) {
+                if (useCache && cacheCategories) {
                     var category = Enumerable.from(cacheCategories).firstOrDefault(function (x) {
                         return x.Id == id;
                     });

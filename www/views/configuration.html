@@ -120,6 +120,29 @@
             </div>
         </div>-->
 
+        <!--
+        <div class="configRow" layout="row" layout-align="start center" layout-wrap>
+            <div class="title" flex="35">
+                <b translate>Preset de config.</b><b> : </b>
+            </div>
+            <div class="value" flex>
+                <div class="btn-group" uib-dropdown is-open="status.isopenPresets">
+                    <button id="preset-button" type="button" style="width:120px" class="btn btn-default"
+                            uib-dropdown-toggle
+                            ng-disabled="disabled">
+                        {{ $root.selectedPreset ? $root.selectedPreset : "Preset..." }}
+                        <span style="margin-top:8px;float:right" class="caret"></span>
+                    </button>
+                    <ul class="uib-dropdown-menu" style="width:120px" role="menu" aria-labelledby="preset-button">
+                        <li ng-repeat="preset in presetList" role="menuitem" class="item">
+                            <a ng-click="">{{preset.title}}</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        -->
+
         <div class="configRow" layout="row" layout-align="start center" layout-wrap>
             <div class="title" flex="35">
                 <b>Hardware Id :</b>

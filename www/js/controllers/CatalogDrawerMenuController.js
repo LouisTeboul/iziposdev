@@ -15,7 +15,6 @@
             }
         }
 
-
         $scope.closable = $rootScope.isWindowsContainer;
 
         if (!$rootScope.IziPosConfiguration) {
@@ -240,6 +239,7 @@
         }
     };
 
+    /*
     $scope.openPhoneOrder = function(){
         $scope.closeDrawerMenu();
 
@@ -264,6 +264,16 @@
         }, function () {
             console.log("On a annulé");
             $rootScope.PhoneOrderMode = false;
+        });
+    };
+    */
+
+    $scope.openDeviceMonitoring = function(){
+        var modalInstance = $uibModal.open({
+            templateUrl: 'modals/modalMonitoring.html',
+            controller: 'ModalMonitoringController',
+            size: 'lg',
+            backdrop: 'static'
         });
     };
 

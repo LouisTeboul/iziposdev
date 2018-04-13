@@ -67,7 +67,7 @@
     <script src="js/lib/angular-locale_fr-fr.js"></script>
     <script src="js/lib/linq.js"></script>
     <!--<script src="js/lib/pouchdb-3.6.0.min.js"></script>-->
-    <script src="js/lib/pouchdb-6.3.4.min.js"></script>
+    <script src="js/lib/pouchdb-6.4.3.min.js"></script>
     <!--<script src="js/lib/pouchdb.relationnal-pouch.1.4.5.js"></script>-->
     <script src="js/lib/pouchdb.relational-pouch-izipass.js"></script>
     <script src="js/lib/pouchdb.load.js"></script>
@@ -176,6 +176,8 @@
     <script src="js/controllers/modals/ModalPhoneOrderTimeController.js"></script>
     <script src="js/controllers/modals/ModalPromptDeliveryAddressController.js"></script>
     <script src="js/controllers/modals/ModalAddAddressFormController.js"></script>
+    <script src="js/controllers/modals/ModalEditDeliveryInfoController.js"></script>
+    <script src="js/controllers/modals/ModalMonitoringController.js"></script>
 
     <!-- Partials Controllers -->
     <script src="js/controllers/partials/BarcodeTextFieldController.js"></script>
@@ -247,7 +249,7 @@
         <div id="keyboard-numeric" ng-if="currentKeyboardType == 'numeric'" data-ng-keypad="keyboard-numeric" class="numpad relative">           
             <div ng-include="'partials/numeric.html'" layout-fill></div>
         </div>
-        <div id="keyboard-azerty" ng-if="currentKeyboardType == 'azerty'" data-ng-keypad="keyboard-azerty" class="azerty relative" ng-class="{'phone': $mdMedia('gt-sm') == false}">
+        <div id="keyboard-azerty" ng-if="currentKeyboardType == 'azerty'" data-ng-keypad="keyboard-azerty" class="azerty relative" ng-class="{'phone': $mdMedia('(min-width: 799px)') == false}">
             <div ng-include="'partials/azerty.html'" layout-fill></div>
         </div>
     </div>

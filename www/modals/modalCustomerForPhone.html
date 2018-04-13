@@ -6,13 +6,10 @@
     <div class="form-panel modal-body">
         <uib-tabset>
 
-            <uib-tab ng-click="setMode('RECH')">
-                <tab-heading>
-                    <x translate>RECHERCHE</x>
-                </tab-heading>
+            <uib-tab ng-click="setMode('RECH')" heading="{{ 'RECHERCHE' | translate }}">
                 <div layout="column" layout-margin>
 
-                    <div layout="row">
+                    <div layout="row" style="align-items: center;">
                         <label flex="30" translate>Nom, prénom ou email</label>
                         <text-field flex="40" id="searchBar" class="flexbox" ng-model="search.query"
                                     location="center-end" type="azerty" validfunction="searchForCustomer"
@@ -41,12 +38,7 @@
                     </div>
                 </div>
             </uib-tab>
-            <uib-tab ng-click="setMode('ENR')">
-
-                <tab-heading>
-                    <x translate>ENREGISTREMENT</x>
-                </tab-heading>
-
+            <uib-tab ng-click="setMode('ENR')" heading="{{ 'ENREGISTREMENT' | translate }}">
                 <div ng-init="initRegister()">
 
                     <!-- PAGE 1 -->

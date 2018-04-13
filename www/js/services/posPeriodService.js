@@ -25,9 +25,11 @@
 
                 var periodDaemon = function () {
                     setTimeout(function () {
-                        current.getYPeriodAsync($rootScope.modelPos.hardwareId, undefined, false, false).then(function () {
+                        current.getYPeriodAsync($rootScope.modelPos.hardwareId, undefined, false, false).then(function (yp) {
+                            $rootScope.currentYPeriod = yp;
                             if (_daemonPeriodStarted) periodDaemon();
                         }, function () {
+                            $rootScope.currentYPeriod = null;
                             if (_daemonPeriodStarted) periodDaemon();
                         })
                     }, timerRepeat);

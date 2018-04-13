@@ -36,6 +36,10 @@ app.controller('ModalCustomerForPhoneController', function ($scope, $rootScope, 
             };
         });
 
+        $timeout(function () {
+            document.querySelector("#searchBar").focus();
+        }, 100);
+
         $scope.newLoyalty = {};
         $scope.isLoyaltyEnabled = {
             value: 'Fid'
@@ -114,6 +118,7 @@ app.controller('ModalCustomerForPhoneController', function ($scope, $rootScope, 
             $rootScope.showLoading();
 
             /**Proposer de renseigner une adresse de livraison */
+            /*
             var modalInstance = $uibModal.open({
                 templateUrl: 'modals/modalPromptDeliveryAddress.html',
                 controller: 'ModalPromptDeliveryAddressController',
@@ -142,6 +147,7 @@ app.controller('ModalCustomerForPhoneController', function ($scope, $rootScope, 
                 $rootScope.hideLoading()
 
             });
+            */
 
             loyaltyService.getLoyaltyObjectAsync(barcode).then(function (loyalty) {
                 if (loyalty && loyalty.CustomerId != 0) {
@@ -149,14 +155,16 @@ app.controller('ModalCustomerForPhoneController', function ($scope, $rootScope, 
                         shoppingCartModel.setDeliveryType(1);
                         shoppingCartModel.createShoppingCart();
                     }
+                    /*
                     $scope.currentShoppingCart = shoppingCartModel.getCurrentShoppingCart();
                     $scope.currentShoppingCart.Barcode = barcode;
                     $scope.currentShoppingCart.customerLoyalty = loyalty;
 
                     $rootScope.$emit("customerLoyaltyChanged", loyalty);
                     $rootScope.$emit("shoppingCartChanged", $scope.currentShoppingCart);
+                    */
                     $scope.clientSelected = true;
-                    $scope.validCustomer();
+                    $scope.validCustomer(loyalty);
                     setTimeout(function () {
                         $rootScope.hideLoading();
                     }, 500);
@@ -251,18 +259,14 @@ app.controller('ModalCustomerForPhoneController', function ($scope, $rootScope, 
         $rootScope.closeKeyboard();
     };
 
-    $scope.validCustomer = function () {
+    $scope.validCustomer = function (loyalty) {
         $scope.validDisabled = true;
         // No register if no customer is selected
 
         if ($scope.clientSelected == true) {
-
-
-            $rootScope.PhoneOrderMode = true;
-            $uibModalInstance.close();
+            // $rootScope.PhoneOrderMode = true;
+            $uibModalInstance.close(loyalty);
             return;
-
-
         }
 
         //Si pas d'infos saisie pour les mails- aucune opération
@@ -313,13 +317,16 @@ app.controller('ModalCustomerForPhoneController', function ($scope, $rootScope, 
         }
 
         // Get the current Shopping CArt
+
+        /*
         var curShoppingCart = shoppingCartModel.getCurrentShoppingCart();
 
         if (curShoppingCart == undefined) {
             shoppingCartModel.createShoppingCart();
         }
+        */
 
-        curShoppingCart = shoppingCartModel.getCurrentShoppingCart();
+        // curShoppingCart = shoppingCartModel.getCurrentShoppingCart();
 
         try {
             function isFormComplete() {
@@ -362,8 +369,10 @@ app.controller('ModalCustomerForPhoneController', function ($scope, $rootScope, 
 
                     console.log(loyalty);
 
+                    /*
+
                     if (!curShoppingCart.deliveryAddress) {
-                        /**Proposer de renseigner une adresse de livraison */
+                        // Proposer de renseigner une adresse de livraison
                         var modalInstance = $uibModal.open({
                             templateUrl: 'modals/modalPromptDeliveryAddress.html',
                             controller: 'ModalPromptDeliveryAddressController',
@@ -394,10 +403,16 @@ app.controller('ModalCustomerForPhoneController', function ($scope, $rootScope, 
 
                     }
 
+                    */
+
                     $scope.validDisabled = false;
+
+                    /*
                     curShoppingCart.customerLoyalty = loyalty;
                     $rootScope.$emit("customerLoyaltyChanged", loyalty);
                     $rootScope.$emit("shoppingCartChanged", curShoppingCart);
+                    */
+
                     //notification
                     ngToast.create({
                         className: 'info',
@@ -408,8 +423,8 @@ app.controller('ModalCustomerForPhoneController', function ($scope, $rootScope, 
                     });
                     $rootScope.hideLoading();
                     $scope.validDisabled = false;
-                    $rootScope.PhoneOrderMode = true;
-                    $uibModalInstance.close();
+                    // $rootScope.PhoneOrderMode = true;
+                    $uibModalInstance.close(loyalty);
                 }, function (err) {
                     $rootScope.hideLoading();
                     $scope.validDisabled = false;

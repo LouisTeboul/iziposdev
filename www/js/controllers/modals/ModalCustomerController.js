@@ -22,6 +22,8 @@ app.controller('ModalCustomerController', function ($scope, $rootScope, $q, $htt
         $scope.registerFull = false;
         $scope.signInSettings = undefined;
 
+        $scope.deliveryType = shoppingCartModel.getDeliveryType();
+
 
         var settingApi = $rootScope.IziBoxConfiguration.UrlSmartStoreApi + '/RESTLoyalty/RESTLoyalty/getCustomerSettings';
         console.log(settingApi);
@@ -44,7 +46,7 @@ app.controller('ModalCustomerController', function ($scope, $rootScope, $q, $htt
         });
 
         $timeout(function () {
-            document.getElementById("txtComment").focus();
+            document.querySelector("#txtComment").focus();
         }, 0);
 
         $scope.newLoyalty = {};
@@ -140,6 +142,38 @@ app.controller('ModalCustomerController', function ($scope, $rootScope, $q, $htt
         if (barcode) {
             $rootScope.showLoading();
 
+            //Si le mode de consommation = a emporté ou livré
+            if($scope.deliveryType !== 0){
+                /**Proposer de renseigner une adresse de livraison */
+                var modalInstance = $uibModal.open({
+                    templateUrl: 'modals/modalPromptDeliveryAddress.html',
+                    controller: 'ModalPromptDeliveryAddressController',
+                    resolve: {
+                        barcodeClient: function () {
+                            return barcode;
+                        }
+                    },
+                    backdrop: 'static'
+                });
+
+                modalInstance.result.then(function (deliveryAddress) {
+                    console.log(deliveryAddress);
+                    $scope.currentShoppingCart.deliveryAddress = {
+                        Address1: deliveryAddress.Address1,
+                        ZipPostalCode: deliveryAddress.ZipPostalCode,
+                        City: deliveryAddress.City,
+                        Floor: deliveryAddress.Floor,
+                        Door: deliveryAddress.Door,
+                        Digicode: deliveryAddress.Digicode,
+                        InterCom: deliveryAddress.InterCom,
+                        PhoneNumber: deliveryAddress.PhoneNumber
+                    };
+
+                }, function () {
+                    $rootScope.hideLoading()
+
+                });
+            }
 
             loyaltyService.getLoyaltyObjectAsync(barcode).then(function (loyalty) {
                 if (loyalty && loyalty.CustomerId != 0) {
@@ -155,6 +189,7 @@ app.controller('ModalCustomerController', function ($scope, $rootScope, $q, $htt
 
                     setTimeout(function () {
                         $rootScope.hideLoading();
+                        $uibModalInstance.close();
                     }, 500);
 
                 } else {
@@ -196,7 +231,6 @@ app.controller('ModalCustomerController', function ($scope, $rootScope, $q, $htt
         } else {
             return false;
         }
-
     };
 
 
@@ -299,7 +333,7 @@ app.controller('ModalCustomerController', function ($scope, $rootScope, $q, $htt
             }
         }
 
-        if (!$scope.validPhone($scope.newLoyalty.CustomerPhone) && $scope.registerFull) {
+        if ($scope.signInSettings.Phone && !$scope.validPhone($scope.newLoyalty.CustomerPhone) && $scope.registerFull) {
             ngToast.create({
                 className: 'danger',
                 content: '<b>Le format du téléphone est incorrect</b>',
@@ -311,7 +345,7 @@ app.controller('ModalCustomerController', function ($scope, $rootScope, $q, $htt
             return;
         }
 
-        if (!$scope.validZipPostCode($scope.newLoyalty.CustomerZipPostalCode) && $scope.registerFull) {
+        if ($scope.signInSettings.ZipPostalCode && !$scope.validZipPostCode($scope.newLoyalty.CustomerZipPostalCode) && $scope.registerFull) {
             ngToast.create({
                 className: 'danger',
                 content: '<b>Le format du code postal est incorrect</b>',

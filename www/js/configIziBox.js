@@ -79,10 +79,9 @@ app.getConfigIziBoxAsync = function ($rootScope, $q, $http, ipService, $translat
                 setTimeout(function () {
                     searchRestConfigurationAsync($rootScope, $q, $http, ips, $translate, existingConfig).then(function (configs) {
                         var returnResult = function (selectedConfig) {
-                            window.localStorage.setItem("IziBoxConfiguration", selectedConfig);
-                            config = JSON.parse(selectedConfig);
-                            config.deleteCouchDb = config.IdxCouchDb != defaultConfig.IdxCouchDb;
-                            configDefer.resolve(config);
+                            window.localStorage.setItem("IziBoxConfiguration", JSON.stringify(selectedConfig));
+                            selectedConfig.deleteCouchDb = selectedConfig.IdxCouchDb != defaultConfig.IdxCouchDb;
+                            configDefer.resolve(selectedConfig);
                         };
 
                         if (configs.length === 1) {
@@ -163,14 +162,14 @@ var searchRestConfigurationAsync = function ($rootScope,$q, $http, ips, $transla
 
                 // We're scanning the ping rest service and THEN retrieving configuration because there was too much delay
                 // with the configuration service causing the BOX not being detected by the POS
-                var timeoutSearch = existingConfig && i == 0 ? 1000 : 200;
+                var timeoutSearch = ((existingConfig && i === 0) || i === 0) ? 3000 : 200;
                 $http.get(pingApiUrl, { timeout: timeoutSearch }).
                 success(function (data, status, headers, config) {
-
                     getRestConfigurationAsync($q, $http, ip, 8080).then(function (config) {
+                        config = JSON.parse(config);
                         config.LocalIpIziBox = ip;
                         configs.push(config);
-                        if (i === 0 && existingConfig) {
+                        if ((i === 0 && existingConfig)|| i===0) {
                             searchDefer.resolve(configs);
                         } else {
                             i++;
@@ -183,8 +182,7 @@ var searchRestConfigurationAsync = function ($rootScope,$q, $http, ips, $transla
                     });
                 }).
                 error(function (data, status, headers, config) {
-
-                    if (i===0 && existingConfig && !retry) {
+                    if (((i === 0 && existingConfig)|| i===0) && !retry) {
                         callRest(true);
                     }
                     else {
@@ -225,7 +223,7 @@ var getRestConfigurationAsync = function ($q, $http, localIpIziBox, restPort) {
 
 		// Time out needs to be at least 500 for the configuration service
 		// We're setting it to 1000 to be sure to have a result for the first connection
-		$http.get(configApiUrl, { timeout: 1000 }).
+		$http.get(configApiUrl, { timeout: 3000 }).
 			success(function (data) {
 				console.log("Configuration : ok");
 				var msg = JSON.stringify(data);

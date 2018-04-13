@@ -297,7 +297,7 @@
 												currencySymbol = "$";
                                                 break;
                                             case "KMF":
-                                                currencySymbol = "F";
+                                                currencySymbol = "KMF";
                                                 break;
 										}
 									}

@@ -440,13 +440,10 @@ app.service('shoppingCartService', ["$http", "$rootScope", "$q", "$filter", "zpo
         this.printShoppingCartPOST = function (printerApiUrl, shoppingCartPrinterReq, printDefer, retry, nbStep) {
             console.log(printerApiUrl);
 
-            /* TODO :
-            Faire un timeout en fonction du nombre total de steps sur la requete
-            -Recup la valeur de step max pas dans les attributs
-            -Recup la valeur de step max dans les items
-            -Fais le max entre ces deux valeur
-            -Multiplie par 3000 pour avoir le timeout
-            */
+            if(shoppingCartPrinterReq.ShoppingCart && shoppingCartPrinterReq.ShoppingCart.DatePickup){
+                // On envoi une string à la box au lieu d'une date
+                shoppingCartPrinterReq.ShoppingCart.DatePickup = shoppingCartPrinterReq.ShoppingCart.DatePickup.toTimeString()
+            }
 
             var timeout = nbStep * 3000;
 

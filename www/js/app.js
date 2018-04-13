@@ -40,7 +40,7 @@ app.run(function ($rootScope, $location, $q, $http, ipService, zposService, $tra
 	try {
 		angularLocation = $location;
 
-        $rootScope.Version = "3.0.3.03151";
+        $rootScope.Version = "3.0.3.04131";
 		$rootScope.adminMode = { state: false };
         $rootScope.loading = 0;
 
@@ -118,6 +118,10 @@ app.run(function ($rootScope, $location, $q, $http, ipService, zposService, $tra
             $rootScope.isWindowsContainer = false;
             init($rootScope, $location, $q, $http, ipService, zposService, $translate, $uibModal); //this is the browser
         }
+
+        if (navigator.platform == "Linux armv7l") {
+            $rootScope.isOnIzibox = true;
+        }
 	}
 	catch (exAll) 
 	{
@@ -152,6 +156,7 @@ var init = function ($rootScope, $location, $q, $http, ipService, zposService, $
         } else {
 
             $rootScope.IziBoxConfiguration = config;
+            // $rootScope.IziBoxConfiguration.LoginRequired = false;
 
             // Convert settings from 'string' to 'boolean'
             for (var prop in config) {

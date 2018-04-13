@@ -24,6 +24,7 @@
                      style="max-width: 15px;"/>
 
                 <span class="glyphicon glyphicon-remove" ng-click="removeLoyaltyInfo()"
+                      ng-if="!currentShoppingCart.ParentTicket"
                       style="float:right;font-size: 18px; margin-top: 4px; margin-right: 4px;"></span>
             </div>
             <div ng-if="currentShoppingCart.customerLoyalty
@@ -39,14 +40,16 @@
                 <img src="img/agreementFalse.png" ng-if="!currentShoppingCart.customerLoyalty.HasValidLegalDocument"
                      style="max-width: 15px;"/>
                 <span class="glyphicon glyphicon-remove" ng-click="removeLoyaltyInfo()"
+                      ng-if="!currentShoppingCart.ParentTicket"
                       style="float:right;font-size: 18px; margin-top: 4px; margin-right: 4px;"></span>
             </div>
             <div ng-if="currentShoppingCart.customerLoyalty
                       && !currentShoppingCart.customerLoyalty.CustomerEmail" ng-click="openClientModal()">
                 <strong>
-                    <x translate>Carte sans compte :</x>
+                    <x translate>Carte anonyme :</x>
                     {{currentShoppingCart.customerLoyalty.Barcodes[0].Barcode}} </strong>
                 <span class="glyphicon glyphicon-remove" ng-click="removeLoyaltyInfo()"
+                      ng-if="!currentShoppingCart.ParentTicket"
                       style="float:right;font-size: 18px; margin-top: 4px; margin-right: 4px;"></span>
             </div>
 
@@ -65,7 +68,8 @@
                     </div>
                     <div flex="50" style="text-align:center;">
                         <a class="" ng-click="openCustomActionModal();"
-                           ng-if="currentShoppingCart.customerLoyalty.CustomActions" style="cursor: pointer;">
+                           ng-if="currentShoppingCart.customerLoyalty.CustomActions && !currentShoppingCart.ParentTicket"
+                           style="cursor: pointer;">
                             <span class="btn btn-info" ng-if="currentShoppingCart.customerLoyalty.SelectedCustomAction">{{currentShoppingCart.customerLoyalty.SelectedCustomAction.Name}} </span>
                             <span ng-if="!currentShoppingCart.customerLoyalty.SelectedCustomAction"><span
                                     class="glyphicon glyphicon-retweet" style="font-size: 20Px;
@@ -74,9 +78,25 @@
                     </div>
                 </div>
             </div>
+
+            <!-- TODO : Trouver un moyen d'afficher l'adresse sans que ca ça prenne trop de place
+            <div layout="column" ng-if="currentShoppingCart.deliveryAddress">
+                <div layout="row">
+                    <strong>
+                        <x translate>Adresse</x>
+                    </strong>: {{currentShoppingCart.deliveryAddress.Address1}}
+                </div>
+                <div layout="row">
+                    <span ng-if="currentShoppingCart.deliveryAddress.City">{{currentShoppingCart.deliveryAddress.City}}</span>
+                    <span ng-if="currentShoppingCart.deliveryAddress.ZipPostalCode">, {{currentShoppingCart.deliveryAddress.ZipPostalCode}}</span>
+                </div>
+            </div>
+            -->
+
         </div>
 
-        <div class="center" ng-if="!currentShoppingCart.ParentTicket && !$rootScope.IziBoxConfiguration.ForceDeliveryChoice">
+        <div class="center"
+             ng-if="!currentShoppingCart.ParentTicket && !$rootScope.IziBoxConfiguration.ForceDeliveryChoice">
             <div class="switch-toggle switch-3 switch-candy">
 
                 <input id="forhere" name="state-d" type="radio"
@@ -88,14 +108,14 @@
 
                 <input id="takeout" name="state-d" type="radio"
                        ng-checked="deliveryType == DeliveryTypes.TAKEOUT"
-                       ng-click="setDeliveryType(DeliveryTypes.TAKEOUT)">
+                       ng-click="setDeliveryType(DeliveryTypes.TAKEOUT);">
                 <label for="takeout" translate>
                     Emporté
                 </label>
 
                 <input id="delivery" name="state-d" type="radio"
                        ng-checked="deliveryType == DeliveryTypes.DELIVERY"
-                       ng-click="setDeliveryType(DeliveryTypes.DELIVERY)">
+                       ng-click="setDeliveryType(DeliveryTypes.DELIVERY);">
                 <label for="delivery" translate>
                     Livré
                 </label>
@@ -121,7 +141,7 @@
                             </a>
                             <a class="btn btn-info btnOffersOnly"
                                ng-class="{'btnOffers' : IziBoxConfiguration.UseTable}"
-                               ng-if="currentShoppingCart.customerLoyalty && currentShoppingCart.customerLoyalty.RelevantOffers"
+                               ng-if="currentShoppingCart.customerLoyalty && currentShoppingCart.customerLoyalty.RelevantOffers && !currentShoppingCart.ParentTicket"
                                ng-data-notification-switch
                                ng-if-notification="{{currentShoppingCart.customerLoyalty != undefined && currentShoppingCart.customerLoyalty.RelevantOffers && currentShoppingCart.customerLoyalty.RelevantOffers.length > 0}}"
                                data-notifications="{{currentShoppingCart.customerLoyalty.RelevantOffers.length}}"
@@ -219,8 +239,9 @@
                         </div>
 
                         <div layout="row" ng-if="currentShoppingCart.Items.length > 0 ">
-                            <div flex translate>
-                                Nombre d'article(s) :
+                            <div flex>
+                                <x translate>Nombre d'article(s)</x>
+                                :
                             </div>
                             <div flex>
                                 {{ getNbItems()}}
@@ -478,8 +499,8 @@
                             <div ng-repeat="paymentMode in paymentModesAvailable">
                                 <a class="btn btn-payment btn-block" ng-click="selectPaymentMode(paymentMode)"
                                    layout="column" layout-align="space-around center"
-                                   ng-class="{'active':IziPosConfiguration.IsDirectPayment}">
-                                    <img class="btn-payment-image" alt="Image"
+                                   ng-class="{'active':IziPosConfiguration.IsDirectPayment, 'btn-payment-small':paymentModesAvailable.length >= 9}">
+                                <img class="btn-payment-image" alt="Image"
                                          ng-src="{{paymentMode | PaymentTypeImg}}">
                                     <span class="btn-payment-text">{{paymentMode.Text}}</span>
                                 </a>
@@ -546,6 +567,7 @@
 
             <a class="shoppingCartAction btn btn-warning btnFreeze"
                ng-if="!currentShoppingCart.ParentTicket"
+               ng-disabled="printStepProdDisabled"
                ng-click="freezeShoppingCart()" flex>
                 <span style="white-space:normal"><img class="btn-action-image" alt="Image" src="img/freeze.png"></span>
             </a>

@@ -181,6 +181,35 @@
 		"Montant" : "Amount",
 		"Nombre de parts" : "Number of parts",
 
+		"Informations de commande" : "Order information",
+		"Dans" : "In",
+		"Pour" : "For",
+		"Pas de client" : "No linked customer",
+		"N° de carte" : "Card ID",
+		"Effacer" : "Clear",
+		"Fermer" : "Close",
+		"Appliquer" : "Apply changes",
+        "Passage sur place" : "Take away",
+
+		"Etage" : "Floor",
+        "Porte" : "Door",
+        "Interphone" : "Intercom",
+        "Nombre d'article(s)" : "Number of items",
+        "" : "",
+        "" : "",
+        "" : "",
+        "" : "",
+        "" : "",
+
+
+		"RECHERCHE" : "SEARCH",
+		"RECHERCHER" : "Search",
+		"ENREGISTREMENT" : "REGISTER",
+		"Nom, prénom ou email" : "Firstname, Lastname or email",
+
+		"Aucun résultat" : "No result",
+
+
 
 
 

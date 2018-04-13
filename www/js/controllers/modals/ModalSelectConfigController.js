@@ -10,12 +10,12 @@
     $scope.init = function () {
         if (configsArgs && configsArgs.length > 0) {
             Enumerable.from(configsArgs).forEach(function (arg) {
-                $scope.model.configs.push(JSON.parse(arg));
+                $scope.model.configs.push(arg);
             });
         }
     };
 
     $scope.ok = function () {
-        $uibModalInstance.close($scope.model.selectedConfig);
+        $uibModalInstance.close(JSON.parse($scope.model.selectedConfig));
     };
 });

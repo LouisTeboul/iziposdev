@@ -1,0 +1,120 @@
+<section ng-init="init()">
+    <div class="modal-header">
+        <h1 class="modal-title" translate>Informations de commande</h1>
+    </div>
+
+    <div class="modal-body" layout="column">
+
+
+        <!-- Objectif -->
+        <uib-tabset>
+            <uib-tab heading="{{ 'Dans' | translate}}" ng-click="setTimeGoalMode('In')">
+                <div layout="row" layout-align="center center" class="modalLine">
+
+                    <div class="text" translate>Dans</div>
+
+                    <div class="btn-group" uib-dropdown is-open="status.isopenHeure">
+                        <button id="heure-button" type="button" style="width:120px" class="btn btn-default"
+                                uib-dropdown-toggle
+                                ng-disabled="disabled">
+                            {{ modelTime.In.hours >= 0 ? modelTime.In.hours : "Heure" }}
+                            <span style="margin-top:8px;float:right" class="caret"></span>
+                        </button>
+                        <ul class="uib-dropdown-menu" style="width:120px" role="menu" aria-labelledby="heure-button">
+                            <li ng-repeat="h in [0,1,2,3]" role="menuitem" class="item"><a
+                                    ng-click="selectInHour(h)">{{h}}</a></li>
+                        </ul>
+                    </div>
+
+                    <div class="text">H</div>
+
+
+                    <text-field flex="70" class="flexbox timeTextField" id="inMintutes" ng-model="modelTime.In.minutes"
+                                location="center-end" type="numeric" validfunction="$root.closeKeyboard"
+                                style="max-width: 120px;min-height:34px;" layout-align="center center"></text-field>
+
+                    <div class="text">MIN</div>
+                </div>
+            </uib-tab>
+            <uib-tab heading="{{ 'Pour' | translate}}" ng-click="setTimeGoalMode('For')">
+
+                <div layout="row" layout-align="center center" class="modalLine">
+
+                    <div class="text" translate>Pour</div>
+
+                    <text-field flex="70" class="flexbox timeTextField" id="forHours" ng-model="modelTime.For.hours"
+                                location="center-end" type="numeric" validfunction="$root.closeKeyboard"
+                                style="max-width: 120px;min-height:34px;" layout-align="center center"></text-field>
+
+
+                    <div class="text">H</div>
+
+
+                    <text-field flex="70" class="flexbox timeTextField" id="forMinutes" ng-model="modelTime.For.minutes"
+                                location="center-end" type="numeric" validfunction="$root.closeKeyboard"
+                                style="max-width: 120px;min-height:34px;" layout-align="center center"></text-field>
+
+                    <div class="text">MIN</div>
+                </div>
+
+            </uib-tab>
+
+        </uib-tabset>
+
+        <div style="color:red; text-align:center; height:20px;" ng-if="errorMessage"> {{ errorMessage }} </div>
+
+        <hr/>
+
+
+        <!--Client -->
+        <md-content layout-padding layout="row" style="max-height:400px">
+            <div  layout-align="space-between end" layout="row" style="align-items: center;" flex>
+                <h4 ng-if="!result.customerLoyalty"><x translate>Pas de client</x> ...</h4>
+                <div class="customerInfo" ng-if="result.customerLoyalty">
+                    <h4 style="margin-top: 0">{{result.customerLoyalty.CustomerFirstName}}
+                        {{result.customerLoyalty.CustomerLastName}}</h4>
+                    <h4>{{result.customerLoyalty.CustomerEmail}}</h4>
+                </div>
+
+                <md-button ng-click="selectCustomer()" class="md-fab md-primary" aria-label="Add customer">
+                    <md-icon md-svg-src="img/icons/add-plus-button.svg" ng-if="!result.customerLoyalty"></md-icon>
+                    <md-icon md-svg-src="img/icons/pencil-edit-button.svg" ng-if="result.customerLoyalty"></md-icon>
+                </md-button>
+            </div>
+
+            <div ng-if="result.customerLoyalty" layout-align="space-between end" layout="row"
+                 style="align-items: center;" flex>
+                <h4 ng-if="!result.deliveryAddress" translate>Passage sur place</h4>
+                <div class="deliveryAddressInfo" ng-if="result.deliveryAddress">
+                    <h4 style="margin-top: 0"> {{result.deliveryAddress.Address1}}</h4>
+                    <h4>{{result.deliveryAddress.ZipPostalCode}}, {{result.deliveryAddress.City}}</h4>
+                </div>
+
+                <md-button ng-click="promptDeliveryAddress(result.customerLoyalty.Barcodes[0].Barcode)"
+                           class="md-fab md-primary" aria-label="Add delivery address">
+                    <md-icon md-svg-src="img/icons/add-plus-button.svg" ng-if="!result.deliveryAddress"></md-icon>
+                    <md-icon md-svg-src="img/icons/pencil-edit-button.svg" ng-if="result.deliveryAddress"></md-icon>
+                </md-button>
+
+            </div>
+        </md-content>
+
+        <!-- Commentaire -->
+        <div layout="row" class="modalLine" style="align-items: center;">
+            <label flex="20" translate class="text">Commentaire </label>
+            <text-field flex="70" class="flexbox" id="Commentaire" ng-model="result.extraInfos"
+                        location="center-end" type="azerty" validfunction="$root.closeKeyboard"
+                        style="width:510px;margin-right:10px;min-height:34px;"></text-field>
+
+        </div>
+
+
+    </div>
+
+    <div class="modal-footer">
+        <button class="btn btn-rose" ng-click="clear()" translate>Effacer</button>
+        <button class="btn btn-info" ng-click="close()" translate>Fermer</button>
+        <button class="btn btn-green" ng-click="ok()" translate>Appliquer</button>
+    </div>
+
+</section>

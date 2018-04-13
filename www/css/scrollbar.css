@@ -6,7 +6,7 @@
     border-width: 0
 }
 ::-webkit-scrollbar {
-    height: 8px;
+    height: 5px;
     overflow: visible;
     width: 5px;
 }
