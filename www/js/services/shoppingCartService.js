@@ -313,7 +313,7 @@ app.service('shoppingCartService', ["$http", "$rootScope", "$q", "$filter", "zpo
          */
         this.printShoppingCartAsync = function (shoppingCart, printerIdx, isPosTicket, printCount, ignorePrintTicket, nbNote, printDefer) {
 
-            if(!printDefer){
+            if (!printDefer) {
                 printDefer = $q.defer();
             }
             shoppingCart.PosUserId = $rootScope.PosUserId;
@@ -399,7 +399,7 @@ app.service('shoppingCartService', ["$http", "$rootScope", "$q", "$filter", "zpo
         this.printProdAsync = function (shoppingCart, step, printDefer, nbStep) {
             //console.log(shoppingCart);
             //Si le printdefer n'a pas été fournis par l'appellant
-            if(!printDefer){
+            if (!printDefer) {
                 printDefer = $q.defer();
             }
 
@@ -436,13 +436,25 @@ app.service('shoppingCartService', ["$http", "$rootScope", "$q", "$filter", "zpo
          * @param shoppingCartPrinterReq The Shopping and its parameters for printing
          * @param printDefer
          * @param retry Number of retry
+         * @param nbStep Number of steps
          */
         this.printShoppingCartPOST = function (printerApiUrl, shoppingCartPrinterReq, printDefer, retry, nbStep) {
             console.log(printerApiUrl);
 
-            if(shoppingCartPrinterReq.ShoppingCart && shoppingCartPrinterReq.ShoppingCart.DatePickup){
-                // On envoi une string à la box au lieu d'une date
-                shoppingCartPrinterReq.ShoppingCart.DatePickup = shoppingCartPrinterReq.ShoppingCart.DatePickup.toTimeString()
+            if (shoppingCartPrinterReq.ShoppingCart && shoppingCartPrinterReq.ShoppingCart.DatePickup) {
+                // Si DatePickup est de type Date
+                if (Object.prototype.toString.call(shoppingCartPrinterReq.ShoppingCart.DatePickup) === "[object Date]") {
+                    // On envoi une string à la box au lieu d'une date
+                    shoppingCartPrinterReq.ShoppingCart.DatePickup = shoppingCartPrinterReq.ShoppingCart.DatePickup.toTimeString();
+                } else {
+                    // Si DatePickup est une timestring valide
+                    if (new Date(shoppingCartPrinterReq.ShoppingCart.DatePickup)) {
+                        shoppingCartPrinterReq.ShoppingCart.DatePickup = new Date(shoppingCartPrinterReq.ShoppingCart.DatePickup).toTimeString();
+                    } else {
+                        shoppingCartPrinterReq.ShoppingCart.DatePickup = "Error";
+                    }
+                    // Sinon la date est impossible a lire
+                }
             }
 
             var timeout = nbStep * 3000;
