@@ -470,6 +470,7 @@ app.service('shoppingCartService', ["$http", "$rootScope", "$q", "$filter", "zpo
                         shoppingCartPrinterReq.ShoppingCart.id = data.ticketId;
                     }
                     if (data.timestamp != undefined) {
+                        /** ATTENTION BUG NF ??? */
                         shoppingCartPrinterReq.ShoppingCart.Timestamp = data.timestamp;
                     }
                 }

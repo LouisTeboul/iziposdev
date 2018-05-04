@@ -30,9 +30,7 @@ app.controller('IZIPASSController', function ($scope, $rootScope, $stateParams, 
             // Get products for this category
             productService.getProductForCategoryAsync(categoryId).then(function (results) {
                 if (results) {
-
                     $scope.products = Enumerable.from(results).orderBy('x => x.ProductCategory.DisplayOrder').toArray();
-
                     // Pictures
                     Enumerable.from($scope.products).forEach(function (p) {
                         pictureService.getPictureIdsForProductAsync(p.Id).then(function (ids) {
@@ -56,43 +54,6 @@ app.controller('IZIPASSController', function ($scope, $rootScope, $stateParams, 
                 $scope.subCategories = subCategories;
 
                 Enumerable.from($scope.subCategories).forEach(function (subCat) {
-                    categoryService.getSubCategoriesByParentAsync(subCat.Id).then(function (subSubCategories) {
-                        //Recupere toutes les sous categories du parent
-                        if (subSubCategories) {
-
-                            $scope.subSubCategories = subSubCategories;
-                            subCat.subCategories = subSubCategories;
-
-                            Enumerable.from(subSubCategories).forEach(function (subCat) {
-
-                                productService.getProductForCategoryAsync(subCat.Id).then(function (results) {
-                                    if (results) {
-
-                                        subCat.products = Enumerable.from(results).orderBy('x => x.ProductCategory.DisplayOrder').toArray();
-
-                                        // Pictures
-                                        Enumerable.from(subCat.products).forEach(function (p) {
-                                            pictureService.getPictureIdsForProductAsync(p.Id).then(function (ids) {
-                                                var id = Enumerable.from(ids).firstOrDefault();
-                                                pictureService.getPictureUrlAsync(id).then(function (url) {
-                                                    if (!url) {
-                                                        url = 'img/photo-non-disponible.png';
-                                                    }
-                                                    p.DefaultPictureUrl = url;
-                                                    $scope.$evalAsync();
-                                                });
-                                            });
-                                        });
-                                    }
-                                }, function (err) {
-                                    console.log(err);
-                                });
-
-
-                            })
-                        }
-
-                    });
 
                     productService.getProductForCategoryAsync(subCat.Id).then(function (results) {
                         if (results) {
