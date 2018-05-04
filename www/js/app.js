@@ -29,7 +29,7 @@ app.config(function ($stateProvider, $urlRouterProvider, ngToastProvider, $trans
 				if (authService && authService.getToken()) {
 					config.headers['Authorization'] = 'bearer ' + authService.getToken().access_token;
 				}
-				return $q.when(config);				
+				return $q.when(config);
 			}            
 		};
 	});
@@ -40,7 +40,7 @@ app.run(function ($rootScope, $location, $q, $http, ipService, zposService, $tra
 	try {
 		angularLocation = $location;
 
-        $rootScope.Version = "3.0.3.04161";
+        $rootScope.Version = "3.0.3.05041";
 		$rootScope.adminMode = { state: false };
         $rootScope.loading = 0;
 
