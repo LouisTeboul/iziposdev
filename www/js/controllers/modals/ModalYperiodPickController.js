@@ -203,7 +203,7 @@ app.controller('ModalYperiodPickController', function ($scope, $rootScope, $uibM
                         hidList: $scope.model.hids,
                         mode: $scope.model.mode,
                         yperiod: $scope.currentYPeriod,
-                        yperiods: $scope.model.yperiods,
+                        yperiods: $scope.yperiods,
                         zperiod: $scope.zp
                     };
                     return closePosParameters;

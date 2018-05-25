@@ -10,7 +10,6 @@
 		})
 });
 
-
 app.controller('ConfigurationController', function ($scope, $rootScope, $location, $http, $uibModal, shoppingCartService, posLogService, posService) {
 	var current = this;
 
@@ -26,16 +25,33 @@ app.controller('ConfigurationController', function ($scope, $rootScope, $locatio
 		if (args.total > 0) {
 			$scope.searchIziBoxProgression.percent = (args.step * 100) / args.total;
         }
-
         $scope.gauge.set(args.step+1);
 	});
 
 	$scope.init = function () {
+		/*$scope.status = {
+			isopenPresets : false,
+		};*/
+
         $scope.Model = {};
-        $rootScope.PhoneOrderMode = false;
+        //$scope.presetList = [ {"title" : "Default", "value" : 0} ];
 
         $rootScope.modelPos.posNumber = window.localStorage.getItem("PosNumber");
         if (!$rootScope.modelPos.posNumber) $rootScope.modelPos.posNumber = 1;
+
+
+
+        $rootScope.selectedPresetIdx = window.localStorage.getItem("SelectedPreset");
+        if(!$rootScope.selectedPresetIdx) $rootScope.selectedPresetIdx = 0;
+
+        //Recupere tout les presets sauvegardé dans le localstorage
+		/*
+		var i = 1;
+		while(window.localStorage.getItem("UserPreset" + i)){
+			var preset = JSON.parse(window.localStorage.getItem("UserPreset" + i));
+			$scope.presetList.push({"title" : preset.title, "value" : preset});
+			i++
+		}*/
 
 		$rootScope.PrinterConfiguration = {};
 		$rootScope.PrinterConfiguration.POSPrinter = window.localStorage.getItem("POSPrinter");
@@ -320,6 +336,7 @@ app.controller('ConfigurationController', function ($scope, $rootScope, $locatio
 		$http.get(configApiUrl, { timeout: 10000 }).
 			success(function (data, status, headers, config) {
 				$rootScope.IziBoxConfiguration = data;
+            	// $rootScope.IziBoxConfiguration.LoginRequired = false;
 				data.WithoutIzibox = true;
 				data.UseProdPrinter = false;
 				data.POSPrinterCount = 0;

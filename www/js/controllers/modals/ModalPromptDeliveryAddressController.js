@@ -4,7 +4,6 @@ app.controller('ModalPromptDeliveryAddressController', function ($scope, $rootSc
     $scope.selectedAddress = undefined;
     $scope.noDelivery = true;
     $scope.init = function () {
-        /** TODO: Recuperer les adresses du client, voir cou mettre le param barcode */
         $http.get($rootScope.IziBoxConfiguration.UrlSmartStoreApi + '/RESTLoyalty/RESTLoyalty/GetAddresses?barcode=' + barcodeClient).then(function (response) {
             //Bind les adresse a une variable du scope
             console.log(response);
@@ -19,9 +18,7 @@ app.controller('ModalPromptDeliveryAddressController', function ($scope, $rootSc
 
     $scope.setNoDelivery = function(){
         $scope.noDelivery = true;
-        $scope.selectedAddress = undefined;
-
-
+        $scope.selectedAddress = "";
     };
 
     $scope.selectDeliveryAddress = function (ad) {
@@ -84,12 +81,7 @@ app.controller('ModalPromptDeliveryAddressController', function ($scope, $rootSc
     };
 
     $scope.ok = function () {
-        if ($scope.selectedAddress) {
-            $rootScope.closeKeyboard();
-            $uibModalInstance.close($scope.selectedAddress);
-        } else {
-            $uibModalInstance.dismiss('no delivery');
-
-        }
+        $rootScope.closeKeyboard();
+        $uibModalInstance.close($scope.selectedAddress);
     };
 });

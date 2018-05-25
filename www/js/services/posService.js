@@ -81,8 +81,19 @@
                 if (!checkOnly) _daemonIziboxStarted = true;
 
                 var iziboxDaemon = function () {
+
                     setTimeout(function () {
+                        /*
+                        var pingPostData = {
+                            HardwareId : $rootScope.modelPos.hardwareId,
+                            Alias : $rootScope.modelPos.aliasCaisse,
+                            YperiodId : $rootScope.currentYPeriod && $rootScope.modelPos.isPosOpen ? $rootScope.currentYPeriod.yPeriodId : null,
+                            IsBorne : $rootScope.borne ? $rootScope.borne : false
+
+                        };
+                        */
                         $http.get(pingApiUrl, { timeout: 1000 }).then(function (data) {
+                        //$http.post(pingApiUrl, pingPostData , { timeout: 1000 }).then(function (data) {
                             //Ancienne version izibox
                             if (!data.data.LocalDb) {
                                 data.data.LocalDb = true;

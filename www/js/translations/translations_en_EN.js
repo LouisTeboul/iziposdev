@@ -103,7 +103,8 @@
 		"Ticket introuvable": "The receipt can not be found",
 		"Vous avez déjà un ticket en cours": "You already have a processing receipt",
 		"Le serveur de fidélité n'est pas joignable ...": "Loyalty server can't be reached ...",
-		"Carte de fidélité introuvable !": "Loyalty card can not be found !",
+        "Carte de fidélité introuvable !": "Loyalty card can not be found !",
+        "Le client a été supprimé, cette carte n'est plus utilisable": "The client has been deleted, this card is no longer usable",
 		"Le ticket a déjà une remise": "A discount is already deducted from this receipt ",
 		"Le ticket-restaurant n'a pu être ajouté !": "Meal voucher can't be added",
 		"Supprimer le ticket ?": "Delete the receipt ?",
@@ -181,6 +182,35 @@
 		"Montant" : "Amount",
 		"Nombre de parts" : "Number of parts",
 
+		"Informations de commande" : "Order information",
+		"Dans" : "In",
+		"Pour" : "For",
+		"Pas de client" : "No linked customer",
+		"N° de carte" : "Card ID",
+		"Effacer" : "Clear",
+		"Fermer" : "Close",
+		"Appliquer" : "Apply changes",
+        "Passage sur place" : "Take away",
+
+		"Etage" : "Floor",
+        "Porte" : "Door",
+        "Interphone" : "Intercom",
+        "Nombre d'article(s)" : "Number of items",
+        "" : "",
+        "" : "",
+        "" : "",
+        "" : "",
+        "" : "",
+
+
+		"RECHERCHE" : "SEARCH",
+		"RECHERCHER" : "Search",
+		"ENREGISTREMENT" : "REGISTER",
+		"Nom, prénom ou email" : "Firstname, Lastname or email",
+
+		"Aucun résultat" : "No result",
+
+
 
 
 
@@ -189,7 +219,9 @@
         "Gestion des espèces": "Cash management",
         "Vous devez d&eacute;finir un mouvement de caisse de type fonds de caisse dans le BO, merci": "You have to define a cash movement of cash funds in the BO, thanks",
         "Vous devez d&eacute;finir au moins un mouvement de caisse d'entrée, sortie dans le BO, merci": "You must define at least one cash movement (in or out) in the BO, thank you",
-        "Compteur" : "Count"
+        "Compteur": "Count",
+        "La izibox n'est pas accèssible": "The izibox is not accessible",
+        "Erreur lors de la fermeture": "Error closing"
 
 	});
 

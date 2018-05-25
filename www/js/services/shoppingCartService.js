@@ -313,7 +313,7 @@ app.service('shoppingCartService', ["$http", "$rootScope", "$q", "$filter", "zpo
          */
         this.printShoppingCartAsync = function (shoppingCart, printerIdx, isPosTicket, printCount, ignorePrintTicket, nbNote, printDefer) {
 
-            if(!printDefer){
+            if (!printDefer) {
                 printDefer = $q.defer();
             }
             shoppingCart.PosUserId = $rootScope.PosUserId;
@@ -399,7 +399,7 @@ app.service('shoppingCartService', ["$http", "$rootScope", "$q", "$filter", "zpo
         this.printProdAsync = function (shoppingCart, step, printDefer, nbStep) {
             //console.log(shoppingCart);
             //Si le printdefer n'a pas été fournis par l'appellant
-            if(!printDefer){
+            if (!printDefer) {
                 printDefer = $q.defer();
             }
 
@@ -436,19 +436,28 @@ app.service('shoppingCartService', ["$http", "$rootScope", "$q", "$filter", "zpo
          * @param shoppingCartPrinterReq The Shopping and its parameters for printing
          * @param printDefer
          * @param retry Number of retry
+         * @param nbStep Number of steps
          */
         this.printShoppingCartPOST = function (printerApiUrl, shoppingCartPrinterReq, printDefer, retry, nbStep) {
             console.log(printerApiUrl);
 
-            /* TODO :
-            Faire un timeout en fonction du nombre total de steps sur la requete
-            -Recup la valeur de step max pas dans les attributs
-            -Recup la valeur de step max dans les items
-            -Fais le max entre ces deux valeur
-            -Multiplie par 3000 pour avoir le timeout
-            */
+            if (shoppingCartPrinterReq.ShoppingCart && shoppingCartPrinterReq.ShoppingCart.DatePickup) {
+                // Si DatePickup est de type Date
+                if (Object.prototype.toString.call(shoppingCartPrinterReq.ShoppingCart.DatePickup) === "[object Date]") {
+                    // On envoi une string à la box au lieu d'une date
+                    shoppingCartPrinterReq.ShoppingCart.DatePickup = shoppingCartPrinterReq.ShoppingCart.DatePickup.toTimeString();
+                } else {
+                    // Si DatePickup est une timestring valide
+                    if (new Date(shoppingCartPrinterReq.ShoppingCart.DatePickup)) {
+                        shoppingCartPrinterReq.ShoppingCart.DatePickup = new Date(shoppingCartPrinterReq.ShoppingCart.DatePickup).toTimeString();
+                    } else {
+                        shoppingCartPrinterReq.ShoppingCart.DatePickup = "Error";
+                    }
+                    // Sinon la date est impossible a lire
+                }
+            }
 
-            var timeout = nbStep * 3000;
+            var timeout = nbStep ? nbStep * 3000 : 20000;
 
             $http.post(printerApiUrl, shoppingCartPrinterReq, {timeout: timeout}).then(function (obj) {
                 console.log("succes post ticket", obj);
@@ -461,6 +470,7 @@ app.service('shoppingCartService', ["$http", "$rootScope", "$q", "$filter", "zpo
                         shoppingCartPrinterReq.ShoppingCart.id = data.ticketId;
                     }
                     if (data.timestamp != undefined) {
+                        /** ATTENTION BUG NF ??? */
                         shoppingCartPrinterReq.ShoppingCart.Timestamp = data.timestamp;
                     }
                 }

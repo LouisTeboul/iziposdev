@@ -1,0 +1,60 @@
+<section class="" ng-init="init()">
+
+    <div class="modal-header">
+        <h1 class="modal-title" translate>Liste des terminaux connectés</h1>
+    </div>
+
+    <div class="form-panel modal-body">
+        <p>
+            <x translate>Derniere mise à jour</x>
+            : {{lastUpdateTime}}
+        </p>
+
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th style="width: 80%;" translate>
+                    Nom du terminal
+                </th>
+                <th style="text-align: center" translate>
+                    Type
+                </th>
+                <th style="text-align: center" translate>
+                    Periode
+                </th>
+            </tr>
+            </thead>
+            <tbody>
+
+            <tr ng-repeat="device in onlineDevices">
+                <td style="vertical-align: middle" class="posName">
+                    {{device.Alias ? device.Alias : device.HardwareId}}
+                </td>
+
+                <td style="vertical-align: middle; text-align: center" class="">
+                    <span ng-if="device.IsBorne">
+                        Borne
+                    </span>
+                    <span ng-if="!device.IsBorne">
+                        Caisse
+                    </span>
+                </td>
+
+                <td style="vertical-align: middle; text-align: center" class="period">
+                    <button class="btn btn-warning" ng-if="!device.YperiodId" ng-click="openPeriod(device.HardwareId)"
+                            translate>
+                        Ouvrir une periode
+                    </button>
+
+                    <span ng-if="device.YperiodId" class="glyphicon glyphicon-ok"></span>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="modal-footer">
+        <button class="btn btn-rose" ng-click="close()" translate>Fermer</button>
+    </div>
+
+</section>

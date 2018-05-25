@@ -132,36 +132,42 @@ app.controller('ModalOpenPosController', function ($scope, $rootScope, $uibModal
     };
 
     $scope.ok = function () {
-        if (!$scope.openPosParameters.editMode) {
-            if ($scope.model.motif && $scope.model.motif != null) {
-                $scope.model.validateDisabled = true;
-                $scope.openPosValues.MovementType_Id = $scope.model.motif.Id;
+        if (!$rootScope.modelPos.iziboxConnected) {
+            sweetAlert({ title: $translate.instant("La izibox n'est pas accèssible") }, function () {
+            });
+        }
+        else {
+            if (!$scope.openPosParameters.editMode) {
+                if ($scope.model.motif && $scope.model.motif != null) {
+                    $scope.model.validateDisabled = true;
+                    $scope.openPosValues.MovementType_Id = $scope.model.motif.Id;
 
-                if ($scope.openPosParameters.previousYPeriod && !$scope.openPosParameters.previousYPeriod.emptyCash) {
-                    var previousYperiodButClosed = $scope.openPosParameters.previousYPeriod;
-                    if (previousYperiodButClosed) {
+                    if ($scope.openPosParameters.previousYPeriod && !$scope.openPosParameters.previousYPeriod.emptyCash) {
+                        var previousYperiodButClosed = $scope.openPosParameters.previousYPeriod;
+                        if (previousYperiodButClosed) {
 
-                        // Crééer le motif négatif isSytem "Fin de service" du montant espèce du précédent yPeriod dans le yPeriod précédent
-                        posPeriodService.emptyCashYPeriodAsync(previousYperiodButClosed, previousYperiodButClosed.YCountLines).then(function (paymentValues) {
-                            //Appel aprés la création de la fermeture du service précédent pour que la date du motif de l'ouverture du service soit aprés le motif de fermeture du service pr�c�dent
-                            $scope.openPosValues.CashMovementLines[0].PaymentMode.Total = $scope.model.totalKnown;
+                            // Crééer le motif négatif isSytem "Fin de service" du montant espèce du précédent yPeriod dans le yPeriod précédent
+                            posPeriodService.emptyCashYPeriodAsync(previousYperiodButClosed, previousYperiodButClosed.YCountLines).then(function (paymentValues) {
+                                //Appel aprés la création de la fermeture du service précédent pour que la date du motif de l'ouverture du service soit aprés le motif de fermeture du service pr�c�dent
+                                $scope.openPosValues.CashMovementLines[0].PaymentMode.Total = $scope.model.totalKnown;
 
-                            openCashMachine();
-                        });
+                                openCashMachine();
+                            });
+                        }
+                    }
+                    else {
+                        openCashMachine();
                     }
                 }
                 else {
-                    openCashMachine();
+                    sweetAlert({ title: $translate.instant("Veuillez renseigner le motif") }, function () {
+                    });
                 }
             }
             else {
-                sweetAlert({title: $translate.instant("Veuillez renseigner le motif")}, function () {
+                sweetAlert({ title: $translate.instant("Impossible de modifier le fonds de caisse, periode en cours, utilisez le menu gestion des especes") }, function () {
                 });
             }
-        }
-        else {
-            sweetAlert({title: $translate.instant("Impossible de modifier le fonds de caisse, periode en cours, utilisez le menu gestion des especes")}, function () {
-            });
         }
     };
 
@@ -182,7 +188,6 @@ app.controller('ModalOpenPosController', function ($scope, $rootScope, $uibModal
     var openCashMachine = function () {
         // Send to BO
         $scope.openPosValues.Date = new Date().toString('dd/MM/yyyy H:mm:ss');
-        cashMovementService.saveMovementAsync($scope.openPosValues);
 
         var updPaymentModes = [];
 
@@ -208,14 +213,28 @@ app.controller('ModalOpenPosController', function ($scope, $rootScope, $uibModal
 
             posPeriodService.replacePaymentValuesAsync($scope.openPosParameters.yPeriodId, $scope.openPosParameters.zPeriodId, $rootScope.PosLog.HardwareId, updPaymentModes, cashMovement).then(function (paymentMode) {
                 $scope.model.validateDisabled = false;
+                // Send to BO
+                cashMovementService.saveMovementAsync($scope.openPosValues);
                 $uibModalInstance.close();
+            }, function (err) {
+                $scope.model.validateDisabled = false;
+                message = err ? err : $translate.instant("La izibox n'est pas accèssible");
+                sweetAlert({ title: message }, function () {
+                });
             });
         }
         else {
 
             posPeriodService.updatePaymentValuesAsync($scope.openPosParameters.yPeriodId, $scope.openPosParameters.zPeriodId, $rootScope.PosLog.HardwareId, updPaymentModes, undefined, cashMovement).then(function (paymentMode) {
                 $scope.model.validateDisabled = false;
+                // Send to BO
+                cashMovementService.saveMovementAsync($scope.openPosValues);
                 $uibModalInstance.close();
+            }, function (err) {
+                $scope.model.validateDisabled = false;
+                message = err ? err : $translate.instant("La izibox n'est pas accèssible");
+                sweetAlert({ title: message }, function () {
+                });
             });
 
         }
