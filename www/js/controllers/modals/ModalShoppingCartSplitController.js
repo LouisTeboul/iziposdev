@@ -1,4 +1,4 @@
-﻿app.controller('ModalShoppingCartSplitController', function ($scope, $rootScope, $uibModalInstance, $uibModal, defaultValue, shoppingCartModel, posService) {
+﻿app.controller('ModalShoppingCartSplitController', function ($scope, $rootScope, $uibModalInstance, $uibModal, $mdMedia,defaultValue, shoppingCartModel, posService) {
     $scope.errorMessage = undefined;
     $scope.value = defaultValue;
     $scope.result = {
@@ -6,6 +6,8 @@
     };
 
     $scope.init = function () {
+        $scope.mdMedia = $mdMedia;
+
         $scope.currentShoppingCartIn = cloneShoppingCart(shoppingCartModel.getCurrentShoppingCartIn() || shoppingCartModel.createShoppingCartIn());
         $scope.currentShoppingCartOut = cloneShoppingCart(shoppingCartModel.getCurrentShoppingCartOut() || shoppingCartModel.createShoppingCartOut());
 

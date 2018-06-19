@@ -1,2 +1,4 @@
-﻿<md-content ng-controller="CategoryTemplateController" ng-init="init()" ui-view layout="column" flex>
+﻿<md-content ng-controller="CategoryTemplateController" ng-init="init()" layout="column" flex>
+    <md-progress-linear md-mode="indeterminate" ng-if="modelPos.categoryLoading"></md-progress-linear>
+    <md-content ui-view layout="column" id="categoryTemplate" flex></md-content>
 </md-content>

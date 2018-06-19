@@ -2,74 +2,115 @@
     $stateProvider
         .state('catalog', {
             url: '/catalog',
+            controller: function ($rootScope, $state) {
+                if ($rootScope.borne) {
+                    $state.go('catalogBorne');
+                } else {
+                    $state.go('catalogPOS');
+                }
+            }
+        })
+        .state('catalogPOS', {
+            url: '/catalogPOS',
             templateUrl: 'views/catalog.html'
+        })
+        .state('catalogBorne', {
+            url: '/catalogBorne',
+            templateUrl: 'viewsBorne/catalog.html'
         });
     IdleProvider.idle(15); // in seconds
     IdleProvider.timeout(15); // in seconds
 });
 
 
-app.controller('CatalogController', function ($scope, $rootScope, $state, $uibModal, Idle, shoppingCartModel, posLogService, ngToast, $mdSidenav, $mdMedia,orderShoppingCartService) {
+app.controller('CatalogController', function ($scope, $rootScope, $state, $uibModal, $location, $uibModalStack, $translate, $mdSidenav, $mdMedia, Idle, shoppingCartModel, posLogService, ngToast, orderShoppingCartService, settingService) {
     var watchHandler = undefined;
     var dbOrderChangedHandler = undefined;
     var state = $state;
-	
+
     $scope.$rootScope = $rootScope;
 
     $scope.$mdMedia = $mdMedia;
 
-    $scope.init = function (IdleProvider) {          
-    	$rootScope.showShoppingCart = false;
+    $scope.init = function (IdleProvider) {
+        $rootScope.showShoppingCart = true;
+        settingService.getPaymentModesAsync().then((pm) => {
+                if (!pm || pm.length <= 0) {
+                    swal({
+                        title: "Critique",
+                        text: "Aucun moyen de paiements !",
+                        allowEscapeKey: false,
+                        showConfirmButton: false
+                    });
+                } else {
+                    // Login needed
+                    if ($rootScope.IziBoxConfiguration.LoginRequired) {
 
-        // Login needed
-        if ($rootScope.IziBoxConfiguration.LoginRequired) {
-            watchHandler = $scope.$watch(function (scope) { return $rootScope.PosUserId },
-                         function () {
-
-                             if ($rootScope.PosUserId == 0) $scope.showLogin();
-                         }
+                        watchHandler = $scope.$watch(function (scope) {
+                                return $rootScope.PosUserId
+                            },
+                            function () {
+                                if ($rootScope.PosUserId == 0) {
+                                    $scope.showLogin();
+                                }
+                            }
                         );
-            $rootScope.PosUserId = 0;
-            // configure Idle settings
-            Idle.setIdle($rootScope.IziBoxConfiguration.LoginTimeout);
-        }
+                        $rootScope.PosUserId = 0;
+                        // configure Idle settings
+                        if (!$rootScope.borne) {
+                            Idle.setIdle($rootScope.IziBoxConfiguration.LoginTimeout);
+                        }
+                    }
+                    if ($rootScope.borne) {
+                        Idle.setIdle(60);
+                        Idle.watch();
+                    }
 
+                    $rootScope.showLoading();
 
-        $rootScope.showLoading();
+                    orderShoppingCartService.init();
 
-        orderShoppingCartService.init();
+                    posLogService.updatePosLogAsync().then(function (posLog) {
+                        $rootScope.PosLog = posLog;
+                        $rootScope.hideLoading();
+                    }, function (errPosLog) {
+                        $rootScope.hideLoading();
+                        swal({
+                            title: "Critique",
+                            text: "Erreur d'identification, veuillez relancer l'application.",
+                            showConfirmButton: false
+                        });
+                    });
 
-        setTimeout(function () {
-        	posLogService.updatePosLogAsync().then(function (posLog) {
-        		$rootScope.PosLog = posLog;
-        		$rootScope.hideLoading();
-        	}, function (errPosLog) {
-        		$rootScope.hideLoading();
-        		swal({ title: "Critique", text: "Erreur d'identification, veuillez relancer l'application.", showConfirmButton: false });
-        	});
-        }, 3000);
+                    dbOrderChangedHandler = $rootScope.$on('dbOrderChange', function (event, args) {
+                        var newOrder = Enumerable.from(args.docs).any(function (d) {
+                            return !d._deleted;
+                        });
 
-
-        dbOrderChangedHandler = $rootScope.$on('dbOrderChange', function (event, args) {
-            var newOrder = Enumerable.from(args.docs).any(function (d) {
-                return !d._deleted;
+                        if (newOrder) {
+                            Enumerable.from(args.docs).forEach(function (d) {
+                                var orderId = parseInt(d._id.replace("ShoppingCart_1_", ""));
+                                ngToast.create({
+                                    className: 'danger',
+                                    content: '<b>Nouvelle commande : ' + orderId + '</b>',
+                                    dismissOnTimeout: true,
+                                    timeout: 10000,
+                                    dismissOnClick: true
+                                });
+                            });
+                            $rootScope.$evalAsync();
+                        }
+                    });
+                }
+            },
+            (err) => {
+                swal({
+                    title: "Critique",
+                    text: "Aucun moyen de paiements",
+                    showConfirmButton: false
+                });
             });
 
-            if (newOrder) {
-                Enumerable.from(args.docs).forEach(function (d) {
-                    var orderId = parseInt(d._id.replace("ShoppingCart_1_", ""));
-                    ngToast.create({
-                        className: 'danger',
-                        content: '<b>Nouvelle commande : '+orderId+'</b>',
-                        dismissOnTimeout: true,
-                        timeout: 10000,
-                        dismissOnClick: true
-                    });
-                });
-
-                $rootScope.$evalAsync();
-            }
-        });
     };
 
     $scope.$on("$destroy", function () {
@@ -78,28 +119,34 @@ app.controller('CatalogController', function ($scope, $rootScope, $state, $uibMo
     });
 
     //#region Actions
+    /*
     $scope.addToCart = function (product) {
-        if (!product.DisableBuyButton) {
-            shoppingCartModel.addToCart(product);
+        if(product){
+            console.log(product);
+            if (!product.DisableBuyButton) {
+                shoppingCartModel.addToCart(product);
+            }
         }
-    };
+    };*/
 
     $scope.getNbItems = function () {
-        return shoppingCartModel.getNbItems();
+        return Math.round10(shoppingCartModel.getNbItems(), -2);
     };
     //#endregion
 
     //#region Drawer menu
     $scope.onDrawerMenuClick = function () {
-        $scope.toggleDrawerMenu();
+        if (!$rootScope.borne) {
+            $scope.toggleDrawerMenu();
+        }
     };
 
     $scope.toggleDrawerMenu = function () {
-    	$mdSidenav('drawerMenuDiv').toggle();
+        $mdSidenav('drawerMenuDiv').toggle();
     };
 
     $scope.openDrawerMenu = function () {
-    	$mdSidenav('drawerMenuDiv').open();
+        $mdSidenav('drawerMenuDiv').open();
     };
 
     $scope.closeDrawerMenu = function () {
@@ -120,7 +167,7 @@ app.controller('CatalogController', function ($scope, $rootScope, $state, $uibMo
             },
             backdrop: 'static',
             keyboard: false
-        });        
+        });
     };
     $scope.started = false;
 
@@ -147,14 +194,19 @@ app.controller('CatalogController', function ($scope, $rootScope, $state, $uibMo
 
     $scope.$on('IdleEnd', function () {
         closeModals();
-       
     });
 
     $scope.$on('IdleTimeout', function () {
         closeModals();
-        $scope.$emit(Keypad.OPEN, "numeric");
-        $rootScope.PosUserId = 0;
-        $rootScope.PosUserName = '';
+        if ($rootScope.borne) {
+            shoppingCartModel.cancelShoppingCart();
+            $uibModalStack.dismissAll();
+            $location.path("/idleScreen");
+        } else {
+            $scope.$emit(Keypad.OPEN, "numeric");
+            $rootScope.PosUserId = 0;
+            $rootScope.PosUserName = '';
+        }
     });
 
     $scope.start = function () {
@@ -167,7 +219,11 @@ app.controller('CatalogController', function ($scope, $rootScope, $state, $uibMo
         closeModals();
         Idle.unwatch();
         $scope.started = false;
-
     };
     //#endregion
+
+    $scope.setLanguage = function (codeLng) {
+        window.localStorage.setItem("CurrentLanguage", codeLng);
+        $translate.use(codeLng);
+    };
 });

@@ -77,6 +77,12 @@
     }
 }
 
+@media (max-height: 768px) {
+    body {
+        zoom: 80% !important;
+    }
+}
+
 body {
     background-color: #FAFAFA !important;
     font-family: SignikaNegative-Regular;
@@ -132,7 +138,6 @@ html {
 .red {
     background-color: red;
 }
-
 
 .timeTextField > div > span{
     width : 100%;
@@ -317,7 +322,6 @@ text-field.flexbox div {
 .btn {
     font-size: 14px;
 }
-
 
 .btn-rose {
     background: #d83448 !important;
@@ -820,19 +824,15 @@ text-field.flexbox div {
     color: #000000 !important;
     line-height: 10px;
     white-space: normal;
-    margin: 10px 4px 4px;
+    margin-top: 13px !important;
     font-weight: bold;
     font-size: 10px;
     height: 75px;
     width: 75px;
     border: #BFBEBE 1px solid;
     display: table;
+    margin: 4px;
     padding: 0 5px;
-}
-
-.btn-payment-small {
-    height: 65px;
-    width: 60px;
 }
 
 .btn-payment .btn-payment-text {
@@ -925,6 +925,18 @@ text-field.flexbox div {
     height: 47px;
     margin-left: 4px;
     margin-right: 4px;
+}
+
+
+.borne-buttonbar .shoppingCartAction {
+    height: 47px;
+    font-size: 15px;
+    padding: 7px;
+    margin:0 4px 4px;
+}
+
+.borne-buttonbar .shoppingCartAction img {
+    height:100%;
 }
 
 .btnAddStep {

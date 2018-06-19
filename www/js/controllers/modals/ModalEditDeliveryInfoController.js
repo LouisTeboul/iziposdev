@@ -13,6 +13,8 @@ app.controller('ModalEditDeliveryInfoController', function ($scope, $rootScope, 
         console.log(existing);
         // Init timeGoal
         if(existing.timeGoal){
+            existing.timeGoal = Date.parseExact(existing.timeGoal, "dd/MM/yyyy HH:mm:ss");
+
             console.log(existing.timeGoal.getMinutes());
             var timeDiff = existing.timeGoal.getTime() - new Date().getTime();
             var diffMinutes = Math.ceil(timeDiff / ( 1000 * 60 ));

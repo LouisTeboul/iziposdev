@@ -2,7 +2,7 @@
     $scope.closable = false;
     $scope.authService = authService;
     $scope.docToSynchronize = 0;
-    $scope.phoneOrderEnable = $rootScope.IziBoxConfiguration.PhoneOrderEnable;
+    $scope.phoneOrderEnable = $rootScope.IziBoxConfiguration.PhoneOrderEnable && $rootScope.UserPreset && $rootScope.UserPreset.PhoneOrder && $rootScope.UserPreset.PhoneOrder.Menu;
 
     $scope.init = function () {
 
@@ -27,10 +27,10 @@
         $scope.checkDocSynchro();
     };
 
-    $scope.isValidCancelledTicket = function(){
+    $scope.isValidCancelledTicket = function () {
         $scope.currentShoppingCart = shoppingCartModel.getCurrentShoppingCart();
-        if($scope.currentShoppingCart){
-            if($scope.currentShoppingCart.ParentTicket) {
+        if ($scope.currentShoppingCart) {
+            if ($scope.currentShoppingCart.ParentTicket) {
                 return true;
             } else {
                 return false;
@@ -42,15 +42,16 @@
     };
 
 
-
     /**
-	 * Check if there's still tickets in the replicate in every 3s
-	 * and display the result - useful to tell if the data are synchronised between the Back-Office and the Pos
-	 * doesn't tell if there was a problem during ticket validation
+     * Check if there's still tickets in the replicate in every 3s
+     * and display the result - useful to tell if the data are synchronised between the Back-Office and the Pos
+     * doesn't tell if there was a problem during ticket validation
      */
     $scope.checkDocSynchro = function () {
         var loop = function () {
-            setTimeout(function () { $scope.checkDocSynchro(); }, 3000);
+            setTimeout(function () {
+                $scope.checkDocSynchro();
+            }, 3000);
         };
 
         if (!$("#drawerMenuDiv").hasClass("_md-closed")) {
@@ -70,7 +71,7 @@
                 }).then(function (resPool) {
                     $scope.docToSynchronize += resPool.rows.length;
                     $scope.$evalAsync();
-                    loop();                    
+                    loop();
                 }).catch(function () {
                     loop();
                 });
@@ -85,7 +86,7 @@
     };
 
     /**
-	 * Set Localisation - caution only US FR supported ?
+     * Set Localisation - caution only US FR supported ?
      * @param codeLng
      */
     $scope.setLanguage = function (codeLng) {
@@ -94,7 +95,7 @@
     };
 
     /**
-	 * Set the option for not having to complete the amount of a payment mode
+     * Set the option for not having to complete the amount of a payment mode
      */
     $scope.toggleDirectPayment = function () {
         $rootScope.IziPosConfiguration.IsDirectPayment = $rootScope.IziPosConfiguration.IsDirectPayment ? false : true;
@@ -102,7 +103,7 @@
     };
 
     /**
-	 * Open the view to apply a discount on the current shopping cart
+     * Open the view to apply a discount on the current shopping cart
      */
     $scope.shoppingCartDiscount = function () {
         if (shoppingCartModel.getCurrentShoppingCart()) {
@@ -130,8 +131,8 @@
 
 
     /**
-	 * Opens the view to Manage the past ticket
-	 * TODO: We can only modify the ticket from the current period
+     * Opens the view to Manage the past ticket
+     * TODO: We can only modify the ticket from the current period
      */
     $scope.showAllShoppingCarts = function () {
         var modalInstance = $uibModal.open({
@@ -141,7 +142,6 @@
             backdrop: 'static'
         });
 
-        //??
         modalInstance.result.then(function (shoppingCart) {
             $scope.closeDrawerMenu();
         }, function () {
@@ -150,14 +150,14 @@
     };
 
     /**
-	 * Print the last Shopping Cart
+     * Print the last Shopping Cart
      */
     $scope.printLastShoppingCart = function () {
         shoppingCartModel.printLastShoppingCart();
     };
 
     /**
-	 * Open the view for  printing a 'Note'
+     * Open the view for  printing a 'Note'
      */
     $scope.printShoppingCartNote = function () {
         shoppingCartModel.printShoppingCartNote();
@@ -207,13 +207,14 @@
                     });
                 }
             }, function () {
-                sweetAlert({ title: $translate.instant("Veuillez renseigner le fond de caisse") }, function () { });
+                sweetAlert({title: $translate.instant("Veuillez renseigner le fond de caisse")}, function () {
+                });
             });
         }
     };
 
     /**
-	 * Open the view for 'closing' the POS
+     * Open the view for 'closing' the POS
      */
     $scope.pickClose = function () {
         $scope.closeDrawerMenu();
@@ -227,16 +228,21 @@
     };
 
     /**
-	 * Open the cash drawer
+     * Open the cash drawer
      */
     $scope.openDrawer = function () {
         /**
-		 * TODO: Log this event
+         * TODO: Log this event
          */
         if (posUserService.isEnable('ODRAW')) {
             var configApiUrl = "http://" + $rootScope.IziBoxConfiguration.LocalIpIziBox + ":" + $rootScope.IziBoxConfiguration.RestPort + "/open/" + $rootScope.PrinterConfiguration.POSPrinter;
-            $http.get(configApiUrl, { timeout: 10000 });
+            $http.get(configApiUrl, {timeout: 10000});
         }
+    };
+
+    $scope.openModalOrderInfo = function() {
+        $scope.closeDrawerMenu();
+        shoppingCartModel.editDeliveryInfos();
     };
 
     /*
@@ -268,7 +274,7 @@
     };
     */
 
-    $scope.openDeviceMonitoring = function(){
+    $scope.openDeviceMonitoring = function () {
         var modalInstance = $uibModal.open({
             templateUrl: 'modals/modalMonitoring.html',
             controller: 'ModalMonitoringController',
@@ -286,7 +292,7 @@
     };
 
     /**
-	 * Close the application - only available for windows platforms
+     * Close the application - only available for windows platforms
      */
     $scope.exit = function () {
         if ($rootScope.isWindowsContainer) {
@@ -298,8 +304,8 @@
     };
 
     /**
-	 * Change the current user - doesn't unlog the user
-	 * This action needs privilege
+     * Change the current user - doesn't unlog the user
+     * This action needs privilege
      */
     $scope.changeUser = function () {
         $scope.closeDrawerMenu();
@@ -309,8 +315,8 @@
     };
 
     /**
-	 * Open the view managing the split ticket
-	 * This action needs privilege
+     * Open the view managing the split ticket
+     * This action needs privilege
      */
     $scope.shoppingCartSplit = function () {
         this.openAdmin();
@@ -330,8 +336,8 @@
     };
 
     /**
-	 * Open the BO administarion
-	 * @Experimental
+     * Open the BO administarion
+     * @Experimental
      * @param adminController
      * @param adminAction
      */

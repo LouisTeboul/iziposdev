@@ -1,0 +1,10 @@
+<md-content class="IZIPASSTemplate" id="IZIPASSController"
+            ng-controller="IZIPASSController"
+            ng-init="init()">
+    <category-borne-repeat ng-if="!$root.modelPos.categoryLoading || useCache"
+                     ng-class="{'leftHanded' : $root.UserPreset.HandPreference==2,
+                    'rightHanded' : $root.UserPreset.HandPreference==1}"
+                     layout="column"
+                     delivery-type="deliveryType"
+                     class="categoryContent" ng-cloak></category-borne-repeat>
+</md-content>

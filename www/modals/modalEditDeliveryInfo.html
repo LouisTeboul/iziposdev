@@ -26,14 +26,14 @@
                         </ul>
                     </div>
 
-                    <div class="text">H</div>
+                    <div class="text"> H </div>
 
 
                     <text-field flex="70" class="flexbox timeTextField" id="inMintutes" ng-model="modelTime.In.minutes"
                                 location="center-end" type="numeric" validfunction="$root.closeKeyboard"
                                 style="max-width: 120px;min-height:34px;" layout-align="center center"></text-field>
 
-                    <div class="text">MIN</div>
+                    <div class="text"> MIN </div>
                 </div>
             </uib-tab>
             <uib-tab heading="{{ 'Pour' | translate}}" ng-click="setTimeGoalMode('For')">
@@ -47,14 +47,14 @@
                                 style="max-width: 120px;min-height:34px;" layout-align="center center"></text-field>
 
 
-                    <div class="text">H</div>
+                    <div class="text"> H </div>
 
 
                     <text-field flex="70" class="flexbox timeTextField" id="forMinutes" ng-model="modelTime.For.minutes"
                                 location="center-end" type="numeric" validfunction="$root.closeKeyboard"
                                 style="max-width: 120px;min-height:34px;" layout-align="center center"></text-field>
 
-                    <div class="text">MIN</div>
+                    <div class="text"> MIN </div>
                 </div>
 
             </uib-tab>
@@ -100,7 +100,7 @@
         </md-content>
 
         <!-- Commentaire -->
-        <div layout="row" class="modalLine" style="align-items: center;">
+        <div layout-gt-xs="row" layout="column" class="modalLine" style="align-items: center;">
             <label flex="20" translate class="text">Commentaire </label>
             <text-field flex="70" class="flexbox" id="Commentaire" ng-model="result.extraInfos"
                         location="center-end" type="azerty" validfunction="$root.closeKeyboard"

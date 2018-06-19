@@ -1,57 +1,60 @@
-﻿<md-content md-no-ink ng-controller="ConfigurableMenuController" ng-init="init()" id="configurableMenu" class="configurableMenu" layout="column">
-    <div id="configurableMenuHeader" layout="column" class="heading" ng-class="(IziBoxConfiguration.StepEnabled) ? 'high' : ''">
-        <div layout="row" layout-wrap>
+﻿<md-content md-no-ink ng-controller="ConfigurableMenuController" ng-init="init()" id="configurableMenu"
+            class="configurableMenu" layout="column">
+    <div id="configurableMenuHeader" layout="column" class="heading"
+         ng-class="(IziBoxConfiguration.StepEnabled) ? 'high' : ''" style="align-items: center;margin-bottom: 10px;">
+        <div layout="row" layout-align="space-around center" style="height: 30px" layout-wrap>
             <div class="title"><h3 class="title-text">{{product.Name}}</h3></div>
-            <span flex></span>
-            <div class="title"><h3 class="title-text">{{TotalPrice | CurrencyFormat}}</h3></div>
-            <span flex></span>
-            <md-button aria-label="AddToCart" ng-click="addToCart(product)" ng-if="canAddToCart" class="md-raised btn-green"><x translate>Ajouter au ticket</x></md-button>
+            <!-- <div class="title"><h3 class="title-text">{{TotalPrice | CurrencyFormat}}</h3></div> -->
+            <!-- <md-button aria-label="AddToCart" ng-click="addToCart(product)" ng-if="canAddToCart" class="md-raised btn-green"><x translate>Ajouter au ticket</x></md-button> -->
         </div>
-        <div layout="row" layout-align="start center" class="editStep" ng-if="IziBoxConfiguration.StepEnabled">
-            <md-button aria-label="NavigAttr" class="md-fab md-mini" ng-click="moveStep(-1)"><span class="glyphicon glyphicon-minus"></span></md-button>
+        <div layout="row" layout-align-xs="space-around center" layout-align="start center" class="editStep"
+             ng-if="IziBoxConfiguration.StepEnabled">
+            <md-button aria-label="NavigAttr" class="md-fab md-mini" ng-click="moveStep(-1)"><i
+                    style="padding-bottom:2px;" class="glyphicon glyphicon-minus"></i></md-button>
             <span class="stepName">{{currentStep | StepName:stepNames}}</span>
-            <md-button aria-label="NavigAttr"  class="md-fab md-mini" ng-click="moveStep(1)"><span class="glyphicon glyphicon-plus"></span></md-button>
+            <md-button aria-label="NavigAttr" class="md-fab md-mini" ng-click="moveStep(1)"><i
+                    style="padding-bottom:2px; padding-left: 1px" class="glyphicon glyphicon-plus"></i></md-button>
         </div>
-        <div layout="row" layout-align="center center" ng-show="$mdMedia('(min-width: 799px)')">
-            <md-button aria-label="NavigAttr" ng-repeat="attr in product.ProductAttributes track by $index" class="md-raised navigAction" ng-click="scrollTo(attr.Id)">{{attr.Name | Truncate:16}}</md-button>
+        <div layout="row" layout-align="center center" ng-if="product.ProductAttributes.length > 0">
+            <md-button aria-label="NavigAttr" ng-repeat="attr in product.ProductAttributes track by $index"
+                       class="md-raised navigAction" ng-click="scrollTo(attr.Id)">{{attr.Name | Truncate:16}}
+            </md-button>
         </div>
     </div>
 
-    <md-content class="attributes" id="attributes" layout-padding>        
+    <md-content class="attributes" id="attributes">
         <div id="a{{attribute.Id}}" ng-repeat="attribute in product.ProductAttributes track by $index">
             <div class="attributesPanel" layout="column">
                 <div class="attributesPanelInfos" layout="row">
                     <span class="title">{{attribute.Name}}
                         <span ng-if="attribute.Min || attribute.Max">
-                            <span ng-if="attribute.Min">({{attribute.Min}}</span><span ng-if="attribute.Min && attribute.Max">-</span><span ng-if="attribute.Max">{{attribute.Max}}</span>)</span>
+                            <span ng-if="attribute.Min">({{attribute.Min}}</span><span
+                                ng-if="attribute.Min && attribute.Max">-</span><span ng-if="attribute.Max">{{attribute.Max}}</span>)</span>
                         </span>
 
-                    <span class="info" data-ng-bind-html="attribute.Description" ng-show="$mdMedia('(min-width: 799px)')"></span>
+                    <span class="info" data-ng-bind-html="attribute.Description"
+                          ng-show="$mdMedia('(min-width: 800px)')"></span>
                 </div>
 
-
                 <div layout="row" layout-wrap>
-                    <div ng-repeat="v in attribute.ProductAttributeValues track by $index" style="margin-bottom:10px">
+                    <div ng-repeat="v in attribute.ProductAttributeValues track by $index">
                         <md-button aria-label="attributeBox" layout-fill class="attributeBox"
                                    ng-class="v.DisableBuyButton ? 'disable' : (v.Selected == 1 ? 'active' : '')"
                                    ng-click="v.DisableBuyButton ? null : selectAttributeValue(v.ProductAttributeId,v.Id,null, $event)">
-                            <div layout="column" layout-fill>
-                                <div class="attributeInfo-text">
+                            <div layout="column" style="align-items: center;justify-content: space-between" layout-fill>
+                                <img class="imgAttribute" ng-src="{{v.DefaultPictureUrl}}"/>
+                                <div class="attributeInfo-text" style="max-height: 45px;overflow: hidden;">
                                     <div ng-if="v.LinkedProduct" data-ng-bind-html="v.LinkedProduct.Name"></div>
                                     <div ng-if="!v.LinkedProduct" data-ng-bind-html="v.Name"></div>
                                 </div>
-
-                                <span flex></span>
-
-                                <div layout="row" layout-align="start center">
-                                    <img class="imgAttribute" ng-src="{{v.DefaultPictureUrl}}"/>
-                                    <span flex></span>
-                                    <div class="attributeInfo-text" layout="column" layout-align="center center">
-                                        <div ng-if="v.DisableBuyButton"><i class="glyphicon glyphicon-warning-sign"></i> Rupture</div>
-                                        <span ng-if="v.PriceAdjustment">+ {{v.PriceAdjustment | CurrencyFormat}} </span>
-                                        <span ng-if="IziBoxConfiguration.StepEnabled && v.Selected" >{{attribute.Step | StepName:stepNames}}</span>
-                                        <span class="attributeInfo-comment" ng-if="v.Comment && v.Comment!=''">{{v.Comment}}</span>
+                                <div class="attributeInfo-text" layout="column" layout-align="center center">
+                                    <div ng-if="v.DisableBuyButton"><i class="glyphicon glyphicon-warning-sign"></i>
+                                        Rupture
                                     </div>
+                                    <span ng-if="v.PriceAdjustment && !v.DisableBuyButton">+ {{v.PriceAdjustment | CurrencyFormat}} </span>
+                                    <span ng-if="IziBoxConfiguration.StepEnabled && v.Selected" class="stepAttri">{{attribute.Step | StepName:stepNames}}</span>
+                                    <span class="attributeInfo-comment"
+                                          ng-if="v.Comment && v.Comment!=''">{{v.Comment}}</span>
                                 </div>
                             </div>
                         </md-button>
@@ -60,5 +63,11 @@
             </div>
         </div>
     </md-content>
+
+    <md-card class="menuAction" layout="row" layout-align="center center">
+        <div class="menuPrice"> {{TotalPrice | CurrencyFormat}}</div>
+        <md-button aria-label="AddToCart" ng-click="addToCart(product)" ng-if="canAddToCart"
+                   class="cartButton md-fab md-mini"><i class="glyphicon glyphicon-shopping-cart"></i></md-button>
+    </md-card>
 
 </md-content>

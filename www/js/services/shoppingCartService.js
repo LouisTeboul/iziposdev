@@ -186,12 +186,12 @@ app.service('shoppingCartService', ["$http", "$rootScope", "$q", "$filter", "zpo
          */
         this.freezeShoppingCartAsync = function (shoppingCart) {
             var freezeDefer = $q.defer();
-
             // RK : Appeller la fonction d'incrément d'enfant dans le parc
             RKIncrement(shoppingCart);
 
             shoppingCart.rev = undefined;
             shoppingCart.id = shoppingCart.Timestamp;
+            shoppingCart.hasBeenFrozen = true;
 
             $rootScope.dbFreeze.rel.save('ShoppingCart', shoppingCart).then(function (result) {
                 freezeDefer.resolve(true);
@@ -313,7 +313,7 @@ app.service('shoppingCartService', ["$http", "$rootScope", "$q", "$filter", "zpo
          */
         this.printShoppingCartAsync = function (shoppingCart, printerIdx, isPosTicket, printCount, ignorePrintTicket, nbNote, printDefer) {
 
-            if (!printDefer) {
+            if(!printDefer){
                 printDefer = $q.defer();
             }
             shoppingCart.PosUserId = $rootScope.PosUserId;
@@ -399,7 +399,7 @@ app.service('shoppingCartService', ["$http", "$rootScope", "$q", "$filter", "zpo
         this.printProdAsync = function (shoppingCart, step, printDefer, nbStep) {
             //console.log(shoppingCart);
             //Si le printdefer n'a pas été fournis par l'appellant
-            if (!printDefer) {
+            if(!printDefer){
                 printDefer = $q.defer();
             }
 
@@ -436,29 +436,24 @@ app.service('shoppingCartService', ["$http", "$rootScope", "$q", "$filter", "zpo
          * @param shoppingCartPrinterReq The Shopping and its parameters for printing
          * @param printDefer
          * @param retry Number of retry
-         * @param nbStep Number of steps
          */
         this.printShoppingCartPOST = function (printerApiUrl, shoppingCartPrinterReq, printDefer, retry, nbStep) {
             console.log(printerApiUrl);
-
-            if (shoppingCartPrinterReq.ShoppingCart && shoppingCartPrinterReq.ShoppingCart.DatePickup) {
-                // Si DatePickup est de type Date
-                if (Object.prototype.toString.call(shoppingCartPrinterReq.ShoppingCart.DatePickup) === "[object Date]") {
-                    // On envoi une string à la box au lieu d'une date
-                    shoppingCartPrinterReq.ShoppingCart.DatePickup = shoppingCartPrinterReq.ShoppingCart.DatePickup.toTimeString();
-                } else {
-                    // Si DatePickup est une timestring valide
-                    if (new Date(shoppingCartPrinterReq.ShoppingCart.DatePickup)) {
-                        shoppingCartPrinterReq.ShoppingCart.DatePickup = new Date(shoppingCartPrinterReq.ShoppingCart.DatePickup).toTimeString();
-                    } else {
-                        shoppingCartPrinterReq.ShoppingCart.DatePickup = "Error";
+            console.log(shoppingCartPrinterReq.ShoppingCart.Items);
+            var printers = [];
+            shoppingCartPrinterReq.ShoppingCart.Items.forEach( (item) => {
+                if (item.Product.StoreInfosObject && item.Product.StoreInfosObject.Printer_Id){
+                    if(!printers.includes(item.Product.StoreInfosObject.Printer_Id)) {
+                        printers.push(item.Product.StoreInfosObject.Printer_Id);
                     }
-                    // Sinon la date est impossible a lire
                 }
-            }
+            });
 
-            var timeout = nbStep * 3000;
+            // 3s par step, plus 1s par imprimantes différente, + 1s prévu pour une potentielle imprimante print all
+            nbStep = nbStep ? nbStep : 0;
+            var timeout = (nbStep * 3000) + (printers.length * 1000) + 1000;
 
+            // printDefer.resolve();
             $http.post(printerApiUrl, shoppingCartPrinterReq, {timeout: timeout}).then(function (obj) {
                 console.log("succes post ticket", obj);
                 //Set the coucbDb Id and the timestamp that come from the box
@@ -470,10 +465,11 @@ app.service('shoppingCartService', ["$http", "$rootScope", "$q", "$filter", "zpo
                         shoppingCartPrinterReq.ShoppingCart.id = data.ticketId;
                     }
                     if (data.timestamp != undefined) {
-                        /** ATTENTION BUG NF ??? */
                         shoppingCartPrinterReq.ShoppingCart.Timestamp = data.timestamp;
                     }
                 }
+                // Lock la validation
+                $rootScope.validateLock = true;
                 printDefer.resolve(shoppingCartPrinterReq);
             }, function (err) {
                 console.log("erreur", err);

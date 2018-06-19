@@ -10,8 +10,9 @@
  * For displaying the progress bar of data loading from couchdb
  * Plugged to the data loading event
  */
-app.controller('LoadingController', function ($scope, $rootScope, $location, $timeout, $q, $injector, updateService, zposService, settingService, posService) {
+app.controller('LoadingController', function ($scope, $rootScope, $location, $timeout, $q, $injector, updateService, zposService, settingService, posService, categoryService, borneService) {
 
+    var currencyReady = false;
     // What's the difference with dbReplic below
     $rootScope.$on('dbDatasReplicate', function (event, args) {
         if (args.status == "Change") {
@@ -67,9 +68,9 @@ app.controller('LoadingController', function ($scope, $rootScope, $location, $ti
         });
     });
 
-	/*
-	* Calculate the progression percentile
-	*/
+    /*
+    * Calculate the progression percentile
+    */
     var GetPercentage = function (changeData) {
         //  update_seq & last_seq were simple number in the couchdb 1.6.0
         if (changeData.remoteInfo && changeData.last_seq && changeData.remoteInfo.update_seq) {
@@ -88,7 +89,6 @@ app.controller('LoadingController', function ($scope, $rootScope, $location, $ti
             var percent = Math.round((lastDataSeq * 100) / changeDataSeq);
             if (percent > 100) percent = 100;
             return percent;
-
         }
         else {
             return 0;
@@ -146,18 +146,85 @@ app.controller('LoadingController', function ($scope, $rootScope, $location, $ti
             $rootScope.modelDb.dataReady &&
             $rootScope.modelDb.freezeReady &&
             $rootScope.modelDb.zposReady &&
-            $rootScope.modelDb.replicateReady &
+            $rootScope.modelDb.replicateReady &&
             $rootScope.modelDb.orderReady) {
 
-            $rootScope.modelDb.databaseReady = true;
-            $rootScope.$evalAsync();
+            $scope.skipCategoryLoading = false;
 
-            initServices($rootScope, $injector);
+
+            if ($rootScope.modelDb.databaseReady) {
+                categoryService.getCategoriesAsync().then(function (categories) {
+                    $scope.message = "Préchargement des catégories ...";
+                    $rootScope.storedCategories = {};
+                    $scope.loadingProgress = 0;
+                    categories = categories.filter(c => c.IsEnabled);
+
+                    function callback(storage) {
+                        if($scope.skipCategoryLoading) {
+                            if(!$rootScope.init) {
+                                console.log($rootScope.storedCategories);
+                                $rootScope.init = true;
+                                initServices($rootScope, $injector);
+                                borneService.redirectToHome();
+                            }
+                        } else {
+                            if (storage.mainProducts === 0 && storage.subProducts === 0) {
+                                $scope.loadingProgress += 1 / categories.length * 100;
+                                //window.localStorage.setItem('Category' + storage.mainCategory.id, JSON.stringify(storage));
+                                $rootScope.storedCategories['' + storage.mainCategory.Id] = storage;
+
+                                if (Object.keys($rootScope.storedCategories).length === categories.length && !$rootScope.init) {
+
+                                    console.log($rootScope.storedCategories);
+                                    $rootScope.init = true;
+                                    initServices($rootScope, $injector);
+                                    borneService.redirectToHome();
+                                }
+                            }
+                        }
+                    }
+
+                    categories.forEach(function (c, index) {
+                        if($scope.skipCategoryLoading) {
+                            if(!$rootScope.init) {
+                                console.log($rootScope.storedCategories);
+                                $rootScope.init = true;
+                                initServices($rootScope, $injector);
+                                borneService.redirectToHome();
+                            }
+                        } else {
+                            console.log(index + " / " + categories.length);
+                            /*
+                            if(window.localStorage.getItem('Category' + c.id)){
+                                callback(window.localStorage.getItem('Category' + c.id));
+                            }
+                            */
+                            categoryService.loadCategory(c.id, callback);
+                        }
+
+
+                    });
+                });
+            } else {
+                $rootScope.modelDb.databaseReady = true;
+            }
+
+            /*
+            if (!$rootScope.init) {
+                setTimeout(function(){
+                    $rootScope.init = true;
+                    initServices($rootScope, $injector);
+                    borneService.redirectToHome();
+                }, 500);
+
+            }*/
         }
     };
 
-
     $scope.init = function () {
+        if ($rootScope.borne) {
+            $rootScope.IziBoxConfiguration.LoginRequired = false;
+        }
         //CouchDb
         app.configPouchDb($rootScope, $q, zposService, posService);
 
@@ -226,31 +293,41 @@ app.controller('LoadingController', function ($scope, $rootScope, $location, $ti
         if (!$rootScope.IziPosConfiguration) {
             $rootScope.IziPosConfiguration = {};
         }
+        var styleLink = document.createElement("link");
+        if ($rootScope.borne) {
+            styleLink.href = "css/styleBorne.css";
+        } else {
+            styleLink.href = "css/stylePOS.css";
+        }
+        styleLink.setAttribute('rel', 'stylesheet');
+        styleLink.setAttribute('type', 'text/css');
+        document.head.appendChild(styleLink);
 
-        setTimeout(function () {
-            // Loading currency
-            settingService.getCurrencyAsync().then(function (currency) {
-                if (currency) {
-                    $rootScope.IziPosConfiguration.Currency = currency;
-                } else {
-                    $rootScope.IziPosConfiguration.Currency = { DisplayLocale: "fr-FR", CurrencyCode: "EUR" }; // Default currency 
-                }
-                $location.path("/catalog");
-            }, function (err) {
-                $rootScope.IziPosConfiguration.Currency = { DisplayLocale: "fr-FR", CurrencyCode: "EUR" };
-                $location.path("/catalog");
-            })
-        }, 1000);
+        // Loading currency
+        settingService.getCurrencyAsync().then(function (currency) {
+            if (currency) {
+                $rootScope.IziPosConfiguration.Currency = currency;
+            } else {
+                $rootScope.IziPosConfiguration.Currency = {DisplayLocale: "fr-FR", CurrencyCode: "EUR"}; // Default currency
+
+            }
+            currencyReady = true;
+            checkDbReady();
+        }, function (err) {
+            $rootScope.IziPosConfiguration.Currency = {DisplayLocale: "fr-FR", CurrencyCode: "EUR"};
+            currencyReady = true;
+            checkDbReady();
+        })
     };
 
-	/**
-	 * Check the availability of new app version
-	 **/
+    /**
+     * Check the availability of new app version
+     **/
     var checkUpdate = function () {
         updateService.getUpdateAsync().then(function (update) {
             if (update) {
                 if (update.Version != $rootScope.Version) {
-                    sweetAlert({ title: "New update : " + update.Version }, function () {
+                    sweetAlert({title: "New update : " + update.Version}, function () {
 
                         if (navigator.userAgent.match(/(iPhone|iPod|iPad|Android|BlackBerry|IEMobile)/)) {
                             downloadUpdate(update.Url);
@@ -270,9 +347,9 @@ app.controller('LoadingController', function ($scope, $rootScope, $location, $ti
         });
     };
 
-	/**
-	 * Updates the application - android only
-	 **/
+    /**
+     * Updates the application - android only
+     **/
     var downloadUpdate = function (apkUrl) {
         window.resolveLocalFileSystemURL(cordova.file.externalCacheDirectory, function (fileSystem) {
             var fileApk = "izipos.apk";
@@ -298,37 +375,39 @@ app.controller('LoadingController', function ($scope, $rootScope, $location, $ti
                     installUpdate(entry);
                 }, function (error) {
 
-                    sweetAlert({ title: "Error downloading APK: " + error.exception }, function () {
+                    sweetAlert({title: "Error downloading APK: " + error.exception}, function () {
                         next();
                     });
                 });
             }, function (evt) {
-                sweetAlert({ title: "Error downloading APK: " + evt.target.error.exception }, function () {
+                sweetAlert({title: "Error downloading APK: " + evt.target.error.exception}, function () {
                     next();
                 });
             });
         }, function (evt) {
-            sweetAlert({ title: "Error downloading APK: " + evt.target.error.exception }, function () {
+            sweetAlert({title: "Error downloading APK: " + evt.target.error.exception}, function () {
                 next();
             });
         });
     };
 
     /**
-	 * Updates the application
+     * Updates the application
      * @param entry
      */
     var installUpdate = function (entry) {
         window.plugins.webintent.startActivity({
-            action: window.plugins.webintent.ACTION_VIEW,
-            url: entry.nativeURL,
-            type: 'application/vnd.android.package-archive'
-        },
-            function () { navigator.app.exitApp(); },
+                action: window.plugins.webintent.ACTION_VIEW,
+                url: entry.nativeURL,
+                type: 'application/vnd.android.package-archive'
+            },
+            function () {
+                navigator.app.exitApp();
+            },
             function (e) {
                 $rootScope.hideLoading();
 
-                sweetAlert({ title: 'Error launching app update' }, function () {
+                sweetAlert({title: 'Error launching app update'}, function () {
                     next();
                 });
             }

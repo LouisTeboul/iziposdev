@@ -12,8 +12,8 @@
                 </tab-heading>
                 <div layout="column" layout-margin>
 
-                    <div layout="row" style="align-items: center;">
-                        <label flex="30" translate>Nom, prénom ou email</label>
+                    <div layout="row" layout-wrap style="align-items: center;">
+                        <label flex-gt-sm="30" flex="100" translate>Nom, prénom, email, téléphone ou société</label>
                         <text-field flex="40" id="txtComment" class="flexbox" ng-model="search.query"
                                     location="center-end" type="azerty" validfunction="searchForCustomer"
                                     style="width:510px;margin-right:10px;min-height:34px;"></text-field>
@@ -25,14 +25,19 @@
                         <div ng-if="search.results && search.results.length > 0" ng-repeat="client in search.results"
                              ng-click="selectCustomer(client.Barcode)"
                              ng-style="{ 'background-color' : (client.Barcode == currentShoppingCart.Barcode) ? 'rgba(171, 242, 150, 0.42)' : 'transparent' }">
-                            <h4 style="margin-top: 0">{{client.FirstName}} {{client.LastName}}</h4>
-                            <h4>{{client.Email}}</h4>
-                            <h4 style="margin-bottom: 0">
+                            <div layout="row">
+                                <h4 flex="60" style="margin-top: 0">{{client.FirstName}} {{client.LastName}}</h4><h4 flex="40" style="margin-top: 0" ng-if="client.Company"><small translate>Société</small> : {{client.Company}}</h4>
+                            </div>
+                            <div layout="row">
+                                <h4 flex="60">{{client.Email}}</h4><h4 flex="40" ng-if="client.PhoneNumber"><small translate>Téléphone</small> : {{client.PhoneNumber}}</h4>
+                            </div>
+                            <h4 tyle="margin-bottom: 0">
                                 <small translate>N° de carte</small>
                                 :
                                 {{client.Barcode}}
                             </h4>
-                            <hr/>
+                            <hr />
+
                         </div>
                     </md-content>
 
@@ -41,31 +46,32 @@
                     </div>
                 </div>
             </uib-tab>
+
             <uib-tab id="register">
 
                 <tab-heading>
                     <x translate>EMAIL</x>
                 </tab-heading>
 
-                <div layout="column" layout-margin>
+                <div layout="column" layout-margin layout-align="">
 
                     <!-- PAGE 1 -->
 
-                    <div layout="row" ng-show="(registerFull && currentPage == 1) || !registerFull">
+                    <div layout="row" layout-align="space-around center" ng-show="(registerFull && currentPage == 1) || !registerFull">
                         <label flex="10" translate>Email</label>
                         <text-field flex="70" class="flexbox" id="email" ng-model="newLoyalty.CustomerEmail"
                                     location="center-end" type="azerty" validfunction="$root.closeKeyboard"
                                     style="width:510px;margin-right:10px;min-height:34px;"></text-field>
                     </div>
 
-                    <div layout="row" ng-if="registerOperation=='registerFid'" ng-show="(registerFull && currentPage == 1) || !registerFull">
+                    <div layout="row" layout-align="space-around center" ng-if="registerOperation=='registerFid'" ng-show="(registerFull && currentPage == 1) || !registerFull">
                         <label flex="10" translate>Prénom</label>
                         <text-field flex="70" id="firstName" class="flexbox" ng-model="newLoyalty.CustomerFirstName"
                                     location="center-end" type="azerty" validfunction="$root.closeKeyboard"
                                     style="width:510px;margin-right:10px;min-height:34px;"></text-field>
                     </div>
 
-                    <div layout="row" ng-if="registerOperation=='registerFid'" ng-show="(registerFull && currentPage == 1) || !registerFull">
+                    <div layout="row" layout-align="space-around center" ng-if="registerOperation=='registerFid'" ng-show="(registerFull && currentPage == 1) || !registerFull">
                         <label flex="10" translate>Nom</label>
                         <text-field flex="70" id="lastName" class="flexbox" ng-model="newLoyalty.CustomerLastName"
                                     location="center-end" type="azerty" validfunction="$root.closeKeyboard"
@@ -74,13 +80,14 @@
 
                     <!-- PAGE 2 -->
 
-                    <div layout="row" ng-if="registerOperation=='registerFid' && signInSettings.City && registerFull" ng-show="(registerFull && currentPage == 2)">
+                    <div layout="row" layout-align="space-around center" ng-if="registerOperation=='registerFid' && signInSettings.City && registerFull" ng-show="(registerFull && currentPage == 2)">
                         <label flex="10" translate>Ville</label>
                         <text-field flex="70" id="city" class="flexbox" ng-model="newLoyalty.CustomerCity"
                                     location="center-end" type="azerty" validfunction="$root.closeKeyboard"
                                     style="width:510px;margin-right:10px;min-height:34px;"></text-field>
                     </div>
-                    <div layout="row" ng-if="registerOperation=='registerFid' && signInSettings.StreetAddress && registerFull" ng-show="(registerFull && currentPage == 2)">
+
+                    <div layout="row" layout-align="space-around center" ng-if="registerOperation=='registerFid' && signInSettings.StreetAddress && registerFull" ng-show="(registerFull && currentPage == 2)">
                         <label flex="10" translate>Adresse</label>
                         <text-field flex="70" id="streetAddress" class="flexbox"
                                     ng-model="newLoyalty.CustomerStreetAddress" location="center-end" type="azerty"
@@ -89,7 +96,7 @@
                     </div>
 
 
-                    <div layout="row" ng-if="registerOperation=='registerFid' && signInSettings.StreetAddress2 && registerFull" ng-show="(registerFull && currentPage == 2) || !registerFull">
+                    <div layout="row" layout-align="space-around center" ng-if="registerOperation=='registerFid' && signInSettings.StreetAddress2 && registerFull" ng-show="(registerFull && currentPage == 2) || !registerFull">
                         <label flex="10" translate>Adresse 2</label>
                         <text-field flex="70" id="streetAddress2" class="flexbox"
                                     ng-model="newLoyalty.CustomerStreetAddress2" location="center-end" type="azerty"
@@ -101,7 +108,7 @@
 
                     <!-- PAGE 3 -->
 
-                    <div layout="row" ng-if="registerOperation=='registerFid' && signInSettings.ZipPostalCode && registerFull" ng-show="(registerFull && currentPage == 3)">
+                    <div layout="row" layout-align="space-around center" ng-if="registerOperation=='registerFid' && signInSettings.ZipPostalCode && registerFull" ng-show="(registerFull && currentPage == 3)">
                         <label flex="10" translate>Code Postal</label>
                         <text-field flex="70" id="ZipPostalCode" class="flexbox"
                                     ng-model="newLoyalty.CustomerZipPostalCode" location="center-end" type="azerty"
@@ -109,7 +116,7 @@
                                     style="width:510px;margin-right:10px;min-height:34px;"></text-field>
                     </div>
 
-                    <div layout="row" ng-if="registerOperation=='registerFid' && signInSettings.Phone && registerFull" ng-show="(registerFull && currentPage == 3)">
+                    <div layout="row" layout-align="space-around center" ng-if="registerOperation=='registerFid' && signInSettings.Phone && registerFull" ng-show="(registerFull && currentPage == 3)">
                         <label flex="10" translate>Téléphone</label>
                         <text-field flex="70" id="phone" class="flexbox" ng-model="newLoyalty.CustomerPhone"
                                     location="center-end" type="azerty" validfunction="$root.closeKeyboard"
@@ -117,7 +124,7 @@
                     </div>
 
 
-                    <div layout="row" ng-if="registerOperation=='registerFid' && signInSettings.Fax && registerFull" ng-show="(registerFull && $root.currentPage == 3) || !registerFull">
+                    <div layout="row" layout-align="space-around center" ng-if="registerOperation=='registerFid' && signInSettings.Fax && registerFull" ng-show="(registerFull && $root.currentPage == 3) || !registerFull">
                         <label flex="10" translate>Fax</label>
                         <text-field flex="70" id="fax" class="flexbox" ng-model="newLoyalty.CustomerFax"
                                     location="center-end" type="azerty" validfunction="$root.closeKeyboard"
@@ -126,7 +133,7 @@
 
                     <!-- PAGE 4 -->
 
-                    <div layout="row" ng-if="registerOperation=='registerFid' && signInSettings.Company && registerFull" ng-show="(registerFull && $root.currentPage == 4)">
+                    <div layout="row" layout-align="space-around center" ng-if="registerOperation=='registerFid' && signInSettings.Company && registerFull" ng-show="(registerFull && $root.currentPage == 4)">
                         <label flex="10" translate>Société</label>
                         <text-field flex="70" id="company" class="flexbox" ng-model="newLoyalty.CustomerCompany"
                                     location="center-end" type="azerty" validfunction="$root.closeKeyboard"
@@ -134,14 +141,17 @@
                     </div>
 
 
-                    <div class="barcodeTextField" layout="row" ng-if="registerOperation=='registerFid'" ng-show="(registerFull && $root.currentPage == 4) || !registerFull">
+                    <div class="barcodeTextField" layout="row" layout-align="space-around center" ng-if="registerOperation=='registerFid'" ng-show="(registerFull && $root.currentPage == 4) || !registerFull">
                         <label flex="10" translate>No Carte</label>
-                        <text-field flex="70" id="txtBarcodeCustomer" class="flexbox"
-                                    ng-model="newLoyalty.barcode.barcodeValue" location="center-end" type="azerty"
-                                    validfunction="$root.closeKeyboard"
-                                    style="width:510px;margin-right:10px;min-height:34px;"></text-field>
-                        <md-button aria-label="scanBarcode" class="btnAction double" ng-click="scanBarcode()"><span
-                                class="glyphicon glyphicon-camera"></span></md-button>
+                        <div layout="row" layout-align="start center" flex="70">
+                            <text-field id="txtBarcodeCustomer" class="flexbox"
+                                        ng-model="newLoyalty.barcode.barcodeValue" location="center-end" type="azerty"
+                                        validfunction="$root.closeKeyboard"
+                                        style="width:510px;margin-right:10px;min-height:34px;"></text-field>
+                            <md-button aria-label="scanBarcode" class="btnAction double" ng-click="scanBarcode()"><span
+                                    class="glyphicon glyphicon-camera"></span></md-button>
+                        </div>
+
                     </div>
 
                     <div style="margin-left:40%">
@@ -160,7 +170,7 @@
                             </md-radio-button>
 
                             <div ng-show="registerOperation== 'registerFid' " style="margin-left: 40px;">
-                                <input type="checkbox" id="registerFull" ng-click="toggleRegisterFull()" style="width: 20px;height: 20px;">
+                                <input type="checkbox" id="registerFull" ng-click="toggleRegisterFull()" ng-checked="registerFull" style="width: 20px;height: 20px;">
                                 <label for="registerFull">Enregistrement complet du client </label>
                             </div>
                         </md-radio-group>
@@ -327,6 +337,10 @@
                                     {{currentShoppingCart.customerLoyalty.Balances[2].BalanceType === 'Dollars' ?
                                     '$':currentShoppingCart.customerLoyalty.Balances[2].BalanceType}}
                                 </h4>
+
+                                <button class="btn btn-success"
+                                        ng-if="false"
+                                        ng-click="creditBalance()"> Crediter la cagnotte </button>
 
                                 <h2 translate class="no-mg-vert"
                                     ng-if="currentShoppingCart.customerLoyalty.AllowAnonymous && currentShoppingCart.customerLoyalty.AnonymousCustomer">

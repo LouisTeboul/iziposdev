@@ -83,7 +83,6 @@
                 var iziboxDaemon = function () {
 
                     setTimeout(function () {
-                        /*
                         var pingPostData = {
                             HardwareId : $rootScope.modelPos.hardwareId,
                             Alias : $rootScope.modelPos.aliasCaisse,
@@ -91,9 +90,8 @@
                             IsBorne : $rootScope.borne ? $rootScope.borne : false
 
                         };
-                        */
-                        $http.get(pingApiUrl, { timeout: 1000 }).then(function (data) {
-                        //$http.post(pingApiUrl, pingPostData , { timeout: 1000 }).then(function (data) {
+                        //$http.get(pingApiUrl, { timeout: 1000 }).then(function (data) {
+                        $http.post(pingApiUrl, pingPostData , { timeout: 2000 }).then(function (data) {
                             //Ancienne version izibox
                             if (!data.data.LocalDb) {
                                 data.data.LocalDb = true;

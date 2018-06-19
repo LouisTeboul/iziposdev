@@ -1,0 +1,54 @@
+<section class="" ng-init="init()">
+
+    <div class="modal-header">
+        <h1 class="modal-title" ng-if="mode == 1" translate>Edition de la config. "{{preset.name}}"</h1>
+        <h1 class="modal-title" ng-if="mode == 2" translate>Creation de config</h1>
+    </div>
+
+    <div ng-if="mode == 2" style="padding-top: 10px">
+        <label for="presetName"> Nom du preset : </label>
+        <text-field id="presetName" ng-model="preset.name"
+                    location="center-end"
+                    type="azerty"
+                    validfunction="closeKeyboard"
+                    style="width: 150px;height:30px;"></text-field>
+    </div>
+
+    <div class="form-panel modal-body" layout="column">
+        <uib-tabset>
+            <uib-tab ng-repeat=" tab in model.preset.tabs" heading="{{tab.name}}">
+                <div class="flags" layout="row" layout-align="space-around center" layout-wrap>
+                    <div ng-repeat="(key, flag) in tab.flags" flex="50" layout="row" layout-align="center center">
+                        <md-switch ng-model="preset.settings[key]">{{flag.text}}</md-switch>
+                    </div>
+                </div>
+                <div class="radios" layout="row" layout-align="space-around start">
+                    <div ng-repeat="(key, rad) in tab.radios" layout="column">
+                        <b> {{rad.text}}</b>
+                        <md-radio-group ng-model="preset.settings[key]">
+                            <md-radio-button value="{{option.value}}" ng-repeat="option in rad.values">
+                                {{option.text}}
+                            </md-radio-button>
+                        </md-radio-group>
+                    </div>
+                </div>
+                <div class="checkboxes" layout="row" layout-align="space-around start">
+                    <div ng-repeat="(cbkey, cb) in tab.checkboxes" layout="column">
+                        <b> {{cb.text}}</b>
+                        <md-checkbox ng-repeat="(optkey, option) in cb.values" ng-model="preset.settings[cbkey][optkey]">
+                            {{option.text}}
+                        </md-checkbox>
+                    </div>
+                </div>
+            </uib-tab>
+
+        </uib-tabset>
+
+    </div>
+
+    <div class="modal-footer">
+        <button class="btn btn-success" ng-click="ok()" translate>Ok</button>
+        <button class="btn btn-rose" ng-click="cancel()" translate>Fermer</button>
+    </div>
+
+</section>

@@ -1,5 +1,5 @@
-app.service('taxesService', ['$rootScope', '$q', 'settingService',
-    function ($rootScope, $q, settingService) {
+app.service('taxesService', ['$rootScope', '$q',
+    function ($rootScope, $q) {
 
         var cacheTaxProvider = undefined;
         var cacheTaxCategories = undefined;
@@ -14,13 +14,24 @@ app.service('taxesService', ['$rootScope', '$q', 'settingService',
                 cacheTaxDisplay = undefined;
                 cacheIsPricesIncludedTax = undefined;
                 // Reset cache
-                cacheTaxProvider = self.getTaxProviderAsync().then(function (results) {
-                    cacheTaxCategories = self.getTaxCategoriesAsync();
-                });
-                cacheTaxDisplay = self.getTaxDisplayTypeAsync();
-                cacheIsPricesIncludedTax = self.getPricesIncludedTaxAsync();
+                self.initTaxCache();
             }
         });
+
+        this.initTaxCache = function () {
+            self.getTaxProviderAsync().then(function (results) {
+                cacheTaxProvider = results;
+                self.getTaxCategoriesAsync().then((res) => {
+                    cacheTaxCategories = res
+                });
+            });
+            self.getTaxDisplayTypeAsync().then((res) => {
+                cacheTaxDisplay = res;
+            });
+            self.getPricesIncludedTaxAsync().then((res) => {
+                cacheIsPricesIncludedTax = res;
+            });
+        };
 
         /**
          * Regrou
@@ -58,7 +69,7 @@ app.service('taxesService', ['$rootScope', '$q', 'settingService',
         this.getPricesIncludedTaxAsync = function () {
             var pricesIncludedTaxDefer = $q.defer();
 
-            if ($rootScope.modelDb.databaseReady) {
+            if ($rootScope.modelDb && $rootScope.modelDb.databaseReady) {
                 if (cacheIsPricesIncludedTax) {
                     pricesIncludedTaxDefer.resolve(cacheIsPricesIncludedTax);
                 } else {
@@ -81,7 +92,6 @@ app.service('taxesService', ['$rootScope', '$q', 'settingService',
             return pricesIncludedTaxDefer.promise;
         };
 
-        this.getPricesIncludedTaxAsync();
 
         /**
          * Gets if the product price is display with or without taxes
@@ -90,7 +100,7 @@ app.service('taxesService', ['$rootScope', '$q', 'settingService',
         this.getTaxDisplayTypeAsync = function () {
             var taxDisplayDefer = $q.defer();
 
-            if ($rootScope.modelDb.databaseReady) {
+            if ($rootScope.modelDb && $rootScope.modelDb.databaseReady) {
                 if (cacheTaxDisplay) {
                     taxDisplayDefer.resolve(cacheTaxDisplay);
                 } else {
@@ -112,7 +122,6 @@ app.service('taxesService', ['$rootScope', '$q', 'settingService',
             return taxDisplayDefer.promise;
         };
 
-        this.getTaxDisplayTypeAsync();
 
         this.getTaxDisplayType = function () {
             return cacheTaxDisplay;
@@ -124,7 +133,7 @@ app.service('taxesService', ['$rootScope', '$q', 'settingService',
         this.getTaxProviderAsync = function () {
             var taxProviderDefer = $q.defer();
 
-            if ($rootScope.modelDb.databaseReady) {
+            if ($rootScope.modelDb && $rootScope.modelDb.databaseReady) {
                 if (cacheTaxProvider) {
                     taxProviderDefer.resolve(cacheTaxProvider);
                 } else {
@@ -213,7 +222,7 @@ app.service('taxesService', ['$rootScope', '$q', 'settingService',
         this.getTaxCategoriesAsync = function () {
             var taxCategoriesDefer = $q.defer();
 
-            if ($rootScope.modelDb.databaseReady) {
+            if ($rootScope.modelDb && $rootScope.modelDb.databaseReady) {
                 if (cacheTaxCategories) {
                     taxCategoriesDefer.resolve(cacheTaxCategories);
                 } else {
@@ -227,7 +236,6 @@ app.service('taxesService', ['$rootScope', '$q', 'settingService',
                                 getTaxQuebec(taxCategoriesDefer);
                                 break;
                         }
-
                     }, function () {
                         // If provider undefined we're using the Fixed Rate provider by default
                         getTaxFixedRate(taxCategoriesDefer);
@@ -387,9 +395,25 @@ app.service('taxesService', ['$rootScope', '$q', 'settingService',
                 priceIT = 0;
                 priceET = 0;
 
-                var taxResult = calculateTax(deliveryType, cartItem.Product.TaxCategory, cartItem.Product.Price, cartItem.Quantity, cartItem.DiscountIT, cartItem.DiscountET);
+                var taxResult = undefined;
+                /*
+                switch (deliveryType) {
+                    case 0:
+                        taxResult = calculateTax(deliveryType, cartItem.Product.TaxCategory, cartItem.Product.Price, cartItem.Quantity, cartItem.DiscountIT, cartItem.DiscountET);
+                        break;
+                    case 1:
+                        taxResult = calculateTax(deliveryType, cartItem.Product.TaxCategory, cartItem.Product.TakeawayPrice || cartItem.Product.Price, cartItem.Quantity, cartItem.DiscountIT, cartItem.DiscountET);
+                        break;
+                    case 2:
+                        taxResult = calculateTax(deliveryType, cartItem.Product.TaxCategory, cartItem.Product.DeliveryPrice || cartItem.Product.Price, cartItem.Quantity, cartItem.DiscountIT, cartItem.DiscountET);
+                        break;
+                    default:
+                        taxResult = calculateTax(deliveryType, cartItem.Product.TaxCategory, cartItem.Product.Price, cartItem.Quantity, cartItem.DiscountIT, cartItem.DiscountET);
+                        break;
+                }*/
+                taxResult = calculateTax(deliveryType, cartItem.Product.TaxCategory, cartItem.Product.Price, cartItem.Quantity, cartItem.DiscountIT, cartItem.DiscountET);
 
-                // Add tax list to the cart item, We have to set the normal TaxDetails 
+                // Add tax list to the cart item, We have to set the normal TaxDetails
                 cartItem.TaxDetails = taxResult.taxDetails;
             }
             else {
@@ -398,7 +422,20 @@ app.service('taxesService', ['$rootScope', '$q', 'settingService',
 
                 switch (cacheTaxProvider) {
                     case "Tax.FixedRate":
-                        cartItemPrice = cartItem.Product.Price;
+                        switch (deliveryType) {
+                            case 0:
+                                cartItemPrice = cartItem.Product.Price;
+                                break;
+                            case 1:
+                                cartItemPrice = cartItem.Product.TakeawayPrice || cartItem.Product.Price;
+                                break;
+                            case 2:
+                                cartItemPrice = cartItem.Product.DeliveryPrice || cartItem.Product.Price;
+                                break;
+                            default:
+                                cartItemPrice = cartItem.Product.Price;
+                                break;
+                        }
                         break;
 
                     case "Tax.Quebec":
@@ -407,11 +444,44 @@ app.service('taxesService', ['$rootScope', '$q', 'settingService',
 
                         // Price is without taxes
                         if (!cacheIsPricesIncludedTax) {
+                            /*
+                            switch (deliveryType) {
+                                case 0:
+                                    cartItemPrice = cartItem.Product.Price;
+                                    break;
+                                case 1:
+                                    cartItemPrice = cartItem.Product.TakeawayPrice || cartItem.Product.Price;
+                                    break;
+                                case 2:
+                                    cartItemPrice = cartItem.Product.DeliveryPrice || cartItem.Product.Price;
+                                    break;
+                                default:
+                                    cartItemPrice = cartItem.Product.Price;
+                                    break;
+                            }*/
                             cartItemPrice = cartItem.Product.Price;
+
                         }
                         // Price includes taxes
                         else {
+                            /*
+                            switch (deliveryType) {
+                                case 0:
+                                    cartItemPrice = cartItem.Product.Price;
+                                    break;
+                                case 1:
+                                    cartItemPrice = cartItem.Product.TakeawayPrice || cartItem.Product.Price;
+                                    break;
+                                case 2:
+                                    cartItemPrice = cartItem.Product.DeliveryPrice || cartItem.Product.Price;
+                                    break;
+                                default:
+                                    cartItemPrice = cartItem.Product.Price;
+                                    break;
+                            }
+                            */
                             cartItemPrice = cartItem.Product.Price;
+
                         }
                         break;
                 }
@@ -566,7 +636,7 @@ app.service('taxesService', ['$rootScope', '$q', 'settingService',
                                 i.DiscountIT = i.Product.Price * i.Quantity * (discount.Value / 100);
                             } else {
                                 //Product price represente le prix hors taxe. On deduit le prix toute taxes a partir du taxRate
-                                i.DiscountIT = ETtoIT(i.Product.Price, taxRate) * i.Quantity  * (discount.Value / 100);
+                                i.DiscountIT = ETtoIT(i.Product.Price, taxRate) * i.Quantity * (discount.Value / 100);
                             }
 
                         } else {

@@ -1,0 +1,20 @@
+<section class="" ng-init="init()">
+
+    <div class="modal-header">
+        <h1 class="modal-title" translate>Couverts</h1>
+    </div>
+
+    <div class="form-panel modal-body" layout="column" layout-align="center center">
+        <text-field  id="nbCutleries" ng-model="model.cutleries" location="center-end" type="numeric" validfunction="ok" style="width:150px"></text-field>
+        <div class="labelErr" ng-if="model.error">
+            {{model.error}}
+        </div>
+    </div>
+
+    <div class="modal-footer">
+        <button class="btn btn-green" ng-click="ok()">OK
+        </button>
+        <button class="btn btn-rose" ng-click="cancel()" translate>Annuler</button>
+    </div>
+
+</section>

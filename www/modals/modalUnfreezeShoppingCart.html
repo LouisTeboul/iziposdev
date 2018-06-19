@@ -4,57 +4,92 @@
     </div>
 
     <div class="form-panel modal-body modal-unfreeze">
-        <tabset>
-            <tab>
-                <tab-heading>
+        <uib-tabset>
+            <uib-tab>
+                <uib-tab-heading>
                     <x translate>En attente</x>
-                </tab-heading>
+                </uib-tab-heading>
+
+                <div class="itemRow" style="text-align: center;margin: 0 -15px">
+                    <div style="margin: 0 15px;display:flex;">
+                        <strong id="checkToMergeOrder" style="width:25px;"></strong>
+                        <strong style="flex:1;">
+                            <md-icon md-svg-src="img/icons/table.svg"></md-icon>
+                        </strong>
+                        <strong ng-if="$mdMedia('(min-width: 800px)')" style="flex:1;">
+                            <md-icon md-svg-src="img/icons/shoppingcart.svg"></md-icon>
+                        </strong>
+                        <strong style="flex:1;">
+                            <md-icon md-svg-src="img/icons/cutleries.svg"></md-icon>
+                        </strong>
+                        <strong style="flex:1;">
+                            <md-icon md-svg-src="img/icons/user.svg"></md-icon>
+                        </strong>
+                        <strong style="flex:1;">
+                            <md-icon md-svg-src="img/icons/box.svg"></md-icon>
+                        </strong>
+                        <strong style="flex:1;">
+                            <md-icon md-svg-src="img/icons/euro.svg"></md-icon>
+                        </strong>
+                    </div>
+                </div>
+
                 <div ng-if="shoppingCarts != undefined && shoppingCarts.length > 0">
                     <div class="itemRow" layout="column" ng-repeat="shoppingCart in shoppingCarts track by $index"
                          ng-click="select(shoppingCart)"
                          ng-if="!shoppingCart.DatePickup"
-                         ng-style="(shoppingCart.Customer != undefined || shoppingcart.customerLoyalty ) && {'line-height':'30px'} || {'line-height':'50px'}">
-                        <div style="margin-left:10px; margin-right:10px" layout="row">
-                            <div>
-                                <div style="margin-top:10px;margin-bottom:-10px;">
-                                    <input type="checkbox"
-                                           ng-click="$event.stopPropagation();checkShoppingCart(shoppingCart,$event);"
-                                           style="width:25px;height:25px;">
+                         style="line-height: 30px; padding-top: 5px;margin: 0 -15px;">
+
+                        <div class="unFreezeTable" layout="column" style="height: 75px;" flex>
+                            <div layout="row" style="align-items: center;" flex>
+                                <div layout="row" style="line-height: 20px;align-items: center;" flex>
+                                    <strong class="orderListTo">
+                                        <input type="checkbox"
+                                               ng-click="$event.stopPropagation();checkShoppingCart(shoppingCart,$event);"
+                                               style="width:25px;height:25px;">
+                                    </strong>
+                                    <strong style="flex:1;">
+                                        <div ng-if="shoppingCart.TableNumber != undefined">
+                                            {{shoppingCart.TableNumber}}
+                                        </div>
+                                    </strong>
+                                    <strong ng-if="$mdMedia('(min-width: 800px)')" style="flex:1;">
+                                        {{shoppingCart.Timestamp}}
+                                    </strong>
+                                    <strong style="flex:1;">
+                                        <div ng-if="shoppingCart.TableCutleries != undefined">
+                                            {{shoppingCart.TableCutleries}}
+                                        </div>
+                                    </strong>
+                                    <strong style="flex:1;">
+                                        {{shoppingCart.PosUserName}}
+                                    </strong>
+                                    <strong style="flex:1;">
+                                        {{getItemsCount(shoppingCart)}}
+                                    </strong>
+                                    <strong style="flex:1;">
+                                        {{shoppingCart.Total | CurrencyFormat}}
+                                    </strong>
                                 </div>
                             </div>
-                            <div layout="row" flex>
-                                <strong flex ng-if="shoppingCart.TableNumber != undefined">
-                                    <md-icon md-svg-src="img/icons/table.svg"></md-icon>
-                                    {{shoppingCart.TableNumber}}</strong>
-                                <strong flex>
-                                    <md-icon md-svg-src="img/icons/shoppingcart.svg"></md-icon>
-                                    {{shoppingCart.Timestamp}}
-                                </strong>
-                                <strong flex ng-if="shoppingCart.TableCutleries != undefined">
-                                    <md-icon md-svg-src="img/icons/cutleries.svg"></md-icon>
-                                    {{shoppingCart.TableCutleries}}</strong>
-                                <strong flex
-                                        ng-if="shoppingCart.PosUserName != undefined && shoppingCart.PosUserName.length > 0">
-                                    <md-icon md-svg-src="img/icons/user.svg"></md-icon>
-                                    {{shoppingCart.PosUserName}}
-                                </strong>
+                            <div class="productComment">
+                                <div ng-if="shoppingCart.Customer != undefined">
+                                    <strong>
+                                        <x translate>Horaire</x>
+                                        : {{shoppingCart.ShippingOption}}</strong>
+                                    {{shoppingCart.Customer.FirstName
+                                    + " " + shoppingCart.Customer.LastName
+                                    + " - " + shoppingCart.Customer.Email}}
+                                </div>
+                                <div ng-if="shoppingCart.customerLoyalty != undefined">
+                                    {{shoppingCart.customerLoyalty.CustomerFirstName
+                                    + " " + shoppingCart.customerLoyalty.CustomerLastName
+                                    + " - " + shoppingCart.customerLoyalty.CustomerEmail}}
+                                </div>
                             </div>
-
-
-                            <strong flex="10">
-                                <md-icon md-svg-src="img/icons/box.svg"></md-icon>
-
-                                {{getItemsCount(shoppingCart)}}</strong>
-                            <strong flex="20">
-                                <x translate>TOTAL</x>
-                                : {{shoppingCart.Total | CurrencyFormat}}</strong>
-
-                            <!--<a style="width:10%;float:right" class="btn btn-xs btn-default itemActionContainer" ng-click="$event.stopPropagation();removeShoppingCart(shoppingCart)">
-                                <span class="glyphicon glyphicon-trash itemAction"></span>
-                            </a>-->
-
                         </div>
-                        <div ng-if="shoppingCart.Customer != undefined"
+
+                        <!--<div ng-if="shoppingCart.Customer != undefined"
                              style="margin-left:10px; margin-right:10px">
                             <strong style="width:20%;float:left">
                                 <x translate>Horaire</x>
@@ -67,7 +102,7 @@
                              style="margin-left:10px; margin-right:10px">
                             <span style="width:30%;float:left">{{shoppingCart.customerLoyalty.CustomerFirstName+" "+shoppingCart.customerLoyalty.CustomerLastName}}</span>
                             <span style="width:30%;float:left">{{shoppingCart.customerLoyalty.CustomerEmail}}</span>
-                        </div>
+                        </div>-->
                     </div>
                 </div>
                 <div class="itemRow"
@@ -81,49 +116,76 @@
                         <x translate>Veuillez patienter</x>
                         ...</strong>
                 </div>
-            </tab>
-            <tab>
-                <tab-heading>
+            </uib-tab>
+            <uib-tab>
+                <uib-tab-heading>
                     <x translate>A traiter</x>
                     <div ng-if="ordersInProgress.length > 0" class="tabNotif">
 						<span class="tabNotif-text">
 							{{ordersInProgress.length}}
 						</span>
                     </div>
-                </tab-heading>
+                </uib-tab-heading>
+
+                <div class="itemRow" style="text-align: center;margin: 0 -15px">
+                    <div style="margin: 0 15px;display:flex;">
+                        <strong id="orderTypeIcon" style="flex:1"></strong>
+                        <strong ng-if="$mdMedia('(min-width: 800px)')" style="flex:1;">
+                            <md-icon md-svg-src="img/icons/shoppingcart.svg"></md-icon>
+                        </strong>
+                        <strong style="flex:1;">
+                            <md-icon md-svg-src="img/icons/clock.svg"></md-icon>
+                        </strong>
+                        <strong style="flex:1;">
+                            <md-icon md-svg-src="img/icons/user.svg"></md-icon>
+                        </strong>
+                        <strong style="flex:1;">
+                            <md-icon md-svg-src="img/icons/box.svg"></md-icon>
+                        </strong>
+                        <strong style="flex:1;">
+                            <md-icon md-svg-src="img/icons/euro.svg"></md-icon>
+                        </strong>
+                    </div>
+                </div>
+
                 <div ng-if="ordersInProgress != undefined && ordersInProgress.length > 0">
                     <div class="itemRow row" ng-repeat="order in ordersInProgress track by $index"
                          ng-click="selectOrder(order)"
-                         ng-style="(order.Customer != undefined || order.customerLoyalty != undefined) && {'line-height':'30px'} || {'line-height':'60px'}">
+                         ng-style="(order.Customer != undefined || order.customerLoyalty != undefined || order.ExtraInfos) && {'line-height':'30px'} || {'line-height':'60px'}"
+                         style="padding:5px 5px 0;line-height: 20px">
 
-                        <div style="margin-left:10px; margin-right:10px">
-                            <strong style="width:60%;float:left">
-                                <i ng-class="{'glyphicon-earphone': order.DatePickup, 'glyphicon-globe': order.Customer != undefined }"
-                                   class="glyphicon"></i>
-                                <x translate>Ticket</x>
-                                : {{order.Timestamp}}</strong>
-                            <strong style="width:20%;float:left">{{getItemsCount(order)}}
-                                <x translate>produit(s)</x>
-                            </strong>
-                            <strong style="width:20%;float:left">
-                                <x translate>TOTAL</x>
-                                : {{order.Total | CurrencyFormat}}</strong>
-                        </div>
-                        <br ng-if="order.Customer != undefined"/>
-                        <div style="margin-left:10px; margin-right:10px" ng-if="order.Customer != undefined">
-                            <strong style="width:40%;float:left">
-                                <x translate>Horaire</x>
-                                : {{order.ShippingOption}}</strong>
-                            <span style="width:30%;float:left">{{order.Customer.FirstName+" "+order.Customer.LastName}}</span>
-                            <span style="width:30%;float:left">{{order.Customer.Email}}</span>
-                        </div>
-                        <div style="margin-left:10px; margin-right:10px"
-                             ng-if="order.customerLoyalty != undefined && order.Customer == undefined">
-                            <strong style="width:40%;float:left">
-                                <x translate>Horaire</x>
-                                : {{order.DatePickup.split(" ")[1]}}</strong>
-                            <span style="width:30%;float:left">{{order.customerLoyalty.CustomerFirstName+" "+order.customerLoyalty.CustomerLastName}}</span>
-                            <span style="width:30%;float:left">{{order.customerLoyalty.CustomerEmail}}</span>
+                        <div class="unFreezeTable" layout="column" style="height: 75px;" flex>
+                            <div layout="row" style="align-items: center;" flex>
+                                <div layout="row" style="line-height: 20px;align-items: center;" flex>
+                                    <strong class="orderListTo" style="flex:1;">
+                                        <md-icon class="glyphicon" ng-class="{'glyphicon-earphone': order.DatePickup,
+                                        'glyphicon-globe': order.Customer != undefined }"></md-icon>
+                                    </strong>
+                                    <strong ng-if="$mdMedia('(min-width: 800px)')" style="flex:1;">
+                                        {{order.Timestamp}}
+                                    </strong>
+                                    <strong style="flex:1;">
+                                        {{order.DatePickup.split("T")[0]
+                                        + " " + order.DatePickup.split("T")[1].split(".")[0]}}
+                                    </strong>
+                                    <strong style="flex:1;" ng-if="order.Customer != undefined">
+                                        {{order.Customer.FirstName + " " + order.Customer.LastName}}
+                                    </strong>
+                                    <strong style="flex:1;" ng-if="order.Customer == undefined">
+                                        <div ng-if="order.customerLoyalty != undefined">
+                                            {{order.customerLoyalty.CustomerFirstName
+                                            + " " + order.customerLoyalty.CustomerLastName}}
+                                        </div>
+                                    </strong>
+                                    <strong style="flex:1;">
+                                        {{getItemsCount(order)}}
+                                    </strong>
+                                    <strong style="flex:1;">
+                                        {{order.Total}}
+                                    </strong>
+                                </div>
+                            </div>
+                            <div class="productComment">{{order.ExtraInfos}}</div>
                         </div>
                     </div>
                 </div>
@@ -131,16 +193,16 @@
                      ng-if="modelDb.orderReady == true && (ordersInProgress == undefined || ordersInProgress.length == 0)">
                     <strong translate>Aucune commande à préparer</strong>
                 </div>
-            </tab>
-            <tab>
-                <tab-heading>
+            </uib-tab>
+            <uib-tab>
+                <uib-tab-heading>
                     <x translate>Commandes</x>
                     <div ng-if="orders.length > 0" class="tabNotif notifWarning">
 						<span class="tabNotif-text">
 							{{orders.length}}
 						</span>
                     </div>
-                </tab-heading>
+                </uib-tab-heading>
                 <div ng-if="orders != undefined && orders.length > 0">
                     <div class="itemRow row" ng-repeat="order in orders track by $index" ng-click="selectOrder(order)"
                          ng-style="(order.Customer != undefined || order.customerLoyalty != undefined) && {'line-height':'30px'} || {'line-height':'60px'}">
@@ -185,8 +247,8 @@
                         <x translate>Veuillez patienter</x>
                         ...</strong>
                 </div>
-            </tab>
-        </tabset>
+            </uib-tab>
+        </uib-tabset>
     </div>
 
     <div class="modal-footer">

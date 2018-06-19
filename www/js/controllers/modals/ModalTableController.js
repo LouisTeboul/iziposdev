@@ -26,8 +26,7 @@
         } else if (tableCutleriesValue == 0 && $rootScope.IziBoxConfiguration.CutleriesRequired) {
             $scope.errorMessage = $translate.instant("Nb de couvert obligatoire");
             $scope.$evalAsync();
-        }
-        else {
+        } else {
 
             var tableValues = {
                 tableNumber: tableNumberValue > 0 ? tableNumberValue : undefined,

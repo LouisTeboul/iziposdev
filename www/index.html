@@ -19,39 +19,40 @@
 -->
 <html>
 <head>
-    <meta charset="utf-8" />
-    <meta name="format-detection" content="telephone=no" />
-    <meta name="msapplication-tap-highlight" content="no" />
+    <meta charset="utf-8"/>
+    <meta name="format-detection" content="telephone=no"/>
+    <meta name="msapplication-tap-highlight" content="no"/>
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <!-- WARNING: for iOS 7, remove the width=device-width and height=device-height attributes. See https://issues.apache.org/jira/browse/CB-4323 -->
-    <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width" />
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1, shrink-to-fit=no, user-scalable=no, maximum-scale=1, minimum-scale=1"/>
     <!--<meta http-equiv="Content-Security-Policy" content="default-src * blob:;media-src * blob:;img-src * 'self' blob: data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline' 'unsafe-eval'" />-->
-    <meta http-equiv="Content-Security-Policy" />
+    <meta http-equiv="Content-Security-Policy"/>
     <!-- Styles -->
-    <link rel="icon" href="favicon.ico" />
-    <link href="bootstrap/css/bootstrap.css" rel="stylesheet" />
+    <link rel="icon" href="favicon.ico"/>
+    <link href="bootstrap/css/bootstrap.css" rel="stylesheet"/>
     <!--<link href="css/lib/bootstrap-switch.min.css" rel="stylesheet" />-->
-    <link href="css/lib/angular-toggle-switch.css" rel="stylesheet" />
-    <link href="css/lib/toggle-switch.css" rel="stylesheet" />
-    <link href="css/lib/kendo.common-material.min.css" rel="stylesheet" />
-    <link href="css/lib/kendo.material.min.css" rel="stylesheet" />
-    <link href="css/lib/kendo.dataviz.min.css" rel="stylesheet" />
-    <link href="css/lib/kendo.dataviz.material.min.css" rel="stylesheet" />
-    <link href="css/lib/sweetalert.css" rel="stylesheet" />
+    <link href="css/lib/angular-toggle-switch.css" rel="stylesheet"/>
+    <link href="css/lib/toggle-switch.css" rel="stylesheet"/>
+    <link href="css/lib/kendo.common-material.min.css" rel="stylesheet"/>
+    <link href="css/lib/kendo.material.min.css" rel="stylesheet"/>
+    <link href="css/lib/kendo.dataviz.min.css" rel="stylesheet"/>
+    <link href="css/lib/kendo.dataviz.material.min.css" rel="stylesheet"/>
+    <link href="css/lib/sweetalert.css" rel="stylesheet"/>
     <!--<link href="css/main.css" rel="stylesheet" />-->
-    <link href="css/izipos.css" rel="stylesheet" />
-    <link href="css/scrollbar.css" rel="stylesheet" />
-    <link href="css/keypad-numeric.css" rel="stylesheet" />
-    <link href="css/keypad-azerty.css" rel="stylesheet" />
-    <link href="css/lib/ngToast.min.css" rel="stylesheet" />
+    <link href="css/default.css" rel="stylesheet" id="styleDef"/>
+    <link href="css/scrollbar.css" rel="stylesheet"/>
+    <link href="css/keypad-numeric.css" rel="stylesheet"/>
+    <link href="css/keypad-azerty.css" rel="stylesheet"/>
+    <link href="css/lib/ngToast.min.css" rel="stylesheet"/>
     <!--<link href="css/lib/ngToast-animations.min.css" rel="stylesheet" />-->
-    <link href="css/lib/angular-material.min.css" rel="stylesheet" />
-    <link href="css/lib/fabricjs/mcColorPicker.css" rel="stylesheet" />
+    <link href="css/lib/angular-material.min.css" rel="stylesheet"/>
+    <link href="css/lib/fabricjs/mcColorPicker.css" rel="stylesheet"/>
 
     <!--Admin specifics styles-->
-    <link href="js/lib/AdminLibs/fullcalendar-2.6.1/fullcalendar.min.css" rel="stylesheet" />
-    <link href="js/lib/AdminLibs/angular-material-data-table/md-data-table.min.css" rel="stylesheet" />
+    <link href="js/lib/AdminLibs/fullcalendar-2.6.1/fullcalendar.min.css" rel="stylesheet"/>
+    <link href="js/lib/AdminLibs/angular-material-data-table/md-data-table.min.css" rel="stylesheet"/>
 
     <!-- Libraries -->
     <script src="js/lib/jquery.min.js"></script>
@@ -71,6 +72,7 @@
     <!--<script src="js/lib/pouchdb.relationnal-pouch.1.4.5.js"></script>-->
     <script src="js/lib/pouchdb.relational-pouch-izipass.js"></script>
     <script src="js/lib/pouchdb.load.js"></script>
+    <script src="js/lib/pouchdb.cordova-sqlite.js"></script>
     <script src="js/lib/detect-element-resize.js"></script>
     <script src="js/lib/date.js"></script>
     <!--<script src="js/lib/bootstrap-switch.min.js"></script>-->
@@ -134,6 +136,8 @@
     <script src="js/controllers/ProductTemplateController.js"></script>
     <script src="js/controllers/MiniBasketController.js"></script>
     <script src="js/controllers/CatalogDrawerMenuController.js"></script>
+    <script src="js/controllers/BorneClosedController.js"></script>
+    <script src="js/controllers/IdleScreenController.js"></script>
 
 
     <!-- Modals Controllers -->
@@ -155,6 +159,8 @@
     <script src="js/controllers/modals/ModalTypePriceController.js"></script>
     <script src="js/controllers/modals/ModalLoginController.js"></script>
     <script src="js/controllers/modals/ModalOpenPosController.js"></script>
+    <script src="js/controllers/modals/ModalConnectionController.js"></script>
+    <script src="js/controllers/modals/ModalCustomerBorneController.js"></script>
     <script src="js/controllers/modals/ModalClosePosController.js"></script>
     <script src="js/controllers/modals/ModalCashValuesController.js"></script>
     <script src="js/controllers/modals/ModalEditShoppingCartController.js"></script>
@@ -178,15 +184,20 @@
     <script src="js/controllers/modals/ModalAddAddressFormController.js"></script>
     <script src="js/controllers/modals/ModalEditDeliveryInfoController.js"></script>
     <script src="js/controllers/modals/ModalMonitoringController.js"></script>
+    <script src="js/controllers/modals/ModalEditPresetController.js"></script>
+    <script src="js/controllers/modals/ModalCutleriesController.js"></script>
+    <script src="js/controllers/modals/ModalAddToBalanceController.js"></script>
 
     <!-- Partials Controllers -->
     <script src="js/controllers/partials/BarcodeTextFieldController.js"></script>
 
     <!-- CategoryTemplate Controllers -->
     <script src="js/controllers/CategoryTemplate/IZIPASSController.js"></script>
+    <script src="js/controllers/CategoryTemplate/IZIPASSBorneController.js"></script>
 
     <!-- ProductTemplate Controllers -->
     <script src="js/controllers/ProductTemplate/ConfigurableMenuController.js"></script>
+    <script src="js/controllers/ProductTemplate/ConfigurableMenuListController.js"></script>
 
     <!-- Services -->
     <script src="js/services/categoryService.js"></script>
@@ -209,6 +220,7 @@
     <script src="js/services/eventService.js"></script>
     <script src="js/services/posPeriodService.js"></script>
     <script src="js/services/posService.js"></script>
+    <script src="js/services/borneService.js"></script>
 
     <!-- Models -->
     <script src="js/models/shoppingCartModel.js"></script>
@@ -217,6 +229,8 @@
     <script src="js/directives/directives.js"></script>
     <script src="js/directives/filters.js"></script>
     <script src="js/directives/textfield.js"></script>
+    <script src="js/directives/categoryRepeat.js"></script>
+    <script src="js/directives/categoryBorneRepeat.js"></script>
 
     <!-- Core -->
     <script src="js/core/Category.js"></script>
@@ -240,20 +254,23 @@
     <title>IziPos</title>
 </head>
 <body id="appbody" ng-app="app" ng-controller="AppController" ng-init="init()">
-    <div class="loader" ng-show="loading > 0"></div>
-    <toast></toast>
-    <div class="keyboardContainer layout-row layout-align-{{keyboardLocation}}">
-        <div id="keyboard-decimal" ng-if="currentKeyboardType == 'decimal'" data-ng-keypad="keyboard-decimal" class="numpad relative">
-            <div ng-include="'partials/decimal.html'" layout-fill></div>
-        </div>
-        <div id="keyboard-numeric" ng-if="currentKeyboardType == 'numeric'" data-ng-keypad="keyboard-numeric" class="numpad relative">           
-            <div ng-include="'partials/numeric.html'" layout-fill></div>
-        </div>
-        <div id="keyboard-azerty" ng-if="currentKeyboardType == 'azerty'" data-ng-keypad="keyboard-azerty" class="azerty relative" ng-class="{'phone': $mdMedia('(min-width: 799px)') == false}">
-            <div ng-include="'partials/azerty.html'" layout-fill></div>
-        </div>
+<div class="loader" ng-show="loading > 0"></div>
+<toast ng-if="!borne"></toast>
+<div class="keyboardContainer layout-row layout-align-{{keyboardLocation}}">
+    <div id="keyboard-decimal" ng-if="currentKeyboardType == 'decimal'" data-ng-keypad="keyboard-decimal"
+         class="numpad relative">
+        <div ng-include="'partials/decimal.html'" layout-fill></div>
     </div>
-    <div layout="column" layout-fill ui-view></div>
-    <div id="loadAdmin"></div>
+    <div id="keyboard-numeric" ng-if="currentKeyboardType == 'numeric'" data-ng-keypad="keyboard-numeric"
+         class="numpad relative">
+        <div ng-include="'partials/numeric.html'" layout-fill></div>
+    </div>
+    <div id="keyboard-azerty" ng-if="currentKeyboardType == 'azerty'" data-ng-keypad="keyboard-azerty"
+         class="azerty relative" ng-class="{'phone': $mdMedia('(min-width: 800px)') == false}">
+        <div ng-include="'partials/azerty.html'" layout-fill></div>
+    </div>
+</div>
+<div layout="column" layout-fill ui-view></div>
+<div id="loadAdmin"></div>
 </body>
 </html>

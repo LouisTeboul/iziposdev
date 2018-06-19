@@ -4,24 +4,26 @@
     </div>
 
     <div class="form-panel modal-body">
-        <table class=" table table-striped">
-            <thead>
-            <tr>
-                <th class="zheader" ng-repeat="zheader in zheaders" translate>{{zheader}}</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr ng-repeat="zline in zlines track by $index">
-                <td class="zvalue" ng-repeat="zvalue in zline track by $index">{{zvalue}}</td>
-            </tr>
-            <tr>
-                <td class="zvalue" ng-repeat="ztot in ztotal track by $index" translate>{{ztot}}</td>
-            </tr>
-            <tr>
-                <td class="zvalue" ng-repeat="ztotET in ztotalET track by $index">{{ztotET}}</td>
-            </tr>
-            </tbody>
-        </table>
+        <div style="overflow-x:auto;">
+            <table class=" table table-striped">
+                <thead>
+                <tr>
+                    <th class="zheader" ng-repeat="zheader in zheaders" translate>{{zheader}}</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr ng-repeat="zline in zlines track by $index">
+                    <td class="zvalue" ng-repeat="zvalue in zline track by $index">{{zvalue}}</td>
+                </tr>
+                <tr>
+                    <td class="zvalue" ng-repeat="ztot in ztotal track by $index" translate>{{ztot}}</td>
+                </tr>
+                <tr>
+                    <td class="zvalue" ng-repeat="ztotET in ztotalET track by $index">{{ztotET}}</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
         <div ng-if="zpos.employees && zpos.employees.length > 0" style="margin-top:20px">
             <b translate>Total par utilisateur : </b>
             <div ng-repeat="employee in zpos.employees">
@@ -38,7 +40,9 @@
                 Inclure le detail des services
             </label>
         </div>
-        <button ng-if="IziBoxConfiguration.EmailSmtpTargetZpos" class="btn btn-green" ng-click="emailZPos()" translate>Envoyer par email</button>
+        <button ng-if="IziBoxConfiguration.EmailSmtpTargetZpos" class="btn btn-green" ng-click="emailZPos()" translate>
+            Envoyer par email
+        </button>
         <button class="btn btn-green" ng-click="closePos(mode)"
                 ng-if="!closePosParameters.yperiod || !closePosParameters.yperiod.endDate"
                 ng-disabled="mode==0" translate>{{closePosText}}</button>
