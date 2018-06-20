@@ -1197,13 +1197,8 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
                     current.printBorneShoppingCartAsync(false).then(function () {
                         current.printBorneShoppingCartAsync(true).then(function () {
                             current.printStepProdShoppingCartAsync(currentShoppingCart).then(function () {
-<<<<<<< HEAD
                             });
                             current.freezeShoppingCart();
-=======
-                                current.freezeShoppingCart();
-                            });
->>>>>>> f5b9be395d974d3c45b610601bee2ed23b023409
                             $rootScope.hideLoading();
                             var textSwal, payed = true;
                             /*if(currentShoppingCart.isPayed) {
@@ -1326,7 +1321,8 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
                 console.log('Suite de l\'impression');
 
                 if ($rootScope.IziBoxConfiguration.ForcePrintProdTicket) {
-                    // TODO : Il faut check si le ticker a deja été imprimé en prod, si oui afficher en warning
+                    //ForcePrintProd et Step Enabled devrait être exclusif
+                    //Il est illogique de gerer les steps, et d'imprimer automatiquement la premiere step lors de la validation du ticket en même temps
 
                     //Print the Prod Ticket (toque)
                     if ($rootScope.IziBoxConfiguration.StepEnabled) {

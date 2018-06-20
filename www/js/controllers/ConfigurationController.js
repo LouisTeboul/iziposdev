@@ -24,22 +24,10 @@ app.controller('ConfigurationController', function ($scope, $rootScope, $locatio
         $scope.searchIziBoxProgression.find = args.find;
         if (args.total > 0) {
             $scope.searchIziBoxProgression.percent = (args.step * 100) / args.total;
-<<<<<<< HEAD
         }
 
         $scope.gauge.set(args.step + 1);
     });
-=======
-        }
-
-        $scope.gauge.set(args.step + 1);
-    });
-
-    $scope.init = function () {
-        if(window.localStorage.getItem("IsBorneDefault") ) {
-            $rootScope.borne = window.localStorage.getItem("IsBorneDefault") === "true" ? true : false;
-        }
->>>>>>> f5b9be395d974d3c45b610601bee2ed23b023409
 
     $scope.init = function () {
         $rootScope.borne = false;
@@ -131,11 +119,7 @@ app.controller('ConfigurationController', function ($scope, $rootScope, $locatio
     $scope.emptyCache = function () {
         // Checking if all tickets have already been synchronised with the izibox
         var adapter = !!window.sqlitePlugin ? 'cordova-sqlite' : 'websql';
-<<<<<<< HEAD
         var dbReplicate = new PouchDB('izipos_replicate', {size: 50, adapter: adapter});
-=======
-        var dbReplicate = new PouchDB('izipos_replicate', { adapter: adapter});
->>>>>>> f5b9be395d974d3c45b610601bee2ed23b023409
 
         var deleteCache = function () {
             swal({
@@ -445,10 +429,6 @@ app.controller('ConfigurationController', function ($scope, $rootScope, $locatio
         if ($scope.currentPreset) {
             $rootScope.UserPreset = $scope.currentPreset.value.settings;
         }
-<<<<<<< HEAD
-=======
-        window.localStorage.setItem("IsBorneDefault", $rootScope.borne ? $rootScope.borne.toString() : false);
->>>>>>> f5b9be395d974d3c45b610601bee2ed23b023409
         window.localStorage.setItem("PosNumber", $rootScope.modelPos.posNumber);
         window.localStorage.setItem("POSPrinter", $rootScope.PrinterConfiguration.POSPrinter);
         window.localStorage.setItem("ProdPrinter", $rootScope.PrinterConfiguration.ProdPrinter);

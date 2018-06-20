@@ -22,11 +22,7 @@
   "_resolved": "https://registry.npmjs.org/cordova-plugin-sqlite-2/-/cordova-plugin-sqlite-2-1.0.5.tgz",
   "_shasum": "afdaf27c15ae8ba2585ebf5db92410d03f6b1f15",
   "_spec": "cordova-plugin-sqlite-2",
-<<<<<<< HEAD
   "_where": "C:\\Sources\\Izipos_beta",
-=======
-  "_where": "C:\\Sources\\Izipos-iOs\\iziposdev",
->>>>>>> f5b9be395d974d3c45b610601bee2ed23b023409
   "author": {
     "name": "Nolan Lawson",
     "email": "nolan@nolanlawson.com"

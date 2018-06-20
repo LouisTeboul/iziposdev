@@ -14,7 +14,6 @@ app.directive('categoryRepeat', function ($rootScope, $compile, $filter) {
                     result += "<section class='layout-row layout-wrap'>";
                     for (var product of products) {
                         result += `<div style="margin-bottom:4px">
-<<<<<<< HEAD
                     <div aria-label="product button" class="productboxIZIPASS `;
                         if (product.DisableBuyButton) {
                             result += ` disabled`;
@@ -28,21 +27,6 @@ app.directive('categoryRepeat', function ($rootScope, $compile, $filter) {
                                 result += ` big`;
                             }
                         } else if (!scope.$mdMedia('gt-sm')) {
-=======
-                    <div aria-label="product button" class="productboxIZIPASS`;
-                        if (product.DisableBuyButton) {
-                            result += ` disabled productIPDisabled`;
-                        }
-                        if ($rootScope.UserPreset) {
-                            if ($rootScope.UserPreset.ItemSize == 1 || $rootScope.UserPreset.ItemSize && scope.$mdMedia('max-width: 799px')) {
-                                result += ` small`;
-                            } else if ($rootScope.UserPreset.ItemSize == 2 && scope.$mdMedia('min-width: 800px')) {
-                                result += ` medium`;
-                            } else if ($rootScope.UserPreset.ItemSize == 3 && scope.$mdMedia('min-width: 800px')) {
-                                result += ` big`;
-                            }
-                        } else if (scope.$mdMedia('max-width: 799px')) {
->>>>>>> f5b9be395d974d3c45b610601bee2ed23b023409
                             result += ` small`;
 
                         }

@@ -1,24 +1,14 @@
 <md-content class="catalog" ng-controller="CatalogController" ng-init="init()" layout="column" layout-fill>
     <div id="catalogMenuDiv" ng-include="'viewsBorne/catalogMenu.html'"></div>
     <md-sidenav class="md-sidenav-left md-whiteframe-z2 drawerMenu" md-component-id="drawerMenuDiv" id="drawerMenuDiv"
-<<<<<<< HEAD
                 ng-include="'views/catalogDrawerMenu.html'">
     </md-sidenav>
     <md-content layout="row" flex>
-=======
-                ng-include="'viewsBorne/catalogDrawerMenu.html'">
-    </md-sidenav>
-    <md-content layout="row" style="overflow-y: hidden;" flex>
->>>>>>> f5b9be395d974d3c45b610601bee2ed23b023409
         <md-content div id="catalogViewDiv" flex ui-view layout="column">
         </md-content>
 
         <md-sidenav class="md-sidenav-right md-whiteframe-z2 miniBasketSlide"
-<<<<<<< HEAD
                     md-is-locked-open="!$rootScope.adminMode.state && ($mdMedia('gt-sm') || $rootScope.showShoppingCart)">
-=======
-                    md-is-locked-open="!$rootScope.adminMode.state && ($mdMedia('min-width: 800px') || $rootScope.showShoppingCart)">
->>>>>>> f5b9be395d974d3c45b610601bee2ed23b023409
             <md-content id="catalogBasketDiv" class="catalogBasketDiv" ng-include="'viewsBorne/miniBasket.html'"
                         layout="column" flex>
             </md-content>

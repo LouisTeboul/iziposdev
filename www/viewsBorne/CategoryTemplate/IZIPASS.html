@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 <div class="IZIPASSTemplate" ng-controller="IZIPASSBorneController" ng-init="init()" layout="column" layout-padding>
     <h1>{{category.Name}}</h1>
 
@@ -45,15 +44,3 @@
         </div>
     </div>
 </div>
-=======
-<md-content class="IZIPASSTemplate" id="IZIPASSController"
-            ng-controller="IZIPASSController"
-            ng-init="init()">
-    <category-borne-repeat ng-if="!$root.modelPos.categoryLoading || useCache"
-                     ng-class="{'leftHanded' : $root.UserPreset.HandPreference==2,
-                    'rightHanded' : $root.UserPreset.HandPreference==1}"
-                     layout="column"
-                     delivery-type="deliveryType"
-                     class="categoryContent" ng-cloak></category-borne-repeat>
-</md-content>
->>>>>>> f5b9be395d974d3c45b610601bee2ed23b023409

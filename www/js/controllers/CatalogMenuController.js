@@ -34,13 +34,7 @@ app.controller('CatalogMenuController', function ($scope, $rootScope, $state, ca
             id: $state.params.id
         };
 
-<<<<<<< HEAD
         $state.go("catalogPOS." + category.CategoryTemplate.ViewPath, { id: category.Id }).then(function (state, event) {
-=======
-        var catalogType = $rootScope.borne ? "catalogBorne." : "catalogPOS.";
-
-        $state.go(catalogType + category.CategoryTemplate.ViewPath, { id: category.Id }).then(function (state, event) {
->>>>>>> f5b9be395d974d3c45b610601bee2ed23b023409
             var newState = {
                 name: $state.current.name,
                 id: $state.params.id

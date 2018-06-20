@@ -40,11 +40,7 @@ app.run(function ($rootScope, $location, $q, $http, ipService, zposService, $tra
     try {
         angularLocation = $location;
 
-<<<<<<< HEAD
         $rootScope.Version = "3.0.4.06201";
-=======
-        $rootScope.Version = "3.0.4.06152";
->>>>>>> f5b9be395d974d3c45b610601bee2ed23b023409
         $rootScope.adminMode = { state: false };
         $rootScope.loading = 0;
 
@@ -252,18 +248,10 @@ var init = function ($rootScope, $location, $q, $http, ipService, zposService, $
             // BackButton
             app.configHWButtons($rootScope, $translate);
         }
-<<<<<<< HEAD
-=======
-
-    });
->>>>>>> f5b9be395d974d3c45b610601bee2ed23b023409
 
     });
 
-<<<<<<< HEAD
 
-=======
->>>>>>> f5b9be395d974d3c45b610601bee2ed23b023409
     /**
      * Use for displaying the wpf keyboard on windows system
      * @deprecated
@@ -326,10 +314,7 @@ app.configHWButtons = function ($rootScope, $translate) {
                 $rootScope.tryExit = false;
             }, 3000);
         }
-<<<<<<< HEAD
 
-=======
->>>>>>> f5b9be395d974d3c45b610601bee2ed23b023409
     }, false);
 };
 

@@ -4,10 +4,6 @@
             url: '/izipass/{id}',
             templateUrl: 'views/CategoryTemplate/IZIPASS.html'
         })
-        .state('catalogBorne.CategoryTemplate.IZIPASS', {
-            url: '/izipass/{id}',
-            templateUrl: 'viewsBorne/CategoryTemplate/IZIPASS.html'
-        })
 });
 
 
@@ -46,7 +42,6 @@ app.controller('IZIPASSController', function ($scope, $rootScope, $stateParams, 
             categoryService.loadCategory(categoryId, checkLoading);
         }
     };
-<<<<<<< HEAD
 
     /*$rootScope.$on('deliveryTypeChanged', (event, args) => {
        $scope.deliveryType = args;
@@ -165,39 +160,12 @@ app.controller('IZIPASSController', function ($scope, $rootScope, $stateParams, 
         });
     };
     */
-=======
-
-    /*$rootScope.$on('deliveryTypeChanged', (event, args) => {
-       $scope.deliveryType = args;
-       console.log($scope.deliveryType);
-    });*/
-
-    var checkLoading = function (storage) {
-        if (storage.mainProducts === 0 && storage.subProducts === 0) {
-            $scope.model.category = storage.mainCategory;
-            $scope.model.products = storage.mainCategory.products;
-            if (storage.subCategories) {
-                $scope.model.subCategories = storage.subCategories.sort( (a,b) => {
-                    return a.DisplayOrder - b.DisplayOrder;
-                });
-                storage.subCategories.forEach(function (subCat) {
-                    $scope.model.products = $scope.model.products.concat(subCat.products)
-                });
-            }
-            $rootScope.modelPos.categoryLoading = false;
-            $rootScope.$evalAsync();
-        }
-    };
->>>>>>> f5b9be395d974d3c45b610601bee2ed23b023409
 
     $scope.scrollTo = function (elementId) {
         console.log(elementId);
         var updatedItemElem = document.querySelector('#c' + elementId);
         if (updatedItemElem) {
-            var top = updatedItemElem.offsetTop;
-            $('#allCategories').animate({
-                scrollTop: top - 40
-            },200);
+            $("#allCategories").scrollTo(updatedItemElem);
         }
     };
 

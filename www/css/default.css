@@ -73,11 +73,7 @@
 
 body {
     background-color: #FAFAFA !important;
-<<<<<<< HEAD
     font-family: SignikaNegative-Regular;
-=======
-    font-family: SignikaNegative-Regular, sans-serif;
->>>>>>> f5b9be395d974d3c45b610601bee2ed23b023409
     font-size: 15px;
 }
 
@@ -98,11 +94,7 @@ hr {
 }
 
 button, html, input, select, textarea {
-<<<<<<< HEAD
     font-family: SignikaNegative-Regular !important;
-=======
-    font-family: SignikaNegative-Regular, sans-serif !important;
->>>>>>> f5b9be395d974d3c45b610601bee2ed23b023409
 }
 
 label {
@@ -110,11 +102,7 @@ label {
 }
 
 .glyphicon {
-<<<<<<< HEAD
     font-family: 'Glyphicons Halflings' !important;
-=======
-    font-family: 'Glyphicons Halflings', sans-serif !important;
->>>>>>> f5b9be395d974d3c45b610601bee2ed23b023409
 }
 
 .center {
@@ -147,15 +135,6 @@ label {
     position: relative;
 }
 
-<<<<<<< HEAD
-=======
-.loadingMessage {
-    text-align: center;
-    padding: 20px;
-    font-size: 20px;
-}
-
->>>>>>> f5b9be395d974d3c45b610601bee2ed23b023409
 input:focus, textarea:focus {
     outline: none;
 }
@@ -179,11 +158,7 @@ text-field.flexbox div {
 
 md-progress-linear {
     display: block;
-<<<<<<< HEAD
     position: absolute !important;
-=======
-    position: absolute;
->>>>>>> f5b9be395d974d3c45b610601bee2ed23b023409
     width: 100%;
     height: 5px;
     padding-top: 0 !important;
@@ -246,10 +221,6 @@ md-input-container label:not(._md-container-ignore) {
         width: 150px;
         margin: 0 20px;
     }
-<<<<<<< HEAD
-=======
-
->>>>>>> f5b9be395d974d3c45b610601bee2ed23b023409
     .loading .gauge {
         margin-left: -75px;
     }
@@ -294,13 +265,8 @@ md-input-container label:not(._md-container-ignore) {
 
 .configRow {
     min-height: 30px;
-<<<<<<< HEAD
     padding-top: 0px;
     padding-bottom: 0px;
-=======
-    padding-top: 0;
-    padding-bottom: 0;
->>>>>>> f5b9be395d974d3c45b610601bee2ed23b023409
 }
 
 .configRow .title {
@@ -373,17 +339,4 @@ md-input-container label:not(._md-container-ignore) {
     background: #d83448 !important;
     color: #fff !important;
     font-weight: bold !important;
-<<<<<<< HEAD
-=======
-}
-
-.tfCommentProduct {
-    width: 510px;
-    margin-right: 10px;
-    min-height: 34px;
-}
-
-.productIPDisabled img {
-    filter: brightness(0.7);
->>>>>>> f5b9be395d974d3c45b610601bee2ed23b023409
 }

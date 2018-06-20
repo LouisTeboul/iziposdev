@@ -11,7 +11,6 @@ app.controller('BarcodeTextFieldController', function ($scope, $rootScope, $uibM
             if (!textFieldService.getFocusedTextField() && document.getElementsByClassName("modal").length == 0) {
                 $scope.$evalAsync(function () {
                     focusTextField();
-                    Navigator.vibrate(10);
                     $scope.barcode.barcodeValue += data;
                 });
             }

@@ -241,6 +241,7 @@ app.controller('MiniBasketController', ['$scope', '$rootScope', '$state', '$uibM
                         }
                     }
                     $scope.shoppingCartLines = Enumerable.from(groupedLinesStep).orderBy("x => x.Step").toArray();
+
                 } else {
 
                     $scope.shoppingCartLines = [];

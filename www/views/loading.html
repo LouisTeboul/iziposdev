@@ -48,16 +48,20 @@
                 </div>
             </div>
         </div>
-
-        <div ng-show="modelDb.databaseReady" layout="column" layout-align="center center">
-            <div class="loadingMessage"> {{message}}</div>
-            <md-progress-linear style="width: 280px;max-width: 80%" class="md-warn" md-mode="determinate"
-                                value="{{loadingProgress}}"></md-progress-linear>
-            <md-button ng-click="skipCategoryLoading = true" ng-disabled="skipCategoryLoading" class="btn-rose"
-                       style="margin-top: 20px">
-                Passer
-            </md-button>
-        </div>
-
+        <!--<div style="text-align:center;width:100%" ng-show="loading">
+        <uib-progressbar style="width:50%;margin-left:auto;margin-right:auto" animate="false" value="percentProgress" type="success"><b>Datas {{percentProgress}}%</b></uib-progressbar>
+    </div>
+    <div style="text-align:center;width:100%" ng-show="freezeLoading">
+        <uib-progressbar style="width:50%;margin-left:auto;margin-right:auto" animate="false" value="freezeProgress" type="success"><b>Freeze {{freezeProgress}}%</b></uib-progressbar>
+    </div>
+    <div style="text-align:center;width:100%" ng-show="replicLoading">
+        <uib-progressbar style="width:50%;margin-left:auto;margin-right:auto" animate="false" value="replicProgress" type="success"><b>Replic {{replicProgress}}%</b></uib-progressbar>
+    </div>
+    <div style="text-align:center;width:100%" ng-show="orderLoading">
+        <uib-progressbar style="width:50%;margin-left:auto;margin-right:auto" animate="false" value="orderProgress" type="success"><b>Orders {{orderProgress}}%</b></uib-progressbar>
+    </div>
+    <div style="text-align:center;width:100%" ng-show="downloading">
+        <uib-progressbar style="width:50%;margin-left:auto;margin-right:auto" animate="false" value="downloadProgress" type="success"><b>{{downloadProgress}}%</b></uib-progressbar>
+    </div>-->
     </md-content>
 </section>
