@@ -2,8 +2,8 @@
  * @function zposService
  * @description This is a service to manage the zpos data
  */
-app.service('zposService', ['$http', '$rootScope', '$q', 'posLogService', 'posPeriodService', 'posService',
-    function ($http, $rootScope, $q, posLogService, posPeriodService, posService) {
+app.service('zposService', ['$http', '$rootScope', '$q', 'posLogService', 'posPeriodService',
+    function ($http, $rootScope, $q, posLogService, posPeriodService) {
         var current = this;
         var hardwareId = undefined;
         var allYperiods = [];
@@ -71,6 +71,63 @@ app.service('zposService', ['$http', '$rootScope', '$q', 'posLogService', 'posPe
             return byAmountDate.promise;
         };
 
+        this.getShoppingCartByPaiementDateAsync = function (dateStart, dateEnd, paiement) {
+            var byPaiementDate = $q.defer();
+            var db = $rootScope.remoteDbZPos ? $rootScope.remoteDbZPos : $rootScope.dbZPos;
+
+            if (!dateEnd) {
+                dateEnd = new Date(dateStart.toString());
+            }
+
+            var dateStartKey = dateStart.toString("yyyyMMdd");
+            var dateEndKey = dateEnd.toString("yyyyMMdd");
+
+            db.query("zpos/pmByDate", {
+                startkey: [ dateStartKey, paiement],
+                endkey: [ dateEndKey,paiement,{}]
+            }).then(function (resShoppingCarts) {
+                var allShoppingCarts = Enumerable.from(resShoppingCarts.rows).select(function (x) {
+
+                    var item = x.value.data;
+                    item.id = x.value._id;
+                    item.rev = x.value._rev;
+                    item.alias = x.value.data.AliasCaisse ? x.value.data.AliasCaisse : x.value.data.HardwareId;
+
+                    return item;
+                }).toArray();
+                byPaiementDate.resolve(allShoppingCarts);
+
+            });
+            return byPaiementDate.promise;
+        };
+
+        this.getPaiementByDateAsync = function (dateStart, dateEnd) {
+
+            var PaiementByDateDefer = $q.defer();
+            var db = $rootScope.remoteDbZPos;
+            if (!dateEnd) {
+                dateEnd = new Date(dateStart.toString());
+            }
+            var dateStartKey = dateStart.toString("yyyyMMdd");
+            var dateEndKey = dateEnd.toString("yyyyMMdd");
+
+            db.query("zpos/pmByDate", {
+                startkey: [dateStartKey],
+                endkey: [dateEndKey, {}, {}]
+            }).then(function (resShoppingCarts) {
+                var allPayments = Enumerable.from(resShoppingCarts.rows).select(function (x) {
+                    var item = {};
+                    item.name = x.key[2];
+                    item.id = x.key[1];
+                    return item;
+                }).toArray();
+                PaiementByDateDefer.resolve(allPayments);
+            }, function (errGet) {
+                console.log("erreur");
+                PaiementByDateDefer.reject(errGet);
+            });
+            return PaiementByDateDefer.promise;
+        };
 
         /**
          * Recupere les ticket par alias et par date
@@ -801,8 +858,8 @@ app.service('zposService', ['$http', '$rootScope', '$q', 'posLogService', 'posPe
                 return yPeriod.zPeriodId == zpid && yPeriod.yPeriodId == ypid;
             });
 
-            if(matchedYp){
-                return {start : matchedYp.startDate, end : matchedYp.endDate}
+            if (matchedYp) {
+                return {start: matchedYp.startDate, end: matchedYp.endDate}
             }
         };
 
@@ -1194,7 +1251,6 @@ app.service('zposService', ['$http', '$rootScope', '$q', 'posLogService', 'posPe
                 else {
                     htmlLines.push("<td style='width:25%;text-align:right'>" + zpos.paymentModes[idxPM].total.toFixed(2) + "</td>");
                 }
-
                 htmlLines.push("</tr>");
             }
 

@@ -1,0 +1,342 @@
+/*----------------------FONTS-----------------------*/
+
+@font-face {
+    font-family: 'futura_lt_btlight';
+    src: url("fonts/futura_light_bt-webfont.eot");
+    src: url("fonts/futura_light_bt-webfont.eot?#iefix") format("embedded-opentype"), url("fonts/futura_light_bt-webfont.woff") format("woff");
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'futura_md_btbold';
+    src: url("fonts/futura_bold_bt-webfont.eot");
+    src: url("fonts/futura_bold_bt-webfont.eot?#iefix") format("embedded-opentype"), url("fonts/futura_bold_bt-webfont.woff") format("woff"), url("fonts/futura_bold_bt-webfont.ttf") format("truetype"), url("fonts/futura_bold_bt-webfont.svg#futura_md_btbold") format("svg");
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'reklame_script_regularregular';
+    src: url("fonts/reklamescript-regular-webfont.eot");
+    src: url("fonts/reklamescript-regular-webfont.eot?#iefix") format("embedded-opentype"), url("fonts/reklamescript-regular-webfont.woff") format("woff");
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'futura_md_btmedium';
+    src: url("fonts/futura-medium-webfont.eot");
+    src: url("fonts/futura-medium-webfont.eot?#iefix") format("embedded-opentype"), url("fonts/futura-medium-webfont.woff") format("woff");
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Pocket Calculator';
+    src: url("fonts/pocket_calculator_tt.ttf");
+    src: url("fonts/pocket_calculator_tt.ttf") format("truetype");
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'bold-led-board-7.regular';
+    src: url('fonts/bold-led-board-7.regular.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'Gotham Light';
+    src: url("fonts/gotham_light.ttf");
+    src: url("fonts/gotham_light.ttf") format("truetype");
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'SignikaNegative-Regular';
+    src: url('fonts/SignikaNegative-Regular.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'LEDCalculator';
+    src: url('fonts/LEDCalculator.ttf') format('truetype');
+}
+
+/*-----------------------END FONTS------------------------*/
+
+/*-----------------------DEFAULTS-------------------------*/
+
+* {
+    user-select: none;
+}
+
+body {
+    background-color: #FAFAFA !important;
+    font-family: SignikaNegative-Regular;
+    font-size: 15px;
+}
+
+h1 {
+    color: #d83448;
+    letter-spacing: -0.5px;
+    font-size: 36px;
+}
+
+h2 {
+    color: #d83448;
+    letter-spacing: -0.5px;
+    font-size: 24px;
+}
+
+hr {
+    margin-bottom: 0 !important;
+}
+
+button, html, input, select, textarea {
+    font-family: SignikaNegative-Regular !important;
+}
+
+label {
+    font-weight: normal !important;
+}
+
+.glyphicon {
+    font-family: 'Glyphicons Halflings' !important;
+}
+
+.center {
+    text-align: center;
+}
+
+.loader {
+    position: fixed;
+    background: url("../img/ajax-loader.gif") center center no-repeat rgba(57, 66, 100, 0.6);
+    background-size: 80px;
+    z-index: 500;
+    width: 100%;
+    height: 100%;
+}
+
+.keyboardContainer {
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    padding: 4px;
+}
+
+.loading {
+    margin-top: 30px;
+}
+
+.loading .gauge {
+    width: 300px;
+    height: 150px;
+    position: relative;
+}
+
+input:focus, textarea:focus {
+    outline: none;
+}
+
+text-field {
+    border: 1px solid gray;
+    display: inline-block;
+    height: 100%;
+}
+
+text-field.flexbox {
+    position: relative;
+    min-height: 34px;
+}
+
+text-field.flexbox div {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+}
+
+md-progress-linear {
+    display: block;
+    position: absolute !important;
+    width: 100%;
+    height: 5px;
+    padding-top: 0 !important;
+    margin-bottom: 0 !important;
+    z-index: 1000;
+}
+
+/*-----------------Admin----------------------------------------------*/
+md-input-container label:not(._md-container-ignore) {
+    position: absolute;
+    bottom: 100%;
+    left: 0;
+    top: -45px;
+    right: auto;
+}
+
+.configuration {
+    margin-top: 30px;
+}
+
+.configuration .gaugeIziboxContainer {
+    width: 450px;
+    height: 320px;
+}
+
+.configuration .gaugeIzibox {
+    width: 450px;
+    position: relative;
+}
+
+.configuration .gaugeIziboxValue {
+    position: relative;
+    bottom: 170px;
+}
+
+.loading .gaugeValue {
+    width: 150px;
+    position: relative;
+    font-weight: bold;
+}
+
+.gaugeWrap {
+    justify-content: center !important;
+}
+
+@media (min-width: 800px) {
+
+    .loading .gaugeValue {
+        bottom: 100px;
+        font-size: 15px;
+    }
+
+    .gaugeWrap {
+        width: auto;
+        margin-top: 100px;
+    }
+
+    .loading .gaugeContainer {
+        height: 150px;
+        width: 150px;
+        margin: 0 20px;
+    }
+    .loading .gauge {
+        margin-left: -75px;
+    }
+}
+
+@media (max-width: 799px) {
+    .configuration {
+        zoom: 70%;
+    }
+
+    .loading .gauge {
+        margin-left: -25px;
+    }
+
+    .gaugeWrap {
+        width: 240px;
+        margin-top: 50px;
+    }
+
+    .loading .gaugeContainer {
+        height: 75px;
+        width: 100px;
+        margin: 25px 10px;
+    }
+
+    .loading .gaugeContainer .gauge {
+        width: 150px !important;
+        height: 75px !important;
+    }
+
+    .loading .gaugeValue {
+        bottom: 62px;
+        font-size: 12px;
+    }
+}
+
+.labelversion {
+    position: absolute;
+    font-size: 10px;
+    margin-left: 60px;
+}
+
+.configRow {
+    min-height: 30px;
+    padding-top: 0px;
+    padding-bottom: 0px;
+}
+
+.configRow .title {
+    text-align: right;
+}
+
+.configRow .value {
+    text-align: center;
+}
+
+.configRow .uib-dropdown-menu .menuItemLink {
+    width: 100%
+}
+
+.configRow .uib-dropdown-menu .menuItemDelete {
+    cursor: pointer;
+    color: red;
+    padding: 10px
+}
+
+.configRow .uib-dropdown-menu .menuItemDelete:hover {
+    cursor: pointer;
+}
+
+.configurableMenu .heading .title {
+    color: #FFF;
+    display: table;
+    height: 50px;
+    min-height: 50px;
+    text-align: center;
+    font-size: 20px;
+}
+
+.attributesPanelInfos .title {
+    font-size: 16px;
+    font-weight: bold;
+    white-space: nowrap;
+    letter-spacing: 1px;
+}
+
+.modal-openpos .title {
+    font-size: 20px;
+}
+
+.modal-closepos .title {
+    font-size: 20px;
+}
+
+.modal-editShoppingCart .title {
+    font-size: 20px;
+}
+
+.title {
+    margin-right: 10px;
+}
+
+.btn-orange {
+    background: #ec971f !important;
+    color: #fff !important;
+    font-weight: bold !important;
+}
+
+.btn-green {
+    background: #5cb85c !important;
+    color: #fff !important;
+    font-weight: bold !important;
+}
+
+.btn-rose {
+    background: #d83448 !important;
+    color: #fff !important;
+    font-weight: bold !important;
+}

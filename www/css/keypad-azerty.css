@@ -1,7 +1,8 @@
 .azerty {
     position: absolute;
-    height: 350px;
-    width: 748px;
+    max-height: 350px;
+    max-width: 748px;
+    width: 100%;
     z-index: 10000;
     background: #e4e4e4;
     border: solid 1px #bfbdbd;
@@ -19,8 +20,8 @@
     }
 
     .azerty.phone {
-        height: 260px;
-        width: 490px;
+        max-height: 260px;
+        max-width: 490px;
     }
 
 

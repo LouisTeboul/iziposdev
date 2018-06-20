@@ -1,0 +1,79 @@
+﻿<md-content md-no-ink ng-controller="ConfigurableMenuListController" ng-init="init()" id="configurableMenuList"
+            class="configurableMenuList" layout="row" layout-md="row" layout-xs="row" layout-sm="row" layout-wrap
+            layout-padding>
+    <div id="configurableMenuHeader" layout="column" class="heading"
+         ng-class="(IziBoxConfiguration.StepEnabled) ? 'high' : ''">
+        <div layout="row" layout-wrap>
+            <div class="title">
+                <h3 class="title-text formuleNameList">{{product.Name}}</h3>
+            </div>
+            <h3 flex class="text-center title formuleNameList">{{TotalPrice | CurrencyFormat}}</h3>
+            <div layout-align="center center" class="text-center">
+                <md-button aria-label="AddToCart" ng-click="addToCart(product)" ng-if="canAddToCart"
+                           class="btnConfirmMenuList">
+                    <x translate>Valider votre <br/>{{product.Name}}</x>
+                </md-button>
+            </div>
+        </div>
+        <div class="text-center">
+            <md-button aria-label="NavigAttr" ng-repeat="attr in product.ProductAttributes track by $index"
+                       class="{{attr.DisplayOrder}} buttonCatMenuList"
+                       ng-click="attributeNext(attr.DisplayOrder)"
+                       ng-class="{'buttonCatMenuListActive' : attr.classDisplay == 'show' }">{{attr.Name | Truncate:16}}
+            </md-button>
+        </div>
+    </div>
+    <div class="productsMenuList">
+        <md-content class="attributes" id="attributes">
+            <div id="{{attribute.Name}}" ng-repeat="attribute in product.ProductAttributes track by $index"
+                 class="attributeList {{attribute.classDisplay}}" displayorder="{{attribute.DisplayOrder}}">
+
+                <div class="attributesPanel" layout="column">
+                    <!--<div class="attributesPanelInfos AttributeListePanel" layout="row">
+                        <span class="title">{{attribute.Name}}</span>
+                        <span class="info" data-ng-bind-html="attribute.Description" ng-show="$mdMedia('gt-sm')"></span>
+                    </div>-->
+
+                    <div layout="row" layout-xs="row" layout-wrap layout-align="center center">
+                        <div ng-repeat="v in attribute.ProductAttributeValues track by $index"
+                             class="caseAttribute productMenuList">
+                            <md-button aria-label="attributeBox" layout-fill class="attributeBox attributeList"
+                                       ng-class="v.DisableBuyButton ? 'disable' : (v.Selected == 1 ? 'active' : '')"
+                                       ng-click="v.DisableBuyButton ? null : selectAttributeValue(v.ProductAttributeId,v.Id)">
+                                <div layout="column" layout-fill>
+                                    <div class="conteneur-images">
+                                        <img class="imgAttribute" ng-src="{{v.DefaultPictureUrl}}"/>
+                                    </div>
+                                    <div class="attributeInfo-text">
+                                        <div ng-if="v.LinkedProduct" data-ng-bind-html="v.LinkedProduct.Name"></div>
+                                        <div ng-if="!v.LinkedProduct" data-ng-bind-html="v.Name"></div>
+                                    </div>
+                                    <div class="attributeInfo-text" layout="column" layout-align="center center">
+                                        <div ng-if="v.DisableBuyButton"><i class="glyphicon glyphicon-warning-sign"></i>
+                                            Rupture
+                                        </div>
+                                        <span class="priceAdjustment" ng-if="v.PriceAdjustment">+ {{v.PriceAdjustment | CurrencyFormat}} </span>
+                                        <span ng-if="IziBoxConfiguration.StepEnabled && v.Selected">{{attribute.Step | StepName:stepNames}}</span>
+                                        <span class="attributeInfo-comment" ng-if="v.Comment && v.Comment!=''">{{v.Comment}}</span>
+                                    </div>
+
+                                </div>
+                            </md-button>
+                        </div>
+                    </div>
+                    <div layout="row" layout-xs="row" layout-wrap ng-if="attribute.Type == '3'"
+                         layout-align="center center">
+                        <md-button ng-click="attributeNextButton(attribute)" class="md-hue-2 md-warn etapeSuivante">
+                            Etape Suivante
+                        </md-button>
+                    </div>
+                </div>
+
+            </div>
+        </md-content>
+    </div>
+</md-content>
+
+
+
+

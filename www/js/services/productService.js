@@ -7,6 +7,7 @@
         $rootScope.$on('pouchDBChanged', function (event, args) {
             if (args.status == "Change" && (args.id.indexOf('Product') == 0 || args.id.indexOf('Category') == 0)) {
                 cacheProductForCategory = {};
+                $rootScope.storedCategories = {};
             }
         });
 
@@ -240,6 +241,24 @@
                             if (x.StoreInfosObject.StorePrice != undefined) {
                                 x.Price = x.StoreInfosObject.StorePrice;
                             }
+                            /*
+
+                            // special store price for takeaway
+                            if (x.StoreInfosObject.StoreTakeawayPrice != undefined) {
+                                x.TakeawayPrice = x.StoreInfosObject.StoreTakeawayPrice;
+                            } else {
+                                // default to regular price
+                                x.TakeawayPrice = x.StoreInfosObject.StorePrice;
+                            }
+
+                            // special store price for delivery
+                            if (x.StoreInfosObject.StoreDeliveryPrice != undefined) {
+                                x.DeliveryPrice = x.StoreInfosObject.StoreDeliveryPrice;
+                            } else {
+                                // default to regular price
+                                x.DeliveryPrice = x.StoreInfosObject.StorePrice;
+                            }
+                            */
 
                             //Buyable
                             if (x.StoreInfosObject.NotAvailable != undefined) {

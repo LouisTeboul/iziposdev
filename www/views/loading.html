@@ -1,42 +1,50 @@
 ﻿<section class="loading" ng-controller="LoadingController" ng-init="init()" layout="column" layout-padding layout-fill>
-    <md-content layout="column" layout-align="start center" flex>
-        <div style="text-align:center">
-            <img style="width:80px;height:80px" src="img/logo.png" />
-        </div>
-        <div style="text-align:center" ng-if="!isDemo">
+    <md-content layout="column" layout-align="start center" style="align-items: center" flex>
+        <img src="img/logo.png" alt="" width="80" height="80"/>
+        <div ng-if="!isDemo">
             <h1>Loading...</h1>
         </div>
-        <div style="text-align:center" layout="column" layout-align="center center" ng-if="isDemo">
-            <h1 style="margin:20px 0 0 0;">Les produits de démo</h1>
-            <h1 style="margin:0 0 20px 0;">sont en cours de chargement...</h1>
-        </div>
-        <div layout="row" layout-align="center center" layout-wrap style="margin-top:100px">
+        <h1 ng-if="isDemo">Les produits de démo</h1>
+        <h1 ng-if="isDemo">sont en cours de chargement...</h1>
+        <div layout="row" layout-align="start center" layout-wrap class="gaugeWrap">
             <div class="gaugeContainer">
-                <canvas class="gauge" id="gaugeLoading" width="180"></canvas>
+                <canvas class="gauge" id="gaugeLoading"></canvas>
                 <div class="gaugeValue" layout="column" layout-align="center center">
                     <div>Datas</div>
-                    <div layout="row"><div id="gaugeLoadingValue"></div>%</div>
+                    <div layout="row">
+                        <div id="gaugeLoadingValue"></div>
+                        %
+                    </div>
                 </div>
             </div>
             <div class="gaugeContainer">
-                <canvas class="gauge" id="gaugeFreezeLoading" width="180"></canvas>
+                <canvas class="gauge" id="gaugeFreezeLoading"></canvas>
                 <div class="gaugeValue" layout="column" layout-align="center center">
                     <div>Freeze</div>
-                    <div layout="row"><div id="gaugeFreezeLoadingValue"></div>%</div>
+                    <div layout="row">
+                        <div id="gaugeFreezeLoadingValue"></div>
+                        %
+                    </div>
                 </div>
             </div>
             <div class="gaugeContainer">
-                <canvas class="gauge" id="gaugeReplicLoading" width="180"></canvas>
+                <canvas class="gauge" id="gaugeReplicLoading"></canvas>
                 <div class="gaugeValue" layout="column" layout-align="center center">
                     <div>Replic</div>
-                    <div layout="row"><div id="gaugeReplicLoadingValue"></div>%</div>
+                    <div layout="row">
+                        <div id="gaugeReplicLoadingValue"></div>
+                        %
+                    </div>
                 </div>
             </div>
             <div class="gaugeContainer">
-                <canvas class="gauge" id="gaugeOrderLoading" width="180"></canvas>
+                <canvas class="gauge" id="gaugeOrderLoading"></canvas>
                 <div class="gaugeValue" layout="column" layout-align="center center">
                     <div>Order</div>
-                    <div layout="row"><div id="gaugeOrderLoadingValue"></div>%</div>
+                    <div layout="row">
+                        <div id="gaugeOrderLoadingValue"></div>
+                        %
+                    </div>
                 </div>
             </div>
         </div>

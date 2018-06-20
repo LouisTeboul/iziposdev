@@ -1,0 +1,46 @@
+<div class="IZIPASSTemplate" ng-controller="IZIPASSBorneController" ng-init="init()" layout="column" layout-padding>
+    <h1>{{category.Name}}</h1>
+
+    <div layout="row" layout-wrap layout-xs="row" layout-sm="row" layout-md="row">
+        <div ng-repeat="product in products track by $index" flex="20" flex-xs="50" flex-sm="50" flex-md="30" class="caseAttribute ">
+            <md-button class="productboxIZIPASS" md-no-ink ng-click="addToCart(product)" layout-fill>
+                <div layout="column" layout-fill>
+
+                    <div class="conteneur-images">
+                        <img alt="" ng-src="{{product.DefaultPictureUrl}}" class="image">
+                    </div>
+                    <div class="titleRow">
+                        {{product.Name}}
+                    </div>
+                    <div ng-if="product.FullDescription" data-ng-bind-html="product.FullDescription" class="descriptionProduct">
+                    </div>
+
+                    <div class="descriptionRow">
+                        <div class="price" ng-if="product.Price">
+                            {{product.Price | CurrencyFormat}}
+                        </div>
+                    </div>
+
+                    <div class="actionsIZIPASS">
+                        <!--<div class="action" title="Ajouter au panier" ng-if="!product.DisableBuyButton && product.ProductAttributes.length == 0 && !product.EmployeeTypePrice">
+                            <span class="action-text" translate>
+                                Ajouter au ticket
+                            </span>
+                        </div>-->
+                        <!--<div class="action" title="Choisir produit" ng-if="!product.DisableBuyButton && product.ProductAttributes.length > 0 && !product.EmployeeTypePrice">
+                            <span class="action-text" translate>
+                                Choisir produit
+                            </span>
+                        </div>-->
+                        <div class="action" title="Saisir le prix" ng-if="!product.DisableBuyButton && product.ProductAttributes.length == 0 && product.EmployeeTypePrice">
+                            <span class="action-text" translate>Saisir le prix</span>
+                        </div>
+                        <div class="action disabled " title="Rupture" ng-if="product.DisableBuyButton">
+                            <span class="action-text " translate>Rupture</span>
+                        </div>
+                    </div>
+                </div>
+            </md-button>
+        </div>
+    </div>
+</div>

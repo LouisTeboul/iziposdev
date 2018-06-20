@@ -1,6 +1,14 @@
 ﻿app.config(function ($stateProvider) {
     $stateProvider
-        .state('catalog.ProductTemplate.ConfigurableMenu', {
+        .state('catalogBorne.ProductTemplate.ConfigurableMenu', {
+            url: '/configurablemenu/{id}',
+            params: {
+                id: null,
+                offer: null,
+            },
+            templateUrl: 'viewsBorne/ProductTemplate/configurableMenu.html'
+        })
+        .state('catalogPOS.ProductTemplate.ConfigurableMenu', {
             url: '/configurablemenu/{id}',
             params: {
                 id: null,
@@ -12,6 +20,31 @@
 
 
 app.controller('ConfigurableMenuController', function ($scope, $rootScope, $stateParams, $location, categoryService, settingService, productService, pictureService, shoppingCartModel) {
+    var deliveryType = shoppingCartModel.getDeliveryType();
+    $rootScope.$on('deliveryTypeChanged', (e, newValue) => {
+        var nextDeliveryType = newValue;
+        var nextPrice;
+
+        switch (nextDeliveryType) {
+            case 0:
+                nextPrice = $scope.initialProduct.Price;
+                break;
+            case 1:
+                nextPrice = $scope.initialProduct.TakeawayPrice || $scope.initialProduct.Price;
+                break;
+            case 2:
+                nextPrice = $scope.initialProduct.DeliveryPrice || $scope.initialProduct.Price;
+                break;
+            default:
+                nextPrice = $scope.initialProduct.Price;
+                break;
+        }
+
+        $scope.TotalPrice = $scope.TotalPrice - $scope.lastPrice + nextPrice;
+        $scope.lastPrice = nextPrice;
+        deliveryType = newValue;
+
+    });
     $scope.init = function () {
         if ($rootScope.IziBoxConfiguration.StepEnabled) {
             settingService.getStepNamesAsync().then(function (stepNames) {
@@ -23,7 +56,7 @@ app.controller('ConfigurableMenuController', function ($scope, $rootScope, $stat
     var currentProductHandler = $rootScope.$watch('currentConfigurableProduct', function () {
 
         if ($rootScope.currentConfigurableProduct) {
-            if ($rootScope.currentConfigurableProduct.ProductCategory) {
+            if ($rootScope.borne) {
                 productService.getProductForCategoryAsync([$rootScope.currentConfigurableProduct.ProductCategory.CategoryId]).then(function (products) {
 
                     $scope.initialProduct = Enumerable.from(products).firstOrDefault(function (p) {
@@ -36,11 +69,26 @@ app.controller('ConfigurableMenuController', function ($scope, $rootScope, $stat
 
                     $rootScope.currentConfigurableProduct = undefined;
                 });
-            }
-            else {
-                $scope.initialProduct = $rootScope.currentConfigurableProduct;
-                loadProduct(clone($rootScope.currentConfigurableProduct));
-                $rootScope.currentConfigurableProduct = undefined;
+            } else {
+                if ($rootScope.currentConfigurableProduct.ProductCategory) {
+                    productService.getProductForCategoryAsync([$rootScope.currentConfigurableProduct.ProductCategory.CategoryId]).then(function (products) {
+
+                        $scope.initialProduct = Enumerable.from(products).firstOrDefault(function (p) {
+                            return p.Id == $rootScope.currentConfigurableProduct.Id;
+                        });
+
+                        if ($rootScope.currentConfigurableProduct) {
+                            loadProduct(clone($rootScope.currentConfigurableProduct));
+                        }
+
+                        $rootScope.currentConfigurableProduct = undefined;
+                    });
+                }
+                else {
+                    $scope.initialProduct = $rootScope.currentConfigurableProduct;
+                    loadProduct(clone($rootScope.currentConfigurableProduct));
+                    $rootScope.currentConfigurableProduct = undefined;
+                }
             }
         }
     });
@@ -63,11 +111,30 @@ app.controller('ConfigurableMenuController', function ($scope, $rootScope, $stat
 
         //Clone instance
         $scope.product = jQuery.extend(true, {}, selectedProduct);
-
-        if (($rootScope.isConfigurableProductOffer == true || ($stateParams.offer && $stateParams.offer.OfferParam.Price == 0)) && !isOfferConsumed) {
-            $scope.TotalPrice = 0;
-        } else {
+        if ($rootScope.borne) {
             $scope.TotalPrice = $scope.initialProduct.Price;
+        } else {
+            if (($rootScope.isConfigurableProductOffer || ($stateParams.offer && $stateParams.offer.OfferParam.Price == 0)) && !isOfferConsumed) {
+                $scope.TotalPrice = 0;
+            } else {
+                console.log($scope.initialProduct);
+                switch (deliveryType) {
+                    case 0:
+                        $scope.TotalPrice = $scope.initialProduct.Price;
+                        break;
+                    case 1:
+                        $scope.TotalPrice = $scope.initialProduct.TakeawayPrice || $scope.initialProduct.Price;
+                        break;
+                    case 2:
+                        $scope.TotalPrice = $scope.initialProduct.DeliveryPrice || $scope.initialProduct.Price;
+                        break;
+                    default:
+                        $scope.TotalPrice = $scope.initialProduct.Price;
+                        break;
+                }
+                $scope.lastPrice = $scope.TotalPrice;
+
+            }
         }
         $scope.productIsValid();
 
@@ -101,9 +168,11 @@ app.controller('ConfigurableMenuController', function ($scope, $rootScope, $stat
     //#region Actions
     $scope.addToCart = function (product) {
         console.log($stateParams);
-        shoppingCartModel.addToCart(product, true, $stateParams.offer);
-        $stateParams.offer = null;
-        loadProduct($scope.initialProduct, true);
+        shoppingCartModel.addToCart(product, true);
+        if (!$rootScope.borne) {
+            $stateParams.offer = null;
+        }
+        loadProduct($scope.initialProduct);
     };
     //#endregion
     $scope.moveStep = function (i) {
@@ -127,14 +196,23 @@ app.controller('ConfigurableMenuController', function ($scope, $rootScope, $stat
 
         var AttributeValue = Enumerable.from(Attribute.ProductAttributeValues).firstOrDefault("x => x.Id ==" + id);
         if (AttributeValue.Selected) {
-            if (Attribute.IsRequired == false || Attribute.Type == 3) {
-                if (testSelectCheckbox(Attribute, AttributeValue, false)) {
-                    if (AttributeValue.PriceAdjustment) $scope.TotalPrice = $scope.TotalPrice - AttributeValue.PriceAdjustment;
+            if (Attribute.IsRequired == false) {
+                if ($rootScope.borne) {
+                    AttributeValue.Selected = false;
+                    if (AttributeValue.PriceAdjustment) {
+                        $scope.TotalPrice -= AttributeValue.PriceAdjustment;
+                    }
+                } else {
+                    if (Attribute.Type == 3) {
+                        if (testSelectCheckbox(Attribute, AttributeValue, false)) {
+                            if (AttributeValue.PriceAdjustment) $scope.TotalPrice -= AttributeValue.PriceAdjustment;
+                        }
+                    }
                 }
             }
-        }
-        else {
-            if (testSelectCheckbox(Attribute, AttributeValue, true)) {
+        } else {
+            if ($rootScope.borne) {
+                AttributeValue.Selected = true;
                 if (!reload) {
                     Attribute.Step = $scope.currentStep;
 
@@ -142,30 +220,43 @@ app.controller('ConfigurableMenuController', function ($scope, $rootScope, $stat
                         shoppingCartModel.editComment(AttributeValue);
                     }
 
-                }
-                else {
+                } else {
                     if (!Attribute.Step) Attribute.Step = $scope.currentStep;
                 }
-                if (AttributeValue.PriceAdjustment) $scope.TotalPrice = $scope.TotalPrice + AttributeValue.PriceAdjustment;
+                if (AttributeValue.PriceAdjustment) $scope.TotalPrice += AttributeValue.PriceAdjustment;
                 $scope.$evalAsync();
+            } else {
+                if (testSelectCheckbox(Attribute, AttributeValue, true)) {
+                    if (!reload) {
+                        Attribute.Step = $scope.currentStep;
+
+                        if (AttributeValue.LinkedProduct && AttributeValue.LinkedProduct.ProductComments && AttributeValue.LinkedProduct.ProductComments.length > 0) {
+                            shoppingCartModel.editComment(AttributeValue);
+                        }
+
+                    }
+                    else {
+                        if (!Attribute.Step) Attribute.Step = $scope.currentStep;
+                    }
+                    if (AttributeValue.PriceAdjustment) $scope.TotalPrice += AttributeValue.PriceAdjustment;
+                    $scope.$evalAsync();
+                }
             }
         }
 
         if (Attribute.Type == 2) // Radiolist
         {
-
             for (var i = 0; i < Attribute.ProductAttributeValues.length; i++) {
                 var item = Attribute.ProductAttributeValues[i];
                 if (item.Selected && item.Id != id) {
                     item.Selected = false;
-                    $scope.TotalPrice = $scope.TotalPrice - item.PriceAdjustment;
+                    $scope.TotalPrice -= item.PriceAdjustment;
                 }
             }
         }
 
         $scope.product.Price = $scope.TotalPrice;
         $scope.productIsValid();
-
         $scope.$evalAsync();
     };
 

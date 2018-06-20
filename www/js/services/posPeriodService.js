@@ -1,5 +1,5 @@
-﻿app.service('posPeriodService', ['$http', '$rootScope', '$q', '$uibModal', 'posLogService', 'uuid2', 'cashMovementService', 'settingService',
-    function ($http, $rootScope, $q, $uibModal, posLogService, uuid2, cashMovementService, settingService) {
+﻿app.service('posPeriodService', ['$http', '$rootScope', '$q', '$uibModal', '$location', 'posLogService', 'uuid2', 'cashMovementService', 'settingService', '$uibModalStack',
+    function ($http, $rootScope, $q, $uibModal, $location, posLogService, uuid2, cashMovementService, settingService, $uibModalStack) {
         var current = this;
         var _daemonPeriodStarted = false;
 
@@ -20,21 +20,43 @@
         this.startPeriodDaemon = function () {
             var timerRepeat = 10000;
             if ($rootScope.IziBoxConfiguration.LocalIpIziBox && !_daemonPeriodStarted) {
-
                 _daemonPeriodStarted = true;
 
                 var periodDaemon = function () {
                     setTimeout(function () {
-                        current.getYPeriodAsync($rootScope.modelPos.hardwareId, undefined, false, false).then(function (yp) {
+                        current.getYPeriodAsync($rootScope.modelPos.hardwareId, undefined, false).then(function (yp) {
+                            if ($rootScope.borne && angular.equals(yp, {})) {
+                                $uibModalStack.dismissAll();
+                                $location.path("/borneClosed");
+                            } else if($rootScope.borne) {
+                                var currentURL = $location.path().split("/")[1];
+                                if(currentURL !== "catalogBorne" && currentURL !== "idleScreen") {
+                                    var modalInstance = $uibModal.open({
+                                        templateUrl: 'modals/modalConnection.html',
+                                        controller: 'ModalConnectionController',
+                                        backdrop: 'static',
+                                        keyboard :false,
+                                        size: 'lg'
+                                    });
+                                    $location.path("/catalog");
+                                }
+                            }
                             $rootScope.currentYPeriod = yp;
-                            if (_daemonPeriodStarted) periodDaemon();
-                        }, function () {
+                            if (_daemonPeriodStarted) {
+                                periodDaemon();
+                            }
+                        }, function (ret) {
+                            if ($rootScope.borne) {
+                                $uibModalStack.dismissAll();
+                                $location.path("/borneClosed");
+                            }
                             $rootScope.currentYPeriod = null;
-                            if (_daemonPeriodStarted) periodDaemon();
+                            if (_daemonPeriodStarted) {
+                                periodDaemon();
+                            }
                         })
                     }, timerRepeat);
                 };
-
                 periodDaemon();
             }
         };
@@ -57,13 +79,11 @@
 
             urlApi += "?hardwareid=" + $rootScope.modelPos.hardwareId + "&userid=" + $rootScope.PosUserId + "&storeid=" + $rootScope.IziBoxConfiguration.StoreId;
 
-            $http.get(urlApi, { timeout: 5000 }).
-                success(function (res) {
-                    retDefer.resolve(res);
-                }).
-                error(function () {
-                    retDefer.reject("Izibox API getzperiod error");
-                });
+            $http.get(urlApi, {timeout: 5000}).success(function (res) {
+                retDefer.resolve(res);
+            }).error(function () {
+                retDefer.reject("Izibox API getzperiod error");
+            });
 
             return retDefer.promise;
         };
@@ -79,13 +99,11 @@
 
             var urlApi = "http://" + $rootScope.IziBoxConfiguration.LocalIpIziBox + ":" + $rootScope.IziBoxConfiguration.RestPort + "/period/GetAllYPeriods?hardwareid=" + hardwareId;
 
-            $http.get(urlApi, { timeout: 5000 }).
-                success(function (res) {
-                    retDefer.resolve(res);
-                }).
-                error(function () {
-                    retDefer.reject("Izibox API GetAllYPeriods error");
-                });
+            $http.get(urlApi, {timeout: 5000}).success(function (res) {
+                retDefer.resolve(res);
+            }).error(function () {
+                retDefer.reject("Izibox API GetAllYPeriods error");
+            });
 
             return retDefer.promise;
         };
@@ -102,7 +120,7 @@
             var retDefer = $q.defer();
 
             if (!userId) userId = 0;
-            var isOwnPeriod = hardwareId == $rootScope.modelPos.hardwareId ? true : false;
+            var isOwnPeriod = hardwareId == $rootScope.modelPos.hardwareId;
 
             if (!$rootScope.modelPos.iziboxConnected) {
                 retDefer.resolve({});
@@ -113,7 +131,7 @@
                     $rootScope.modelPos.isPosOpen = true;
                     console.log("Pos opened");
                 }
-                
+
             };
 
             var errorGetYPeriod = function () {
@@ -126,144 +144,135 @@
             //var urlYPeriodApi = "http://" + $rootScope.IziBoxConfiguration.LocalIpIziBox + ":" + $rootScope.IziBoxConfiguration.RestPort + "/period/GETYPERIODANDZCREATE?hardwareid=" + hardwareId + "&userid=" + userId + "&storeid=" + $rootScope.IziBoxConfiguration.StoreId;
             var urlYPeriodApi = "http://" + $rootScope.IziBoxConfiguration.LocalIpIziBox + ":" + $rootScope.IziBoxConfiguration.RestPort + "/period/GETYPERIOD?hardwareid=" + hardwareId + "&userid=" + userId + "&storeid=" + $rootScope.IziBoxConfiguration.StoreId;
 
-            $http.get(urlYPeriodApi, { timeout: 5000 }).
-                success(function (periodPair) {
+            $http.get(urlYPeriodApi, {timeout: 5000}).success(function (periodPair) {
 
-                    var currentYPeriod = undefined;
-                    var currentZPeriod = undefined;
+                var currentYPeriod = undefined;
+                var currentZPeriod = undefined;
 
-                    if (periodPair) {
-                        currentYPeriod = periodPair.YPeriod;
-                        currentZPeriod = periodPair.ZPeriod;
-                    }
+                if (periodPair) {
+                    currentYPeriod = periodPair.YPeriod;
+                    currentZPeriod = periodPair.ZPeriod;
+                }
 
-                    var urlYPeriodClosedApi = "http://" + $rootScope.IziBoxConfiguration.LocalIpIziBox + ":" + $rootScope.IziBoxConfiguration.RestPort + "/period/LastYPeriod?hardwareid=" + hardwareId;
-                    $http.get(urlYPeriodClosedApi, { timeout: 5000 }).
-                        success(function (previousYperiodButClosed) {
-                            if (!currentYPeriod) {
+                var urlYPeriodClosedApi = "http://" + $rootScope.IziBoxConfiguration.LocalIpIziBox + ":" + $rootScope.IziBoxConfiguration.RestPort + "/period/LastYPeriod?hardwareid=" + hardwareId;
+                $http.get(urlYPeriodClosedApi, {timeout: 5000}).success(function (previousYperiodButClosed) {
+                    var modalInstance;
 
-                                if (create == undefined || create) {
+                    if (!currentYPeriod) {
 
-                                    var yPeriodId = uuid2.newguid();
-                                    var zPeriodId = currentZPeriod ? currentZPeriod.zPeriodId : uuid2.newguid();
+                        if (create == undefined || create) {
 
-                                    var urlCreateYPeriodApi = "http://" + $rootScope.IziBoxConfiguration.LocalIpIziBox + ":" + $rootScope.IziBoxConfiguration.RestPort + "/period/CreateYPeriod?hardwareid=" + hardwareId + "&userid=" + userId + "&storeid=" + $rootScope.IziBoxConfiguration.StoreId + "&zperiodid=" + zPeriodId + "&yperiodid=" + yPeriodId;
-                                    // Ouverture forcée de service avec montant théorique du service précédent si il y en a un
-                                    if (forceOpenService) {
-                                        $http.get(urlCreateYPeriodApi, { timeout: 5000 }).
-                                            success(function (periodPair) {
-                                                currentYPeriod = periodPair.YPeriod;
-                                                currentZPeriod = periodPair.ZPeriod;
+                            var yPeriodId = uuid2.newguid();
+                            var zPeriodId = currentZPeriod ? currentZPeriod.zPeriodId : uuid2.newguid();
 
-                                                successGetYPeriod();
+                            var urlCreateYPeriodApi = "http://" + $rootScope.IziBoxConfiguration.LocalIpIziBox + ":" + $rootScope.IziBoxConfiguration.RestPort + "/period/CreateYPeriod?hardwareid=" + hardwareId + "&userid=" + userId + "&storeid=" + $rootScope.IziBoxConfiguration.StoreId + "&zperiodid=" + zPeriodId + "&yperiodid=" + yPeriodId;
+                            // Ouverture forcée de service avec montant théorique du service précédent si il y en a un
+                            if (forceOpenService) {
+                                $http.get(urlCreateYPeriodApi, {timeout: 5000}).success(function (periodPair) {
+                                    currentYPeriod = periodPair.YPeriod;
+                                    currentZPeriod = periodPair.ZPeriod;
 
+                                    successGetYPeriod();
 
-                                                var totalKnown = 0;
-                                                if (previousYperiodButClosed && !previousYperiodButClosed.emptyCash) {
+                                    var totalKnown = 0;
+                                    if (previousYperiodButClosed && !previousYperiodButClosed.emptyCash) {
 
-                                                    var cashPaymentModePrevious = Enumerable.from(previousYperiodButClosed.YCountLines).firstOrDefault(function (x) {
-                                                        return x.PaymentMode.PaymentType == PaymentType.ESPECE;
-                                                    });
-                                                    if (cashPaymentModePrevious) {
-                                                        totalKnown = cashPaymentModePrevious.TotalKnown;
-                                                    }
-                                                    // Crééer le motif négatif isSytem "Fin de service" du montant espèce du précédent yPeriod dans le yPeriod précédent
-                                                    current.emptyCashYPeriodAsync(previousYperiodButClosed, previousYperiodButClosed.YCountLines).then(function (paymentValues) {
-                                                        //Appel après la création de la fermeture du service précédent pour que la date du motif de l'ouverture du service soit après le motif de fermeture du service précédent
-                                                        current.forceOpenCashMachineAsync(currentYPeriod, totalKnown).then(function (yPeriod) {
-                                                            retDefer.resolve(yPeriod);
-                                                        });
-                                                    });
-                                                }
-                                                else {
-                                                    current.forceOpenCashMachineAsync(currentYPeriod, totalKnown).then(function (yPeriod) {
-                                                        retDefer.resolve(yPeriod);
-                                                    });
-                                                }
-                                            }).
-                                            error(function () {
-                                                errorGetYPeriod();
-                                                retDefer.reject("Izibox API CreateYPeriod error");
+                                        var cashPaymentModePrevious = Enumerable.from(previousYperiodButClosed.YCountLines).firstOrDefault(function (x) {
+                                            return x.PaymentMode.PaymentType == PaymentType.ESPECE;
+                                        });
+                                        if (cashPaymentModePrevious) {
+                                            totalKnown = cashPaymentModePrevious.TotalKnown;
+                                        }
+                                        // Crééer le motif négatif isSytem "Fin de service" du montant espèce du précédent yPeriod dans le yPeriod précédent
+                                        current.emptyCashYPeriodAsync(previousYperiodButClosed, previousYperiodButClosed.YCountLines).then(function (paymentValues) {
+                                            //Appel après la création de la fermeture du service précédent pour que la date du motif de l'ouverture du service soit après le motif de fermeture du service précédent
+                                            current.forceOpenCashMachineAsync(currentYPeriod, totalKnown).then(function (yPeriod) {
+                                                retDefer.resolve(yPeriod);
                                             });
-                                    }
-                                    else {
-
-                                        var modalInstance = $uibModal.open({
-                                            templateUrl: 'modals/modalOpenPos.html',
-                                            controller: 'ModalOpenPosController',
-                                            resolve: {
-                                                openPosParameters: function () {
-                                                    return {
-                                                        isOpenPos: true,
-                                                        previousYPeriod: previousYperiodButClosed,
-                                                        zPeriodId: zPeriodId,
-                                                        yPeriodId: yPeriodId
-                                                    }
-                                                }
-                                            },
-                                            backdrop: 'static'
                                         });
-
-                                        modalInstance.result.then(function () {
-                                            $http.get(urlCreateYPeriodApi, { timeout: 5000 }).
-                                                success(function (yPeriod) {
-                                                    successGetYPeriod();
-                                                    retDefer.resolve(yPeriod);
-                                                }).
-                                                error(function () {
-                                                    errorGetYPeriod();
-                                                    retDefer.reject("Izibox API CreateYPeriod error");
-                                                });
-
-                                        }, function () {
-                                            errorGetYPeriod();
-                                            retDefer.reject();
+                                    } else {
+                                        current.forceOpenCashMachineAsync(currentYPeriod, totalKnown).then(function (yPeriod) {
+                                            retDefer.resolve(yPeriod);
                                         });
                                     }
-                                } else {
+                                }).error(function () {
                                     errorGetYPeriod();
-                                    console.log("Pos closed : yperiod not exist or closed");
-                                    retDefer.reject();
+                                    retDefer.reject("Izibox API CreateYPeriod error");
+                                });
+                            } else {
+                                if (!$rootScope.borne) {
+                                    modalInstance = $uibModal.open({
+                                        templateUrl: 'modals/modalOpenPos.html',
+                                        controller: 'ModalOpenPosController',
+                                        resolve: {
+                                            openPosParameters: function () {
+                                                return {
+                                                    isOpenPos: true,
+                                                    previousYPeriod: previousYperiodButClosed,
+                                                    zPeriodId: zPeriodId,
+                                                    yPeriodId: yPeriodId
+                                                }
+                                            }
+                                        },
+                                        backdrop: 'static'
+                                    });
+
+                                    modalInstance.result.then(function () {
+                                        $http.get(urlCreateYPeriodApi, {timeout: 5000}).success(function (yPeriod) {
+                                            successGetYPeriod();
+                                            retDefer.resolve(yPeriod);
+                                        }).error(function () {
+                                            errorGetYPeriod();
+                                            retDefer.reject("Izibox API CreateYPeriod error");
+                                        });
+
+                                    }, function () {
+                                        errorGetYPeriod();
+                                        retDefer.reject();
+                                    });
                                 }
                             }
-                            else if (forceOpenPopupEditMode) {
-                                var modalInstance = $uibModal.open({
-                                    templateUrl: 'modals/modalOpenPos.html',
-                                    controller: 'ModalOpenPosController',
-                                    resolve: {
-                                        openPosParameters: function () {
-                                            return {
-                                                isOpenPos: true,
-                                                previousYPeriod: previousYperiodButClosed,
-                                                zPeriodId: zPeriod.id,
-                                                yPeriodId: currentYPeriod.id,
-                                                editMode: true
-                                            }
-                                        }
-                                    },
-                                    backdrop: 'static'
-                                });
-
-                                modalInstance.result.then(function () {
-                                    successGetYPeriod();
-                                    retDefer.resolve(yPeriod);
-                                }, function () {
-                                    errorGetYPeriod();
-                                    retDefer.reject();
-                                });
-                            }
-                            else {
-                                successGetYPeriod();
-                                retDefer.resolve(currentYPeriod);
-                            }
-                        }).
-                        error(function () {
-                            retDefer.reject("Izibox API LastYPeriod error");
+                        } else {
+                            errorGetYPeriod();
+                            console.log("Pos closed : yperiod not exist or closed");
+                            retDefer.reject();
+                        }
+                    } else if (forceOpenPopupEditMode) {
+                        modalInstance = $uibModal.open({
+                            templateUrl: 'modals/modalOpenPos.html',
+                            controller: 'ModalOpenPosController',
+                            resolve: {
+                                openPosParameters: function () {
+                                    return {
+                                        isOpenPos: true,
+                                        previousYPeriod: previousYperiodButClosed,
+                                        zPeriodId: zPeriod.id,
+                                        yPeriodId: currentYPeriod.id,
+                                        editMode: true
+                                    }
+                                }
+                            },
+                            backdrop: 'static'
                         });
-                }).
-                error(function (errGetYperiod) {
-                    retDefer.reject("Izibox API GetYPeriod error");
+
+                        modalInstance.result.then(function () {
+                            successGetYPeriod();
+                            retDefer.resolve(yPeriod);
+                        }, function () {
+                            errorGetYPeriod();
+                            retDefer.reject();
+                        });
+                    }
+                    else {
+                        successGetYPeriod();
+                        retDefer.resolve(currentYPeriod);
+                    }
+                }).error(function () {
+                    retDefer.reject("Izibox API LastYPeriod error");
                 });
+            }).error(function (errGetYperiod) {
+                retDefer.reject("Izibox API GetYPeriod error");
+            });
 
             return retDefer.promise;
         };
@@ -286,15 +295,15 @@
                     }
                 };
 
-                $http.post(urlApi, closeYPeriodRequest, { timeout: 5000 }).success(function (yPeriod) {
+                $http.post(urlApi, closeYPeriodRequest, {timeout: 5000}).success(function (yPeriod) {
                     if (isOwnPeriod) {
                         $rootScope.modelPos.isPosOpen = false;
                     }
                     funcDefer.resolve(yPeriod);
                 })
-                .error(function (errSave) {
-                    funcDefer.reject(errSave);
-                });
+                    .error(function (errSave) {
+                        funcDefer.reject(errSave);
+                    });
 
             } else {
                 funcDefer.reject("YPeriod : " + yPeriod.id + " already closed");
@@ -311,7 +320,7 @@
             var urlApi = "http://" + $rootScope.IziBoxConfiguration.LocalIpIziBox + ":" + $rootScope.IziBoxConfiguration.RestPort + "/period/CLOSEZPERIODBYID?zperiodid=" + zPeriod.id;
 
             if (!zPeriod.endDate) {
-                $http.get(urlApi, { timeout: 5000 }).success(function (zPeriod) {
+                $http.get(urlApi, {timeout: 5000}).success(function (zPeriod) {
                     if (isOwnPeriod) {
                         $rootScope.modelPos.isPosOpen = false;
                     }
@@ -414,7 +423,7 @@
 
             var urlApi = "http://" + $rootScope.IziBoxConfiguration.LocalIpIziBox + ":" + $rootScope.IziBoxConfiguration.RestPort + "/period/GETALLYPERIODS?hardwareId=" + hardwareId;
 
-            $http.get(urlApi, { timeout: 5000 }).success(function (resYPeriods) {
+            $http.get(urlApi, {timeout: 5000}).success(function (resYPeriods) {
                 var yPeriodCash = {
                     zPeriodId: zPeriodId,
                     YCountLines: [],
@@ -476,7 +485,7 @@
 
             var urlApi = "http://" + $rootScope.IziBoxConfiguration.LocalIpIziBox + ":" + $rootScope.IziBoxConfiguration.RestPort + "/period/GETALLYPERIODS?hardwareId=" + hardwareId;
 
-            $http.get(urlApi, { timeout: 5000 }).success(function (resYPeriods) {
+            $http.get(urlApi, {timeout: 5000}).success(function (resYPeriods) {
                 var yPeriodCashDetails = {
                     zPeriodId: zPeriodId,
                     yPeriods: []
@@ -1016,6 +1025,5 @@
             });
 
             return forceCloseDefert.promise;
-
         }
     }]);

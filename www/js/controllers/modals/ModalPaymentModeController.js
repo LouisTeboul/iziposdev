@@ -1,24 +1,22 @@
-﻿app.controller('ModalPaymentModeController', function ($scope, $rootScope, shoppingCartModel, $uibModalInstance, paymentMode, maxValue, $translate, $filter, $q) {
+﻿app.controller('ModalPaymentModeController', function ($scope, $rootScope, shoppingCartModel, $uibModalInstance, paymentMode, maxValue, $translate, $filter, $q, borneService) {
     var current = this;
     var currencyFormat = $filter('CurrencyFormat');
 
     $scope.paymentMode = paymentMode;
     $scope.paymentType = PaymentType;
     $scope.errorMessage = undefined;
-    $scope.value = paymentMode.Total + "";
+    $scope.value = {};
     $scope.valueKeyboard = "";
     $scope.options = {
-        easytransacType: "SCANNER"
+        easytransacType: ""
     };
 
     $scope.init = function () {
         if (maxValue === undefined) {
             maxValue = 99999;
         }
-
+        $scope.value.pay = paymentMode.Total;
         $scope.currentShoppingCart = shoppingCartModel.getCurrentShoppingCart();
-
-
         setTimeout(function () {
             var txtAmount = document.getElementById("txtAmount");
             if (txtAmount) {
@@ -30,37 +28,45 @@
 
     $scope.removeTicketResto = function (tkResto) {
         shoppingCartModel.removeTicketRestaurant(tkResto);
-        $scope.value = paymentMode.Total + "";
+        $scope.value.pay = paymentMode.Total + "";
     };
 
     $scope.remove = function () {
-        $scope.value = 0;
+        $scope.value.pay = 0;
         $scope.ok();
     };
 
     $scope.calculate = function () {
         try {
-            var newValue = Math.round(eval($scope.value) * 100) / 100;
+            var newValue = Math.round(eval($scope.value.pay) * 100) / 100;
 
             if (!isNaN(newValue)) {
-                $scope.value = newValue;
+                $scope.value.pay = newValue;
             }
         } catch (err) {
             console.error(err);
         }
     };
 
+    $scope.toNFC = function () {
+        $scope.options.easytransacType = "NFC";
+        this.ok();
+    };
+    $scope.toScanner = function () {
+        $scope.options.easytransacType = "SCANNER";
+        this.ok();
+    };
+
     $scope.ok = function () {
         $scope.calculate();
 
-        var totalPayment = parseFloat($scope.value);
+        var totalPayment = parseFloat($scope.value.pay);
 
         if (isNaN(totalPayment)) {
             $scope.errorMessage = $translate.instant("Montant non valide");
         } else if (maxValue !== undefined && totalPayment > maxValue) {
             $scope.errorMessage = $translate.instant("Le montant ne peut pas dépasser") + " " + currencyFormat(maxValue);
         } else {
-
             runPaymentProcessAsync().then(function () {
                 $scope.errorMessage = undefined;
                 $scope.paymentMode.Total = totalPayment;
@@ -68,8 +74,11 @@
 
                 setTimeout(function () {
                     $rootScope.closeKeyboard();
-                    //$rootScope.closeKeyboard();
                 }, 500);
+
+                if($scope.options.easytransacType !== "") {
+                    shoppingCartModel.validBorneOrder();
+                }
 
                 $scope.$evalAsync();
             }, function (errPaymentProcess) {
@@ -88,7 +97,7 @@
             case PaymentType.EASYTRANSAC:
                 try {
                     var apiKey = $scope.paymentMode.Options.EasyTransacKey;
-                    var amountCtsStr = (parseFloat($scope.value) * 100).toString();
+                    var amountCtsStr = (parseFloat($scope.value.pay) * 100).toString();
                     var scannerType = $scope.options.easytransacType;
 
                     cordova.EasyTransacPlugin.launch(apiKey, amountCtsStr, scannerType,

@@ -1,0 +1,2295 @@
+/*----------------------FONTS-----------------------*/
+
+@font-face {
+    font-family: 'futura_lt_btlight';
+    src: url("fonts/futura_light_bt-webfont.eot");
+    src: url("fonts/futura_light_bt-webfont.eot?#iefix") format("embedded-opentype"), url("fonts/futura_light_bt-webfont.woff") format("woff"), url("fonts/futura_light_bt-webfont.ttf") format("truetype"), url("fonts/futura_light_bt-webfont.svg#futura_lt_btlight") format("svg");
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'futura_md_btbold';
+    src: url("fonts/futura_bold_bt-webfont.eot");
+    src: url("fonts/futura_bold_bt-webfont.eot?#iefix") format("embedded-opentype"), url("fonts/futura_bold_bt-webfont.woff") format("woff"), url("fonts/futura_bold_bt-webfont.ttf") format("truetype"), url("fonts/futura_bold_bt-webfont.svg#futura_md_btbold") format("svg");
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'reklame_script_regularregular';
+    src: url("fonts/reklamescript-regular-webfont.eot");
+    src: url("fonts/reklamescript-regular-webfont.eot?#iefix") format("embedded-opentype"), url("fonts/reklamescript-regular-webfont.woff") format("woff"), url("fonts/reklamescript-regular-webfont.ttf") format("truetype"), url("fonts/reklamescript-regular-webfont.svg#reklame_script_regularregular") format("svg");
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'futura_md_btmedium';
+    src: url("fonts/futura-medium-webfont.eot");
+    src: url("fonts/futura-medium-webfont.eot?#iefix") format("embedded-opentype"), url("fonts/futura-medium-webfont.woff") format("woff"), url("fonts/futura-medium-webfont.ttf") format("truetype"), url("fonts/futura-medium-webfont.svg#futura_md_btmedium") format("svg");
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Pocket Calculator';
+    src: url("fonts/pocket_calculator_tt.ttf");
+    src: url("fonts/pocket_calculator_tt.ttf") format("truetype");
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'bold-led-board-7.regular';
+    src: url('fonts/bold-led-board-7.regular.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'Gotham Light';
+    src: url("fonts/gotham_light.ttf");
+    src: url("fonts/gotham_light.ttf") format("truetype");
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'SignikaNegative-Regular';
+    src: url('fonts/SignikaNegative-Regular.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'LEDCalculator';
+    src: url('fonts/LEDCalculator.ttf') format('truetype');
+}
+
+/*-----------------------END FONTS------------------------*/
+
+/*-----------------------DEFAULTS-------------------------*/
+
+@media (max-height: 700px) {
+    html {
+        zoom: 80% !important;
+    }
+
+    .optional {
+        display: none !important;
+    }
+}
+
+body {
+    background-color: #FAFAFA !important;
+    font-family: SignikaNegative-Regular;
+    font-size: 15px;
+}
+
+h1 {
+    color: #d83448;
+    letter-spacing: -0.5px;
+}
+
+h2 {
+    color: #d83448;
+    letter-spacing: -0.5px;
+    font-size: 24px;
+}
+
+hr {
+    margin-bottom: 0 !important;
+}
+
+button, html, input, select, textarea {
+    font-family: SignikaNegative-Regular !important;
+}
+
+label {
+    font-weight: normal !important;
+}
+
+.glyphicon {
+    font-family: 'Glyphicons Halflings' !important;
+}
+
+html {
+    /*overflow-x: hidden;
+	overflow-y:hidden;*/
+}
+
+.center {
+    text-align: center;
+}
+
+.green {
+    background-color: green;
+    color: white;
+}
+
+.large option {
+    padding: 5px 0;
+}
+
+.red {
+    background-color: red;
+}
+
+.activeButton, .activeButton:focus, .activeButton:hover {
+    border: #47bedf 3px solid;
+}
+
+.closedPeriod, .closedPeriod:focus, .closedPeriod:hover {
+    background-color: #8cff8c;
+}
+
+.emptyPeriod, .emptyPeriod:focus, .emptyPeriod:hover {
+    background-color: #ff5f55;
+}
+
+.loader {
+    position: fixed;
+    background: url("../img/ajax-loader.gif") center center no-repeat rgba(57, 66, 100, 0.6);
+    background-size: 80px;
+    z-index: 500;
+    width: 100%;
+    height: 100%;
+}
+
+.modal-backdrop {
+    z-index: 1020;
+    height: 100%;
+}
+
+.modal-large {
+    width: 60% !important;
+}
+
+.modal-full {
+    width: 95% !important;
+    height: 90% !important;
+    flex-direction: column !important;
+    display: flex;
+}
+
+.modal-full .modal-content {
+    min-height: 100%;
+    flex-direction: column !important;
+    display: flex;
+}
+
+.labelErr {
+    text-align: center;
+    color: #d83448;
+}
+
+[data-notifications] {
+    position: relative;
+}
+
+[data-notifications]:after {
+    content: attr(data-notifications);
+    position: absolute;
+    background: #3398ed;
+    border-radius: 50%;
+    display: inline-block;
+    padding: 1px;
+    color: #f2f2f2;
+    right: -10px;
+    top: -5px;
+    height: 20px;
+    width: 20px;
+    font-size: 15px;
+    text-align: center;
+}
+
+.unFreezeTable {
+    margin-left: 10px;
+    margin-right: 10px;
+    text-align: center;
+}
+
+.panel-body {
+    padding: 0;
+}
+
+.inp {
+    font-size: 18px;
+}
+
+.progress-bar-success {
+    background-color: #d83448 !important;
+}
+
+input:focus, textarea:focus {
+    outline: none;
+}
+
+.btn-default.disabled {
+    background-color: #ccc;
+}
+
+.btn.disabled {
+    background-color: #ccc;
+    border-color: #ccc;
+}
+
+.modal-dialog {
+    margin-top: 5px;
+}
+
+.modal-dialog.left {
+    margin: 5px;
+}
+
+.modal-dialog.right {
+    margin: 5px 5px 5px auto;
+}
+
+text-field {
+    border: 1px solid gray;
+    display: inline-block;
+    height: 100%;
+}
+
+text-field.flexbox {
+    position: relative;
+    min-height: 34px;
+}
+
+text-field.flexbox div {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+}
+
+.md-button.md-raised:not([disabled]) {
+    box-shadow: none !important;
+}
+
+.md-switch-thumb, md-radio-button {
+    margin: 4px 8px 4px 8px !important;
+}
+
+*:focus {
+    /* border-color: inherit !important; */
+    -webkit-box-shadow: inherit !important;
+    box-shadow: inherit !important;
+    outline: inherit !important;
+}
+
+.modal-max {
+    width: 100%;
+}
+
+.toggle-switch .switch-right {
+    color: #ffffff;
+    background: #ec971f;
+}
+
+.tabFill {
+}
+
+.tabFill md-tab-content > div:first-child {
+    margin: 0;
+    min-height: 100%;
+    height: 100%;
+    -webkit-flex-direction: row;
+    -ms-flex-direction: row;
+    flex-direction: row;
+    display: flex;
+}
+
+.tabFill md-tabs {
+    margin: 0;
+    width: 100%;
+    min-height: 100%;
+    height: 100%;
+}
+
+.vertical-divider {
+    height: 100% !important;
+    width: 2px;
+    margin-right: 5PX;
+    border-color: gray !important;
+}
+
+/*-----------------------END DEFAULTS---------------------*/
+
+/*-----------------------BUTTONS--------------------------*/
+.btn {
+    font-size: 14px;
+}
+
+.btn-rose {
+    background: #d83448 !important;
+    color: #fff !important;
+    font-weight: bold !important;
+}
+
+.btn-orange {
+    background: #ec971f !important;
+    color: #fff !important;
+    font-weight: bold !important;
+}
+
+.btn-green {
+    background: #5cb85c !important;
+    color: #fff !important;
+    font-weight: bold !important;
+}
+
+.btn-menu {
+    background: #2EBBD0;
+    color: #fff;
+    font-size: 14px;
+    /*height: 45px;*/
+    width: 85%;
+    margin-bottom: 5px;
+    margin-top: 5px;
+}
+
+.btn.spaced {
+    margin: 2px;
+}
+
+.checkbox-menu {
+    color: white;
+}
+
+.checkbox-menu ._md-icon {
+    border-color: white;
+}
+
+.btn-tel {
+    background: #5cb85c;
+    color: #fff;
+    font-size: 14px;
+    /*height: 45px;*/
+    width: 85%;
+    margin-bottom: 5px;
+    margin-top: 5px;
+}
+
+.btn-logout {
+    background: red;
+    color: #fff;
+    font-size: 14px;
+    /*height: 45px;*/
+    width: 85%;
+    margin-bottom: 5px;
+    margin-top: 5px;
+}
+
+/*-----------------------END BUTTONS----------------------*/
+
+/*--------------------------CATALOG-----------------------*/
+.catalog md-backdrop {
+    opacity: 0 !important;
+}
+
+/*-----------------------END CATALOG----------------------*/
+
+/*-----------------------DRAWER MENU----------------------*/
+.drawerMenu {
+    max-width: 210px !important;
+    min-width: 210px !important;
+    background-color: #272727;
+    z-index: 100;
+    /* box-shadow: -6px 14px 5px 9px grey !important; */
+}
+
+.drawerMenu.menuVisible {
+    left: 0;
+}
+
+/*---------------------END DRAWER MENU--------------------*/
+
+/*---------------------HEADER CATEGORIES------------------*/
+
+.scHeadingButton {
+    min-width: 30px;
+}
+
+@media (max-width: 799px) {
+
+    .subCategoriesHeading {
+        flex-wrap: nowrap;
+        position: relative;
+        max-width: 100px !important;
+        flex: 1;
+        background-color: #d83448 !important;
+    }
+
+    h1 {
+        font-size: 20px;
+    }
+    h2 {
+        font-size: 16px;
+    }
+
+
+    .padPComment {
+        font-size: 11px;
+        margin-left: 10px;
+    }
+}
+
+/*------------------END HEADER CATEGORIES-----------------*/
+
+/*---------------------PRODUCTBOX IZIPASS-----------------*/
+
+.IZIPASSTemplate {
+    padding: 0;
+    position: relative;
+}
+
+.IZIPASSTemplate .categoryContent {
+    display: flex;
+}
+
+.IZIPASSTemplate .categoryContent .quickAccess {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    overflow: scroll;
+}
+
+@media (max-width: 799px) {
+
+    .panel-title a {
+        display: block;
+        padding: 5px 15px;
+    }
+
+    .IZIPASSTemplate .categoryContent {
+        flex-direction: row;
+    }
+
+    .IZIPASSTemplate .rightHanded {
+        flex-direction: row-reverse;
+    }
+
+    .IZIPASSTemplate .leftHanded {
+        flex-direction: row;
+    }
+
+    .IZIPASSTemplate .categoryContent .quickAccess {
+        flex-direction: column;
+        justify-content: flex-start;
+        padding-top: 10px;
+    }
+
+    .panel-total .btnTable {
+        margin: 2px 2px;
+        height: 36px;
+    }
+}
+
+/*---------------------DEFAULT----------------------------*/
+.productboxIZIPASS {
+    background: #fff;
+    border: 1px solid #dbdada;
+    border-radius: 4px;
+    padding: 0;
+    min-width: 0;
+    width: 150px;
+    height: 160px;
+    margin: 2px;
+}
+
+.productboxIZIPASS.disabled {
+    background-color: #b5b4b4;
+}
+
+.productboxIZIPASS .link {
+    text-decoration: none !important;
+    color: #2b2b2b;
+}
+
+.productboxIZIPASS .imageContainer {
+    display: flex;
+    justify-content: center;
+    height: 40%;
+    margin-bottom: 5px
+}
+
+.productboxIZIPASS .titleRow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 45%;
+    white-space: normal;
+    text-align: center;
+    font-size: 14px;
+    line-height: 15px;
+    font-weight: bold;
+    margin: 2px;
+    color: #505050;
+}
+
+.productboxIZIPASS .price {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    font-weight: bold;
+    overflow: hidden;
+    color: #d83448;
+    text-align: right;
+}
+
+.productboxIZIPASS .action {
+    font-weight: normal !important;
+    border-radius: 0 0 4px 4px;
+    white-space: normal;
+    line-height: 15px;
+    background: #d83448;
+    color: white;
+    font-size: 12px;
+    height: 28px;
+    display: table;
+    width: 100%;
+}
+
+.productboxIZIPASS .action .action-text {
+    vertical-align: middle;
+    display: table-cell;
+    padding: 2px;
+}
+
+.productboxIZIPASS .action.disabled {
+    background-color: grey !important;
+}
+
+.productboxIZIPASS .image {
+    height: 70px;
+    width: auto;
+}
+
+.productboxIZIPASS .descriptionRow {
+    padding: 2px;
+}
+
+.productboxIZIPASS .description ul {
+    padding-left: 0;
+}
+
+/*----------------------------BIG-----------------------------*/
+
+.productboxIZIPASS.big {
+    width: 150px;
+    height: 160px;
+}
+
+.productboxIZIPASS.big .titleRow {
+    font-size: 14px;
+    line-height: 15px;
+}
+
+.productboxIZIPASS.big .image {
+    height: 100%;
+}
+
+.productboxIZIPASS.big .price {
+    font-size: 15px;
+}
+
+/*---------------------------MEDIUM--------------------------*/
+
+.productboxIZIPASS.medium {
+    width: 100px;
+    height: 110px;
+}
+
+.productboxIZIPASS.medium .titleRow {
+    font-size: 11px;
+    line-height: 13px;
+}
+
+.productboxIZIPASS.medium .image {
+    height: 100%;
+}
+
+.productboxIZIPASS.medium .price {
+    font-size: 12px;
+}
+
+/*---------------------------SMALL--------------------------*/
+
+.productboxIZIPASS.small {
+    width: 75px;
+    height: 85px;
+}
+
+.productboxIZIPASS.small .titleRow {
+    font-size: 10px;
+    line-height: 11px;
+}
+
+.productboxIZIPASS.small .image {
+    height: 100%;
+}
+
+.productboxIZIPASS.small .price {
+    font-size: 10px;
+}
+
+/*-----------------END PRODUCTBOX IZIPASS------------------*/
+
+/*-----------------BARCODETEXTFIELD------------------------*/
+.barcodeTextField {
+    height: 38px;
+}
+
+.barcodeTextField .btnClear {
+    height: 38px;
+    min-width: 35px;
+    border: 0 solid gray;
+    border-bottom-width: 1px;
+    border-left-width: 1px;
+}
+
+.barcodeTextField .inp {
+    border: solid lightgray;
+    font-size: 13px;
+    margin-top: 1px;
+}
+
+.barcodeTextField .btnAction {
+    max-width: 40px;
+    min-width: 40px;
+    padding: 0 !important;
+    margin: 0 2px 0 2px !important;
+    background: lightgray !important;
+    color: black;
+}
+
+.barcodeTextField .btnAction.double {
+    max-width: 80px;
+    min-width: 80px;
+}
+
+/*-----------------END BARCODETEXTFIELD--------------------*/
+
+/*-----------------MINI BASKET-----------------------------*/
+.catalogBasketDiv {
+    overflow: hidden;
+    height: 100%;
+    min-height: 365px;
+}
+
+.miniBasketPOS {
+    transition: linear 0s !important;
+    min-width: 345px;
+    box-shadow: none !important;
+    border-left: 1px solid gray;
+    width: 344px;
+    height: 100%;
+    margin: 0;
+    position: initial;
+    border-left: 1px solid black;
+    border-top: 0;
+}
+
+.miniBasketPAD {
+    min-width: 345px;
+    box-shadow: none !important;
+    border-left: 1px solid gray;
+    width: 100%;
+    left: 0;
+    top: 90%;
+    margin: auto;
+    position: absolute;
+    border-left: 0;
+    border-top: 1px solid black;
+}
+
+.paiementDivMB {
+    width: 100%;
+}
+
+#miniBasketHeader {
+    margin-top: 0;
+    flex: 1;
+}
+
+#miniBasketHeader > div.panel-collapse {
+    height: calc(100% - 32px) !important;
+}
+
+#miniBasketHeader > div.panel-collapse > div.panel-body {
+    height: 100% !important;
+}
+
+@media (min-width: 800px) {
+
+    .subCategoriesHeading {
+        position: relative;
+        flex-wrap: wrap;
+        background-color: #d83448 !important;
+    }
+
+    .padPComment {
+        font-size: 14px;
+        margin: 0;
+    }
+
+    .IZIPASSTemplate .categoryContent {
+        flex-direction: column;
+        flex: 1;
+    }
+
+    .groupItemsSplit {
+        font-size: 15px;
+    }
+
+    .menuAction .menuPrice {
+        font-size: 23px;
+    }
+
+    #miniBasketHeader > div.panel-collapse {
+        height: calc(100% - 45px) !important;
+    }
+
+    .drawerMenu {
+        top: 100px !important;
+    }
+
+    h1 {
+        font-size: 36px;
+    }
+
+    .unFreezeTable {
+        font-size: 15px;
+    }
+
+    .productComment {
+        font-size: 15px;
+        line-height: 20px;
+    }
+}
+
+/*@media (max-height: 599px) {
+    .btn-menu {
+        margin-top: 0;
+    }
+
+    .btn {
+        padding: 0 12px;
+    }
+}*/
+
+@media (min-height: 600px) {
+    .btn-menu {
+        margin-top: 5px;
+    }
+
+    .btn {
+        padding: 6px 12px;
+    }
+}
+
+#miniBasketItems {
+    height: 100%;
+}
+
+#miniBasketItemsSplit .productLine {
+    flex: 2;
+    justify-content: space-around;
+    font-size: 14px;
+}
+
+.miniBasket {
+    overflow: hidden;
+}
+
+.accPanelMB div[class="panel-group"] {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.miniBasket text-field {
+    border-top: 0;
+}
+
+.miniBasket .panel-heading {
+    background-color: #d83448 !important;
+}
+
+.miniBasket .panel-title {
+    background-color: #d83448 !important;
+    color: #FFF;
+}
+
+.btn-action-fullwidth {
+    margin-top: 10px;
+    width: 100%;
+}
+
+.miniBasket .btnAction {
+    max-width: 40px;
+    min-width: 40px;
+    padding: 0 !important;
+    margin: 0 2px 0 2px !important;
+    background: lightgray !important;
+    color: black;
+}
+
+.miniBasket .productLine {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+}
+
+.miniBasket .fidRow {
+    margin-top: 10px;
+    margin-left: 1px;
+    margin-right: 2px;
+}
+
+.miniBasket .fidAction {
+    font-weight: normal;
+    font-size: 18px;
+    border-color: white;
+}
+
+.miniBasket .loyaltyRow {
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+.miniBasket .itemsPanel {
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+.itemsPanel {
+    height: 100%;
+}
+
+.miniBasket .miniBasketInfos {
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+.miniBasket .itemRow {
+    border-bottom: 1px solid #aaa;
+    padding-top: 10px;
+    padding-bottom: 5px;
+    min-height: 50px;
+}
+
+.miniBasket .itemRow.printed {
+    background: #B4CCAF;
+}
+
+.miniBasket .itemRow.partialPrinted {
+    background: repeating-linear-gradient(121deg, #B4CCAF, #B4CCAF 4px, #FFFFFF 4px, #DCDCDC 20px);
+}
+
+.miniBasket .attrRow {
+    margin-left: 5px;
+    margin-right: -10px;
+}
+
+.miniBasket .attrRow.printed {
+    background: #B4CCAF;
+}
+
+.miniBasket .stepRow {
+    border-top: 1px solid #aaa;
+    min-height: 40px;
+    background: #C5C5C5;
+}
+
+.miniBasket .itemAction.highlight {
+    background: #5cb85c !important;
+}
+
+.miniBasket .discountAction {
+    font-size: 18px;
+    color: black;
+    background: transparent;
+    width: 40px;
+    line-height: 30px;
+    text-align: center;
+}
+
+.miniBasket .total {
+    font-size: 18px;
+}
+
+.miniBasket .totalValue {
+    font-size: 25px;
+    font-weight: bold;
+    font-family: 'LEDCalculator';
+    text-decoration: none !important;
+}
+
+.miniBasket .totalVAT {
+    font-size: 14px;
+}
+
+.miniBasket .totalPayment {
+    font-size: 14px;
+}
+
+.miniBasket .totalPayment a {
+    background-color: transparent;
+    color: black;
+    font-size: 15px;
+    height: 28px;
+}
+
+.miniBasket .totalPayment .btn {
+    padding: 0 15px 0 0;
+    line-height: normal;
+}
+
+.miniBasket .payments, .shipping {
+    margin-top: 10px;
+}
+
+.miniBasket .bottomPanel {
+    padding-top: 0;
+}
+
+.miniBasket .shoppingCartPanel {
+    padding-right: 0;
+    padding-bottom: 0;
+    padding-top: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+    max-height: 310px;
+    /*margin-left: -10px;
+	margin-right: -15px;*/
+}
+
+.miniBasket .selectedStep {
+    /*
+    background-color: red;
+    */
+}
+
+.selectedStep span {
+    /*
+    font-weight: 900;
+    font-size : 20px;*/
+}
+
+.btn-action {
+    margin-top: 5px;
+}
+
+.btn-payment {
+    background: #E9E9E9;
+    color: #000000 !important;
+    line-height: 10px;
+    white-space: normal;
+    margin: 10px 4px 4px;
+    font-weight: bold;
+    font-size: 10px;
+    border: #BFBEBE 1px solid;
+    display: table;
+    padding: 0 5px;
+    position: relative;
+}
+
+.btn-payment .btn-payment-text {
+    max-height: 45px;
+    overflow: hidden;
+    position: absolute;
+    bottom: 10px;
+    left: 0;
+    width: 100%;
+}
+
+.btn-payment .btn-payment-image {
+    width: 34px;
+    height: 34px;
+}
+
+.btn-payment.active {
+    background: #5cb85c;
+}
+
+#paymentModes {
+    min-height: 89px;
+    max-height: 178px;
+}
+
+.panel-title a {
+    display: block;
+    margin: -10px -15px;
+    text-decoration: none !important;
+}
+
+.panel-total a {
+    background-color: black;
+    text-decoration: none !important;
+    color: #5cb85c;
+    font-weight: bold;
+    font-family: 'LEDCalculator';
+    text-align: right;
+    /*line-height: 40px;*/
+}
+
+.panel-total .repaid {
+    font-size: 15px;
+}
+
+.panel-total .repaidtitle {
+    font-size: 11px;
+    margin-right: 10px;
+}
+
+.panel-total .btnTable {
+    float: left;
+    font-family: SignikaNegative-Regular;
+    font-weight: normal;
+    font-size: 14px;
+    background-color: #46b8da;
+    color: white;
+    line-height: 18px;
+    text-align: left;
+    padding: 2px 5px;
+    min-width: 70px;
+}
+
+.panel-total .btnOffersOnly {
+    float: left;
+    font-family: 'Helvetica';
+    font-weight: normal;
+    font-size: 16px;
+    background-color: #46b8da;
+    color: white;
+    line-height: 20px;
+    text-align: left;
+    margin: -5px -10px !important;
+}
+
+.buttonbar {
+    /*min-height: 145px;
+	height: 145px;
+	padding: 0 !important;*/
+}
+
+.buttonbar .shoppingCartActionsBar {
+    padding-bottom: 5px;
+}
+
+.buttonbar .shoppingCartAction {
+    font-size: 15px;
+    padding: 7px;
+    height: 47px;
+    margin-left: 4px;
+    margin-right: 4px;
+}
+
+.btnAddStep {
+    margin: -6px -12px !important;
+    height: 31px;
+    width: 70px;
+    padding: 0 !important;
+    font-size: 23px;
+    font-weight: bold;
+}
+
+.btnPrintStep {
+    /*margin: -6px 25px -6px -12px !important;*/
+    height: 34px;
+    width: 70px;
+    padding: 2px !important;
+    font-size: 20px;
+    right: 2px;
+    position: absolute;
+}
+
+.btnDivideReceipt {
+    margin: -6px -12px !important;
+    height: 34px;
+    width: 70px;
+    padding: 0 !important;
+    font-size: 23px;
+    font-weight: bold;
+}
+
+.btnDivideTotal {
+    margin: -6px 25px -6px -12px !important;
+    height: 34px;
+    width: 70px;
+    padding: 2px !important;
+    font-size: 20px;
+}
+
+.btnRemerge {
+    margin: -6px 25px -12px !important;
+    height: 34px;
+    width: 70px;
+    padding: 0 !important;
+    font-size: 23px;
+    font-weight: bold;
+}
+
+.btnFreeze {
+    width: 165px;
+}
+
+.buttonbar .btn-action-image {
+    width: 30px;
+}
+
+/*--------------------END MINI BASKET---------------------*/
+
+/*-----------------CATALOG-----------------------------*/
+
+.catalogMenu {
+    min-height: 75px;
+    max-height: 100px;
+    /*box-shadow: 0 -7px 8px 10px grey;*/
+    z-index: 25;
+}
+
+.catalogMenu .tools {
+    min-height: 50px;
+    background: #272727;
+}
+
+.catalogMenu .logo {
+    height: 70px !important;
+    width: 70px !important;
+}
+
+.catalogMenu .clock {
+    font-size: 15px;
+    color: #cecece;
+}
+
+.catalogMenu .imgLogo {
+    max-height: 50px;
+    max-width: 50px;
+}
+
+.catalogMenu .version {
+    display: flex;
+    align-items: flex-end;
+    color: #B6B4B4;
+}
+
+.catalogMenu .izibox {
+    background: #d83448;
+    border-radius: 50%;
+}
+
+.catalogMenu .izibox.connected {
+    background: #5cb85c;
+}
+
+.catalogMenu .izibox.connectedwarning {
+    background: #ffffff;
+}
+
+.catalogMenu .infoCashMovement {
+    text-align: right;
+    color: #d83448;
+    padding-right: 5px;
+    bottom: 0;
+    right: 0;
+    position: absolute;
+}
+
+.catalogMenu .itemCategory {
+    text-align: center;
+    max-width: 94px;
+    min-width: 80px;
+    max-height: 100px;
+    padding-top: 4px;
+}
+
+.catalogMenu .imgCategory {
+    max-height: 60px;
+    max-width: 60px;
+}
+
+.catalogMenu .linkCategory {
+    width: 55px !important;
+    height: 55px !important;
+    padding: 0 !important;
+}
+
+.catalogMenu .titleCategory {
+    color: white;
+    font-size: 12px;
+    /*font-weight: bold;*/
+    display: block;
+    overflow: hidden;
+    word-wrap: break-word;
+    text-overflow: ellipsis;
+    width: 80px;
+    height: 30px;
+}
+
+.categories {
+}
+
+.categories .itemCategory {
+    text-align: center;
+    background: #272727;
+    margin: 4px;
+    border-radius: 7px;
+    width: 85px;
+    height: 90px;
+}
+
+.categories .imgCategory {
+    width: 100%;
+    height: auto;
+    max-height: 45px;
+    max-width: 45px;
+}
+
+.categories .linkCategory {
+    width: 75px !important;
+    height: 55px !important;
+}
+
+.categories .titleCategory {
+    color: white;
+    font-size: 12px;
+    font-weight: bold;
+    line-height: 14px;
+}
+
+.cashMachineName {
+    word-wrap: break-word;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+    direction: rtl;
+}
+
+.headerVersions {
+    position: absolute;
+    right: 0;
+    font-size: 10px;
+}
+
+/*-----------------END CATALOG-----------------------------*/
+
+/*-----------------OFFER MODAL-----------------------------*/
+.offerModal .rowOffer {
+    height: 70px;
+    margin-bottom: 5px;
+}
+
+.offerModal .imgOffer {
+    height: 70px;
+}
+
+.offerModal .dataRowOffer {
+    line-height: 70px;
+    vertical-align: middle;
+}
+
+/*-----------------END OFFER MODAL-------------------------*/
+
+/*-------------------DELIVERY INFO MODAL-------------------*/
+
+.modalLine {
+    padding: 10px;
+}
+
+.modalLine .text {
+    padding: 0 10px
+}
+
+/*-----------------END DELIVERY INFO MODAL-----------------*/
+
+/*-----------------SHOPPING CART MODAL---------------------*/
+.shoppingCartModal {
+    margin-top: 5px;
+}
+
+.shoppingCartModal .itemRow {
+    border-bottom: 1px solid #aaa;
+    line-height: 60px;
+}
+
+/*-----------------END SHOPPING CART MODAL-----------------*/
+
+/*-----------------CONFIGURABLE MENU-----------------------------*/
+.configurableMenu {
+}
+
+.configurableMenu .heading {
+    background-color: #d83448 !important;
+    min-height: 130px;
+    padding: 5px;
+}
+
+.configurableMenu .heading.high {
+    min-height: 125px !important;
+}
+
+.configurableMenu .heading .title {
+    color: #FFF;
+    display: table;
+    height: 50px;
+    min-height: 50px;
+    text-align: center;
+    font-size: 20px;
+}
+
+.configurableMenu .heading .title-text {
+    font-size: 16px;
+    display: table-cell;
+    vertical-align: middle;
+}
+
+.configurableMenu .heading .navigAction {
+    line-height: 12px;
+    font-size: 12px;
+    white-space: normal;
+    min-width: 30px;
+    font-weight: bold;
+    margin: 4px;
+    text-overflow: ellipsis;
+}
+
+.configurableMenu .editStep {
+    display: flex;
+    justify-content: start;
+    align-items: center;
+}
+
+.configurableMenu .editStep .stepName {
+    padding: 0 10px;
+    height: 30px;
+    font-size: 14px;
+    color: white;
+    text-align: center;
+    white-space: nowrap;
+}
+
+@media (max-width: 799px) {
+
+    .menuAction .menuPrice {
+        font-size: 14px;
+    }
+
+    .stepAttri {
+        font-size: 10px;
+    }
+
+    .iziPLogo {
+        margin-top: 0 !important;
+    }
+
+    .unFreezeTable {
+        font-size: 12px;
+    }
+
+    .catalogMenu .infoCashMovement {
+        font-size: 10px;
+    }
+
+    .iziPLogo img {
+        margin-top: -7px;
+    }
+
+    .deliveryMode {
+        margin: 0 !important;
+        font-size: 14px;
+        white-space: nowrap;
+    }
+
+    .productComment {
+        font-size: 11px;
+        line-height: 15px;
+    }
+
+    .itemCategory {
+        margin-top: 10px;
+    }
+
+    .drawerMenu {
+        top: 75px !important;
+    }
+
+    .miniBasket .panel-title {
+        font-size: 14px;
+    }
+
+    .configurableMenu .editStep {
+        justify-content: space-around;
+        align-items: center;
+    }
+
+    .cashMachineName {
+        max-width: 90px;
+    }
+
+    .miniBasket .stepRow {
+        font-size: 12px;
+        min-height: 25px;
+    }
+
+    .btnPrintStep {
+        height: 25px;
+    }
+
+    .imgMBStep {
+        width: 20px;
+        height: 20px;
+        vertical-align: top;
+    }
+
+    .buttonbar .shoppingCartActionsBar {
+        width: 100%;
+        float: left;
+    }
+
+    #buttonbar {
+        display: inline-block;
+    }
+}
+
+.configurableMenu .editStep button {
+    z-index: 0;
+    font-size: 15px;
+    color: black;
+    margin: 0 !important;
+    width: 24px !important;
+    height: 24px !important;
+    min-height: 0;
+    display: flex;
+    justify-content: center;
+    background: lightgray !important;
+}
+
+.configurableMenu .attributes {
+    padding-left: 5px;
+    min-height: 100px;
+}
+
+.attributesPanelInfos .title {
+    font-size: 16px;
+    font-weight: bold;
+    white-space: nowrap;
+    letter-spacing: 1px;
+}
+
+.attributesPanelInfos .info {
+    font-size: 16px;
+    font-weight: normal;
+    white-space: nowrap;
+    letter-spacing: 1px;
+}
+
+.configurableMenu .btn-menu-attr {
+    padding: 5px;
+    font-size: 12px;
+    white-space: normal;
+    max-width: 80px;
+    min-height: 46px;
+}
+
+.attributesPanel {
+    /*margin-bottom: 30px;*/
+}
+
+.attributeBox {
+    height: 85px !important;
+    width: 90px !important;
+    background: #fff !important;
+    border: 1px solid #dbdada !important;
+    color: #505050 !important;
+    margin: 2px !important;
+    text-align: center !important;
+    font-weight: bolder !important;
+    border-radius: 7px 7px 7px 0 !important;
+    padding: 0 !important;
+    min-height: 85px !important;
+}
+
+.attributeBox .attributeInfo-text {
+    white-space: normal;
+    line-height: 14px;
+    padding: 2px;
+}
+
+.attributeBox .attributeInfo-comment {
+    text-transform: none;
+    font-weight: normal;
+}
+
+.attributeBox .imgAttribute {
+    width: 35px;
+    height: 35px;
+}
+
+.attributeBox.active {
+    background: #d83448 !important;
+    color: white !important;
+}
+
+.attributeBox.disable {
+    background: #CACACA !important;
+    color: white !important;
+}
+
+.modfront-productsetinfo .productset-title {
+    font-size: 20px;
+    font-weight: bold;
+    line-height: 50px;
+    white-space: nowrap;
+    letter-spacing: 1px;
+}
+
+.modfront-productsetinfo .productset-info {
+    font-size: 16px;
+    line-height: 50px;
+}
+
+.miniBasket .itemAction {
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/*-----------------END CONFIGURABLE MENU-----------------------------*/
+
+/*-----------------MODAL LOGIN---------------------------------------*/
+.itemPosUser {
+    justify-content: center;
+    padding: 2px;
+}
+
+.imgCheckPosUser {
+    top: 0;
+    right: -10px;
+    position: absolute;
+}
+
+.productMiniBasket {
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    margin-left: 10px;
+    font-size: 12px;
+}
+
+.headerNPad {
+    min-width: 150px !important;
+    font-size: 14px;
+}
+
+.detailsSplitTicket {
+    font-size: 14px;
+}
+
+.headerPad {
+    font-size: 10px;
+}
+
+.modalLoginPOS {
+    display: flex;
+    justify-content: space-evenly;
+}
+
+.titlePosUser {
+    height: 100%;
+    display: flex;
+    align-items: center;
+}
+
+.btn-payment-ultrasmall {
+    height: 50px !important;
+    width: 60px !important;
+    margin: 4px !important;
+}
+
+.btn-payment-image-small {
+    width: 20px !important;
+    height: 20px !important;
+}
+
+.btn-payment-text-small {
+    bottom: 4px !important;
+}
+
+@media (min-width: 800px) {
+
+    .detailsSplitTicket {
+        margin: 15px;
+    }
+
+    .attributeBox {
+        font-size: 11px !important;
+    }
+
+    .panel-total .btnOffers {
+        margin: 0 20px !important;
+        height: 40px;
+        padding: 9px;
+    }
+
+    .catalogMenu .infoCashMovement {
+        font-size: 14px;
+    }
+
+    .miniBasket .itemAction {
+        font-size: 15px;
+        color: black;
+        margin: 2px !important;
+        width: 36px !important;
+        height: 36px !important;
+        background: lightgray !important;
+    }
+
+    .btn-payment-small {
+        height: 65px !important;
+        width: 60px !important;
+    }
+
+    #miniBasketItemsSplit .productLine {
+        margin-left: 20px;
+    }
+
+    .btnAddStep {
+        height: 34px;
+    }
+
+    .catalogMenu .izibox {
+        width: 18px;
+        height: 18px;
+        margin: 5px;
+    }
+
+    .headerS {
+        height: 100px;
+    }
+
+    .catalogMenu .logo {
+        margin-top: 5px;
+        padding: 0;
+    }
+
+    .cashMachineName {
+        max-width: 150px;
+    }
+
+    .version horloge {
+        font-size: 14px;
+    }
+
+    .panel-title a {
+        display: block;
+        padding: 10px 15px;
+    }
+
+    .miniBasket .panel-title {
+        font-size: 20px;
+    }
+
+    .titlePosUser {
+        font-size: 20px;
+    }
+
+    .imgCheckPosUser {
+        top: 0;
+        right: -10px;
+    }
+
+    .imgPosUser {
+        height: 100px;
+    }
+
+    .itemPosUser {
+        width: 110px;
+    }
+
+    .prixProductMB {
+        display: flex;
+        align-items: center;
+        margin-left: 5px;
+    }
+
+    .qtyProductMB {
+        margin-left: 10px;
+    }
+
+    .tabNotif {
+        height: 20px;
+        line-height: 19px;
+    }
+
+    .panel-total .btnTable {
+        margin: 0 -10px;
+        height: 40px;
+    }
+
+    .panel-total a {
+        padding: 10px 15px;
+        font-size: 32px;
+    }
+
+    .panel-heading a {
+        padding: 10px 15px;
+    }
+
+    .btn-payment {
+        height: 75px;
+        width: 75px;
+        margin: 10px 4px 4px;
+    }
+}
+
+@media (max-width: 799px) {
+
+    #miniBasketItemsSplit .productLine {
+        margin-left: 0;
+    }
+
+    .detailsSplitTicket {
+        margin: 5px;
+    }
+
+    .panel-total .btnOffers {
+        margin: 2px 10px !important;
+        height: 36px;
+        padding: 7px;
+    }
+
+    .attributeBox {
+        font-size: 10px !important;
+    }
+
+    .catalogMenu .izibox {
+        width: 10px;
+        height: 10px;
+        margin: 1px;
+    }
+
+    .catalogMenu .logo {
+        margin-top: 10px;
+        padding: 0 6px;
+    }
+
+    .btnAddStep {
+        height: 31px;
+    }
+
+    .btn-payment-small {
+        height: 65px !important;
+        width: 48px !important;
+    }
+
+    .headerS {
+        height: 75px;
+        justify-content: flex-start;
+    }
+
+    .btn-payment {
+        height: 65px;
+        width: 60px;
+        margin: 5px 3px;
+    }
+
+    .imgCheckPosUser {
+        top: 0;
+        right: -10px;
+        width: 35px;
+    }
+
+    .imgPosUser {
+        height: 70px;
+    }
+
+    .itemPosUser {
+        width: 84px;
+    }
+
+    .titlePosUser {
+        font-size: 16px;
+    }
+
+    .miniBasket .itemAction {
+        font-size: 15px;
+        color: black;
+        margin: 2px !important;
+        width: 25px !important;
+        height: 25px !important;
+        min-height: 25px;
+        background: lightgray !important;
+    }
+
+    .productName {
+        font-size: 12px;
+    }
+
+    .imgIcoBtn {
+        position: absolute;
+        top: 4px;
+        left: 4px;
+    }
+
+    .miniBasket .productLine {
+        padding-left: 10px !important;
+        padding-right: 0 !important;
+    }
+
+    .miniBasketPOS {
+        min-width: 275px;
+        width: 275px;
+    }
+
+    .prixProductMB {
+        display: flex;
+        font-size: 10px;
+    }
+
+    .qtyProductMB {
+        margin-left: 0;
+        font-size: 10px;
+    }
+
+    .miniBasket .itemRow {
+        padding-top: 5px;
+        min-height: 42px;
+    }
+
+    .nbrActions {
+        margin-left: 6px;
+        width: 15px;
+    }
+
+    .tabNotif {
+        height: 15px;
+        line-height: 14px;
+    }
+
+    .buttonbar .shoppingCartAction {
+        height: 40px;
+        padding: 3px;
+    }
+
+    .panel-total a {
+        padding: 0;
+        font-size: 20px;
+    }
+}
+
+/*-----------------END MODAL LOGIN---------------------------------------*/
+
+/*-----------------MODAL Z POS---------------------------------------*/
+.input-group-date {
+    float: left !important;
+    padding-left: 15px !important;
+    padding-right: 15px !important;
+}
+
+.selectDate {
+    margin-bottom: 5px;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+}
+
+td.zvalue {
+    border: 1px solid;
+}
+
+.zheader {
+    text-align: center !important;
+}
+
+.zvalue {
+    text-align: center !important;
+}
+
+/*-----------------END MODAL Z POS-----------------------------------*/
+/*-----------------MODAL unFreeze -----------------------------------*/
+.modal-unfreeze {
+    overflow-y: auto;
+    max-height: 520px;
+}
+
+.modal-unfreeze .itemActionContainer {
+    margin-top: 12px;
+}
+
+.modal-unfreeze .itemAction {
+    font-size: 18px;
+    /*color: black;
+background-color: white;*/
+    width: 25px;
+    line-height: 30px;
+}
+
+.tabNotif {
+    display: inline-block;
+    width: 30px;
+    background: #d83448;
+    text-align: center;
+    border-radius: 15px;
+    margin: 1px 2px 1px 0;
+    color: white;
+    font-size: 14px;
+}
+
+.tabNotif.notifWarning {
+    background: black;
+}
+
+.cNotif {
+    position: absolute;
+    bottom: 5px;
+    left: 35px;
+    width: auto;
+    min-width: 18px;
+    padding: 1px 2px;
+}
+
+/*-----------------END MODAL unFreeze -----------------------------------*/
+/*-----------------MODAL openPos -----------------------------------*/
+.modal-openpos {
+    overflow-y: auto;
+    /*height:520px;*/
+}
+
+.modal-openpos .row {
+    line-height: 60px;
+    float: left;
+    width: 100%;
+    margin-left: 0;
+    margin-right: 0;
+}
+
+.modal-openpos .title {
+    font-size: 20px;
+}
+
+.groupItemsSplit {
+    margin-top: -1px;
+}
+
+.modal-openpos .item {
+    text-align: center;
+}
+
+.modal-openpos .itemAction {
+    font-size: 20px;
+    width: 25px;
+    line-height: 30px;
+}
+
+/*-----------------END MODAL openPos -----------------------------------*/
+/*-----------------MODAL closePos -----------------------------------*/
+.modal-closepos {
+    overflow-y: auto;
+    /*height:520px;*/
+}
+
+.modal-closepos .row {
+    height: 40px;
+    float: left;
+    width: 100%;
+    margin-left: 0;
+    margin-right: 0;
+}
+
+.modal-closepos .title {
+    font-size: 20px;
+}
+
+.modal-closepos .titlereduce {
+    font-size: 18px;
+}
+
+.modal-closepos .centered {
+    text-align: center;
+}
+
+.modal-closepos .item {
+    text-align: center;
+}
+
+.modal-closepos .itemAction {
+    font-size: 20px;
+    width: 25px;
+    line-height: 30px;
+}
+
+/*-----------------END MODAL closePos -----------------------------------*/
+/*-----------------MODAL editShoppingCart -----------------------------------*/
+.modal-editShoppingCart {
+    overflow-y: auto;
+    /*height:520px;*/
+}
+
+.modal-editShoppingCart .row {
+    line-height: 60px;
+    float: left;
+    width: 100%;
+    margin-left: 0;
+    margin-right: 0;
+}
+
+.modal-editShoppingCart .title {
+    font-size: 20px;
+}
+
+.modal-editShoppingCart .centered {
+    text-align: center;
+}
+
+.modal-editShoppingCart .item {
+    text-align: center;
+}
+
+.modal-editShoppingCart .itemAction {
+    font-size: 20px;
+    width: 25px;
+    line-height: 30px;
+}
+
+/*-----------------END MODAL editShoppingCart -----------------------------------*/
+/*-----------------MODAL cashValues -----------------------------------*/
+.modal-cashvalues {
+    overflow-y: auto;
+    height: 450px;
+}
+
+/*-----------------END MODAL cashValues -----------------------------------*/
+/*-----------------MODAL shoppingCartSplit -----------------------------------*/
+.modal-shoppingCartSplit {
+    overflow-y: auto;
+    height: 450px;
+}
+
+.shoppingCartSplit {
+    margin: 0 5px 0 5px;
+}
+
+.shoppingCartSplit .miniBasket {
+    width: 100%;
+}
+
+.panel-group {
+    margin: 0 !important;
+}
+
+/*-----------------END MODAL shoppingCartSplit -----------------------------------*/
+/*-----------------TEXTFIELD------------------------------------------------------*/
+.textfield {
+    /*width: 100%;
+	height: 100%;
+	min-height: inherit !important;*/
+}
+
+.textfield.focused {
+    background-color: #EFEB98;
+}
+
+/*-----------------END TEXTFIELD--------------------------------------------------*/
+/*-----------------KeyboardContainer----------------------------------------------*/
+.keyboardContainer {
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    padding: 4px;
+}
+
+/*-----------------END KeyboardContainer------------------------------------------*/
+
+/*-----------------Comment popup--------------------------------------------------*/
+.comment-toast md-chip {
+    background: #ec971f !important;
+    color: black !important;
+}
+
+.comment-toast input {
+    visibility: hidden;
+}
+
+.comment-toast md-chips.md-default-theme .md-chips.md-focused, md-chips .md-chips.md-focused {
+    box-shadow: none;
+}
+
+/*-----------------End Comment popup----------------------------------------------*/
+
+/*-----------------MODAL TablePlan--------------------------------------------------*/
+.lower-canvas {
+    border: 4px solid #D3D3D3;
+    border-radius: 20px;
+    margin-top: 5px;
+}
+
+.checkbox-criterias {
+    margin: 10px !important;
+}
+
+.tableplan .btnItemTable {
+    min-width: 50px;
+    max-width: 50px;
+    min-height: 50px;
+    max-height: 50px;
+    margin: 4px;
+}
+
+.tableplan .btnItemTable.btnTableCircle {
+    border-radius: 50%;
+}
+
+.tableInfos {
+    max-width: 170px;
+}
+
+@media (max-width: 799px) {
+    .tableTile > h1 {
+        font-size: 32px
+    }
+
+    .tableInfos {
+        max-width: 70px;
+    }
+
+    .groupItemsSplit {
+        font-size: 14px;
+    }
+
+    .tableInfos .form-panel {
+        padding: 10px;
+    }
+
+    .tableInfos .inp {
+        font-size: 13px;
+        font-weight: bold;
+    }
+}
+
+/*---------------MODAL Customer---------------------------------------------------------*/
+.customerModal {
+    margin-top: 5px;
+}
+
+/*---------------End customer modal-----------------------------------------------------*/
+/*-----------------Admin----------------------------------------------*/
+md-input-container label:not(._md-container-ignore) {
+    position: absolute;
+    bottom: 100%;
+    left: 0;
+    top: -45px;
+    right: auto;
+}
+
+.paiementElement {
+    text-align: center;
+    padding: 5px;
+}
+
+#configurableMenuHeader {
+    background-color: #d83448;
+    width: 100%;
+    padding: 5px;
+}
+
+.menuAction {
+    position: absolute;
+    min-height: 26px;
+    top: 100px;
+    right: 10px;
+}
+
+.menuAction .menuPrice {
+    padding: 0 10px;
+}
+
+.menuAction .cartButton {
+    z-index: 0;
+    background-color: #34bace
+}
+
+#configurableMenuList {
+    padding: 0;
+}
+
+.formuleNameList {
+    color: white;
+}
+
+.productsMenuList {
+    width: 100%;
+    height: auto;
+}
+
+.productMenuList {
+    width: 160px;
+    margin: 0 20px;
+}
+
+.btnConfirmMenuList {
+    background-color: #5cb85c;
+    color: white;
+    font-weight: bold;
+}
+
+.btnConfirmMenuList:not([disabled]):hover {
+    background-color: #5cb85c;
+}
+
+.buttonCatMenuList {
+    background-color: white;
+    color: black;
+}
+
+.catMenu::-webkit-scrollbar {
+    height: 0;
+}
+
+.buttonCatMenuList:not([disabled]):hover {
+    background-color: white;
+    color: black;
+}
+
+.buttonCatMenuListActive {
+    color: #d83448;
+}
+
+::-webkit-scrollbar {
+    width: 0;
+}
+
+#IZIPASSController {
+    padding: 0 !important;
+    flex: 1;
+    display: flex;
+}
+
+#allCategories {
+    padding: 3px;
+    max-width: 100%;
+    flex: 1;
+}
+
+.orderListTo {
+    font-size: 20px;
+}
+
+.btnFiltreCaisse {
+    width: 100%;
+    max-height: 34px;
+    max-width: 194px;
+}
+
+.textBtnFiltreCaisse {
+    max-width: 150px;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    float: left;
+}
+
+.productComment {
+    margin: 0 -15px;
+    background-color: #F4F4F4;
+    color: grey;
+}

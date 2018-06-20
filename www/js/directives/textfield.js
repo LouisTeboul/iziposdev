@@ -33,30 +33,30 @@ app.directive('textField', function ($timeout, $rootScope) {
 });
 
 app.service('textFieldService', ['$rootScope',
-	function ($rootScope) {
-	    var current = this;
-	    var focusedTextField = undefined;
+    function ($rootScope) {
+        var current = this;
+        var focusedTextField = undefined;
 
-	    this.setFocusedTextField = function (textField) {
-	        if (focusedTextField != textField) {
-	            if (focusedTextField) $rootScope.closeKeyboard();
+        this.setFocusedTextField = function (textField) {
+            if (focusedTextField != textField) {
+                if (focusedTextField) $rootScope.closeKeyboard();
 
-	            focusedTextField = textField;
-	            $rootScope.$emit("focusedTextFieldChanged", textField);
-	        }
-	    }
+                focusedTextField = textField;
+                $rootScope.$emit("focusedTextFieldChanged", textField);
+            }
+        };
 
-	    this.unfocusTextField = function (textField) {
-	        if (focusedTextField == textField) {
-	            this.setFocusedTextField(undefined);
-	        }
-	    }
+        this.unfocusTextField = function (textField) {
+            if (focusedTextField == textField) {
+                this.setFocusedTextField(undefined);
+            }
+        };
 
-	    this.getFocusedTextField = function () {
-	        return focusedTextField;
-	    }
+        this.getFocusedTextField = function () {
+            return focusedTextField;
+        }
 
-	}]);
+    }]);
 
 app.controller('TextFieldCtrl', function ($rootScope, $scope, textFieldService) {
     var tsFocus;
@@ -109,9 +109,9 @@ app.controller('TextFieldCtrl', function ($rootScope, $scope, textFieldService) 
         }
 
         var boolResult = top < (window.pageYOffset + document.body.offsetHeight) &&
-          left < (window.pageXOffset + document.body.offsetWidth) &&
-          (top + height) > window.pageYOffset &&
-          (left + width) > window.pageXOffset;
+            left < (window.pageXOffset + document.body.offsetWidth) &&
+            (top + height) > window.pageYOffset &&
+            (left + width) > window.pageXOffset;
 
         return boolResult;
 
@@ -153,8 +153,6 @@ app.controller('TextFieldCtrl', function ($rootScope, $scope, textFieldService) 
         //  || txtElement.contains(efp(rect.left, rect.bottom))
         //);
     };
-
-
 
 
     //D�termine le champ actif de la page
@@ -210,7 +208,7 @@ app.controller('TextFieldCtrl', function ($rootScope, $scope, textFieldService) 
         modelHandler();
 
         //Native Keyboard
-        if ($scope.nativekeyboard ) {
+        if ($scope.nativekeyboard) {
             document.removeEventListener("keypress", trapkeypress);
             document.removeEventListener("keydown", trapkeydown);
         }
@@ -271,9 +269,9 @@ app.controller('TextFieldCtrl', function ($rootScope, $scope, textFieldService) 
 
     var keypressHandler = $rootScope.$on(Keypad.KEY_PRESSED, function (event, data) {
         //
-        var isQrModal=$("#txtQRCode").hasClass("modalQrOpen");
+        var isQrModal = $("#txtQRCode").hasClass("modalQrOpen");
         var isModal = $("body").hasClass("modal-open");
-        if ($scope.isFocused || ($scope.nativekeyboard && isVisible()&&(!isModal || isQrModal))) {
+        if ($scope.isFocused || ($scope.nativekeyboard && isVisible() && (!isModal || isQrModal))) {
             if (!$scope.initialized && $scope.txtValue && $scope.txtValue.toString().length > 0) {
                 $scope.txtValue = data;
 

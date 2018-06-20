@@ -1,12 +1,22 @@
-﻿app.service('categoryService', ['$rootScope', '$q',
-    function ($rootScope, $q) {
+﻿app.service('categoryService', ['$rootScope', '$q', 'productService', 'pictureService',
+    function ($rootScope, $q, productService, pictureService) {
 
-        var cacheCategories = undefined;
+        var cacheCategories = {
+            categories: undefined,
+            subCategories: {}
+        };
+
         var useCache = true;
+
+        var self = this;
 
         $rootScope.$on('pouchDBChanged', function (event, args) {
             if (args.status == "Change" && args.id.indexOf('Category') == 0) {
-                cacheCategories = undefined;
+                cacheCategories = {
+                    categories: undefined,
+                    subCategories: {}
+                };
+                $rootScope.storedCategories = {};
             }
         });
 
@@ -15,15 +25,15 @@
             var categoriesDefer = $q.defer();
 
             if ($rootScope.modelDb.databaseReady) {
-                if (useCache && cacheCategories) {
-                    categoriesDefer.resolve(cacheCategories);
+                if (useCache && cacheCategories.categories && cacheCategories.categories.length > 0) {
+                    categoriesDefer.resolve(cacheCategories.categories);
                 } else {
                     $rootScope.dbInstance.rel.find('Category').then(function (results) {
                         //Filter pour n'avoir que les catégories de plus haut niveau (qui n'ont pas de parent)
                         results.Categories = results.Categories.filter(cat => cat.ParentCategoryId == 0);
                         var categories = self.composeCategories(results);
                         if (useCache) {
-                            cacheCategories = categories;
+                            cacheCategories.categories = categories;
                         }
 
                         categoriesDefer.resolve(categories);
@@ -33,7 +43,6 @@
             } else {
                 categoriesDefer.reject("Database isn't ready !");
             }
-
             return categoriesDefer.promise;
         };
 
@@ -42,14 +51,53 @@
             var subCategoriesDefer = $q.defer();
 
             if ($rootScope.modelDb.databaseReady) {
-                $rootScope.dbInstance.rel.find('Category').then(function (results) {
-                    //Filter pour n'avoir que les sous catégories du parent précisé
-                    //Qui sont enable
-                    results.Categories = results.Categories.filter(subCat => subCat.ParentCategoryId == parentId && subCat.IsEnabled);
-                    var subCategories = self.composeCategories(results);
-                    subCategoriesDefer.resolve(subCategories);
-                }, function (err) {
-                });
+                if (useCache && cacheCategories.subCategories[parentId]) {
+                    subCategoriesDefer.resolve(cacheCategories.subCategories[parentId]);
+                } else {
+                    $rootScope.dbInstance.createIndex({
+                        index: {
+                            fields: ['data.ParentCategoryId', 'data.IsEnabled']
+                        }
+                    }).then(function (result) {
+                        $rootScope.dbInstance.find({
+                            selector:
+                                {
+                                    '_id': {$regex: 'Category_1_*'},
+                                    'data.ParentCategoryId': parseInt(parentId),
+                                    'data.IsEnabled': true
+                                },
+                            fields: ['data']
+                        }).then(function (res) {
+                            var results = {
+                                Categories: []
+                            };
+
+                            results.Categories = Enumerable.from(res.docs).select(function (doc) {
+                                return doc.data;
+                            }).toArray();
+
+                            var subCategories = self.composeCategories(results);
+
+                            if (useCache) {
+                                cacheCategories.subCategories[parentId] = subCategories;
+                            }
+
+                            subCategoriesDefer.resolve(subCategories);
+                        });
+                    }).catch(function (err) {
+
+                    });
+                }
+
+
+                //$rootScope.dbInstance.rel.find('Category').then(function (results) {
+                //    //Filter pour n'avoir que les sous catégories du parent précisé
+                //    //Qui sont enable
+                //    results.Categories = results.Categories.filter(subCat => subCat.ParentCategoryId == parentId && subCat.IsEnabled);
+                //    var subCategories = self.composeCategories(results);
+                //    subCategoriesDefer.resolve(subCategories);
+                //}, function (err) {
+                //});
             } else {
                 subCategoriesDefer.reject("Database isn't ready !");
             }
@@ -64,8 +112,8 @@
             var id = parseInt(idStr);
 
             if ($rootScope.modelDb.databaseReady) {
-                if (useCache && cacheCategories) {
-                    var category = Enumerable.from(cacheCategories).firstOrDefault(function (x) {
+                if (useCache && cacheCategories.categories) {
+                    var category = Enumerable.from(cacheCategories.categories).firstOrDefault(function (x) {
                         return x.Id == id;
                     });
                     categoryDefer.resolve(category);
@@ -136,6 +184,105 @@
             }
 
             return categoryIds;
-        }
+        };
+
+        this.loadCategory = function (categoryId, callback) {
+            var storage = {};
+
+            self.getCategoryByIdAsync(categoryId).then(function (category) {
+                if (!category.products) {
+                    // Get products for this category
+                    productService.getProductForCategoryAsync(categoryId).then(function (results) {
+                        if (results) {
+
+                            category.products = Enumerable.from(results).orderBy('x => x.ProductCategory.DisplayOrder').toArray();
+
+                            storage.mainProducts = category.products.length;
+
+                            // Pictures
+                            Enumerable.from(category.products).forEach(function (p) {
+                                pictureService.getPictureIdsForProductAsync(p.Id).then(function (ids) {
+                                    var id = Enumerable.from(ids).firstOrDefault();
+                                    pictureService.getPictureUrlAsync(id).then(function (url) {
+                                        if (!url) {
+                                            url = 'img/photo-non-disponible.png';
+                                        }
+                                        p.DefaultPictureUrl = url;
+
+                                        storage.mainProducts--;
+                                        callback(storage);
+                                    });
+                                });
+                            });
+                        }
+                    }, function (err) {
+                        console.log(err);
+                    });
+                }
+                else {
+                    setTimeout(function () {
+                        storage.mainProducts = 0;
+                        callback(storage);
+                    }, 1);
+                }
+
+                storage.mainCategory = category;
+
+
+                self.getSubCategoriesByParentAsync(categoryId).then(function (subCategories) {
+                    //Recupere toutes les sous categories du parent
+
+                    if (subCategories.length == 0) {
+                        storage.subProducts = 0;
+                        callback(storage);
+                    }
+
+                    Enumerable.from(subCategories).forEach(function (subCat) {
+                        if (!subCat.products) {
+                            productService.getProductForCategoryAsync(subCat.Id).then(function (results) {
+                                if (results) {
+
+                                    subCat.products = Enumerable.from(results).orderBy('x => x.ProductCategory.DisplayOrder').toArray();
+
+                                    if (storage.subProducts) {
+                                        storage.subProducts += subCat.products.length;
+                                    } else {
+                                        storage.subProducts = subCat.products.length;
+                                    }
+
+                                    // Pictures
+                                    Enumerable.from(subCat.products).forEach(function (p) {
+                                        pictureService.getPictureIdsForProductAsync(p.Id).then(function (ids) {
+                                            var id = Enumerable.from(ids).firstOrDefault();
+                                            pictureService.getPictureUrlAsync(id).then(function (url) {
+                                                if (!url) {
+                                                    url = 'img/photo-non-disponible.png';
+                                                }
+                                                p.DefaultPictureUrl = url;
+
+                                                storage.subProducts--;
+                                                callback(storage);
+                                            });
+                                        });
+                                    });
+                                }
+                            }, function (err) {
+                                console.log(err);
+                            });
+                        } else {
+                            storage.subProducts = 0;
+                            callback(storage);
+                        }
+                    });
+                    storage.subCategories = subCategories;
+                })
+            }, function (err) {
+                console.log(err);
+            });
+        };
+
+        this.getCache = function () {
+            return cacheCategories;
+        };
 
     }]);

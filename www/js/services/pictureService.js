@@ -66,7 +66,7 @@
             }
 
             return allPicturesDefer.promise;
-        }
+        };
 
         this.getPictureIdsForProductAsync = function (idProduct) {
             var pictureIdsDefer = $q.defer();
@@ -80,15 +80,17 @@
             });
 
             return pictureIdsDefer.promise;
-        }
+        };
 
         this.getPictureUrlAsync = function (pictureId) {
             var pictureUrlDefer = $q.defer();
 
             var pictureUrl = undefined;
 
+            useCache = true;
+
             if (useCache) {
-                window.sessionStorage.getItem("Image" + pictureId);
+                pictureUrl = window.sessionStorage.getItem("Image" + pictureId);
             }
 
             if (!pictureUrl) {
@@ -139,5 +141,4 @@
 
             return pictureUrlDefer.promise;
         }
-
-    }])
+    }]);

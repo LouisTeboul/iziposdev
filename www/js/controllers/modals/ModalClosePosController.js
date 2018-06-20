@@ -1,11 +1,81 @@
-﻿app.controller('ModalClosePosController', function ($scope, $rootScope, $uibModal, $uibModalInstance, settingService, shoppingCartService, eventService, cashMovementService, zposService, $translate, posPeriodService, closePosParameters, modalStats, posUserService, posService, $http) {
+﻿app.controller('ModalClosePosController', function ($scope, $rootScope, $http, $uibModal, $uibModalInstance, $translate, $q, settingService, shoppingCartService, eventService, cashMovementService, zposService, posPeriodService, closePosParameters, modalStats, posUserService, posService) {
     $scope.closePosParameters = closePosParameters;
     $scope.paymentType = PaymentType;
 
-    $scope.init = function (reload = false, savedModel = {}) {
-        if (savedModel) {
-            console.log(savedModel);
+    var checkValidateLock = function () {
+        setTimeout(function () {
+            $scope.model.hardwareIdModels.forEach(function (hidMdl) {
+                function checkYperiod(ypid) {
+                    var checkDefer = $q.defer();
+                    var db = $rootScope.remoteDbZPos;
+                    db.find({
+                        selector: {
+                            _id: {$regex: 'ShoppingCart_1_*'},
+                            "data.yPeriodId": ypid,
+                            "data.Canceled": false
+                        }
+                    }).then((resTick) => {
+                        db.find({
+                            selector: {
+                                _id: {$regex: 'PaymentValues_2_*'},
+                                "data.yPeriodId": ypid
+                            }
+                        }).then((resPv) => {
+                            if (resPv.docs[0].data.Count === resTick.docs.length) {
+                                checkDefer.resolve(false);
+                            } else {
+                                checkDefer.resolve(true);
+                            }
+                        }, (err) => {
+                            console.log(err);
+                        })
+                    });
+                    return checkDefer.promise;
+                }
 
+                if (hidMdl.ypid) {
+                    checkYperiod(hidMdl.ypid).then((res) => {
+                        $rootScope.validateLock = res;
+                    })
+                } else {
+                    var db = new PouchDB(`http://${$rootScope.IziBoxConfiguration.LocalIpIziBox}:5984/utils`);
+                    db.find({
+                        selector: {
+                            _id: {$regex: 'YPeriod_2_*'},
+                            "data.hardwareId": hidMdl.hid,
+                            "data.endDate" : null
+                        }
+                    }).then((res) => {
+                        var validArray = [];
+                        res.docs.forEach((yp, idx, arr) => {
+                            checkYperiod(yp.data.id).then((res) => {
+                                validArray.push(res);
+                                if (idx === arr.length - 1) {
+                                    var testUnlock = (val) => {
+                                        return val === false
+                                    };
+                                    if (validArray.every(testUnlock)) {
+                                        $rootScope.validateLock = false;
+                                    }
+                                }
+                            });
+                        });
+                    }, (err) => {
+                        console.log(err);
+                    })
+                }
+            });
+
+            if ($rootScope.validateLock) {
+                // Si la validation est toujours lock, on recheck toutes les 5s
+                checkValidateLock()
+            }
+        }, 5000);
+    };
+
+    $scope.init = function (reload = false, savedModel = {}) {
+        checkValidateLock();
+        if (savedModel) {
             function getmatchedPmTotal(hid, paymentType) {
                 var matchedHidMdl = Enumerable.from(savedModel).firstOrDefault(function (hidModel) {
                     return hidModel.hid == hid;
@@ -250,7 +320,7 @@
                                             // Pré-renseigner du montant attendu
 
 
-                                            lineClose.PaymentMode.Total = l.PaymentMode.Total;
+                                            lineClose.PaymentMode.Total = roundValue(l.PaymentMode.Total);
                                             lineClose.TotalKnown = roundValue(l.PaymentMode.Total);
                                         }
                                         else {
@@ -405,7 +475,7 @@
                     }
                 }
 
-            },
+            }
 
         });
 
@@ -607,7 +677,8 @@
                 $uibModalInstance.close();
             }, function (err) {
                 message = err ? err : $translate.instant("Erreur lors de la fermeture");
-                sweetAlert({ title: message }, function () { });
+                sweetAlert({title: message}, function () {
+                });
             });
         }
         else {
@@ -618,21 +689,21 @@
 
     var closeCashMachine = function (nbFreeze) {
         if (!$rootScope.modelPos.iziboxConnected) {
-            sweetAlert({ title: $translate.instant("La izibox n'est pas accèssible") }, function () {
+            sweetAlert({title: $translate.instant("La izibox n'est pas accèssible")}, function () {
             });
         }
         else {
             var textFreeze = nbFreeze && nbFreeze > 0 ? "Vous avez " + nbFreeze + " ticket en attente" : "";
             swal({
-                title: $translate.instant($scope.closePosParameters.mode.text),
-                text: textFreeze,
-                type: "warning",
-                showCancelButton: true,
-                confirmButtonColor: "#d83448",
-                confirmButtonText: $translate.instant("Oui"),
-                cancelButtonText: $translate.instant("Non"),
-                closeOnConfirm: true
-            },
+                    title: $translate.instant($scope.closePosParameters.mode.text),
+                    text: textFreeze,
+                    type: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: "#d83448",
+                    confirmButtonText: $translate.instant("Oui"),
+                    cancelButtonText: $translate.instant("Non"),
+                    closeOnConfirm: true
+                },
                 function () {
                     var updPaymentModes = [];
 
@@ -650,7 +721,8 @@
 
                             }, function (err) {
                                 message = err ? err : $translate.instant("La izibox n'est pas accèssible");
-                                sweetAlert({ title: message }, function () { });
+                                sweetAlert({title: message}, function () {
+                                });
                             });
 
                             break;
@@ -670,11 +742,10 @@
                                     emptyCashYperiod(hardwareIdModel.CashMovementLines);
                                 }, function (err) {
                                     message = err ? err : $translate.instant("La izibox n'est pas accèssible");
-                                    sweetAlert({ title: message }, function () { });
+                                    sweetAlert({title: message}, function () {
+                                    });
                                 });
                             }
-
-                            updPaymentModes = hardwareIdModel.CashMovementLines;
 
                             break;
                         case 3:
@@ -712,21 +783,22 @@
                                         closeEventNF(updPaymentModes);
                                         $uibModalInstance.close();
                                     }, function (err) {
-                                        message = err ? err : $translate.instant("Erreur lors de la fermeture");
-                                        sweetAlert({ title: message }, function () { });
-                                    });;
+                                        var message = err ? err : $translate.instant("Erreur lors de la fermeture");
+                                        sweetAlert({title: message}, function () {
+                                        });
+                                    });
                                 });
 
                             }, function (err) {
-                                message = err ? err : $translate.instant("La izibox n'est pas accèssible");
-                                sweetAlert({ title: message }, function () { });
+                                var message = err ? err : $translate.instant("La izibox n'est pas accèssible");
+                                sweetAlert({title: message}, function () {
+                                });
                             });
 
                             break;
                     }
 
                     setTimeout(function () {
-                        $rootScope.closeKeyboard();
                         $rootScope.closeKeyboard();
                     }, 500);
                 }, function () {

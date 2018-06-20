@@ -49,7 +49,7 @@
      * @param alignment
      */
 	$rootScope.openKeyboard = function (type, alignment) {
-        if (!$mdMedia('(min-width: 799px)')) {
+        if (!$mdMedia('(min-width: 800px)')) {
 			alignment = "center-end";
 		}
 

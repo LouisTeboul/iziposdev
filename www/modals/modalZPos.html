@@ -4,13 +4,14 @@
     </div>
 
     <div class="form-panel modal-body">
-        <table class=" table table-striped">
-            <thead>
+        <div style="overflow-x:auto;">
+            <table class="table table-striped">
+                <thead>
                 <tr>
                     <th class="zheader" ng-repeat="zheader in zheaders">{{zheader}}</th>
                 </tr>
-            </thead>
-            <tbody>
+                </thead>
+                <tbody>
                 <tr ng-repeat="zline in zlines track by $index">
                     <td class="zvalue" ng-repeat="zvalue in zline track by $index">{{zvalue}}</td>
                 </tr>
@@ -20,8 +21,9 @@
                 <tr>
                     <td class="zvalue" ng-repeat="ztotET in ztotalET track by $index">{{ztotET}}</td>
                 </tr>
-            </tbody>
-        </table>
+                </tbody>
+            </table>
+        </div>
 		<div ng-if="zpos.employees && zpos.employees.length > 0" style="margin-top:20px">
 			<b>Total par utilisateur : </b>
 			<div ng-repeat="employee in zpos.employees">

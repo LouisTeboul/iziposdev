@@ -1,4 +1,4 @@
-﻿app.controller('ModalUnfreezeShoppingCartController', function ($scope, $rootScope, $uibModalInstance, shoppingCartService, shoppingCartModel, $translate, orderShoppingCartService) {
+﻿app.controller('ModalUnfreezeShoppingCartController', function ($scope, $rootScope, $uibModalInstance, $uibModal, $mdMedia, shoppingCartService, shoppingCartModel, $translate, orderShoppingCartService) {
     var tryGetFreezed = 0;
     var isClosed = false;
 
@@ -7,6 +7,7 @@
     $scope.init = function () {
         $scope.initFreezed();
         $scope.initOrder();
+        $scope.$mdMedia = $mdMedia;
     };
 
     $scope.initFreezed = function () {
@@ -107,43 +108,42 @@
 
     $scope.join = function () {
         swal({
-                title: $translate.instant("Joindre les tickets sélectionnés ?"),
-                text: "",
-                type: "warning",
-                showCancelButton: true,
-                confirmButtonColor: "#d83448",
-                confirmButtonText: $translate.instant("Oui"),
-                cancelButtonText: $translate.instant("Non"),
-                closeOnConfirm: true
-            },
-            function () {
+            title: $translate.instant("Joindre les tickets sélectionnés ?"),
+            text: "",
+            type: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#d83448",
+            confirmButtonText: $translate.instant("Oui"),
+            cancelButtonText: $translate.instant("Non"),
+            closeOnConfirm: true
+        }, function () {
+            var toJoin = Enumerable.from($scope.selectedShoppingCarts).orderBy("s=>s.Timestamp").toArray();
 
-                var toJoin = Enumerable.from($scope.selectedShoppingCarts).orderBy("s=>s.Timestamp").toArray();
-
-                Enumerable.from($scope.selectedShoppingCarts).forEach(function (s) {
-                    //ATTENTION
-                    //Bricolage, a amélioré
-                    //Permet que le RK compteur soit décrémenté correctement
-                    //Sinon on a des pn de missing rev
-                    setTimeout(function(){
-                        shoppingCartService.unfreezeShoppingCartAsync(s);
-                    },100)
-
-                });
-
-                var joinedShoppingCart = toJoin[0];
-
-                for (var i = 1; i < toJoin.length; i++) {
-                    var curShoppingCart = toJoin[i];
-
-                    Enumerable.from(curShoppingCart.Items).forEach(function (item) {
-                        shoppingCartModel.addItemTo(joinedShoppingCart, undefined, item, item.Quantity);
-                    });
-                }
-
-                $uibModalInstance.close(joinedShoppingCart);
+            Enumerable.from($scope.selectedShoppingCarts).forEach(function (s) {
+                //ATTENTION
+                //Bricolage, a amélioré
+                //Permet que le RK compteur soit décrémenté correctement
+                //Sinon on a des pn de missing rev
+                setTimeout(function () {
+                    shoppingCartService.unfreezeShoppingCartAsync(s);
+                }, 100)
 
             });
+
+            var joinedShoppingCart = toJoin[0];
+
+            for (var i = 1; i < toJoin.length; i++) {
+                var curShoppingCart = toJoin[i];
+
+                Enumerable.from(curShoppingCart.Items).forEach(function (item) {
+                    shoppingCartModel.addItemTo(joinedShoppingCart, undefined, item, item.Quantity);
+                });
+            }
+
+            $uibModalInstance.close(joinedShoppingCart);
+
+            shoppingCartModel.selectTableNumber();
+        });
     };
 
     $scope.cancel = function () {

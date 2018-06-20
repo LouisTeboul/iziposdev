@@ -1,51 +1,54 @@
 ﻿app.configPouchDb = function ($rootScope, $q, zposService, posService) {
 
-    // Destroy local database if changed
-    if ($rootScope.IziBoxConfiguration.deleteCouchDb != undefined && $rootScope.IziBoxConfiguration.deleteCouchDb) {
-        new PouchDB('izipos_datas').destroy().then(function () {
-            new PouchDB('izipos_replicate').destroy().then(function () {
-                new PouchDB('izipos_zpos').destroy().then(function () {
-                    new PouchDB('izipos_freeze').destroy().then(function () {
-                        new PouchDB('utils').destroy().then(function () {
-                            console.log("Datas destroyed");
-                            setupDatabases($rootScope, $q, zposService, posService);
+    if (navigator.userAgent.match(/(iPhone|iPod|iPad|Android|BlackBerry)/)) {
+        console.log('Android / iOs Detected');
+        document.addEventListener("deviceready", onDeviceReady, false);
+    } else {
+        onDeviceReady();
+    }
+    function onDeviceReady() {
+        var adapter = !!window.sqlitePlugin ? 'cordova-sqlite' : 'websql';
+        var settingsPouchDB = {
+            typeDB: adapter,
+            opts: {live: true, retry: true, batch_size: 50, batches_limit: 100, heartbeat: 5000},
+            optsReplicate: {live: true, retry: true, batch_size: 10, batches_limit: 8, heartbeat: 5000},
+            optsSync: {live: false, retry: false, batch_size: 10, batches_limit: 8},
+            // auth: {username: 'posnf', password: 'Izipass2018'}
+        };
+        // Destroy local database if changed
+        if ($rootScope.IziBoxConfiguration.deleteCouchDb != undefined && $rootScope.IziBoxConfiguration.deleteCouchDb) {
+            new PouchDB('izipos_datas').destroy().then(function () {
+                new PouchDB('izipos_replicate').destroy().then(function () {
+                    new PouchDB('izipos_zpos').destroy().then(function () {
+                        new PouchDB('izipos_freeze').destroy().then(function () {
+                            new PouchDB('utils').destroy().then(function () {
+                                console.log("Datas destroyed");
+                                setupDatabases($rootScope, $q, zposService, posService, settingsPouchDB);
+                            });
                         });
                     });
                 });
             });
-        });
-    } else {
-        // Recreates database
-        setupDatabases($rootScope, $q, zposService, posService);
+        } else {
+            // Recreates database
+            setupDatabases($rootScope, $q, zposService, posService, settingsPouchDB);
+        }
     }
 };
-
-var settingsPouchDB = {
-    typeDB: 'websql',
-    opts: { live: true, retry: true, batch_size: 50, batches_limit: 100, heartbeat: 5000 },
-    optsReplicate: { live: true, retry: true, batch_size: 10, batches_limit: 8, heartbeat: 5000 },
-    optsSync: { live: false, retry: false, batch_size: 10, batches_limit: 8 },
-    // auth: {username: 'posnf', password: 'Izipass2018'}
-};
-
 /**
  * Create the local databases
  * @param $rootScope
  */
-var setupDatabases = function ($rootScope, $q, zposService, posService) {
-
-    // TODO: comment  for release
+var setupDatabases = function ($rootScope, $q, zposService, posService, settingsPouchDB) {
     // PouchDB.debug.enable('*');
 
 
     // Instantiate PouchDB
-    $rootScope.dbInstance = new PouchDB('izipos_datas', { adapter: settingsPouchDB.typeDB });
-    $rootScope.dbOrder = new PouchDB('izipos_order', { adapter: settingsPouchDB.typeDB });
-    $rootScope.dbFreeze = new PouchDB('izipos_freeze', { adapter: settingsPouchDB.typeDB });
+    $rootScope.dbInstance = new PouchDB('izipos_datas', {size: 200, adapter: settingsPouchDB.typeDB});
+    $rootScope.dbOrder = new PouchDB('izipos_order', {size: 50, adapter: settingsPouchDB.typeDB});
+    $rootScope.dbFreeze = new PouchDB('izipos_freeze', {size: 50, adapter: settingsPouchDB.typeDB});
 
     console.info("PouchDb adapter : " + $rootScope.dbInstance.adapter); // prints either 'idb' or 'websql'
-
-    //$rootScope.dbInstance.info().then(console.log.bind(console));
 
     $rootScope.modelDb = {};
     $rootScope.modelDb.databaseReady = false;
@@ -57,14 +60,13 @@ var setupDatabases = function ($rootScope, $q, zposService, posService) {
     $rootScope.modelDb.configReplicationReady = false;
 
     /**
-	 * 	Freeze - Database  for the shared ticket queue for pos user information
+     *    Freeze - Database  for the shared ticket queue for pos user information
      */
 
-    //#region dbFreeze
+        //#region dbFreeze
     var freezeRemoteInfo = undefined;
 
     if ($rootScope.IziBoxConfiguration.LocalIpIziBox) {
-
 
         var urlFreezeCouchDb = "http://" + $rootScope.IziBoxConfiguration.LocalIpIziBox + ":5984/freeze";
         var remoteDbFreeze = new PouchDB(urlFreezeCouchDb);
@@ -89,15 +91,15 @@ var setupDatabases = function ($rootScope, $q, zposService, posService) {
                 $rootScope.$emit("dbFreezeChange", info);
             })
             .on('paused', function (err) {
-               // if (!err) {
-                    if ($rootScope.modelDb.databaseReady) {
-                        posService.getPosNameAsync($rootScope.modelPos.hardwareId).then(function (alias) {
-                            $rootScope.modelPos.aliasCaisse = alias;
-                        });
-                        $rootScope.$emit("dbFreezeReplicate", {});
-                    }
-                    $rootScope.modelDb.freezeReady = true;
-                    $rootScope.$evalAsync();
+                // if (!err) {
+                if ($rootScope.modelDb.databaseReady) {
+                    posService.getPosNameAsync($rootScope.modelPos.hardwareId).then(function (alias) {
+                        $rootScope.modelPos.aliasCaisse = alias;
+                    });
+                    $rootScope.$emit("dbFreezeReplicate", {});
+                }
+                $rootScope.modelDb.freezeReady = true;
+                $rootScope.$evalAsync();
                 //} else {
                 //    console.error(err);
                 //}
@@ -111,9 +113,9 @@ var setupDatabases = function ($rootScope, $q, zposService, posService) {
         $rootScope.modelDb.freezeReady = true;
     }
 
-	/**
-	 * The freeze manage the posuser connection and the shopping carts
-	 */
+    /**
+     * The freeze manage the posuser connection and the shopping carts
+     */
 
     $rootScope.dbFreeze.setSchema([
         {
@@ -138,10 +140,10 @@ var setupDatabases = function ($rootScope, $q, zposService, posService) {
 
 
     /**
-	 * This database contains all the data (product, category, pictures, POS user
+     * This database contains all the data (product, category, pictures, POS user
      */
 
-    //#region dbInstance
+        //#region dbInstance
     var datasRemoteInfo = undefined;
 
     var urlCouchDb = $rootScope.IziBoxConfiguration.UrlCouchDb + "/" + $rootScope.IziBoxConfiguration.IdxCouchDb;
@@ -172,36 +174,36 @@ var setupDatabases = function ($rootScope, $q, zposService, posService) {
             info.status = "Change";
             $rootScope.$emit("dbDatasReplicate", info);
         }).on('paused', function (err) {
-            //if (!err) {
-                $rootScope.dbInstance.info().then(function (dbInstanceInfo) {
-                    if (datasRemoteInfo) {
-                        if (dbInstanceInfo.doc_count >= datasRemoteInfo.doc_count) {
-                            $rootScope.modelDb.dataReady = true;
-                            $rootScope.$evalAsync();
-                            $rootScope.$emit("dbDatasReplicate", { status:"UpToDate"});
-                        }
-                    } else {
-                        $rootScope.modelDb.dataReady = true;
-                        $rootScope.$evalAsync();
-                        $rootScope.$emit("dbDatasReplicate", { status: "UpToDate"});
-                    }
-                });
-            //} else {
-            //    console.error(err);
-            //}
-        }).on('error', function (info) {
-            if (!info) {
-                info = {};
+        //if (!err) {
+        $rootScope.dbInstance.info().then(function (dbInstanceInfo) {
+            if (datasRemoteInfo) {
+                if (dbInstanceInfo.doc_count >= datasRemoteInfo.doc_count) {
+                    $rootScope.modelDb.dataReady = true;
+                    $rootScope.$evalAsync();
+                    $rootScope.$emit("dbDatasReplicate", {status: "UpToDate"});
+                }
+            } else {
+                $rootScope.modelDb.dataReady = true;
+                $rootScope.$evalAsync();
+                $rootScope.$emit("dbDatasReplicate", {status: "UpToDate"});
             }
-            console.info(info);
-            $rootScope.modelDb.dataReady = true;
-            $rootScope.$evalAsync();
-            info.status = "Error";
-            $rootScope.$emit("dbDatasReplicate", info);
-
-            $rootScope.replicationMessage = "Erreur de synchronisation !";
-            $rootScope.$evalAsync();
         });
+        //} else {
+        //    console.error(err);
+        //}
+    }).on('error', function (info) {
+        if (!info) {
+            info = {};
+        }
+        console.info(info);
+        $rootScope.modelDb.dataReady = true;
+        $rootScope.$evalAsync();
+        info.status = "Error";
+        $rootScope.$emit("dbDatasReplicate", info);
+
+        $rootScope.replicationMessage = "Erreur de synchronisation !";
+        $rootScope.$evalAsync();
+    });
 
     $rootScope.dbInstance.changes({
         since: 'now',
@@ -219,15 +221,15 @@ var setupDatabases = function ($rootScope, $q, zposService, posService) {
             singular: 'Category',
             plural: 'Categories',
             relations: {
-                'PictureId': { belongsTo: 'Picture' },
-                'CategoryTemplateId': { belongsTo: 'CategoryTemplate' }
+                'PictureId': {belongsTo: 'Picture'},
+                'CategoryTemplateId': {belongsTo: 'CategoryTemplate'}
             }
         },
         {
             singular: 'PosUser',
             plural: 'PosUsers',
             relations: {
-                'PictureId': { belongsTo: 'Picture' }
+                'PictureId': {belongsTo: 'Picture'}
             }
         },
         {
@@ -246,7 +248,7 @@ var setupDatabases = function ($rootScope, $q, zposService, posService) {
             singular: 'Product',
             plural: 'Products',
             relations: {
-                'ProductTemplateId': { belongsTo: 'ProductTemplate' }
+                'ProductTemplateId': {belongsTo: 'ProductTemplate'}
             }
         },
         {
@@ -319,11 +321,11 @@ var setupDatabases = function ($rootScope, $q, zposService, posService) {
             .on('paused', function (err) {
                 //if (!err) {
 
-                    if ($rootScope.modelDb.databaseReady) {
-                        $rootScope.$emit("dbOrderReplicate", {});
-                    }
-                    $rootScope.modelDb.orderReady = true;
-                    $rootScope.$evalAsync();
+                if ($rootScope.modelDb.databaseReady) {
+                    $rootScope.$emit("dbOrderReplicate", {});
+                }
+                $rootScope.modelDb.orderReady = true;
+                $rootScope.$evalAsync();
                 //} else {
                 //    console.error(err);
                 //}
@@ -350,7 +352,7 @@ var setupDatabases = function ($rootScope, $q, zposService, posService) {
 
     //#region dbReplicate
     $rootScope.InitDBReplicate = function () {
-        $rootScope.dbReplicate = new PouchDB('izipos_replicate', { adapter: settingsPouchDB.typeDB });
+        $rootScope.dbReplicate = new PouchDB('izipos_replicate', {size: 50, adapter: settingsPouchDB.typeDB});
 
         var replicateInfo = undefined;
 
@@ -389,14 +391,14 @@ var setupDatabases = function ($rootScope, $q, zposService, posService) {
             .on('paused', function (err) {
                 //if (!err) {
 
-                    if (!$rootScope.modelDb.replicateReady) {
-                        $rootScope.modelDb.replicateReady = true;
-                        $rootScope.dbReplicate.destroy().then(function () {
-                            $rootScope.InitDBReplicate();
-                        });
-                    }
+                if (!$rootScope.modelDb.replicateReady) {
+                    $rootScope.modelDb.replicateReady = true;
+                    $rootScope.dbReplicate.destroy().then(function () {
+                        $rootScope.InitDBReplicate();
+                    });
+                }
 
-                    $rootScope.$evalAsync();
+                $rootScope.$evalAsync();
                 //} else {
                 //    console.error(err);
                 //}
@@ -536,205 +538,10 @@ var setupDatabases = function ($rootScope, $q, zposService, posService) {
     //#endregion
 };
 
-/**
- * Create the replication document on the couchDb
- * @deprecated
- * @param $rootScope
- * @param $q
- */
-var setupReplicationIzibox = function ($rootScope, $q) {
-    var urlReplicator = "http://" + $rootScope.IziBoxConfiguration.LocalIpIziBox + ":5984/_replicator";
-
-    var dataFrom = {
-        _id: "dataFrom",
-        source: $rootScope.IziBoxConfiguration.UrlCouchDb + "/" + $rootScope.IziBoxConfiguration.IdxCouchDb,
-        target: "http://127.0.0.1:5984/" + $rootScope.IziBoxConfiguration.IdxCouchDb,
-        continuous: true
-    };
-
-    var replicFrom = {
-        _id: "replicFrom",
-        source: $rootScope.IziBoxConfiguration.UrlCouchDb + "/" + $rootScope.IziBoxConfiguration.IdxCouchDb + "_replicate",
-        target: "http://127.0.0.1:5984/" + $rootScope.IziBoxConfiguration.IdxCouchDb + "_replicate",
-        continuous: true
-    };
-
-    var replicTo = {
-        _id: "replicTo",
-        source: "http://127.0.0.1:5984/" + $rootScope.IziBoxConfiguration.IdxCouchDb + "_replicate",
-        target: $rootScope.IziBoxConfiguration.UrlCouchDb + "/" + $rootScope.IziBoxConfiguration.IdxCouchDb + "_replicate",
-
-        continuous: true
-    };
-
-    var orderFrom = {
-        _id: "orderFrom",
-        source: $rootScope.IziBoxConfiguration.UrlCouchDb + "/" + $rootScope.IziBoxConfiguration.IdxCouchDb + "_order",
-        target: "http://127.0.0.1:5984/" + $rootScope.IziBoxConfiguration.IdxCouchDb + "_order",
-        continuous: true
-    };
-
-    var orderTo = {
-        _id: "orderTo",
-        source: "http://127.0.0.1:5984/" + $rootScope.IziBoxConfiguration.IdxCouchDb + "_order",
-        target: $rootScope.IziBoxConfiguration.UrlCouchDb + "/" + $rootScope.IziBoxConfiguration.IdxCouchDb + "_order",
-
-        continuous: true
-    };
-
-    /**
-	 *  Add replication Doc asynchronously
-	 *
-     */
-    var addFuncAsync = function () {
-        var addFuncDefer = $q.defer();
-
-        var replicator = new PouchDB(urlReplicator);
-        var allAdded = false;
-
-        addReplicationAsync($q, replicator, "dataFrom", dataFrom).then(function (r) {
-            allAdded = r;
-            addReplicationAsync($q, replicator, "replicFrom", replicFrom).then(function (r) {
-                allAdded = r;
-                addReplicationAsync($q, replicator, "replicTo", replicTo).then(function (r) {
-                    allAdded = r;
-                    addReplicationAsync($q, replicator, "orderFrom", orderFrom).then(function (r) {
-                        allAdded = r;
-                        addReplicationAsync($q, replicator, "orderTo", orderTo).then(function (r) {
-                            allAdded = r;
-                            if (allAdded) {
-                                console.log("Replication OK");
-                                $rootScope.modelDb.configReplicationReady = true;
-                                addFuncDefer.resolve();
-                            } else {
-                                addFuncAsync().then(function () {
-                                    addFuncDefer.resolve();
-                                });
-                            }
-                        });
-                    });
-                });
-            });
-        });
-
-        return addFuncDefer.promise;
-    };
-
-    /**
-	 * Remove the replication doc asynchronously
-     */
-    var removeFuncAsync = function () {
-        var removeFuncDefer = $q.defer();
-
-        var replicator = new PouchDB(urlReplicator);
-
-        removeReplicationAsync($q, replicator, "dataFrom").then(function () {
-            removeReplicationAsync($q, replicator, "replicFrom").then(function () {
-                removeReplicationAsync($q, replicator, "replicTo").then(function () {
-                    removeReplicationAsync($q, replicator, "orderFrom").then(function () {
-                        removeReplicationAsync($q, replicator, "orderTo").then(function () {
-                            console.log("Remove Replication OK");
-                            removeFuncDefer.resolve();
-                        });
-                    });
-                });
-            });
-        });
-
-        return removeFuncDefer.promise;
-    };
-
-    // Recreation of documents
-    if ($rootScope.IziBoxConfiguration.deleteCouchDb) {
-        removeFuncAsync().then(function () {
-            addFuncAsync();
-        });
-    } else {
-        addFuncAsync();
-    }
-};
-
-/**
-* Add a replication document in the couchDb
- *
- * TODO : Filter the replication
- * =>  https://pouchdb.com/2015/04/05/filtered-replication.html
- */
-var addReplicationAsync = function ($q, replicator, name, obj) {
-    var replicDefer = $q.defer();
-
-    obj._deleted = false;
-
-    replicator.get(name).then(function (res) {
-        replicDefer.resolve(true);
-    }, function () {
-        replicator.post(obj).then(function () {
-            replicDefer.resolve(false);
-        }, function (errPut) {
-            console.log(errPut);
-            replicDefer.resolve(false);
-        })
-    });
-
-    return replicDefer.promise;
-};
-
-/**
- * Remove a replication doc
- * @param $q
- * @param replicator
- * @param name
- */
-var removeReplicationAsync = function ($q, replicator, name) {
-    var replicDefer = $q.defer();
-
-    replicator.get(name).then(function (res) {
-        replicator.remove(res).then(function () {
-            replicDefer.resolve();
-        }, function () {
-            replicDefer.resolve();
-        });
-    }, function (err) {
-        replicDefer.resolve();
-    });
-
-    return replicDefer.promise;
-};
-
-/**
- * Create a zpos
- * @param $rootScope
- */
-var setupZPos = function ($rootScope) {
-
-    if ($rootScope.IziBoxConfiguration.LocalIpIziBox) {
-        $.getJSON("datas/zpos.json", function (data) {
-            var dataJson = JSON.stringify(data);
-
-            var db = $rootScope.remoteDbZPos ? $rootScope.remoteDbZPos : $rootScope.dbZPos;
-
-            db.get("_design/zpos").then(function (resDoc) {
-                data._rev = resDoc._rev;
-                db.put(data).then(function (response) {
-                }).catch(function () {
-                    console.error("ZPOS map error !");
-                });
-            }).catch(function () {
-                db.put(data).then(function (response) {
-                }).catch(function () {
-                    console.error("ZPOS map error !");
-                });
-            });
-        });
-    }
-};
-
-
-
-var syncValidatePoolDb = function ($rootScope) {
+var syncValidatePoolDb = function ($rootScope,settingsPouchDB) {
     var syncRunning = false;
 
-    $rootScope.dbValidatePool = new PouchDB('izipos_validatepool', { adapter: settingsPouchDB.typeDB });
+    $rootScope.dbValidatePool = new PouchDB('izipos_validatepool', {size: 50, adapter: settingsPouchDB.typeDB});
     if ($rootScope.IziBoxConfiguration.LocalIpIziBox) {
         var urlValidatePoolCouchDb = "http://" + $rootScope.IziBoxConfiguration.LocalIpIziBox + ":5984/validatepool";
         var remoteDbValidatePool = new PouchDB(urlValidatePoolCouchDb);
@@ -770,3 +577,6 @@ var syncValidatePoolDb = function ($rootScope) {
         runpoolSync(true);
     }
 };
+
+
+

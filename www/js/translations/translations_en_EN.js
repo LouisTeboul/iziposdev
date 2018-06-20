@@ -39,7 +39,7 @@
 		"Couvert(s)": "Diner(s)",
 		"Rendu": "Change",
 		"REMISE": "DISCOUNT",
-		"Reste à payer": "Balance",
+		"Reste à payer": "Have to pay",
 		"Avoir": "Credit note",
 		"Total HT": "Total ET",
 		"TVA": "VAT",
@@ -55,7 +55,6 @@
 		"Autre montant": "Other amount",
 		"Fermeture de caisse": "Close POS",
 		"Paiements": "Payments",
-		"Nb": "Nb",
 		"Montant": "Amount",
 		"Attendu": "Expected",
 		"Fermer la caisse": "Close POS",
@@ -74,14 +73,12 @@
 		"Editer une note": "Edit a note",
 		"Nombre de repas": "Number of meals",
 		"Numéro": "Number",
-		"Nombre de parts": "Number of shares",
 		"Parts": "Shares",
 		"Saisissez le prix": "Enter price",
 		"Prix": "Price",
 		"Reprendre un ticket": "Recall a receipt",
 		"Ticket": "Receipt",
 		"produit(s)": "product(s)",
-		"TOTAL": "TOTAL",
 		"Horaire": "Schedule",
 		"Aucun ticket en attente": "No pending receipt",
 		"Les tickets en attentes sont en cours de synchronisation": "Pending receipts are being synchronized",
@@ -108,6 +105,7 @@
 		"Le ticket a déjà une remise": "A discount is already deducted from this receipt ",
 		"Le ticket-restaurant n'a pu être ajouté !": "Meal voucher can't be added",
 		"Supprimer le ticket ?": "Delete the receipt ?",
+		"Abandonner la commande ?": "Cancel the order ?",
 		"Cloturer la caisse ?": "Close POS ?",
 		"Veuillez renseigner le motif": "Please select a reason",
 		"Montant non valide": "Invalid amount",
@@ -141,25 +139,20 @@
         "Sélectionner": "Select",
         "Utiliser l'offre": "Use the offer",
         "Date limite d'utilisation : ": "Expiration date :",
-
 		"Impossible de faire une remise de plus de 100% !" : "Can not make a discount greater than 100% !",
 		"Impossible de faire une remise superieur au prix du produit !" : "Can not make a discount greater than item price !",
 		"Impossible de faire une remise superieur au prix de la ligne !" : "Can not make a discount greater than line price !",
 		"Le ticket a déjà une remise !" : "This receipt already has a discount !",
-
 		"Selectionnez un type de remise" : "Select a discount type",
 		"Remise %" : "Discount %",
 		"Remise" : "Discount",
 		"Offrir" : "Free of charge",
 		"Appliquer sur un produit" : "Apply on one item",
 		"Appliquer sur toute la ligne" : "Apply on the whole line",
-
         "Le service n'a pas répondu. Veuillez essayer de nouveau": "The service did not respond. Please try again",
         "Le ticket est vide, impossible de le valider": "The receipt is empty, it can not be validate",
         "Aucun article n'a été ajouté au ticket, impossible de le valider": "No items have been added to the receipt, it can not be validated",
         "Les moyens de payment ne sont pas renseignés, impossible de valider le ticket": "The payments mode are not filled in, it is impossible to validate the receipt",
-
-
 		"Choisissez les services à fermer" : "Pick the service(s) to close",
 		"Toutes les caisses" : "All cash registers",
 		"Tous les services" : "All services",
@@ -177,11 +170,8 @@
 		"Imprimer" : "Print",
 		"Inclure le detail des services" : "Include services details",
 		"Correction des tickets" : "Edit tickets",
-
 		"Choisissez une op&eacute;ration" : "Choose an operation",
-		"Montant" : "Amount",
 		"Nombre de parts" : "Number of parts",
-
 		"Informations de commande" : "Order information",
 		"Dans" : "In",
 		"Pour" : "For",
@@ -191,38 +181,52 @@
 		"Fermer" : "Close",
 		"Appliquer" : "Apply changes",
         "Passage sur place" : "Take away",
-
 		"Etage" : "Floor",
         "Porte" : "Door",
         "Interphone" : "Intercom",
         "Nombre d'article(s)" : "Number of items",
-        "" : "",
-        "" : "",
-        "" : "",
-        "" : "",
-        "" : "",
-
-
-		"RECHERCHE" : "SEARCH",
-		"RECHERCHER" : "Search",
+        "Carte sans compte" : "Card without account",
+        "Passages" : "Count",
+        "Frais de Livraison" : "Shipping fees",
+        "Livraison HT" : "Shipping ET",
+        "Veuillez payer à la caisse." : "Please pay at checkout",
+		"RECHERCHE" : "RESEARCH",
+		"RECHERCHER" : "SEARCH",
 		"ENREGISTREMENT" : "REGISTER",
-		"Nom, prénom ou email" : "Firstname, Lastname or email",
-
+		"Nom, prénom, email, téléphone ou société" : "Firstname, Lastname, email, phone or company",
+        "Téléphone": "Phone",
+        "Société" : "Company",
 		"Aucun résultat" : "No result",
-
-
-
-
-
-
-
+		"Appuyez pour passer commande !" : "Press to order !",
         "Gestion des espèces": "Cash management",
         "Vous devez d&eacute;finir un mouvement de caisse de type fonds de caisse dans le BO, merci": "You have to define a cash movement of cash funds in the BO, thanks",
         "Vous devez d&eacute;finir au moins un mouvement de caisse d'entrée, sortie dans le BO, merci": "You must define at least one cash movement (in or out) in the BO, thank you",
-        "Compteur": "Count",
+        "Compteur" : "Count",
+        "La borne est actuellement fermée !" : "Terminal is closed !",
+        "Etape Suivante" : "Next Step",
+        "Valider votre" : "Validate your",
+        "Votre" : "Your",
+        "Valider" : "Validate",
+        "Connexion" : "Connection",
+        "Veuillez scanner votre carte de fidélité" : "Please scan your loyalty card",
+        "Vous n'avez pas encore de carte de fidélité ?" : "You don't have a loyalty card yet ?",
+        "S'inscrire" : "Register",
+        "Veuillez choisir votre mode de consommation" : "Please choose your consumption mode",
+        "Continuer sans carte" : "Continue without loyalty card",
+        "Votre commande" : "Your order",
+        "Merci de votre visite !" : "Thanks for coming !",
+        "Veuillez récupérer votre commande à la caisse." : "Please pick up your order at checkout.",
+        "Veuillez payer et récupérer votre commande à la caisse." : "Please pay and pick up your order at checkout.",
+		"Ma cagnotte" : "My balance",
+		"Code Postal" : "Postal Code",
+		"Ville" : "City",
+		"Adresse" : "Adress",
+		"Prénom" : "Firsname",
+		"Nom" : "Lastname",
+		"No Carte" : "Loyalty Card Number",
+		"Imprimante borne" : "Terminal printer",
+        "Mode borne": "Terminal mode",
         "La izibox n'est pas accèssible": "The izibox is not accessible",
         "Erreur lors de la fermeture": "Error closing"
-
 	});
-
 }]);

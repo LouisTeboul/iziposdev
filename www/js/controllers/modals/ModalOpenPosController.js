@@ -8,7 +8,7 @@ app.controller('ModalOpenPosController', function ($scope, $rootScope, $uibModal
             total: 0,
             totalKnown: 0,
             message: null,
-            validateDisabled : false
+            validateDisabled: false
         };
 
         cashMovementService.getMovementTypesAsync($scope.openPosParameters).then(function (motifs) {
@@ -186,7 +186,7 @@ app.controller('ModalOpenPosController', function ($scope, $rootScope, $uibModal
     }
 
     var openCashMachine = function () {
-        // Send to BO
+
         $scope.openPosValues.Date = new Date().toString('dd/MM/yyyy H:mm:ss');
 
         var updPaymentModes = [];

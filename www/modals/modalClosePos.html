@@ -5,7 +5,7 @@
     <tabset>
         <tab ng-repeat="hidMdl in model.hardwareIdModels ">
             <tab-heading>
-                <x>{{hidMdl.alias ? hidMdl.alias : hidMdl.hid}}</x>
+                {{hidMdl.alias ? hidMdl.alias : hidMdl.hid}}
             </tab-heading>
 
             <div class="form-panel modal-body modal-closepos">
@@ -19,7 +19,7 @@
                     <div style="width:20%;float:left;">
                         <div class="title centered" translate>Montant</div>
                     </div>
-                    
+
                     <div ng-if="closePosParameters.mode.idMode == 3">
                         <div style="width:10%;float:left;">
                             <div class="title centered" translate>Attendu</div>
@@ -37,7 +37,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="row" ng-if="closePosParameters.mode.idMode == 3 && hidMdl.nbY !== 1" >
+                <div class="row" ng-if="closePosParameters.mode.idMode == 3 && hidMdl.nbY !== 1">
                     <div style="width:70%;float:left;">&nbsp;</div>
                     <div style="width:20%;float:left;" class="centered">
                         <button class="btn btn-info" ng-click="detailsServices(hidMdl.hid)" translate>Détails</button>
@@ -51,42 +51,66 @@
                     <div style="width:10%;float:left;min-height:60px;">
                         <div class="title centered">
                             <!--<input ng-if="p.PaymentMode.PaymentType != 1" type="tel" id="txtNb" ng-model="p.Count" style="line-height: 29px; vertical-align: middle; width: 60%;font-size: 18px; text-align:center" ng-keypress="$event.stopPropagation();" />-->
-                            <p ng-model="p.Count" ng-if="p.PaymentMode.PaymentType === paymentType.FIDELITE || p.PaymentMode.PaymentType === paymentType.INTERNET"> {{p.Count}}</p>
-                            <text-field ng-if="p.PaymentMode.PaymentType !== paymentType.ESPECE && p.PaymentMode.PaymentType !== paymentType.FIDELITE && p.PaymentMode.PaymentType !== paymentType.INTERNET"
-                                        id="txtNb" ng-model="p.Count" location="end-start" type="numeric" validfunction="ok" style="line-height: 29px; vertical-align: middle; width: 60%;font-size: 18px; text-align:center"></text-field>
+                            <p ng-model="p.Count"
+                               ng-if="p.PaymentMode.PaymentType === paymentType.FIDELITE || p.PaymentMode.PaymentType === paymentType.INTERNET">
+                                {{p.Count}}</p>
+                            <text-field
+                                    ng-if="p.PaymentMode.PaymentType !== paymentType.ESPECE && p.PaymentMode.PaymentType !== paymentType.FIDELITE && p.PaymentMode.PaymentType !== paymentType.INTERNET"
+                                    id="txtNb" ng-model="p.Count" location="end-start" type="numeric" validfunction="ok"
+                                    style="line-height: 29px; vertical-align: middle; width: 60%;font-size: 18px; text-align:center"></text-field>
                         </div>
                     </div>
                     <div style="width:20%;float:left;">
                         <div class="title centered" layout="row">
                             <!--<input ng-style="p.PaymentMode.PaymentType == 1 && {'width':'60%'} || {'width':'80%'}" type="tel" id="txtAmount" ng-model="p.PaymentMode.Total" style="line-height: 29px; vertical-align: middle; width: 60%;font-size: 18px; text-align:center" ng-keypress="$event.stopPropagation();" />-->
-                            <p ng-model="p.PaymentMode.Total" ng-if="p.PaymentMode.PaymentType === paymentType.FIDELITE || p.PaymentMode.PaymentType === paymentType.INTERNET"> {{p.PaymentMode.Total | CurrencyFormat}}</p>
-                            <text-field ng-if="p.PaymentMode.PaymentType !== paymentType.FIDELITE && p.PaymentMode.PaymentType !== paymentType.INTERNET"
-                                        ng-style="p.PaymentMode.PaymentType === paymentType.ESPECE && {'width':'60%'} || {'width':'80%'}"
-                                        id="txtAmount" ng-model="p.PaymentMode.Total" location="end-start" type="decimal" validfunction="ok" style="line-height: 29px; vertical-align: middle; width: 60%;font-size: 18px; text-align:center"></text-field>
-                            <a ng-if="p.PaymentMode.PaymentType === paymentType.ESPECE" class="btn btn-xs btn-default" style="padding:5px" ng-click="$event.stopPropagation();editCashValues(p)">
+                            <p ng-model="p.PaymentMode.Total"
+                               ng-if="p.PaymentMode.PaymentType === paymentType.FIDELITE || p.PaymentMode.PaymentType === paymentType.INTERNET">
+                                {{p.PaymentMode.Total | CurrencyFormat}}</p>
+                            <text-field
+                                    ng-if="p.PaymentMode.PaymentType !== paymentType.FIDELITE && p.PaymentMode.PaymentType !== paymentType.INTERNET"
+                                    ng-style="p.PaymentMode.PaymentType === paymentType.ESPECE && {'width':'60%'} || {'width':'80%'}"
+                                    id="txtAmount" ng-model="p.PaymentMode.Total" location="end-start" type="decimal"
+                                    validfunction="ok"
+                                    style="line-height: 29px; vertical-align: middle; width: 60%;font-size: 18px; text-align:center"></text-field>
+                            <a ng-if="p.PaymentMode.PaymentType === paymentType.ESPECE" class="btn btn-xs btn-default"
+                               style="padding:5px" ng-click="$event.stopPropagation();editCashValues(p)">
                                 <img class="itemAction" src="img/coins.png"/>
                             </a>
                         </div>
                     </div>
                     <div ng-if="closePosParameters.mode.idMode == 3">
                         <div style="width:10%;float:left;min-height:60px;">
-                            <div class="title centered" ng-model="p.TotalKnown" ng-show="p.PaymentMode.PaymentType !== paymentType.FIDELITE && p.PaymentMode.PaymentType !== paymentType.INTERNET">{{p.TotalKnown | CurrencyFormat}}</div>
+                            <div class="title centered" ng-model="p.TotalKnown"
+                                 ng-show="p.PaymentMode.PaymentType !== paymentType.FIDELITE && p.PaymentMode.PaymentType !== paymentType.INTERNET">
+                                {{p.TotalKnown | CurrencyFormat}}
+                            </div>
                         </div>
                         <div style="width:20%;float:left;min-height:60px;">
-                            <div class="title centered" ng-if="p.PaymentMode.PaymentType !== paymentType.FIDELITE && p.PaymentMode.PaymentType !== paymentType.INTERNET">{{p.TotalYs | CurrencyFormat}}</div>
+                            <div class="title centered"
+                                 ng-if="p.PaymentMode.PaymentType !== paymentType.FIDELITE && p.PaymentMode.PaymentType !== paymentType.INTERNET">
+                                {{p.TotalYs | CurrencyFormat}}
+                            </div>
                         </div>
                         <div style="width:10%;float:left;">
-                            <div class="title centered green" ng-class="{ red : p.CashDiscrepancyYs !== 0}" ng-if="p.PaymentMode.PaymentType !== paymentType.FIDELITE && p.PaymentMode.PaymentType !== paymentType.INTERNET">{{p.CashDiscrepancyYs | CurrencyFormat}}</div>
+                            <div class="title centered green" ng-class="{ red : p.CashDiscrepancyYs !== 0}"
+                                 ng-if="p.PaymentMode.PaymentType !== paymentType.FIDELITE && p.PaymentMode.PaymentType !== paymentType.INTERNET">
+                                {{p.CashDiscrepancyYs | CurrencyFormat}}
+                            </div>
                         </div>
                     </div>
                     <div ng-if="closePosParameters.mode.idMode !== 3">
                         <div style="width:35%;float:left;">
-                            <div class="title centered" ng-model="p.TotalKnown" ng-show="p.PaymentMode.PaymentType !== paymentType.FIDELITE && p.PaymentMode.PaymentType !== paymentType.INTERNET">{{p.TotalKnown | CurrencyFormat}}</div>
+                            <div class="title centered" ng-model="p.TotalKnown"
+                                 ng-show="p.PaymentMode.PaymentType !== paymentType.FIDELITE && p.PaymentMode.PaymentType !== paymentType.INTERNET">
+                                {{p.TotalKnown | CurrencyFormat}}
+                            </div>
                         </div>
                     </div>
                 </div>
-                <button class="btn btn-success" ng-click="correctTickets(hidMdl.hid)" translate>Correction des tickets</button>
-                <button class="btn btn-success" ng-click="cashManagement(hidMdl.hid)" translate>Gestion des espèces</button>
+                <button class="btn btn-success" ng-click="correctTickets(hidMdl.hid)" translate>Correction des tickets
+                </button>
+                <button class="btn btn-success" ng-click="cashManagement(hidMdl.hid)" translate>Gestion des espèces
+                </button>
             </div>
         </tab>
         <!--<tab ng-if="closePosParameters.mode.idMode == 3 && model.hardwareIdModels.length > 1">-->
@@ -114,20 +138,23 @@
                         <div class="title">{{p.PaymentMode.Text}}</div>
                     </div>
                     <div style="width:25%;float:left;min-height:60px;">
-                        <div class="title centered" >{{p.PaymentMode.Total | CurrencyFormat}}</div>
+                        <div class="title centered">{{p.PaymentMode.Total | CurrencyFormat}}</div>
                     </div>
                     <div style="width:25%;float:left;min-height:60px;">
-                        <div class="title centered" >{{p.TotalYs | CurrencyFormat}}</div>
+                        <div class="title centered">{{p.TotalYs | CurrencyFormat}}</div>
                     </div>
                     <div style="width:20%;float:left;">
-                        <div class="title centered green" ng-class="{ red : p.CashDiscrepancyYs !== 0}">{{p.CashDiscrepancyYs | CurrencyFormat}}</div>
+                        <div class="title centered green" ng-class="{ red : p.CashDiscrepancyYs !== 0}">
+                            {{p.CashDiscrepancyYs | CurrencyFormat}}
+                        </div>
                     </div>
                 </div>
             </div>
         </tab>
-</tabset>
+    </tabset>
     <div class="modal-footer">
-        <div class="form-check hidden" ng-if="closePosParameters.mode.idMode === 1 || closePosParameters.mode.idMode === 2">
+        <div class="form-check hidden"
+             ng-if="closePosParameters.mode.idMode === 1 || closePosParameters.mode.idMode === 2">
             <label class="form-check-label">
                 <input class="form-check-input" type="checkbox" ng-model="model.emptyCash">Vider le fond de caisse
             </label>
@@ -135,8 +162,11 @@
 
         <button class="btn btn-info" ng-click="openDrawer()" translate>Ouvrir le tiroir</button>
         <button class="btn btn-green"
-                ng-click="openZ()" translate>Afficher le Z</button>
-        <button class="btn btn-success" ng-if="model.showCloseButton" ng-click="ok()" translate>{{closePosParameters.mode.text}}</button>
+                ng-click="openZ()" translate>Afficher le Z
+        </button>
+        <button class="btn btn-success" ng-disabled="$root.validateLock" ng-if="model.showCloseButton" ng-click="ok()"
+                translate>{{ $root.validateLock ? "Veuillez patienter ..." : closePosParameters.mode.text}}
+        </button>
         <button class="btn btn-danger" ng-click="cancel()" translate>Annuler</button>
     </div>
 </section>
