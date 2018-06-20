@@ -1,4 +1,4 @@
-app.directive('categoryRepeat', function ($rootScope, $compile, $filter) {
+app.directive('categoryBorneRepeat', function ($rootScope, $compile, $filter) {
     return {
         replace: true,
         restrict: 'E',
@@ -11,76 +11,38 @@ app.directive('categoryRepeat', function ($rootScope, $compile, $filter) {
             function repeatProducts(products) {
                 if (products) {
                     var result = "";
-                    result += "<section class='layout-row layout-wrap'>";
+                    result += "<section class='layout-row layout-wrap' style='padding-top: 10px;'>";
                     for (var product of products) {
-                        result += `<div style="margin-bottom:4px">
-<<<<<<< HEAD
-                    <div aria-label="product button" class="productboxIZIPASS `;
-                        if (product.DisableBuyButton) {
-                            result += ` disabled`;
-                        }
-                        if ($rootScope.UserPreset) {
-                            if ($rootScope.UserPreset.ItemSize == 1 || $rootScope.UserPreset.ItemSize && !scope.$mdMedia('gt-sm')) {
-                                result += ` small`;
-                            } else if ($rootScope.UserPreset.ItemSize == 2 && !scope.$mdMedia('gt-sm')) {
-                                result += ` medium`;
-                            } else if ($rootScope.UserPreset.ItemSize == 3 && !scope.$mdMedia('gt-sm')) {
-                                result += ` big`;
-                            }
-                        } else if (!scope.$mdMedia('gt-sm')) {
-=======
-                    <div aria-label="product button" class="productboxIZIPASS`;
-                        if (product.DisableBuyButton) {
-                            result += ` disabled productIPDisabled`;
-                        }
+                        result += `<div style="margin-bottom:4px" class='caseAttribute' flex='20' flex-xs='20' flex-sm='50' flex-md='30'>
+                    <div class="productboxIZIPASS`;
                         if ($rootScope.UserPreset) {
                             if ($rootScope.UserPreset.ItemSize == 1 || $rootScope.UserPreset.ItemSize && scope.$mdMedia('max-width: 799px')) {
-                                result += ` small`;
+                                result += ' small';
                             } else if ($rootScope.UserPreset.ItemSize == 2 && scope.$mdMedia('min-width: 800px')) {
-                                result += ` medium`;
+                                result += ' medium';
                             } else if ($rootScope.UserPreset.ItemSize == 3 && scope.$mdMedia('min-width: 800px')) {
-                                result += ` big`;
+                                result += ' big';
                             }
                         } else if (scope.$mdMedia('max-width: 799px')) {
->>>>>>> f5b9be395d974d3c45b610601bee2ed23b023409
-                            result += ` small`;
-
+                            result += ' small';
+                        }
+                        if (product.DisableBuyButton) {
+                            result += ' disabled productIPDisabled';
                         }
                         result += `" onclick="$('#IZIPASSController').scope().addToCart(${product.Id})" >`;
                         result +=
                             `<div class="layout-column layout-fill">
-                        <div class="imageContainer">
+                        <div class="conteneur-images">
                             <img alt="" src='${product.DefaultPictureUrl}' class="image">
                         </div>
                         <div class="titleRow">  
                             ${product.Name}
                         </div>
+                        <div class="descriptionRow">
                         <div class="price">`;
                         if (!product.DisableBuyButton && product.Price && !product.EmployeeTypePrice) {
-                            /*
-                            if(deliveryType) {
-                                switch (deliveryType) {
-                                    case 0:
-                                        // Sur place
-                                        result += `<span> ${$filter('CurrencyFormat')(product.Price)} </span>`;
-                                        break;
-                                    case 1:
-                                        result += `<span style="color: green"> ${$filter('CurrencyFormat')(product.TakeawayPrice ? product.TakeawayPrice : product.Price)} </span>`;
-                                        break;
-                                    case 2:
-                                        result += `<span style="color: blue"> ${$filter('CurrencyFormat')(product.DeliveryPrice ? product.DeliveryPrice : product.Price)} </span>`;
-                                        break;
-                                    default:
-                                        result += `<span> ${$filter('CurrencyFormat')(product.Price)} </span>`;
-                                        break;
-
-                                }
-                            } else {
-                                result += `<span> ${$filter('CurrencyFormat')(product.Price)} </span>`;
-                            }*/
 
                             result += `<span> ${$filter('CurrencyFormat')(product.Price)} </span>`;
-
 
                         }
                         if (!product.DisableBuyButton && product.EmployeeTypePrice) {
@@ -89,7 +51,7 @@ app.directive('categoryRepeat', function ($rootScope, $compile, $filter) {
                         if (product.DisableBuyButton) {
                             result += `<span translate>Rupture</span>`;
                         }
-                        result += `</div></div>`;
+                        result += `</div></div></div>`;
                         result += "</div></div></div></div>";
                     }
                     result += "</section>";

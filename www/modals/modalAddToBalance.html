@@ -1,0 +1,21 @@
+<section class="" ng-init="init()">
+
+    <div class="modal-header">
+        <h1 class="modal-title" translate>Ajouter à la cagnotte</h1>
+    </div>
+
+    <div class="form-panel modal-body" layout="row" layout-align="center center">
+        <text-field id="amountToCredit" ng-model="model.amountToCredit" location="center-end" type="decimal" validfunction="ok"
+                    style="width:150px"></text-field> €
+        <div class="labelErr" ng-if="model.error">
+            {{model.error}}
+        </div>
+
+    </div>
+
+    <div class="modal-footer">
+        <button class="btn btn-success" ng-click="ok()" translate>Valider</button>
+        <button class="btn btn-rose" ng-click="cancel()" translate>Annuler</button>
+    </div>
+
+</section>

@@ -12,8 +12,13 @@
                 </tab-heading>
                 <div layout="column" layout-margin>
 
+<<<<<<< HEAD
                     <div layout="row" style="align-items: center;">
                         <label flex="30" translate>Nom, prénom, email, téléphone ou société</label>
+=======
+                    <div layout="row" layout-wrap style="align-items: center;">
+                        <label flex-gt-sm="30" flex="100" translate>Nom, prénom, email, téléphone ou société</label>
+>>>>>>> f5b9be395d974d3c45b610601bee2ed23b023409
                         <text-field flex="40" id="txtComment" class="flexbox" ng-model="search.query"
                                     location="center-end" type="azerty" validfunction="searchForCustomer"
                                     style="width:510px;margin-right:10px;min-height:34px;"></text-field>
@@ -46,6 +51,7 @@
                     </div>
                 </div>
             </uib-tab>
+
             <uib-tab id="register">
 
                 <tab-heading>
@@ -169,7 +175,7 @@
                             </md-radio-button>
 
                             <div ng-show="registerOperation== 'registerFid' " style="margin-left: 40px;">
-                                <input type="checkbox" id="registerFull" ng-click="toggleRegisterFull()" style="width: 20px;height: 20px;">
+                                <input type="checkbox" id="registerFull" ng-click="toggleRegisterFull()" ng-checked="registerFull" style="width: 20px;height: 20px;">
                                 <label for="registerFull">Enregistrement complet du client </label>
                             </div>
                         </md-radio-group>
@@ -336,6 +342,10 @@
                                     {{currentShoppingCart.customerLoyalty.Balances[2].BalanceType === 'Dollars' ?
                                     '$':currentShoppingCart.customerLoyalty.Balances[2].BalanceType}}
                                 </h4>
+
+                                <button class="btn btn-success"
+                                        ng-if="false"
+                                        ng-click="creditBalance()"> Crediter la cagnotte </button>
 
                                 <h2 translate class="no-mg-vert"
                                     ng-if="currentShoppingCart.customerLoyalty.AllowAnonymous && currentShoppingCart.customerLoyalty.AnonymousCustomer">

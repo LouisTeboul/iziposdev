@@ -43,7 +43,11 @@
                         selector: {
                             _id: {$regex: 'YPeriod_2_*'},
                             "data.hardwareId": hidMdl.hid,
+<<<<<<< HEAD
                             "data.endDate" : null
+=======
+                            "data.endDate": null
+>>>>>>> f5b9be395d974d3c45b610601bee2ed23b023409
                         }
                     }).then((res) => {
                         var validArray = [];
@@ -279,13 +283,11 @@
                                                 cm.PaymentMode.Total = getmatchedPmTotal(currentHid, currentPmId);
                                             }
                                         })
-
                                     });
                                 }
                             }
                         });
                     });
-
 
                     break;
                 case 3:
@@ -551,57 +553,80 @@
 
     // Fermeture de caisse. Doit purger les tickets
     $scope.ok = function () {
-        //Ferme la modal de stats, qui etait invisible
-        modalStats.dismiss();
 
-        var hasGapGlobal = false;
-        var hardwareIdModelsWithGap = [];
-        Enumerable.from($scope.model.hardwareIdModels).forEach(function (hidModel) {
-            var hasGapHid = false;
-            Enumerable.from(hidModel.CashMovementLines).forEach(function (lines) {
+        function closePos() {
+            //Ferme la modal de stats, qui etait invisible
+            modalStats.dismiss();
 
-                if (!hasGapGlobal) {
-                    hasGapGlobal = lines.TotalKnown !== lines.PaymentMode.Total;
-                }
-                if (!hasGapHid) {
-                    hasGapHid = lines.TotalKnown !== lines.PaymentMode.Total;
-                    if (hasGapHid) {
-                        hardwareIdModelsWithGap.push(hidModel);
+            var hasGapGlobal = false;
+            var hardwareIdModelsWithGap = [];
+            Enumerable.from($scope.model.hardwareIdModels).forEach(function (hidModel) {
+                var hasGapHid = false;
+                Enumerable.from(hidModel.CashMovementLines).forEach(function (lines) {
+
+                    if (!hasGapGlobal) {
+                        hasGapGlobal = lines.TotalKnown !== lines.PaymentMode.Total;
                     }
-                }
-            })
-
-        });
-        if (hasGapGlobal) {
-            var modalInstance = $uibModal.open({
-                templateUrl: 'modals/modalClosePosJustification.html',
-                controller: 'ModalClosePosJustificationController',
-                size: 'lg',
-                resolve: {
-                    justificationParameters: function () {
-                        return {
-                            closePosParameters: $scope.closePosParameters,
-                            hardwareIdModelsWithGap: hardwareIdModelsWithGap
+                    if (!hasGapHid) {
+                        hasGapHid = lines.TotalKnown !== lines.PaymentMode.Total;
+                        if (hasGapHid) {
+                            hardwareIdModelsWithGap.push(hidModel);
                         }
                     }
-                }
-            });
-            modalInstance.result.then(function (ret) {
+                })
 
-                if (ret && ret.refresh) {
-                    $scope.init(true)
-                }
-                else {
-                    checkForFreeze();
-                }
-
-            }, function () {
             });
+            if (hasGapGlobal) {
+                var modalInstance = $uibModal.open({
+                    templateUrl: 'modals/modalClosePosJustification.html',
+                    controller: 'ModalClosePosJustificationController',
+                    size: 'lg',
+                    resolve: {
+                        justificationParameters: function () {
+                            return {
+                                closePosParameters: $scope.closePosParameters,
+                                hardwareIdModelsWithGap: hardwareIdModelsWithGap
+                            }
+                        }
+                    }
+                });
+                modalInstance.result.then(function (ret) {
+
+                    if (ret && ret.refresh) {
+                        $scope.init(true)
+                    }
+                    else {
+                        checkForFreeze();
+                    }
+
+                }, function () {
+                });
+            }
+            else {
+
+                checkForFreeze();
+
+            }
+
         }
-        else {
+        if ($rootScope.validateLock) {
+            swal({
+                title: "Fermer la caisse ?",
+                text: "Il y a des tickets en attente de syncronisation",
+                icon: "warning",
+                confirmButtonColor: "#d83448",
+                confirmButtonText: $translate.instant("Oui"),
+                cancelButtonText: $translate.instant("Non"),
+                showCancelButton: true,
+                closeOnConfirm: true
+            }, function (willClose) {
+                if (willClose) {
+                    closePos();
+                }
+            });
 
-            checkForFreeze();
-
+        } else {
+            closePos();
         }
     };
 

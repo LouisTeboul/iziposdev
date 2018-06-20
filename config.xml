@@ -1,5 +1,9 @@
 <?xml version='1.0' encoding='utf-8'?>
+<<<<<<< HEAD
 <widget id="fr.izipass.izipos" version="3.0.4.06201" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0" xmlns:gap="http://phonegap.com/ns/1.0">
+=======
+<widget id="fr.izipass.izipos" version="3.0.4.06191" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0" xmlns:gap="http://phonegap.com/ns/1.0">
+>>>>>>> f5b9be395d974d3c45b610601bee2ed23b023409
     <name>IziPos</name>
     <description>
     </description>
@@ -29,6 +33,10 @@
     <plugin name="cordova-plugin-device" spec="~1.1.7" />
     <plugin name="cordova-plugin-transport-security" spec="~0.1.2" />
     <plugin name="cordova-plugin-statusbar" spec="^2.3.0" />
+<<<<<<< HEAD
+=======
+	<plugin name="cordova-plugin-sqlite-2" spec="1.0.4" />
+>>>>>>> f5b9be395d974d3c45b610601bee2ed23b023409
     <icon platform="ios" src="resources/icon.png" />
     <platform name="ios">
         <icon gap:platform="ios" height="228" src="resources/ios/icon/Icon-App-76x76@3x.png" width="228" />
@@ -68,5 +76,9 @@
         <splash density="port-xxhdpi" src="resources/android/splash/drawable-port-xxhdpi-screen.png" />
         <splash density="port-xxxhdpi" src="resources/android/splash/drawable-port-xxxhdpi-screen.png" />
     </platform>
+<<<<<<< HEAD
     <plugin name="cordova-plugin-sqlite-2" spec="~1.0.4" />
+=======
+    
+>>>>>>> f5b9be395d974d3c45b610601bee2ed23b023409
 </widget>

@@ -9,21 +9,34 @@
             </div>
         </div>
         <md-divider class="vertical-divider"></md-divider>
+<<<<<<< HEAD
         <md-content layout="row" ng-show="$mdMedia('gt-sm')" style="background:transparent;" id="Menu">
             <div ng-repeat="category in categories track by $index" class="itemCategory" ui-sref="catalogBorne.{{category.CategoryTemplate.ViewPath}}({id: '{{category.Id}}'})">
+=======
+        <md-content layout="row" ng-show="$mdMedia('min-width: 800px')" style="background:transparent;" id="Menu">
+            <div ng-repeat="category in categories track by $index" class="itemCategory" ng-click="navig(category)">
+>>>>>>> f5b9be395d974d3c45b610601bee2ed23b023409
                 <md-button aria-label="{{category.Name}}" class="md-icon-button linkCategory" >
                     <img class="imgCategory" ng-src="{{category.PictureUrl}}" alt="">
                 </md-button>
                 <div class="titleCategory" style="cursor:pointer;">{{category.Name}}</div>
             </div>
         </md-content>
+<<<<<<< HEAD
         <div layout="column" layout-align="center center" ng-hide="$mdMedia('gt-sm')">
+=======
+        <div layout="column" layout-align="center center" ng-hide="$mdMedia('min-width: 800px')">
+>>>>>>> f5b9be395d974d3c45b610601bee2ed23b023409
             <md-button class="md-icon-button logo" aria-label="categories" ng-click="$state.go('catalogBorne.Categories')">
                 <img class="imgLogo" src="img/categories.png" />
             </md-button>
         </div>
 
+<<<<<<< HEAD
         <div layout="column" layout-align="center center" ng-hide="$mdMedia('gt-sm')">
+=======
+        <div layout="column" layout-align="center center" ng-hide="$mdMedia('min-width: 800px')">
+>>>>>>> f5b9be395d974d3c45b610601bee2ed23b023409
             <md-button class="md-icon-button logo" aria-label="categories" ng-click="$rootScope.showShoppingCart = !$rootScope.showShoppingCart">
                 <img class="imgLogo" src="img/cart-drawer.png" />
             </md-button>
