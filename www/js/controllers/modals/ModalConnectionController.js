@@ -7,12 +7,12 @@
 
     $scope.init = function () {
 
-        var el = document.getElementsByClassName("keyboardContainer")[0];
+        var el = document.querySelector(".keyboardContainer");
         el.style.display = "flex";
 
         $timeout(function () {
-            document.getElementById("txtBarcode").focus();
-            document.getElementById("txtValue").getElementsByTagName("span")[0].innerHTML = "";
+            document.querySelector("#txtBarcode").focus();
+            document.querySelector("#txtValue > span").innerHTML = "";
         }, 500);
 
         $scope.deliveryType = shoppingCartModel.getDeliveryType();
@@ -36,7 +36,7 @@
     };
 
     $scope.close = function () {
-        var el = document.getElementsByClassName("keyboardContainer")[0];
+        var el = document.querySelector(".keyboardContainer");
         el.style.display = "none";
         shoppingCartModel.createShoppingCart();
         shoppingCartModel.setDeliveryType(0);

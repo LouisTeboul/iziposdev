@@ -1,3 +1,3 @@
 <div ng-class="{'focused': isFocused == true}" class="textfield" layout="row" layout-align="start center" ng-controller="TextFieldCtrl" ng-keypress="test($event)" tabindex="0" ng-init="init()" id="txtValue" ng-click="focus($event)">
-	<span ng-bind="txtValue"></span>
+	<span ng-bind="txtValue" style="max-height: 37px;overflow: hidden;"></span>
 </div>

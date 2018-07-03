@@ -73,12 +73,15 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
             });
 
             modalInstance.result.then(function (result) {
-                console.log(result);
+
                 if (!currentShoppingCart) {
                     current.createShoppingCart();
                 }
 
                 if (result) {
+                    console.log(result);
+
+
                     // On stock les infos de retour dans le currentShoppingCart
                     if (result.timeGoal) {
                         currentShoppingCart.DatePickup = result.timeGoal.date.toString("dd/MM/yyyy HH:mm:ss");
@@ -1197,8 +1200,8 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
                     current.printBorneShoppingCartAsync(false).then(function () {
                         current.printBorneShoppingCartAsync(true).then(function () {
                             current.printStepProdShoppingCartAsync(currentShoppingCart).then(function () {
+                                current.freezeShoppingCart();
                             });
-                            current.freezeShoppingCart();
                             $rootScope.hideLoading();
                             var textSwal, payed = true;
                             /*if(currentShoppingCart.isPayed) {
@@ -1321,8 +1324,7 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
                 console.log('Suite de l\'impression');
 
                 if ($rootScope.IziBoxConfiguration.ForcePrintProdTicket) {
-                    //ForcePrintProd et Step Enabled devrait être exclusif
-                    //Il est illogique de gerer les steps, et d'imprimer automatiquement la premiere step lors de la validation du ticket en même temps
+                    // TODO : Il faut check si le ticker a deja été imprimé en prod, si oui afficher en warning
 
                     //Print the Prod Ticket (toque)
                     if ($rootScope.IziBoxConfiguration.StepEnabled) {

@@ -11,7 +11,7 @@ app.controller('IdleScreenController', function ($scope, $rootScope, $location, 
     var current = this;
 
     $scope.init = function () {
-        var el = document.getElementsByClassName("keyboardContainer")[0];
+        var el = document.querySelector(".keyboardContainer");
         el.style.display = "none";
     };
 

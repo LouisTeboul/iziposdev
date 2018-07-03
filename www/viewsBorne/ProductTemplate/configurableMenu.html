@@ -1,5 +1,5 @@
 ﻿<md-content md-no-ink ng-controller="ConfigurableMenuController" ng-init="init()" id="configurableMenu"
-            class="configurableMenu" layout="row" layout-md="row" layout-xs="row" layout-sm="row" layout-wrap
+            class="configurableMenu" layout="row" layout-wrap
             layout-padding>
     <div id="configurableMenuHeader" layout="column" class="heading">
         <div>
@@ -30,7 +30,7 @@
                 <div class="attributesPanel">
                     <div class="attributesPanelInfos text-center">
                         <span class="title text-uppercase">{{attribute.Name}}</span>
-                        <span class="info" data-ng-bind-html="attribute.Description" ng-show="$mdMedia('gt-sm')"></span>
+                        <span class="info" data-ng-bind-html="attribute.Description" ng-show="$mdMedia('min-width:800px')"></span>
                     </div>
 
 

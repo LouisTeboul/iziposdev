@@ -149,37 +149,65 @@ app.controller('LoadingController', function ($scope, $rootScope, $location, $ti
             $rootScope.modelDb.replicateReady &&
             $rootScope.modelDb.orderReady) {
 
-            $rootScope.modelDb.databaseReady = true;
-
-            categoryService.getCategoriesAsync().then(function (categories) {
-                $rootScope.storedCategories = {};
-                categories = categories.filter(c => c.IsEnabled);
-
-                function callback(storage) {
-                    if (storage.mainProducts === 0 && storage.subProducts === 0) {
-                        //window.localStorage.setItem('Category' + storage.mainCategory.id, JSON.stringify(storage));
-                        $rootScope.storedCategories['' + storage.mainCategory.Id] = storage;
+            $scope.skipCategoryLoading = false;
 
 
-                        if (Object.keys($rootScope.storedCategories).length === categories.length && !$rootScope.init) {
+            if ($rootScope.modelDb.databaseReady) {
+                categoryService.getCategoriesAsync().then(function (categories) {
+                    $scope.message = "Préchargement des catégories ...";
+                    $rootScope.storedCategories = {};
+                    $scope.loadingProgress = 0;
+                    categories = categories.filter(c => c.IsEnabled);
 
-                            console.log($rootScope.storedCategories);
-                            $rootScope.init = true;
-                            initServices($rootScope, $injector);
-                            borneService.redirectToHome();
+                    function callback(storage) {
+                        if($scope.skipCategoryLoading) {
+                            if(!$rootScope.init) {
+                                console.log($rootScope.storedCategories);
+                                $rootScope.init = true;
+                                initServices($rootScope, $injector);
+                                borneService.redirectToHome();
+                            }
+                        } else {
+                            if (storage.mainProducts === 0 && storage.subProducts === 0) {
+                                $scope.loadingProgress += 1 / categories.length * 100;
+                                //window.localStorage.setItem('Category' + storage.mainCategory.id, JSON.stringify(storage));
+                                $rootScope.storedCategories['' + storage.mainCategory.Id] = storage;
+
+                                if (Object.keys($rootScope.storedCategories).length === categories.length && !$rootScope.init) {
+
+                                    console.log($rootScope.storedCategories);
+                                    $rootScope.init = true;
+                                    initServices($rootScope, $injector);
+                                    borneService.redirectToHome();
+                                }
+                            }
                         }
                     }
-                }
 
-                categories.forEach(function (c) {
-                    /*
-                    if(window.localStorage.getItem('Category' + c.id)){
-                        callback(window.localStorage.getItem('Category' + c.id));
-                    }
-                    */
-                    categoryService.loadCategory(c.id, callback);
+                    categories.forEach(function (c, index) {
+                        if($scope.skipCategoryLoading) {
+                            if(!$rootScope.init) {
+                                console.log($rootScope.storedCategories);
+                                $rootScope.init = true;
+                                initServices($rootScope, $injector);
+                                borneService.redirectToHome();
+                            }
+                        } else {
+                            console.log(index + " / " + categories.length);
+                            /*
+                            if(window.localStorage.getItem('Category' + c.id)){
+                                callback(window.localStorage.getItem('Category' + c.id));
+                            }
+                            */
+                            categoryService.loadCategory(c.id, callback);
+                        }
+
+
+                    });
                 });
-            });
+            } else {
+                $rootScope.modelDb.databaseReady = true;
+            }
 
             /*
             if (!$rootScope.init) {
@@ -192,7 +220,6 @@ app.controller('LoadingController', function ($scope, $rootScope, $location, $ti
             }*/
         }
     };
-
 
     $scope.init = function () {
         if ($rootScope.borne) {

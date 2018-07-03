@@ -30,7 +30,10 @@ app.controller('ConfigurationController', function ($scope, $rootScope, $locatio
     });
 
     $scope.init = function () {
-        $rootScope.borne = false;
+        if(window.localStorage.getItem("IsBorneDefault") ) {
+            $rootScope.borne = window.localStorage.getItem("IsBorneDefault") === "true" ? true : false;
+        }
+
         $scope.Model = {};
         $scope.presetList = [];
         $scope.selectedPresetTitle = "";
@@ -119,7 +122,7 @@ app.controller('ConfigurationController', function ($scope, $rootScope, $locatio
     $scope.emptyCache = function () {
         // Checking if all tickets have already been synchronised with the izibox
         var adapter = !!window.sqlitePlugin ? 'cordova-sqlite' : 'websql';
-        var dbReplicate = new PouchDB('izipos_replicate', {size: 50, adapter: adapter});
+        var dbReplicate = new PouchDB('izipos_replicate', { adapter: adapter});
 
         var deleteCache = function () {
             swal({
@@ -429,6 +432,7 @@ app.controller('ConfigurationController', function ($scope, $rootScope, $locatio
         if ($scope.currentPreset) {
             $rootScope.UserPreset = $scope.currentPreset.value.settings;
         }
+        window.localStorage.setItem("IsBorneDefault", $rootScope.borne ? $rootScope.borne.toString() : false);
         window.localStorage.setItem("PosNumber", $rootScope.modelPos.posNumber);
         window.localStorage.setItem("POSPrinter", $rootScope.PrinterConfiguration.POSPrinter);
         window.localStorage.setItem("ProdPrinter", $rootScope.PrinterConfiguration.ProdPrinter);

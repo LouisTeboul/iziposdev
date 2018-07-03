@@ -4,6 +4,10 @@
             url: '/izipass/{id}',
             templateUrl: 'views/CategoryTemplate/IZIPASS.html'
         })
+        .state('catalogBorne.CategoryTemplate.IZIPASS', {
+            url: '/izipass/{id}',
+            templateUrl: 'viewsBorne/CategoryTemplate/IZIPASS.html'
+        })
 });
 
 
@@ -65,107 +69,14 @@ app.controller('IZIPASSController', function ($scope, $rootScope, $stateParams, 
         }
     };
 
-    /*$scope.load = function (categoryId, callback) {
-        var storage = {};
-
-        categoryService.getCategoryByIdAsync(categoryId).then(function (category) {
-            if (!category.products) {
-                // Get products for this category
-                productService.getProductForCategoryAsync(categoryId).then(function (results) {
-                    if (results) {
-
-                        category.products = Enumerable.from(results).orderBy('x => x.ProductCategory.DisplayOrder').toArray();
-
-                        storage.mainProducts = category.products.length;
-
-                        // Pictures
-                        Enumerable.from(category.products).forEach(function (p) {
-                            pictureService.getPictureIdsForProductAsync(p.Id).then(function (ids) {
-                                var id = Enumerable.from(ids).firstOrDefault();
-                                pictureService.getPictureUrlAsync(id).then(function (url) {
-                                    if (!url) {
-                                        url = 'img/photo-non-disponible.png';
-                                    }
-                                    p.DefaultPictureUrl = url;
-
-                                    storage.mainProducts--;
-                                    callback(storage);
-                                });
-                            });
-                        });
-                    }
-                }, function (err) {
-                    console.log(err);
-                });
-            }
-            else {
-                setTimeout(function () {
-                    storage.mainProducts = 0;
-                    callback(storage);
-                }, 1);
-            }
-
-            storage.mainCategory = category;
-
-
-            categoryService.getSubCategoriesByParentAsync(categoryId).then(function (subCategories) {
-                //Recupere toutes les sous categories du parent
-
-                if (subCategories.length == 0) {
-                    storage.subProducts = 0;
-                    callback(storage);
-                }
-
-                Enumerable.from(subCategories).forEach(function (subCat) {
-                    if (!subCat.products) {
-                        productService.getProductForCategoryAsync(subCat.Id).then(function (results) {
-                            if (results) {
-
-                                subCat.products = Enumerable.from(results).orderBy('x => x.ProductCategory.DisplayOrder').toArray();
-
-                                if (storage.subProducts) {
-                                    storage.subProducts += subCat.products.length;
-                                } else {
-                                    storage.subProducts = subCat.products.length;
-                                }
-
-                                // Pictures
-                                Enumerable.from(subCat.products).forEach(function (p) {
-                                    pictureService.getPictureIdsForProductAsync(p.Id).then(function (ids) {
-                                        var id = Enumerable.from(ids).firstOrDefault();
-                                        pictureService.getPictureUrlAsync(id).then(function (url) {
-                                            if (!url) {
-                                                url = 'img/photo-non-disponible.png';
-                                            }
-                                            p.DefaultPictureUrl = url;
-
-                                            storage.subProducts--;
-                                            callback(storage);
-                                        });
-                                    });
-                                });
-                            }
-                        }, function (err) {
-                            console.log(err);
-                        });
-                    } else {
-                        storage.subProducts = 0;
-                        callback(storage);
-                    }
-                });
-                storage.subCategories = subCategories;
-            })
-        }, function (err) {
-            console.log(err);
-        });
-    };
-    */
-
     $scope.scrollTo = function (elementId) {
         console.log(elementId);
         var updatedItemElem = document.querySelector('#c' + elementId);
         if (updatedItemElem) {
-            $("#allCategories").scrollTo(updatedItemElem);
+            var top = updatedItemElem.offsetTop;
+            $('#allCategories').animate({
+                scrollTop: top - 40
+            },200);
         }
     };
 

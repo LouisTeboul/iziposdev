@@ -3,7 +3,7 @@
 @font-face {
     font-family: 'futura_lt_btlight';
     src: url("fonts/futura_light_bt-webfont.eot");
-    src: url("fonts/futura_light_bt-webfont.eot?#iefix") format("embedded-opentype"), url("fonts/futura_light_bt-webfont.woff") format("woff"), url("fonts/futura_light_bt-webfont.ttf") format("truetype"), url("fonts/futura_light_bt-webfont.svg#futura_lt_btlight") format("svg");
+    src: url("fonts/futura_light_bt-webfont.eot?#iefix") format("embedded-opentype"), url("fonts/futura_light_bt-webfont.woff") format("woff");
     font-weight: normal;
     font-style: normal;
 }
@@ -19,7 +19,7 @@
 @font-face {
     font-family: 'reklame_script_regularregular';
     src: url("fonts/reklamescript-regular-webfont.eot");
-    src: url("fonts/reklamescript-regular-webfont.eot?#iefix") format("embedded-opentype"), url("fonts/reklamescript-regular-webfont.woff") format("woff"), url("fonts/reklamescript-regular-webfont.ttf") format("truetype"), url("fonts/reklamescript-regular-webfont.svg#reklame_script_regularregular") format("svg");
+    src: url("fonts/reklamescript-regular-webfont.eot?#iefix") format("embedded-opentype"), url("fonts/reklamescript-regular-webfont.woff") format("woff");
     font-weight: normal;
     font-style: normal;
 }
@@ -27,7 +27,7 @@
 @font-face {
     font-family: 'futura_md_btmedium';
     src: url("fonts/futura-medium-webfont.eot");
-    src: url("fonts/futura-medium-webfont.eot?#iefix") format("embedded-opentype"), url("fonts/futura-medium-webfont.woff") format("woff"), url("fonts/futura-medium-webfont.ttf") format("truetype"), url("fonts/futura-medium-webfont.svg#futura_md_btmedium") format("svg");
+    src: url("fonts/futura-medium-webfont.eot?#iefix") format("embedded-opentype"), url("fonts/futura-medium-webfont.woff") format("woff");
     font-weight: normal;
     font-style: normal;
 }
@@ -79,7 +79,7 @@
 
 body {
     background-color: #FAFAFA !important;
-    font-family: SignikaNegative-Regular;
+    font-family: SignikaNegative-Regular, sans-serif;
     font-size: 15px;
 }
 
@@ -99,7 +99,7 @@ hr {
 }
 
 button, html, input, select, textarea {
-    font-family: SignikaNegative-Regular !important;
+    font-family: SignikaNegative-Regular, sans-serif !important;
 }
 
 label {
@@ -107,7 +107,7 @@ label {
 }
 
 .glyphicon {
-    font-family: 'Glyphicons Halflings' !important;
+    font-family: 'Glyphicons Halflings', sans-serif !important;
 }
 
 html {
@@ -305,7 +305,8 @@ text-field.flexbox div {
 }
 
 .vertical-divider {
-    height: 100% !important;
+    height: 80% !important;
+    align-self: center;
     width: 2px;
     margin-right: 5PX;
     border-color: gray !important;
@@ -421,10 +422,10 @@ text-field.flexbox div {
     h1 {
         font-size: 20px;
     }
+
     h2 {
         font-size: 16px;
     }
-
 
     .padPComment {
         font-size: 11px;
@@ -496,7 +497,7 @@ text-field.flexbox div {
 }
 
 .productboxIZIPASS.disabled {
-    background-color: #b5b4b4;
+    background-color: #b5b4b4 !important;
 }
 
 .productboxIZIPASS .link {
@@ -704,6 +705,7 @@ text-field.flexbox div {
 
 .paiementDivMB {
     width: 100%;
+    margin-top: 0 !important;
 }
 
 #miniBasketHeader {
@@ -921,7 +923,7 @@ text-field.flexbox div {
 .miniBasket .totalValue {
     font-size: 25px;
     font-weight: bold;
-    font-family: 'LEDCalculator';
+    font-family: 'LEDCalculator', sans-serif;
     text-decoration: none !important;
 }
 
@@ -1028,7 +1030,7 @@ text-field.flexbox div {
     text-decoration: none !important;
     color: #5cb85c;
     font-weight: bold;
-    font-family: 'LEDCalculator';
+    font-family: 'LEDCalculator', sans-serif;
     text-align: right;
     /*line-height: 40px;*/
 }
@@ -1044,7 +1046,7 @@ text-field.flexbox div {
 
 .panel-total .btnTable {
     float: left;
-    font-family: SignikaNegative-Regular;
+    font-family: SignikaNegative-Regular, sans-serif;
     font-weight: normal;
     font-size: 14px;
     background-color: #46b8da;
@@ -1057,7 +1059,7 @@ text-field.flexbox div {
 
 .panel-total .btnOffersOnly {
     float: left;
-    font-family: 'Helvetica';
+    font-family: 'Helvetica', sans-serif;
     font-weight: normal;
     font-size: 16px;
     background-color: #46b8da;
@@ -1203,11 +1205,12 @@ text-field.flexbox div {
     min-width: 80px;
     max-height: 100px;
     padding-top: 4px;
+    margin-top: 10px;
 }
 
 .catalogMenu .imgCategory {
-    max-height: 60px;
-    max-width: 60px;
+    max-height: 54px;
+    max-width: 54px;
 }
 
 .catalogMenu .linkCategory {
@@ -2289,7 +2292,7 @@ md-input-container label:not(._md-container-ignore) {
 }
 
 .productComment {
-    margin: 0 -15px;
-    background-color: #F4F4F4;
     color: grey;
+    margin:0 -5px;
+    padding:0 5px;
 }

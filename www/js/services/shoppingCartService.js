@@ -439,16 +439,20 @@ app.service('shoppingCartService', ["$http", "$rootScope", "$q", "$filter", "zpo
          */
         this.printShoppingCartPOST = function (printerApiUrl, shoppingCartPrinterReq, printDefer, retry, nbStep) {
             console.log(printerApiUrl);
+            console.log(shoppingCartPrinterReq.ShoppingCart.Items);
+            var printers = [];
+            shoppingCartPrinterReq.ShoppingCart.Items.forEach( (item) => {
+                if (item.Product.StoreInfosObject && item.Product.StoreInfosObject.Printer_Id){
+                    if(!printers.includes(item.Product.StoreInfosObject.Printer_Id)) {
+                        printers.push(item.Product.StoreInfosObject.Printer_Id);
+                    }
+                }
+            });
 
-            /* TODO :
-            Faire un timeout en fonction du nombre total de steps sur la requete
-            -Recup la valeur de step max pas dans les attributs
-            -Recup la valeur de step max dans les items
-            -Fais le max entre ces deux valeur
-            -Multiplie par 3000 pour avoir le timeout
-            */
-
-            var timeout = nbStep ? nbStep * 3000 : 20000;
+            // 3s par step, plus 1s par imprimantes différente, + 1s prévu pour une potentielle imprimante print all
+            nbStep = nbStep ? nbStep : 1;
+            var timeout = (nbStep * 3000) + (printers.length * 1000) + 1000;
+            console.log(timeout);
 
             // printDefer.resolve();
             $http.post(printerApiUrl, shoppingCartPrinterReq, {timeout: timeout}).then(function (obj) {

@@ -18,7 +18,7 @@ app.service('borneService', ['$rootScope', '$q', '$location', 'posPeriodService'
                             $location.path("/borneClosed");
                         }
                         $rootScope.hideLoading();
-                    })
+                    });
                 });
             } else {
                 $location.path("/catalog");

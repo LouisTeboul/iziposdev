@@ -6,17 +6,13 @@
             <img src="img/US.png" ng-click="setLanguage('en_EN')"/>
         </div>
     </div>
-    <div class="modal-body connectionWindow" layout="row" style="height:35px;text-align: center;">
+    <div class="modal-body connectionWindow" layout="column" style="text-align: center;" layout-padding>
         <p class="textConnectionDialog" flex translate>Veuillez scanner votre carte de fidélité</p>
-    </div>
-    <div class="modal-body connectionWindow" layout="row" style="text-align: center;" layout-padding>
         <ng-barcodetextfield flex></ng-barcodetextfield>
     </div>
-    <div class="modal-body connectionWindow" layout="row" style="height:35px;text-align: center;">
-        <p class="textConnectionDialog" flex translate>Vous n'avez pas encore de carte de fidélité ?</p>
-    </div>
-    <div class="modal-body connectionWindow" layout="column" style="width:400px;margin:auto"
+    <div class="modal-body connectionWindow btnBorneUser" layout="column" style="margin:auto"
          layout-padding>
+        <p class="textConnectionDialog" flex translate>Vous n'avez pas encore de carte de fidélité ?</p>
         <md-button class="btnCustom" ng-click="redirectToCustomer()"><span class="glyphicon glyphicon-user"></span>
             <x translate>S'inscrire</x>
             !
@@ -36,7 +32,7 @@
             <a></a>
         </div>
     </div>
-    <div class="modal-body connectionWindow" layout="column" style="width:400px;margin:auto"
+    <div class="modal-body connectionWindow btnBorneUser" layout="column" style="margin:auto"
          layout-padding>
         <md-button class="btnPass" ng-click="close()" ng-if="!IziBoxConfiguration.ForceFidOnBorne && PosLog">
             <x translate>Continuer sans carte</x>

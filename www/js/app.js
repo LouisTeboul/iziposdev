@@ -40,7 +40,7 @@ app.run(function ($rootScope, $location, $q, $http, ipService, zposService, $tra
     try {
         angularLocation = $location;
 
-        $rootScope.Version = "3.0.4.06201";
+        $rootScope.Version = "3.0.5.07031";
         $rootScope.adminMode = { state: false };
         $rootScope.loading = 0;
 
@@ -314,7 +314,6 @@ app.configHWButtons = function ($rootScope, $translate) {
                 $rootScope.tryExit = false;
             }, 3000);
         }
-
     }, false);
 };
 

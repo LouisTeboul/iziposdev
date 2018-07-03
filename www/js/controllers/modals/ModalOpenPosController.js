@@ -133,7 +133,7 @@ app.controller('ModalOpenPosController', function ($scope, $rootScope, $uibModal
 
     $scope.ok = function () {
         if (!$rootScope.modelPos.iziboxConnected) {
-            sweetAlert({ title: $translate.instant("La izibox n'est pas accèssible") }, function () {
+            sweetAlert({ title: $translate.instant("La izibox n'est pas accessible") }, function () {
             });
         }
         else {

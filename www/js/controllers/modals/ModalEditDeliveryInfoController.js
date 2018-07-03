@@ -204,6 +204,8 @@ app.controller('ModalEditDeliveryInfoController', function ($scope, $rootScope, 
                 }
                 break;
             default:
+                $rootScope.closeKeyboard();
+                $uibModalInstance.close();
                 break;
         }
     };

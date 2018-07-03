@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget id="fr.izipass.izipos" version="3.0.4.06201" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0" xmlns:gap="http://phonegap.com/ns/1.0">
+<widget id="fr.izipass.izipos" version="3.0.5.07031" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0" xmlns:gap="http://phonegap.com/ns/1.0">
     <name>IziPos</name>
     <description>
     </description>
@@ -10,7 +10,7 @@
     <feature name="StatusBar">
         <param name="ios-package" onload="true" value="CDVStatusBar" />
     </feature>
-    <content src="index.html" />
+    <content src="http://localhost:0" />
     <preference name="fullscreen" value="false" />
     <preference name="SplashScreen" value="screen" />
     <preference name="SplashScreenDelay" value="3000" />
@@ -29,6 +29,12 @@
     <plugin name="cordova-plugin-device" spec="~1.1.7" />
     <plugin name="cordova-plugin-transport-security" spec="~0.1.2" />
     <plugin name="cordova-plugin-statusbar" spec="^2.3.0" />
+	<plugin name="cordova-plugin-code-push" spec="^1.11.11" />
+    <plugin name="cordova-plugin-file" spec="^4.3.3" />
+    <plugin name="cordova-plugin-file-transfer" spec="^1.6.3" />
+    <plugin name="cordova-plugin-zip" spec="^3.1.0" />
+    <plugin name="cordova-plugin-wkwebview-engine" spec="^1.1.4" />
+    <plugin name="cordova-labs-local-webserver" spec="https://github.com/apache/cordova-plugins#local-webserver" />
     <icon platform="ios" src="resources/icon.png" />
     <platform name="ios">
         <icon gap:platform="ios" height="228" src="resources/ios/icon/Icon-App-76x76@3x.png" width="228" />
