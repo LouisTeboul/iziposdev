@@ -6,7 +6,7 @@
     <author email="izipos.dev@gmail.com" href="http://www.izi-pass.com">
 		Izipass
 	</author>
-    <content src="http://localhost:0" />
+    <content src="http://localhost:8088" />
     <plugin name="cordova-plugin-whitelist" spec="1" />
     <access origin="*" />
     <allow-intent href="http://*/*" />
