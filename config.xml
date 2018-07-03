@@ -2,9 +2,8 @@
 <widget id="fr.izipass.izipos" version="3.0.5.07032" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
     <name>IziPos</name>
     <description>
-
     </description>
-	<author email="izipos.dev@gmail.com" href="http://www.izi-pass.com">
+    <author email="izipos.dev@gmail.com" href="http://www.izi-pass.com">
 		Izipass
 	</author>
     <content src="http://localhost:0" />
@@ -30,4 +29,5 @@
     <plugin name="cordova-plugin-wkwebview-engine" spec="^1.1.4" />
     <plugin name="cordova-labs-local-webserver" spec="https://github.com/apache/cordova-plugins#local-webserver" />
     <engine name="ios" spec="^4.5.4" />
+    <plugin name="cordova-plugin-networkinterface" spec="^2.0.0" />
 </widget>
