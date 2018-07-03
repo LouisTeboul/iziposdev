@@ -29,5 +29,5 @@
     <plugin name="cordova-plugin-wkwebview-engine" spec="^1.1.4" />
     <plugin name="cordova-labs-local-webserver" spec="https://github.com/apache/cordova-plugins#local-webserver" />
     <engine name="ios" spec="^4.5.4" />
-    <plugin name="cordova-plugin-networkinterface" spec="^2.0.0" />
+    <plugin name="cordova-plugin-networkinterface" spec="~1.2.0" />
 </widget>
