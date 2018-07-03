@@ -15,7 +15,7 @@
             } else {
 
                 try {
-                    networkinterface.getIPAddress(function (ip) {
+                    networkinterface.getWiFiIPAddress(function (ip) {
                         localIpDefer.resolve({ local: ip, izibox: iziboxIp });
                     }, function (errGetWifiIp) {
                         console.error(errGetWifiIp);
