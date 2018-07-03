@@ -1,1 +1,0 @@
-Izipos_beta
