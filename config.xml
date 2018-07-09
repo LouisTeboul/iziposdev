@@ -7,7 +7,6 @@
 		Izipass
 	</author>
     <content src="http://localhost:0" />
-    <plugin name="cordova-plugin-whitelist" spec="1" />
     <access origin="*" />
     <allow-intent href="http://*/*" />
     <allow-intent href="https://*/*" />
@@ -30,4 +29,6 @@
     <plugin name="cordova-labs-local-webserver" spec="https://github.com/apache/cordova-plugins#local-webserver" />
     <engine name="ios" spec="^4.5.4" />
     <plugin name="cordova-plugin-networkinterface" spec="~1.2.0" />
+    <plugin name="cordova-plugin-whitelist" spec="1" />
+    <plugin name="at.modalog.cordova.plugin.cache" spec="https://github.com/moderna/cordova-plugin-cache.git" />
 </widget>

@@ -94,5 +94,13 @@
     },
     "is_top_level": true,
     "variables": {}
+  },
+  "at.modalog.cordova.plugin.cache": {
+    "source": {
+      "type": "registry",
+      "id": "https://github.com/moderna/cordova-plugin-cache.git"
+    },
+    "is_top_level": true,
+    "variables": {}
   }
 }

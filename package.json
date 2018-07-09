@@ -13,6 +13,7 @@
     "code-push": "^2.0.4",
     "cordova-ios": "^4.5.4",
     "cordova-labs-local-webserver": "git+https://github.com/apache/cordova-plugins.git#local-webserver",
+    "cordova-plugin-cache": "git+https://github.com/moderna/cordova-plugin-cache.git",
     "cordova-plugin-code-push": "^1.11.11",
     "cordova-plugin-compat": "^1.2.0",
     "cordova-plugin-device": "^2.0.2",
@@ -33,7 +34,8 @@
       "cordova-plugin-wkwebview-engine": {},
       "cordova-labs-local-webserver": {},
       "cordova-plugin-whitelist": {},
-      "cordova-plugin-networkinterface": {}
+      "cordova-plugin-networkinterface": {},
+      "at.modalog.cordova.plugin.cache": {}
     },
     "platforms": [
       "ios"
