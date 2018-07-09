@@ -102,5 +102,29 @@
     },
     "is_top_level": true,
     "variables": {}
+  },
+  "cordova-plugin-x-toast": {
+    "source": {
+      "type": "registry",
+      "id": "https://github.com/EddyVerbruggen/Toast-PhoneGap-Plugin.git"
+    },
+    "is_top_level": true,
+    "variables": {}
+  },
+  "fr._46cl.focus": {
+    "source": {
+      "type": "registry",
+      "id": "https://github.com/46cl/cordova-android-focus-plugin.git"
+    },
+    "is_top_level": true,
+    "variables": {}
+  },
+  "phonegap-plugin-barcodescanner": {
+    "source": {
+      "type": "registry",
+      "id": "phonegap-plugin-barcodescanner@8.0.0"
+    },
+    "is_top_level": true,
+    "variables": {}
   }
 }
