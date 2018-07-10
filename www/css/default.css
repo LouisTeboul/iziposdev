@@ -343,19 +343,23 @@ md-input-container label:not(._md-container-ignore) {
 .btn-orange {
     background: #ec971f !important;
     color: #fff !important;
-    font-weight: bold !important;
+    font-weight: normal !important;
+    font-family: "SignikaNegative-Bold", sans-serif !important;
 }
 
 .btn-green {
     background: #5cb85c !important;
     color: #fff !important;
-    font-weight: bold !important;
+    font-weight: normal !important;
+    font-family: "SignikaNegative-Bold", sans-serif !important;
 }
 
 .btn-rose {
     background: #d83448 !important;
     color: #fff !important;
-    font-weight: bold !important;
+    font-weight: normal !important;
+    font-family: "SignikaNegative-Bold", sans-serif !important;
+
 }
 
 .tfCommentProduct {
