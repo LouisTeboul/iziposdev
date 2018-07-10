@@ -59,6 +59,12 @@
 }
 
 @font-face {
+    font-family: 'SignikaNegative-Bold';
+    src: url('fonts/SignikaNegative-Bold.ttf') format('truetype');
+}
+
+
+@font-face {
     font-family: 'LEDCalculator';
     src: url('fonts/LEDCalculator.ttf') format('truetype');
 }
@@ -179,6 +185,10 @@ md-input-container label:not(._md-container-ignore) {
     left: 0;
     top: -45px;
     right: auto;
+}
+
+.bold {
+    font-family: "SignikaNegative-Bold", sans-serif !important;
 }
 
 .configuration {

@@ -939,14 +939,13 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
 
                     var cartItem = undefined;
 
-
                     if (!offer && !isfree && !product.ProductAttributes.length > 0) {
                         cartItem = Enumerable.from(currentShoppingCart.Items).firstOrDefault(function (x) {
                             return !x.Comment && !x.Offer && !x.IsFree && x.ProductId == product.Id && x.Step == currentShoppingCart.CurrentStep && x.DiscountET == 0;
                         });
                     }
 
-                    if (!cartItem || product.ProductAttributes.length > 0 || product.EmployeeTypePrice || product.ProductComments.length > 0 || !$rootScope.UserPreset.GroupProducts) {
+                    if (!cartItem || product.ProductAttributes.length > 0 || product.EmployeeTypePrice || product.ProductComments.length > 0 || ($rootScope.UserPreset && !$rootScope.UserPreset.GroupProducts) ) {
                         cartItem = new ShoppingCartItem();
                         cartItem.ProductId = product.Id;
                         cartItem.Product = product;

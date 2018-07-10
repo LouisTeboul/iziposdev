@@ -642,6 +642,7 @@ app.service('taxesService', ['$rootScope', '$q',
                                 //Product price represente le prix hors taxe. On deduit le prix toute taxes a partir du taxRate
                                 i.DiscountIT = ETtoIT(i.Product.Price, taxRate) * i.Quantity * (discount.Value / 100);
                             }
+
                         } else {
                             i.DiscountIT = discount.Value / filteredItems.length;
                         }
