@@ -152,7 +152,7 @@ app.controller('ConfigurationController', function ($scope, $rootScope, $locatio
                                 });
                             } else if($rootScope.deviceReady && window.CacheClear) {
                                 window.CacheClear( () => {
-                                    $scope.reset
+                                    $scope.reset();
                                 });
                             }
 
