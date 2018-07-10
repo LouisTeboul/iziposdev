@@ -48,7 +48,7 @@
     <plugin name="cordova-plugin-file-transfer" spec="^1.6.3" />
     <plugin name="cordova-plugin-zip" spec="^3.1.0" />
     <plugin name="cordova-labs-local-webserver" spec="https://github.com/apache/cordova-plugins#local-webserver" />
-    <plugin name="cordova-plugin-file" spec="^5.0.0" />
+    <plugin name="cordova-plugin-file" spec="5.0.0" />
     <plugin name="cordova-plugin-compat" spec="^1.2.0" />
     <engine name="ios" spec="~4.5.4" />
 </widget>
