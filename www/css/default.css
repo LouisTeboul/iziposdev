@@ -78,7 +78,7 @@
 }
 
 html, body {
-    position: fixed;
+    position: fixed !important;
 }
 
 body {
