@@ -77,6 +77,11 @@
     user-select: none;
 }
 
+html, body {
+    position:fixed;
+    overflow: hidden;
+}
+
 body {
     background-color: #FAFAFA !important;
     font-family: SignikaNegative-Regular, sans-serif;
