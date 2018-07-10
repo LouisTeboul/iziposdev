@@ -77,15 +77,16 @@
     user-select: none;
 }
 
-body, html {
-    position:fixed !important;
-    overflow: hidden !important;
+html, body {
+    position: fixed;
 }
 
 body {
     background-color: #FAFAFA !important;
     font-family: SignikaNegative-Regular, sans-serif;
     font-size: 15px;
+    height: 100vh !important;
+    width : 100vw !important;
 }
 
 h1 {
