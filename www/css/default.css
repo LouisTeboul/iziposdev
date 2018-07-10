@@ -77,9 +77,9 @@
     user-select: none;
 }
 
-html, body {
-    position:fixed;
-    overflow: hidden;
+body, html {
+    position:fixed !important;
+    overflow: hidden !important;
 }
 
 body {
