@@ -5,7 +5,9 @@
     var checkLockInterval = null;
 
     var checkValidateLock = function () {
-        checkLockInterval = setTimeout(function () {
+        //$rootScope.validateLock = true;
+
+        checkLockInterval = setInterval(function () {
             $scope.model.hardwareIdModels.forEach(function (hidMdl) {
                 function checkYperiod(ypid) {
                     var checkDefer = $q.defer();
@@ -70,14 +72,14 @@
                 }
             });
 
-            if ($rootScope.validateLock) {
-                // Si la validation est toujours lock, on recheck toutes les 5s
-                checkValidateLock()
+            if (!$rootScope.validateLock) {
+                clearInterval(checkLockInterval);
             }
         }, 5000);
     };
 
     $scope.init = function (reload = false, savedModel = {}) {
+        $rootScope.validateLock = true;
         checkValidateLock();
         if (savedModel) {
             function getmatchedPmTotal(hid, paymentType) {
@@ -427,10 +429,6 @@
         });
     };
 
-    $scope.reloadTickets = function () {
-
-    };
-
     $scope.selectMotif = function (motif) {
         $scope.openPosValues.Motif = motif;
     };
@@ -553,10 +551,10 @@
 
     // Fermeture de caisse. Doit purger les tickets
     $scope.ok = function () {
-
         function closePos() {
             // Clear l'interval
             clearInterval(checkLockInterval);
+            $rootScope.validateLock = false;
             //Ferme la modal de stats, qui etait invisible
             modalStats.dismiss();
 
@@ -614,8 +612,8 @@
         if ($rootScope.validateLock) {
             swal({
                 title: "Fermer la caisse ?",
-                text: "Il y a des tickets en attente de syncronisation",
-                icon: "warning",
+                text: "Il y a des tickets en cours de syncronisation",
+                type: "warning",
                 confirmButtonColor: "#d83448",
                 confirmButtonText: $translate.instant("Oui"),
                 cancelButtonText: $translate.instant("Non"),
@@ -623,7 +621,9 @@
                 closeOnConfirm: true
             }, function (willClose) {
                 if (willClose) {
-                    closePos();
+
+                    setTimeout(closePos, 500);
+
                 }
             });
 
@@ -664,12 +664,10 @@
 
         setTimeout(function () {
             $rootScope.closeKeyboard();
-            $rootScope.closeKeyboard();
         }, 500);
     };
 
     var checkForFreeze = function () {
-        var nbFreeze = undefined;
         shoppingCartService.getFreezedShoppingCartsAsync().then(function (r) {
             closeCashMachine(r.length)
         }, function (err) {
@@ -717,7 +715,7 @@
 
     var closeCashMachine = function (nbFreeze) {
         if (!$rootScope.modelPos.iziboxConnected) {
-            sweetAlert({title: $translate.instant("La izibox n'est pas accèssible")}, function () {
+            sweetAlert({title: $translate.instant("La izibox n'est pas accessible")}, function () {
             });
         }
         else {
@@ -725,7 +723,7 @@
             swal({
                     title: $translate.instant($scope.closePosParameters.mode.text),
                     text: textFreeze,
-                    type: "warning",
+                    type: "info",
                     showCancelButton: true,
                     confirmButtonColor: "#d83448",
                     confirmButtonText: $translate.instant("Oui"),

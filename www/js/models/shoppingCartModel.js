@@ -39,7 +39,7 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
                 cartItem.DiscountIT -= cartItem.DiscountIT / cartItem.Quantity;
                 cartItem.DiscountET -= cartItem.DiscountET / cartItem.Quantity;
                 cartItem.Quantity--;
-                if(cartItem.stockQuantity && cartItem.stockQuantity >= 1 ) {
+                if (cartItem.stockQuantity && cartItem.stockQuantity >= 1) {
                     cartItem.stockQuantity--;
                 }
 
@@ -629,6 +629,7 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
                 currentShoppingCart = new ShoppingCart();
                 currentShoppingCart.dailyTicketId = undefined;
                 currentShoppingCart.TableNumber = undefined;
+                currentShoppingCart.TableId = undefined;
                 currentShoppingCart.Items = new Array();
                 currentShoppingCart.Discounts = new Array();
                 currentShoppingCart.Timestamp = timestamp;
@@ -680,6 +681,7 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
             var timestamp = new Date().getTime();
             var currentShoppingCartIn = new ShoppingCart();
             currentShoppingCartIn.TableNumber = undefined;
+            currentShoppingCartIn.TableId = undefined;
             currentShoppingCartIn.Items = new Array();
             currentShoppingCartIn.Timestamp = timestamp;
             currentShoppingCartIn.id = timestamp;
@@ -749,6 +751,7 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
                 var currentShoppingCartOut = new ShoppingCart();
                 currentShoppingCartOut.dailyTicketId = undefined;
                 currentShoppingCartOut.TableNumber = undefined;
+                currentShoppingCartOut.TableId = undefined;
                 currentShoppingCartOut.Items = new Array();
                 currentShoppingCartOut.Discounts = new Array();
                 currentShoppingCartOut.Timestamp = timestamp;
@@ -1046,7 +1049,7 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
             // Si besoin est, on demande a l'utilisateur de renseigner le fond de caisse
             // Pour la nouvelle periode
             posPeriodService.getYPeriodAsync(currentShoppingCart.HardwareId, currentShoppingCart.PosUserId, true, false).then(function (yp) {
-
+                $rootScope.hideLoading();
                 currentShoppingCart.yPeriodId = yp.id;
                 currentShoppingCart.zPeriodId = yp.zPeriodId;
                 var currentDate = new Date();
@@ -1060,9 +1063,6 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
                 // Suppressing line with zero for quantity
                 toSave.Items = Enumerable.from(currentShoppingCart.Items).where("item => item.Quantity != 0").toArray();
                 lastShoppingCart = toSave;
-
-                //shoppingCartService.updatePaymentShoppingCartAsync(toSave).then(function (result) {
-                $rootScope.hideLoading();
 
                 // Once the ticket saved we delete the splitting ticket
                 currentShoppingCartIn = undefined;
@@ -1096,6 +1096,8 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
                                 if (currentShoppingCart.shoppingCartQueue.length == 0) {
                                     currentShoppingCart.shoppingCartQueue = [];
                                 }
+                            }, (err) => {
+                                console.log('error getting daily ticket ', err)
                             });
                         }
                     }
@@ -1111,13 +1113,13 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
 
             }, function (err) {
                 //Dans le cas ou le fetch / creation yPeriod echoue, on supprime le panier
+                $rootScope.hideLoading();
                 console.log(err);
                 if (err.request) {
                     console.log(err.request);
                     err.request._id = err.request.ShoppingCart.id.toString();
                     $rootScope.dbValidatePool.put(err.request);
                 }
-                $rootScope.hideLoading();
                 current.clearShoppingCart();
             });
         }
@@ -1142,6 +1144,7 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
                     return;
                 }
 
+                // Annulation NF
                 if (currentShoppingCart.ParentTicket) {
                     var db = $rootScope.remoteDbZPos ? $rootScope.remoteDbZPos : $rootScope.dbZPos;
                     db.rel.find('ShoppingCart', currentShoppingCart.ParentTicket).then(function (response) {
@@ -1179,9 +1182,7 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
                                 closeOnCancel: true
                             },
                             function (isConfirm) {
-                                if (isConfirm) {
-                                    currentShoppingCart.addCreditToBalance = true;
-                                }
+                                currentShoppingCart.addCreditToBalance = isConfirm;
                                 periodValidation(ignorePrintTicket);
                             });
                     } else {
@@ -1290,7 +1291,8 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
                                 sweetAlert($translate.instant("Erreur d'impression de la note !"));
                             });
 
-                    }, function () {
+                    }, (err) => {
+                        console.log(err)
                     });
                 }
             };
@@ -1307,8 +1309,6 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
             } else {
                 continuePrint(shoppingCart);
             }
-
-
         };
 
         /**
@@ -1653,11 +1653,16 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
                         shoppingCart.AliasCaisse = $rootScope.modelPos.aliasCaisse;
                     }
                     currentShoppingCart = shoppingCart;
+
                     deliveryType = currentShoppingCart.DeliveryType;
                     current.calculateTotal();
                     current.calculateLoyalty();
 
                     $rootScope.$emit("shoppingCartChanged", currentShoppingCart);
+
+                    if(shoppingCart.isJoinedShoppingCart) {
+                        current.selectTableNumber();
+                    }
                 }, function () {
                 });
             } else {
@@ -1694,6 +1699,12 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
                 currentTableNumber = currentShoppingCart.TableNumber;
             }
 
+            var currentTableId;
+
+            if(currentShoppingCart && currentShoppingCart.TableId) {
+                currentTableId = currentShoppingCart.TableId;
+            }
+
             var currentTableCutleries;
 
             if (currentShoppingCart && currentShoppingCart.TableCutleries) {
@@ -1710,6 +1721,7 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
                     var updateSelectedTable = function (tableValues, isUnfreeze) {
                         var setValues = function (tableValues) {
                             currentShoppingCart.TableNumber = tableValues.tableNumber;
+                            currentShoppingCart.TableId = tableValues.tableId;
                             currentShoppingCart.TableCutleries = tableValues.tableCutleries;
                             $rootScope.$emit("shoppingCartChanged", currentShoppingCart);
                         };
@@ -1717,7 +1729,7 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
                         if (isUnfreeze) {
                             setValues(tableValues);
                         } else {
-                            shoppingCartService.getFreezedShoppingCartByTableNumberAsync(tableValues.tableNumber).then(function (sc) {
+                            shoppingCartService.getFreezedShoppingCartByTableNumberAsync(tableValues.tableId).then(function (sc) {
                                 sweetAlert($translate.instant("Cette table existe déjà") + "...");
                                 $rootScope.$emit("shoppingCartChanged", currentShoppingCart);
                             }, function () {
@@ -1727,7 +1739,7 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
                     };
 
                     if (!currentShoppingCart) {
-                        shoppingCartService.getFreezedShoppingCartByTableNumberAsync(tableValues.tableNumber).then(function (sc) {
+                        shoppingCartService.getFreezedShoppingCartByTableNumberAsync(tableValues.tableId).then(function (sc) {
                             current.setCurrentShoppingCart(sc);
                             shoppingCartService.unfreezeShoppingCartAsync(sc);
                             updateSelectedTable(tableValues, true);
@@ -1774,6 +1786,9 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
                         },
                         currentTableCutleries: function () {
                             return currentTableCutleries;
+                        },
+                        currentTableId: function() {
+                            return currentTableId;
                         }
                     },
                     size: 'full',
@@ -2405,7 +2420,8 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
                                 return maxValue;
                             }
                         },
-                        backdrop: 'static'
+                        backdrop: 'static',
+                        keyboard: false
                     });
 
                     modalInstance.result.then(function (paymentMode) {
@@ -2413,7 +2429,7 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
                         // Si c'est Easytransac
                         if (paymentMode.PaymentType === 7) {
                             // Si le ticket a été totalement payé
-                            if (currentShoppingCart.Residue == 0) {
+                            if (currentShoppingCart.Residue === 0) {
                                 // On valide le ticket
                                 current.validShoppingCart();
                             }

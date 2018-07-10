@@ -608,7 +608,7 @@
                 </span>
             </a>
             <a class="shoppingCartAction btn btn-info"
-               ng-if="!currentShoppingCart.ParentTicket && (!$root.UserPreset ||$root.UserPreset.DisplayButtons.PrintProd)"
+               ng-if="!currentShoppingCart.ParentTicket && (!$root.UserPreset || $root.UserPreset.DisplayButtons.PrintProd)"
                ng-disabled="printProdDisabled"
                ng-click="printProdShoppingCart()" flex>
                 <span style="white-space:normal"><img style="width:35px" alt="Image" src="img/printProd.png"></span>

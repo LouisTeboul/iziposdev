@@ -33,6 +33,10 @@ app.controller('ConfigurationController', function ($scope, $rootScope, $locatio
         if(window.localStorage.getItem("IsBorneDefault") ) {
             $rootScope.borne = window.localStorage.getItem("IsBorneDefault") === "true" ? true : false;
         }
+        if(window.localStorage.getItem("IsBorneCBDefault") ) {
+            $rootScope.borneCB = window.localStorage.getItem("IsBorneCBDefault") === "true" ? true : false;
+        }
+
 
         $scope.Model = {};
         $scope.presetList = [];
@@ -433,6 +437,7 @@ app.controller('ConfigurationController', function ($scope, $rootScope, $locatio
             $rootScope.UserPreset = $scope.currentPreset.value.settings;
         }
         window.localStorage.setItem("IsBorneDefault", $rootScope.borne ? $rootScope.borne.toString() : false);
+        window.localStorage.setItem("IsBorneCBDefault", $rootScope.borneCB ? $rootScope.borneCB.toString() : false);
         window.localStorage.setItem("PosNumber", $rootScope.modelPos.posNumber);
         window.localStorage.setItem("POSPrinter", $rootScope.PrinterConfiguration.POSPrinter);
         window.localStorage.setItem("ProdPrinter", $rootScope.PrinterConfiguration.ProdPrinter);

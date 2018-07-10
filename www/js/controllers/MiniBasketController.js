@@ -1,5 +1,5 @@
-app.controller('MiniBasketController', ['$scope', '$rootScope', '$state', '$uibModal', '$timeout', '$filter', '$mdMedia', 'settingService', 'shoppingCartService', 'productService', 'shoppingCartModel', 'posUserService', 'orderShoppingCartService', 'taxesService', '$translate', 'borneService', '$mdMedia',
-    function ($scope, $rootScope, $state, $uibModal, $timeout, $filter, $mdMedia, settingService, shoppingCartService, productService, shoppingCartModel, posUserService, orderShoppingCartService, taxesService, $translate, borneService) {
+app.controller('MiniBasketController', ['$scope', '$http', '$rootScope', '$state', '$uibModal', '$timeout', '$filter', '$mdMedia', 'settingService', 'shoppingCartService', 'productService', 'shoppingCartModel', 'posUserService', 'orderShoppingCartService', 'taxesService', '$translate', 'borneService', '$mdMedia',
+    function ($scope, $http, $rootScope, $state, $uibModal, $timeout, $filter, $mdMedia, settingService, shoppingCartService, productService, shoppingCartModel, posUserService, orderShoppingCartService, taxesService, $translate, borneService) {
         var deliveryTypeHandler = undefined;
         var itemsHandler = undefined;
         var accordionHandler = undefined;
@@ -321,6 +321,7 @@ app.controller('MiniBasketController', ['$scope', '$rootScope', '$state', '$uibM
          * Events on fid
          */
         var customerLoyaltyChangedHandler = $rootScope.$on('customerLoyaltyChanged', function (event, args) {
+            checkForBirthday();
             updateBalancePassages();
             resizeMiniBasket();
         });
@@ -499,7 +500,7 @@ app.controller('MiniBasketController', ['$scope', '$rootScope', '$state', '$uibM
         $scope.splitShoppingCart = function () {
             if ($scope.currentShoppingCart && $scope.currentShoppingCart.Items.length > 0) {
                 if (posUserService.isEnable('SPLIT')) {
-                    var modalInstance = $uibModal.open({
+                    $uibModal.open({
                         templateUrl: 'modals/modalShoppingCartSplit.html',
                         controller: 'ModalShoppingCartSplitController',
                         backdrop: 'static',
@@ -758,6 +759,15 @@ app.controller('MiniBasketController', ['$scope', '$rootScope', '$state', '$uibM
 
         $scope.chooseRelevantOffer = function () {
             shoppingCartModel.chooseRelevantOffer();
+        };
+
+        var checkForBirthday = function () {
+            if($scope.currentShoppingCart && $scope.currentShoppingCart.customerLoyalty && $scope.currentShoppingCart.customerLoyalty.CustomerDateOfBirth) {
+                console.log($scope.currentShoppingCart.customerLoyalty.CustomerDateOfBirth);
+                // TODO : Check si la date de naissance du client == a la date d'aujourd'hui
+                swal($translate.instant(`C'est l'anniversaire de ${$scope.currentShoppingCart.customerLoyalty.CustomerFirstName} ${$scope.currentShoppingCart.customerLoyalty.CustomerLastName} !`));
+            }
+
         };
 
         var updateBalancePassages = function () {

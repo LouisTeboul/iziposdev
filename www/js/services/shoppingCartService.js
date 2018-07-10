@@ -48,20 +48,20 @@ app.service('shoppingCartService', ["$http", "$rootScope", "$q", "$filter", "zpo
 
         /**
          * Get freezed tickets by table number
-         * @param tableNumber the table number
+         * @param TableId the table number
          */
-        this.getFreezedShoppingCartByTableNumberAsync = function (tableNumber) {
+        this.getFreezedShoppingCartByTableNumberAsync = function (TableId) {
             var resultDefer = $q.defer();
 
             $rootScope.showLoading();
 
-            if (tableNumber == undefined) {
+            if (!TableId) {
                 $rootScope.hideLoading();
                 resultDefer.reject();
             } else {
                 this.getFreezedShoppingCartsAsync().then(function (shoppingCarts) {
                     var result = Enumerable.from(shoppingCarts).firstOrDefault(function (sc) {
-                        return sc.TableNumber == tableNumber;
+                        return sc.TableId == TableId;
                     });
                     if (result) {
                         $rootScope.hideLoading();
@@ -452,7 +452,6 @@ app.service('shoppingCartService', ["$http", "$rootScope", "$q", "$filter", "zpo
             // 3s par step, plus 1s par imprimantes différente, + 1s prévu pour une potentielle imprimante print all
             nbStep = nbStep ? nbStep : 1;
             var timeout = (nbStep * 3000) + (printers.length * 1000) + 1000;
-            console.log(timeout);
 
             // printDefer.resolve();
             $http.post(printerApiUrl, shoppingCartPrinterReq, {timeout: timeout}).then(function (obj) {

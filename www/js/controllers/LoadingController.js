@@ -174,8 +174,6 @@ app.controller('LoadingController', function ($scope, $rootScope, $location, $ti
                                 $rootScope.storedCategories['' + storage.mainCategory.Id] = storage;
 
                                 if (Object.keys($rootScope.storedCategories).length === categories.length && !$rootScope.init) {
-
-                                    console.log($rootScope.storedCategories);
                                     $rootScope.init = true;
                                     initServices($rootScope, $injector);
                                     borneService.redirectToHome();
@@ -193,7 +191,6 @@ app.controller('LoadingController', function ($scope, $rootScope, $location, $ti
                                 borneService.redirectToHome();
                             }
                         } else {
-                            console.log(index + " / " + categories.length);
                             /*
                             if(window.localStorage.getItem('Category' + c.id)){
                                 callback(window.localStorage.getItem('Category' + c.id));

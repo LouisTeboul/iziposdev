@@ -1679,9 +1679,6 @@ md-input-container label:not(._md-container-ignore) {
 }
 
 @media (max-width: 799px) {
-    #Menu {
-        width: 90% !important;
-    }
 
     .categories .linkCategory {
         width: 90px !important;

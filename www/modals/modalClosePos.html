@@ -165,7 +165,7 @@
                 ng-click="openZ()" translate>Afficher le Z
         </button>
         <button class="btn" ng-class="$root.validateLock ? 'btn-warning' : 'btn-success'" ng-if="model.showCloseButton" ng-click="ok()"
-                translate>{{ $root.validateLock ? "Veuillez patienter ..." : closePosParameters.mode.text}}
+                translate> {{ closePosParameters.mode.text }}
         </button>
         <button class="btn btn-danger" ng-click="cancel()" translate>Annuler</button>
     </div>

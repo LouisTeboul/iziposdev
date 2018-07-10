@@ -59,7 +59,8 @@
                             </span>
                             <span ng-if="!currentShoppingCart.customerLoyalty.SelectedCustomAction"><span
                                     class="glyphicon glyphicon-retweet" style="font-size: 20Px;
-                            color: green;"></span> </span>
+                            color: green;"></span>
+                            </span>
                         </a>
                     </div>
                 </div>
@@ -271,8 +272,9 @@
                     <span>{{paymentModeRow.Total | CurrencyFormat}}</span>
                 </div>
                 <div>
-                    <a class="btn" ng-click="$event.stopPropagation(); removePayment(paymentModeRow);"
-                       ng-if="!currentShoppingCart.isPayed && !currentShoppingCart.ParentTicket">
+                    <a class="btn"
+                       ng-click="$event.stopPropagation(); removePayment(paymentModeRow);"
+                       ng-if="!currentShoppingCart.isPayed && !currentShoppingCart.ParentTicket && !(paymentModeRow.PaymentType == 2 && $root.borne)">
                         <span class="glyphicon glyphicon-trash"></span>
                     </a>
                 </div>
@@ -310,16 +312,23 @@
         <div id="buttonbar" class="buttonbar" layout="column" layout-align="end stretch">
             <div class="shoppingCartActionsBar">
                 <div ng-repeat="paymentMode in paymentModesAvailable">
-                    <a ng-if="((paymentMode.PaymentType == 7 && currentShoppingCart.Total >= IziBoxConfiguration.MinPaymentEasyTransac) || (paymentMode.IsBalance) && currentShoppingCart.Residue > 0)"
+                    <a ng-if="(
+                    ((paymentMode.PaymentType == 7 && currentShoppingCart.Total >= IziBoxConfiguration.MinPaymentEasyTransac)
+                    || paymentMode.IsBalance
+                    || ( paymentMode.PaymentType == 2 && $root.borneCB ))
+                    && currentShoppingCart.Residue > 0)"
                        class="shoppingCartAction btn btn-success"
                        ng-click="selectPaymentMode(paymentMode)">
                         <img ng-src="{{paymentMode | PaymentTypeImg}}" alt="Image" class="imgBtnPaiement" height="25"/>
                         <span style="white-space:normal;" class="text-uppercase">{{paymentMode.Text}}</span>
                     </a>
-                    <p ng-if="currentShoppingCart.Total < IziBoxConfiguration.MinPaymentEasyTransac && paymentMode.PaymentType == 7
-                && currentShoppingCart.Residue > 0 && !currentShoppingCart.customerLoyalty"
-                       style="margin-left: 80px;" translate>Veuillez payer en comptoir.</p>
                 </div>
+                <p ng-if="currentShoppingCart.Total < IziBoxConfiguration.MinPaymentEasyTransac
+                       && !$root.borneCB
+                       && currentShoppingCart.Residue > 0
+                       && !currentShoppingCart.customerLoyalty"
+                   style="margin-left: 80px;" translate>Veuillez payer en comptoir.
+                </p>
             </div>
         </div>
         <div class="borne-buttonbar" layout="center center" layout-align="column">

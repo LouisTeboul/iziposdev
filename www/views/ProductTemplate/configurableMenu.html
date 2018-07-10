@@ -42,7 +42,8 @@
                                    ng-class="v.DisableBuyButton ? 'disable' : (v.Selected == 1 ? 'active' : '')"
                                    ng-click="v.DisableBuyButton ? null : selectAttributeValue(v.ProductAttributeId,v.Id,null, $event)">
                             <div layout="column" style="align-items: center;justify-content: space-between" layout-fill>
-                                <img class="imgAttribute" ng-src="{{v.DefaultPictureUrl}}"/>
+                                <img class="imgAttribute" ng-src="{{v.DefaultPictureUrl}}"
+                                     ng-class="v.DisableBuyButton ? 'rupture' : ''"/>
                                 <div class="attributeInfo-text" style="max-height: 45px;overflow: hidden;">
                                     <div ng-if="v.LinkedProduct" data-ng-bind-html="v.LinkedProduct.Name"></div>
                                     <div ng-if="!v.LinkedProduct" data-ng-bind-html="v.Name"></div>

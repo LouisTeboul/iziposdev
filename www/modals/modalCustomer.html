@@ -195,32 +195,6 @@
                         </button>
                     </div>
 
-                    <!--<div ng-if="currentShoppingCart.customerLoyalty.CustomActions && currentShoppingCart.customerLoyalty.CustomActions[0].Name">
-                        <h3 class="text-center light" style="margin-bottom: 0; margin-top: 28px;">Actions</h3>
-                        <label class="item item-input item-select" style="border: 0; margin-bottom: 10px;">
-                            <div class="input-label">&nbsp;</div>
-                            <select name="actionSelect" id="actionSelect"
-                                    class="center-block"
-                                    style="max-width: 100%; width: 100%; direction: ltr; font-size: 1.22em; height: 56px; padding-right: 30px; padding-top: 5px; background: #f8f8f8">
-                                <option ng-attr-selected="$index === 0" value="{{action.Id}}"
-                                        ng-repeat="action in currentShoppingCart.customerLoyalty.CustomActions">
-                                    {{action.Name}}
-                                </option>
-                            </select>
-                        </label>
-
-                        <button translate class="btn btn-lg center-block hvr-grow no-radius ink"
-                                ng-click="!isUsingAction ? useAction() : 0">
-                            Valider
-                        </button>
-                    </div>-->
-
-                    <!--<ul class="izi-balances list-unstyled" ng-if="currentShoppingCart.customerLoyalty.CustomActions && currentShoppingCart.customerLoyalty.CustomActions[0].Name && customization.showActionsAsButtons" style="margin-top: 24px;">
-                        <li class="bg-accent li-unstyled waves-effect customAction" ng-repeat="action in currentShoppingCart.customerLoyalty.CustomActions"
-                            ng-click="!isUsingAction ? clickAction(action.Id, true) : 0">
-                            <span>{{action.Name}}</span>
-                        </li>
-                    </ul>-->
                     <!-- #endregion -->
                     <!-- #region Offers -->
                     <ul class="izi-offers list-unstyled" ng-if="currentShoppingCart.customerLoyalty.Offers.length > 0"
@@ -277,9 +251,9 @@
                                 <h4 class="no-mg-vert" ng-if="currentShoppingCart.customerLoyalty.CustomerFirstName">
                                     <b translate>Prénom</b> :
                                     {{currentShoppingCart.customerLoyalty.CustomerFirstName}}
-                                </h4>
-                                <h4 class="no-mg-vert" ng-if="currentShoppingCart.customerLoyalty.CustomerLastName"><b
-                                        translate>Nom</b> : {{currentShoppingCart.customerLoyalty.CustomerLastName}}
+                                </h4>Z
+                                <h4 class="no-mg-vert" ng-if="currentShoppingCart.customerLoyalty.CustomerLastName">
+                                    <b translate>Nom</b> : {{currentShoppingCart.customerLoyalty.CustomerLastName}}
                                 </h4>
                                 <h4 class="no-mg-vert" ng-if="currentShoppingCart.customerLoyalty.CustomerEmail">
                                     <b translate>Email</b> :
@@ -344,7 +318,8 @@
 
                                 <h2 translate class="no-mg-vert"
                                     ng-if="currentShoppingCart.customerLoyalty.AllowAnonymous && currentShoppingCart.customerLoyalty.AnonymousCustomer">
-                                    Utilisateur anonyme</h2>
+                                    Utilisateur anonyme
+                                </h2>
 
                                 <div class="barcode-container visible-xs"
                                      ng-if="currentShoppingCart.customerLoyalty.AllowAnonymous && currentShoppingCart.customerLoyalty.AnonymousCustomer">

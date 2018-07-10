@@ -1,4 +1,4 @@
-﻿app.controller('ModalPaymentModeController', function ($scope, $rootScope, shoppingCartModel, $uibModalInstance, paymentMode, maxValue, $translate, $filter, $q, borneService) {
+﻿app.controller('ModalPaymentModeController', function ($scope, $http, $rootScope, shoppingCartModel, $uibModalInstance, paymentMode, maxValue, $translate, $filter, $q, borneService) {
     var current = this;
     var currencyFormat = $filter('CurrencyFormat');
 
@@ -68,6 +68,8 @@
             $scope.errorMessage = $translate.instant("Le montant ne peut pas dépasser") + " " + currencyFormat(maxValue);
         } else {
             runPaymentProcessAsync().then(function () {
+                $scope.infoMessage = "";
+                $scope.lockView = false;
                 $scope.errorMessage = undefined;
                 $scope.paymentMode.Total = totalPayment;
                 $uibModalInstance.close($scope.paymentMode);
@@ -76,12 +78,18 @@
                     $rootScope.closeKeyboard();
                 }, 500);
 
-                if($scope.options.easytransacType !== "") {
+                if($scope.paymentMode.PaymentType === PaymentType.EASYTRANSAC) {
                     shoppingCartModel.validBorneOrder();
+                }
+
+                if(($scope.paymentMode.PaymentType === PaymentType.CB) && $rootScope.borne) {
+                    shoppingCartModel.validBorneOrder();
+
                 }
 
                 $scope.$evalAsync();
             }, function (errPaymentProcess) {
+                $scope.lockView = false;
                 $scope.errorMessage = errPaymentProcess;
                 $scope.$evalAsync();
             });
@@ -92,7 +100,6 @@
 
     var runPaymentProcessAsync = function () {
         var processDefer = $q.defer();
-
         switch ($scope.paymentMode.PaymentType) {
             case PaymentType.EASYTRANSAC:
                 try {
@@ -110,9 +117,50 @@
                             processDefer.reject(errorTxt);
                         });
                 } catch (pluginEx) {
-                    processDefer.reject($translate.instant("Le plugin EasyTransac ne peut pas être appelé"));
+                    processDefer.reject($translate.instant("Le paiement EasyTransac est indisponible."));
                 }
                 break;
+            case PaymentType.CB:
+                if($rootScope.borne) {
+                    try {
+                        var amountCts = Math.floor(maxValue * 100);
+                        $scope.lockView = true;
+
+                        if(window.tpaPayment) {
+                            $scope.infoMessage = "Suivez les instructions sur le TPE";
+                            var tpaPromise = new Promise(function (resolve, reject) {
+                                window.tpaPayment.initPaymentAsync(amountCts, resolve, reject);
+                            });
+
+                            tpaPromise.then( (ticket) => {
+                                var printerApiUrl = "http://" + $rootScope.IziBoxConfiguration.LocalIpIziBox + ":" + $rootScope.IziBoxConfiguration.RestPort + "/printhtml";
+                                var htmlPrintReq = {
+                                    PrinterIdx: $rootScope.PrinterConfiguration.POSPrinter,
+                                    Html: ticket + "<cut></cut>"
+                                };
+
+                                $http.post(printerApiUrl, htmlPrintReq, {timeout: 10000});
+                                $scope.paymentMode.paymentProcessResult = "Success";
+                                processDefer.resolve();
+                            }, (err) => {
+                                $scope.paymentMode.paymentProcessResult = "Error";
+                                processDefer.reject(err);
+                            })
+                        } else {
+                            processDefer.reject('Le paiement par carte est indisponible');
+                        }
+
+
+                    } catch (pluginEx) {
+                        $scope.paymentMode.paymentProcessResult = "Error";
+                        processDefer.reject($translate.instant("Le plugin Valina ne peut pas être appelé"));
+                    }
+                } else {
+                    $scope.paymentMode.paymentProcessResult = "Success";
+                    processDefer.resolve();
+                }
+                break;
+
             default:
                 $scope.paymentMode.paymentProcessResult = "Success";
                 processDefer.resolve();

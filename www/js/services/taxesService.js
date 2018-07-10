@@ -625,8 +625,12 @@ app.service('taxesService', ['$rootScope', '$q',
 
                     // Calc discount on each item
                     // And add it on top of existing discount
-                    Enumerable.from(shoppingCart.Items).forEach(function (i) {
 
+                    // N'applique pas sur les item qté 0, offert, ou dont le prix est nul
+                    var filteredItems = shoppingCart.Items.filter(i => {
+                        return i.Quantity > 0 && !i.IsFree && i.PriceIT >= 0.01;
+                    });
+                    Enumerable.from(filteredItems).forEach(function (i) {
                         var taxRate = getTaxRate(i.TaxCategory, shoppingCart.DeliveryType);
 
                         if (discount.IsPercent) {
@@ -638,9 +642,8 @@ app.service('taxesService', ['$rootScope', '$q',
                                 //Product price represente le prix hors taxe. On deduit le prix toute taxes a partir du taxRate
                                 i.DiscountIT = ETtoIT(i.Product.Price, taxRate) * i.Quantity * (discount.Value / 100);
                             }
-
                         } else {
-                            i.DiscountIT = discount.Value / shoppingCart.Items.length;
+                            i.DiscountIT = discount.Value / filteredItems.length;
                         }
                         i.DiscountET = ITtoET(i.DiscountIT, taxRate);
                         discount.Total += i.DiscountIT;

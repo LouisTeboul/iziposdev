@@ -677,6 +677,10 @@ text-field.flexbox div {
     min-height: 365px;
 }
 
+.switch-3.switch-candy.deliveryMode {
+    margin: 0;
+}
+
 .miniBasketPOS {
     transition: linear 0s !important;
     min-width: 345px;
@@ -722,6 +726,21 @@ text-field.flexbox div {
 }
 
 @media (min-width: 800px) {
+
+    .tableImg img {
+        height: 60px;
+        width: 60px;
+    }
+
+    .tableTitle {
+        font-size: 36px;
+    }
+
+    .tableMain {
+        width: 175px;
+        height: 175px;
+        margin: 0 8px 8px 0;
+    }
 
     .subCategoriesHeading {
         position: relative;
@@ -1223,12 +1242,15 @@ text-field.flexbox div {
     color: white;
     font-size: 12px;
     /*font-weight: bold;*/
-    display: block;
     overflow: hidden;
     word-wrap: break-word;
     text-overflow: ellipsis;
     width: 80px;
     height: 30px;
+    line-height: 12px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .categories {
@@ -1374,6 +1396,21 @@ text-field.flexbox div {
 }
 
 @media (max-width: 799px) {
+
+    .tableImg img {
+        height: 20px;
+        width: 40px;
+    }
+
+    .tableTitle {
+        font-size: 20px;
+    }
+
+    .tableMain {
+        width: 85px;
+        height: 85px;
+        margin: 0 5px 5px 0;
+    }
 
     .menuAction .menuPrice {
         font-size: 14px;
@@ -1528,6 +1565,10 @@ text-field.flexbox div {
 .attributeBox .imgAttribute {
     width: 35px;
     height: 35px;
+}
+
+.attributeBox .imgAttribute.rupture {
+    filter: brightness(0.79);
 }
 
 .attributeBox.active {
@@ -2226,7 +2267,7 @@ md-input-container label:not(._md-container-ignore) {
 }
 
 .productMenuList {
-    width: 160px;
+    width: 69px;
     margin: 0 20px;
 }
 
@@ -2293,6 +2334,112 @@ md-input-container label:not(._md-container-ignore) {
 
 .productComment {
     color: grey;
-    margin:0 -5px;
-    padding:0 5px;
+    margin: 0 -5px;
+    padding: 0 5px;
 }
+
+/*   modalTablePlan   */
+
+.tableOngletsGroup {
+
+}
+
+.tableOnglet {
+    min-width: 128px;
+    height: 48px;
+    color: rgba(0, 0, 0, 0.69);;
+    border: 0;
+    font-size: 14px;
+    line-height: 24px;
+    padding: 12px 0 0;
+    text-align: center;
+}
+
+.tableOngletFocus {
+    border-bottom: 2px solid rgb(255, 64, 129);
+    color: rgb(63, 81, 181);
+}
+
+.groupTableList {
+    display: flex;
+    flex-direction: row;
+    flex: 1;
+    flex-wrap: wrap;
+}
+
+.tableMain {
+    background-color: green;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.tableTitle {
+    margin-top: 15px;
+    font-weight: bold;
+    letter-spacing: -0.5px;
+    font-family: inherit;
+    line-height: 1.1;
+}
+
+.tableImg {
+    flex: 1;
+}
+
+.svgTableImg {
+    fill: white;
+}
+
+.tableInfo {
+    width: 100%;
+    height: 20px;
+    background-color: rgba(255, 255, 255, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.tableSettings {
+    width: 170px;
+    min-height: 175px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-around;
+}
+
+.tableSettings input {
+    width: 50px;
+}
+
+.groupTableSetting {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#checkboxAllTable {
+    width: 30px;
+    height: 20px;
+}
+
+#allMapsOnglet {
+    display: flex;
+    flex-direction: row;
+    min-height: 48px;
+}
+
+#allGroupsTable {
+    overflow: scroll;
+}
+
+.mainAllMapAreaTable {
+    display: flex;
+    flex-direction: column;
+    max-height: 100%;
+}
+
+/*  !modalTablePlan   */

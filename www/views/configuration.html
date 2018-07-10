@@ -118,6 +118,14 @@
                         <md-switch ng-model="$root.borne" aria-label="Enable?"></md-switch>
                     </div>
                 </div>
+                <div layout="row" layout-align="start center" layout-wrap ng-if="$root.borne">
+                    <div class="title" style="min-width:155px">
+                        <b translate>Activer paiement CB</b> :
+                    </div>
+                    <div class="value" style="min-width:250px">
+                        <md-switch ng-model="$root.borneCB" aria-label="Enable?"></md-switch>
+                    </div>
+                </div>
             </div>
         </div>
 

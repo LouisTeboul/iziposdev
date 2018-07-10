@@ -131,18 +131,36 @@
             });
 
             var joinedShoppingCart = toJoin[0];
+            var tableNumber = toJoin[0].TableNumber;
+            var tableCutleries = toJoin[0].TableCutleries;
+            var tableId = toJoin[0].Id;
+            var hasTable = toJoin.filter(x => x.TableNumber || x.tableCutleries);
 
             for (var i = 1; i < toJoin.length; i++) {
                 var curShoppingCart = toJoin[i];
-
+                if(toJoin[i].TableCutleries) {
+                    tableCutleries += toJoin[i].TableCutleries;
+                }
+                if(!tableId) {
+                    tableId = toJoin[i].TableId;
+                }
+                if(!tableNumber) {
+                    tableNumber = toJoin[i].TableNumber;
+                }
+                if(!tableCutleries) {
+                    tableCutleries = toJoin[i].TableCutleries;
+                }
                 Enumerable.from(curShoppingCart.Items).forEach(function (item) {
                     shoppingCartModel.addItemTo(joinedShoppingCart, undefined, item, item.Quantity);
                 });
             }
 
-            $uibModalInstance.close(joinedShoppingCart);
+            joinedShoppingCart.TableNumber = tableNumber;
+            joinedShoppingCart.TableCutleries = tableCutleries;
+            joinedShoppingCart.TableId = tableId;
+            joinedShoppingCart.isJoinedShoppingCart = hasTable.length >= 2;
 
-            shoppingCartModel.selectTableNumber();
+            $uibModalInstance.close(joinedShoppingCart);
         });
     };
 
