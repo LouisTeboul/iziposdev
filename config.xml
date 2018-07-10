@@ -13,33 +13,34 @@
     <allow-intent href="tel:*" />
     <allow-intent href="sms:*" />
     <allow-intent href="mailto:*" />
-    <allow-intent href="geo:*" />	
-	<icon src="resources/icon.png" platform="ios" />
-	<platform name="ios">
-	<allow-intent href="itms:*" />
+    <allow-intent href="geo:*" />
+    <icon platform="ios" src="resources/icon.png" />
+    <platform name="ios">
+        <allow-intent href="itms:*" />
         <allow-intent href="itms-apps:*" />
-		<icon gap:platform="ios" height="228" src="resources/ios/icon/Icon-App-76x76@3x.png" width="228" />
-		<icon gap:platform="ios" height="152" src="resources/ios/icon/Icon-App-76x76@2x.png" width="152" />
-		<icon gap:platform="ios" height="76" src="resources/ios/icon/Icon-App-76x76@1x.png" width="76" />
-		<icon gap:platform="ios" height="180" src="resources/ios/icon/Icon-App-60x60@3x.png" width="180" />
-		<icon gap:platform="ios" height="120" src="resources/ios/icon/Icon-App-60x60@2x.png" width="120" />
-		<icon gap:platform="ios" height="60" src="resources/ios/icon/Icon-App-60x60@1x.png" width="60" />
-		<icon gap:platform="ios" height="80" src="resources/ios/icon/Icon-App-40x40@2x.png" width="80" />
-		<icon gap:platform="ios" height="40" src="resources/ios/icon/Icon-App-40x40@1x.png" width="40" />
-		<icon gap:platform="ios" height="87" src="resources/ios/icon/Icon-App-29x29@3x.png" width="87" />
-		<icon gap:platform="ios" height="58" src="resources/ios/icon/Icon-App-29x29@2x.png" width="58" />
-		<icon gap:platform="ios" height="29" src="resources/ios/icon/Icon-App-29x29@1x.png" width="29" />
-		<splash gap:platform="ios" height="768" src="resources/ios/splash/Default-Landscape~ipad.png" width="1024" />
-		<splash gap:platform="ios" height="1024" src="resources/ios/splash/Default-Portrait~ipad.png" width="768" />
-		<splash gap:platform="ios" height="1136" src="resources/ios/splash/Default-568h@2x~iphone.png" width="640" />
-		<splash gap:platform="ios" height="960" src="resources/ios/splash/Default@2x~iphone.png" width="640" />
-		<splash gap:platform="ios" height="480" src="resources/ios/splash/Default~iphone.png" width="320" />
-	</platform>	
+        <icon gap:platform="ios" height="228" src="resources/ios/icon/Icon-App-76x76@3x.png" width="228" />
+        <icon gap:platform="ios" height="152" src="resources/ios/icon/Icon-App-76x76@2x.png" width="152" />
+        <icon gap:platform="ios" height="76" src="resources/ios/icon/Icon-App-76x76@1x.png" width="76" />
+        <icon gap:platform="ios" height="180" src="resources/ios/icon/Icon-App-60x60@3x.png" width="180" />
+        <icon gap:platform="ios" height="120" src="resources/ios/icon/Icon-App-60x60@2x.png" width="120" />
+        <icon gap:platform="ios" height="60" src="resources/ios/icon/Icon-App-60x60@1x.png" width="60" />
+        <icon gap:platform="ios" height="80" src="resources/ios/icon/Icon-App-40x40@2x.png" width="80" />
+        <icon gap:platform="ios" height="40" src="resources/ios/icon/Icon-App-40x40@1x.png" width="40" />
+        <icon gap:platform="ios" height="87" src="resources/ios/icon/Icon-App-29x29@3x.png" width="87" />
+        <icon gap:platform="ios" height="58" src="resources/ios/icon/Icon-App-29x29@2x.png" width="58" />
+        <icon gap:platform="ios" height="29" src="resources/ios/icon/Icon-App-29x29@1x.png" width="29" />
+        <splash gap:platform="ios" height="768" src="resources/ios/splash/Default-Landscape~ipad.png" width="1024" />
+        <splash gap:platform="ios" height="1024" src="resources/ios/splash/Default-Portrait~ipad.png" width="768" />
+        <splash gap:platform="ios" height="1136" src="resources/ios/splash/Default-568h@2x~iphone.png" width="640" />
+        <splash gap:platform="ios" height="960" src="resources/ios/splash/Default@2x~iphone.png" width="640" />
+        <splash gap:platform="ios" height="480" src="resources/ios/splash/Default~iphone.png" width="320" />
+    </platform>
     <feature name="CDVWKWebViewEngine">
         <param name="ios-package" value="CDVWKWebViewEngine" />
     </feature>
     <preference name="CordovaWebViewEngine" value="CDVWKWebViewEngine" />
-	<plugin name="cordova-plugin-whitelist" spec="1" />
+	<preference name="StatusBarOverlaysWebView" value="false" />
+    <plugin name="cordova-plugin-whitelist" spec="1" />
     <plugin name="cordova-plugin-code-push" spec="^1.11.11" />
     <plugin name="cordova-plugin-wkwebview-engine" spec="^1.1.4" />
     <plugin name="cordova-plugin-networkinterface" spec="~1.2.0" />
@@ -51,4 +52,5 @@
     <plugin name="cordova-plugin-file" spec="5.0.0" />
     <plugin name="cordova-plugin-compat" spec="^1.2.0" />
     <engine name="ios" spec="~4.5.4" />
+    <plugin name="cordova-plugin-statusbar" spec="^2.4.2" />
 </widget>
