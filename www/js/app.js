@@ -95,10 +95,12 @@ app.run(function ($rootScope, $location, $q, $http, ipService, zposService, $tra
             document.addEventListener("deviceready", function () {
                 if (!deviceInit) {
                     deviceInit = true;
+                    $rootScope.deviceReady = true;
                     init($rootScope, $location, $q, $http, ipService, zposService, $translate, $uibModal);
                 }
             }, false);
 
+            // Si le device n'est pas ready en 5s, on init quand même
             setTimeout(function () {
                 if (!deviceInit) {
                     deviceInit = true;
@@ -235,12 +237,12 @@ var init = function ($rootScope, $location, $q, $http, ipService, zposService, $
             // $rootScope.IziBoxConfiguration.LoginRequired = false;
 
             // Convert settings from 'string' to 'boolean'
-            for (var prop in config) {
-                if (config[prop] == "true") {
+            for (let prop in config) {
+                if (config[prop] === "true") {
                     config[prop] = true;
                 }
 
-                if (config[prop] == "false") {
+                if (config[prop] === "false") {
                     config[prop] = false;
                 }
             }

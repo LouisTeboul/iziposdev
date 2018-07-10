@@ -146,9 +146,16 @@ app.controller('ConfigurationController', function ($scope, $rootScope, $locatio
                     } else {
                         try {
                             // FIXME: Windows cache is not always available
-                            window.cache.clear(function () {
-                                $scope.reset();
-                            });
+                            if(window.cache) {
+                                window.cache.clear(function () {
+                                    $scope.reset();
+                                });
+                            } else if($rootScope.deviceReady && window.CacheClear) {
+                                window.CacheClear( () => {
+                                    $scope.reset
+                                });
+                            }
+
                         } catch (err) {
                             console.log(err);
                         }

@@ -2,7 +2,12 @@
 
     if (navigator.userAgent.match(/(iPhone|iPod|iPad|Android|BlackBerry)/)) {
         console.log('Android / iOs Detected');
-        document.addEventListener("deviceready", onDeviceReady, false);
+        if($rootScope.deviceReady) {
+            onDeviceReady();
+        } else {
+            document.addEventListener("deviceready", onDeviceReady, false);
+        }
+
     } else {
         onDeviceReady();
     }
