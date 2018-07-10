@@ -320,7 +320,7 @@ app.controller('ModalCustomerController', function ($scope, $rootScope, $q, $htt
             if (!$scope.validEmail($scope.newLoyalty.CustomerEmail) && $scope.registerFull) {
                 ngToast.create({
                     className: 'danger',
-                    content: '<b>Le format de l\'email est incorrect</b>',
+                    content: '<span class="bold">Le format de l\'email est incorrect</span>',
                     dismissOnTimeout: true,
                     timeout: 10000,
                     dismissOnClick: true
@@ -333,7 +333,7 @@ app.controller('ModalCustomerController', function ($scope, $rootScope, $q, $htt
         if ($scope.signInSettings.Phone && !$scope.validPhone($scope.newLoyalty.CustomerPhone) && $scope.registerFull) {
             ngToast.create({
                 className: 'danger',
-                content: '<b>Le format du téléphone est incorrect</b>',
+                content: '<span class="bold">Le format du téléphone est incorrect</span>',
                 dismissOnTimeout: true,
                 timeout: 10000,
                 dismissOnClick: true
@@ -345,7 +345,7 @@ app.controller('ModalCustomerController', function ($scope, $rootScope, $q, $htt
         if ($scope.signInSettings.ZipPostalCode && !$scope.validZipPostCode($scope.newLoyalty.CustomerZipPostalCode) && $scope.registerFull) {
             ngToast.create({
                 className: 'danger',
-                content: '<b>Le format du code postal est incorrect</b>',
+                content: '<span class="bold">Le format du code postal est incorrect</span>',
                 dismissOnTimeout: true,
                 timeout: 10000,
                 dismissOnClick: true
@@ -427,7 +427,7 @@ app.controller('ModalCustomerController', function ($scope, $rootScope, $q, $htt
                             $scope.validDisabled = false;
                             ngToast.create({
                                 className: 'danger',
-                                content: '<b>Veuillez renseigner tout les champs</b>',
+                                content: '<span class="bold">Veuillez renseigner tout les champs</span>',
                                 dismissOnTimeout: true,
                                 timeout: 10000,
                                 dismissOnClick: true
@@ -510,7 +510,7 @@ app.controller('ModalCustomerController', function ($scope, $rootScope, $q, $htt
                 $scope.validDisabled = false;
                 ngToast.create({
                     className: 'danger',
-                    content: '<b>Impossible d\'enregistrer le client</b>',
+                    content: '<span class="bold">Impossible d\'enregistrer le client</span>',
                     dismissOnTimeout: true,
                     timeout: 10000,
                     dismissOnClick: true

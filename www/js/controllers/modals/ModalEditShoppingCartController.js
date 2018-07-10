@@ -177,7 +177,7 @@ app.controller('ModalEditShoppingCartController', function ($scope, $rootScope, 
             catch(err){                
                 ngToast.create({
                                     className: 'danger',
-                                    content: '<b>Impossible de modifier le moyen de paiement</b>',
+                                    content: '<span class="bold">Impossible de modifier le moyen de paiement</span>',
                                     dismissOnTimeout: true,
                                     timeout: 10000,
                                     dismissOnClick: true

@@ -276,7 +276,7 @@ app.controller('ModalCustomerBorneController', function ($scope, $rootScope, $q,
                 $scope.validDisabled = false;
                 ngToast.create({
                     className: 'danger',
-                    content: '<b>Le format de l\'email est incorrect</b>',
+                    content: '<span class="bold">Le format de l\'email est incorrect</span>',
                     dismissOnTimeout: true,
                     timeout: 10000,
                     dismissOnClick: true
@@ -290,7 +290,7 @@ app.controller('ModalCustomerBorneController', function ($scope, $rootScope, $q,
             $scope.validDisabled = false;
             ngToast.create({
                 className: 'danger',
-                content: '<b>Le format du téléphone est incorrect</b>',
+                content: '<span class="bold">Le format du téléphone est incorrect</span>',
                 dismissOnTimeout: true,
                 timeout: 10000,
                 dismissOnClick: true
@@ -303,7 +303,7 @@ app.controller('ModalCustomerBorneController', function ($scope, $rootScope, $q,
             $scope.validDisabled = false;
             ngToast.create({
                 className: 'danger',
-                content: '<b>Le format du code postal est incorrect</b>',
+                content: '<span class="bold">Le format du code postal est incorrect</span>',
                 dismissOnTimeout: true,
                 timeout: 10000,
                 dismissOnClick: true
@@ -387,7 +387,7 @@ app.controller('ModalCustomerBorneController', function ($scope, $rootScope, $q,
                 $scope.validDisabled = false;
                 ngToast.create({
                     className: 'danger',
-                    content: '<b>Veuillez renseigner tout les champs</b>',
+                    content: '<span class="bold">Veuillez renseigner tout les champs</span>',
                     dismissOnTimeout: true,
                     timeout: 10000,
                     dismissOnClick: true
@@ -399,7 +399,7 @@ app.controller('ModalCustomerBorneController', function ($scope, $rootScope, $q,
             $scope.validDisabled = false;
             ngToast.create({
                 className: 'danger',
-                content: '<b>Impossible d\'enregistrer le client</b>',
+                content: '<span class="bold">Impossible d\'enregistrer le client</span>',
                 dismissOnTimeout: true,
                 timeout: 10000,
                 dismissOnClick: true

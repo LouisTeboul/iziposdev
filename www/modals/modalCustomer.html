@@ -203,14 +203,14 @@
                             ng-repeat="offer in currentShoppingCart.customerLoyalty.Offers"
                             ng-if="offer.isValid==true">
                             <!--ng-click="showConfirm($event, offer)"-->
-                            <b class="pull-right" ng-if="offer.Count>1">x{{offer.Count}}</b>
+                            <span class="bold" class="pull-right" ng-if="offer.Count>1">x{{offer.Count}}</span>
 
                             <h3 class="text-center no-mg-vert fid-item-title">
                                 {{offer.OfferClassDescription}}
                             </h3>
 
                             <div class="text-center">
-                                <b>{{offer.OfferObjectDescription}}</b><br/>
+                                <span class="bold">{{offer.OfferObjectDescription}}</span><br/>
                             </div>
                         </li>
                     </ul>
@@ -221,10 +221,10 @@
                             <h3 class="text-center no-mg-vert fid-item-title">{{balance.BalanceName}}</h3>
 
                             <div class="text-center">
-                                <b style="font-size: 1.6em;">
+                                <span class="bold" style="font-size: 1.6em;">
                                     {{"Solde disponible" | translate}}: {{balance.Value}} {{balance.BalanceType ===
                                     'Dollar' ? '$' : balance.BalanceType}}
-                                </b>
+                                </span>
                             </div>
                         </li>
                     </ul>
@@ -249,23 +249,23 @@
 
                             <div class="col-sm-9">
                                 <h4 class="no-mg-vert" ng-if="currentShoppingCart.customerLoyalty.CustomerFirstName">
-                                    <b translate>Prénom</b> :
+                                    <span class="bold" translate>Prénom</span> :
                                     {{currentShoppingCart.customerLoyalty.CustomerFirstName}}
                                 </h4>Z
                                 <h4 class="no-mg-vert" ng-if="currentShoppingCart.customerLoyalty.CustomerLastName">
-                                    <b translate>Nom</b> : {{currentShoppingCart.customerLoyalty.CustomerLastName}}
+                                    <span class="bold" translate>Nom</span> : {{currentShoppingCart.customerLoyalty.CustomerLastName}}
                                 </h4>
                                 <h4 class="no-mg-vert" ng-if="currentShoppingCart.customerLoyalty.CustomerEmail">
-                                    <b translate>Email</b> :
+                                    <span class="bold" translate>Email</span> :
                                     <a data-ng-href="mailto:{{currentShoppingCart.customerLoyalty.CustomerEmail}}">{{currentShoppingCart.customerLoyalty.CustomerEmail}}</a>
                                 </h4>
                                 <h4 class="no-mg-vert" ng-if="currentShoppingCart.customerLoyalty.CustomerPhone">
-                                    <b translate>Téléphone</b> :
+                                    <span class="bold" translate>Téléphone</span> :
                                     <a data-ng-href="tel:{{currentShoppingCart.customerLoyalty.CustomerPhone}}">{{currentShoppingCart.customerLoyalty.CustomerPhone}}</a>
                                 </h4>
 
                                 <h4 class="no-mg-vert" ng-if="currentShoppingCart.deliveryAddress">
-                                    <b translate>Adresse de livraison</b> :
+                                    <span class="bold" translate>Adresse de livraison</span> :
                                     <div layout="row">
                                         <div flex>
                                             <div layout="row">{{currentShoppingCart.deliveryAddress.Address1}}</div>
@@ -283,13 +283,13 @@
                                 <h4 class="no-mg-vert"
                                     ng-if="currentShoppingCart.customerLoyalty.Barcodes[0].LastBipDate"
                                     ng-init="bipDate = getDate(currentShoppingCart.customerLoyalty.Barcodes[0].LastBipDate)">
-                                    <b translate>Dernier passage</b> : {{bipDate.toString("dd/MM/yyyy")}}
+                                    <span class="bold" translate>Dernier passage</span> : {{bipDate.toString("dd/MM/yyyy")}}
                                 </h4>
 
                                 <!--3 differents Balances can be diplay -->
                                 <h4 class="no-mg-vert"
                                     ng-if="currentShoppingCart.customerLoyalty.History && currentShoppingCart.customerLoyalty.Balances[0] != undefined">
-                                    <b translate>Cumul depuis la création</b>
+                                    <span class="bold" translate>Cumul depuis la création</span>
                                     : {{getTotalPositiveHistory(currentShoppingCart.customerLoyalty.History,
                                     currentShoppingCart.customerLoyalty.Balances[0])}}
                                     {{currentShoppingCart.customerLoyalty.Balances[0].BalanceType === 'Dollars' ?
@@ -297,7 +297,7 @@
                                 </h4>
                                 <h4 class="no-mg-vert"
                                     ng-if="currentShoppingCart.customerLoyalty.History && currentShoppingCart.customerLoyalty.Balances[1] != undefined">
-                                    <b translate>Cumul depuis la création</b>
+                                    <span class="bold" translate>Cumul depuis la création</span>
                                     : {{getTotalPositiveHistory(currentShoppingCart.customerLoyalty.History,
                                     currentShoppingCart.customerLoyalty.Balances[1])}}
                                     {{currentShoppingCart.customerLoyalty.Balances[1].BalanceType === 'Dollars' ?
@@ -305,7 +305,7 @@
                                 </h4>
                                 <h4 class="no-mg-vert"
                                     ng-if="currentShoppingCart.customerLoyalty.History && currentShoppingCart.customerLoyalty.Balances[2] != undefined">
-                                    <b translate>Cumul depuis la création</b>
+                                    <span class="bold" translate>Cumul depuis la création</span>
                                     : {{getTotalPositiveHistory(currentShoppingCart.customerLoyalty.History,
                                     currentShoppingCart.customerLoyalty.Balances[2])}}
                                     {{currentShoppingCart.customerLoyalty.Balances[2].BalanceType === 'Dollars' ?

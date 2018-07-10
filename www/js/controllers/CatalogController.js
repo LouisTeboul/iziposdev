@@ -92,7 +92,7 @@ app.controller('CatalogController', function ($scope, $rootScope, $state, $uibMo
                                 var orderId = parseInt(d._id.replace("ShoppingCart_1_", ""));
                                 ngToast.create({
                                     className: 'danger',
-                                    content: '<b>Nouvelle commande : ' + orderId + '</b>',
+                                    content: '<span class="bold">Nouvelle commande : ' + orderId + '</span>',
                                     dismissOnTimeout: true,
                                     timeout: 10000,
                                     dismissOnClick: true

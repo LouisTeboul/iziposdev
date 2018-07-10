@@ -213,7 +213,7 @@ md-input-container label:not(._md-container-ignore) {
 .loading .gaugeValue {
     width: 150px;
     position: relative;
-    font-weight: bold;
+    font-family: "SignikaNegative-Bold", sans-serif !important;
 }
 
 .gaugeWrap {
@@ -319,7 +319,7 @@ md-input-container label:not(._md-container-ignore) {
 
 .attributesPanelInfos .title {
     font-size: 16px;
-    font-weight: bold;
+    font-family: "SignikaNegative-Bold", sans-serif !important;
     white-space: nowrap;
     letter-spacing: 1px;
 }

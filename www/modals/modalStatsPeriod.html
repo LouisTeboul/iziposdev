@@ -25,9 +25,9 @@
             </table>
         </div>
         <div ng-if="zpos.employees && zpos.employees.length > 0" style="margin-top:20px">
-            <b translate>Total par utilisateur : </b>
+            <span class="bold" translate>Total par utilisateur : </span>
             <div ng-repeat="employee in zpos.employees">
-                <b style="margin-right:20px">{{employee.name}}</b>{{employee.total | CurrencyFormat}}
+                <span class="bold" style="margin-right:20px">{{employee.name}}</span>{{employee.total | CurrencyFormat}}
             </div>
         </div>
 
