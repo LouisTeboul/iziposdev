@@ -74,19 +74,22 @@
 /*-----------------------DEFAULTS-------------------------*/
 
 * {
+    -webkit-user-select: none;
     user-select: none;
 }
 
 html, body {
-    position: fixed !important;
+    /* position: fixed !important; */
 }
 
 body {
     background-color: #FAFAFA !important;
     font-family: SignikaNegative-Regular, sans-serif;
     font-size: 15px;
+    /*
     height: 100% !important;
     width : 100% !important;
+    */
 }
 
 h1 {

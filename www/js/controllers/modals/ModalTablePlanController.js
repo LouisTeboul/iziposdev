@@ -16,6 +16,7 @@
         criterias: undefined,
         allCriteriasSelected: true
     };
+    $scope.modalPlanBO = false;
 
     $scope.$watch("mapSelectedIndex", function () {
         updateWatchers();
@@ -25,12 +26,17 @@
         shoppingCartService.getFreezedShoppingCartsAsync().then(function (freezedShoppingCarts) {
             $scope.freezedShoppingCarts = freezedShoppingCarts;
             updateStoreMap();
+            if ($scope.modalPlanBO) {
+                const divCanvas = document.querySelector('#mainCanvasTables');
+                $scope.canvasPlanBO = new Raphael(divCanvas, divCanvas.offsetWidth, divCanvas.offsetHeight);
+                drawTablePlan();
+            }
             updateModalTables();
             selectCurrentTable();
         });
     };
 
-    let updateStoreMap = function () {
+    const updateStoreMap = function () {
         if ($scope.storeMap) {
             if (!$scope.currentMap.areaSelectedIndex) {
                 $scope.currentMap.areaSelectedIndex = 0;
@@ -61,7 +67,7 @@
         }
     };
 
-    let updateWatchers = function () {
+    const updateWatchers = function () {
         if ($scope.storeMap) {
             $scope.currentMap = $scope.storeMap.data[$scope.mapSelectedIndex];
             if (areaSelectedIndexHandler) {
@@ -74,13 +80,13 @@
         }
     };
 
-    let isCriteriaEnabled = function (table) {
+    const isCriteriaEnabled = function (table) {
         if ($scope.tableModel.allCriteriasSelected) {
             return true;
         } else {
             let ret = false;
             for (let c of table.Criterias) {
-                let exist = Enumerable.from($scope.tableModel.criterias).any(function (x) {
+                const exist = Enumerable.from($scope.tableModel.criterias).any(function (x) {
                     return x.Id === c.Id && x.IsSelected === true;
                 });
                 if (exist) {
@@ -91,7 +97,7 @@
         }
     };
 
-    let getTableColorStyle = function (table) {
+    const getTableColorStyle = function (table) {
         let isUsed = undefined;
         if (table && $scope.freezedShoppingCarts) {
             if (currentTableId === table.Id) {
@@ -109,10 +115,10 @@
         }
     };
 
-    let loadAreaCriterias = function () {
+    const loadAreaCriterias = function () {
         $scope.tableModel.criterias = [];
         if ($scope.currentArea) {
-            let enumCriterias = Enumerable.from($scope.tableModel.criterias);
+            const enumCriterias = Enumerable.from($scope.tableModel.criterias);
             for (let o of $scope.currentArea.Objects) {
                 for (let c of o.Criterias) {
                     if (!enumCriterias.any(function (ec) {
@@ -148,9 +154,9 @@
         delete $scope.tableModel.activeTimer;
         $rootScope.closeKeyboard();
 
-        let tableNumberValue = parseInt($scope.tableModel.valueTable);
-        let tableCutleriesValue = parseInt($scope.tableModel.valueCutleries);
-        let tableId = parseInt($scope.tableModel.valueTableId);
+        const tableNumberValue = parseInt($scope.tableModel.valueTable);
+        const tableCutleriesValue = parseInt($scope.tableModel.valueCutleries);
+        const tableId = parseInt($scope.tableModel.valueTableId);
 
         if (isNaN(tableId) || isNaN(tableCutleriesValue) || tableId < 0 || tableCutleriesValue < 0) {
             $scope.errorMessage = $translate.instant("Valeur non valide");
@@ -162,7 +168,7 @@
             $scope.errorMessage = $translate.instant("Nb de couvert obligatoire");
             $scope.$evalAsync();
         } else {
-            let tableValues = {
+            const tableValues = {
                 tableNumber: tableNumberValue > 0 ? tableNumberValue : undefined,
                 tableCutleries: tableCutleriesValue > 0 ? tableCutleriesValue : undefined,
                 tableId: tableId > 0 ? tableId : undefined
@@ -186,7 +192,7 @@
             $scope.tableModel.valueTableId = table.Id;
             $scope.tableModel.valueCutleries = table.Id === currentTableId ? currentTableCutleries : table.Cutleries;
             if ($scope.freezedShoppingCarts) {
-                let freezedShoppingCart = $scope.freezedShoppingCarts.filter(el => el.TableId === table.Id)[0];
+                const freezedShoppingCart = $scope.freezedShoppingCarts.filter(el => el.TableId === table.Id)[0];
                 if (freezedShoppingCart) {
                     $scope.tableModel.valueCutleries = freezedShoppingCart.TableCutleries;
                     $scope.currentTimer = $interval(function () {
@@ -211,9 +217,9 @@
         this.selectTable(table);
     };
 
-    let selectCurrentTable = function () {
+    const selectCurrentTable = function () {
         if (currentTableId) {
-            let maps = $scope.storeMap.data;
+            const maps = $scope.storeMap.data;
             mapsLoop : for (let map of maps) {
                 for (let area of map.Areas) {
                     for (let table of area.Objects) {
@@ -226,6 +232,98 @@
                                 .html(currentTableCutleries + '/' + table.Cutleries);
                             break mapsLoop;
                         }
+                    }
+                }
+            }
+        }
+    };
+
+    const drawTablePlan = function () {
+        if ($scope.modalPlanBO) {
+            $scope.canvasPlanBO.clear();
+            const divCanvas = document.querySelector('#mainCanvasTables');
+            $scope.canvasPlanBO.rect(0, 0, divCanvas.offsetWidth, divCanvas.offsetHeight - 10)
+                .attr("fill", "lightgray")
+                .attr("stroke", "black");
+            const offset = (divCanvas.offsetWidth * 0.65) / 2;
+            for (const table of $scope.currentArea.Objects) {
+                const tableDetails = $scope.currentArea.Geo.objects.filter(el => el.id === table.Id)[0];
+                if (tableDetails.type === 'Labeledcircle') {
+                    $scope.canvasPlanBO.ellipse(
+                        (tableDetails.left * 0.65) + ((tableDetails.width * tableDetails.scaleX) / 2) + offset,
+                        (tableDetails.top * 0.65) + ((tableDetails.height * tableDetails.scaleY) / 2),
+                        ((tableDetails.width * tableDetails.scaleX) * 0.65) / 2,
+                        ((tableDetails.height * tableDetails.scaleY) * 0.65) / 2)
+                        .attr("fill", tableDetails.fill)
+                        .click(function () {
+                            alert(table.TableNumber);
+                        });
+                    $scope.canvasPlanBO.text(
+                        (tableDetails.left * 0.65) + ((tableDetails.width * tableDetails.scaleX) / 2) + offset,
+                        (tableDetails.top * 0.65) + ((tableDetails.height * tableDetails.scaleY) / 2),
+                        table.TableNumber)
+                        .attr("fill", "#fff")
+                        .attr("font-size", "15px");
+                } else {
+                    $scope.canvasPlanBO.rect(
+                        tableDetails.left * 0.65 + offset,
+                        tableDetails.top * 0.65,
+                        (tableDetails.width * tableDetails.scaleX) * 0.65,
+                        (tableDetails.height * tableDetails.scaleY) * 0.65)
+                        .attr("fill", tableDetails.fill)
+                        .click(function () {
+                            alert(table.TableNumber);
+                        });
+                    $scope.canvasPlanBO.text(
+                        tableDetails.left * 0.65 + ((tableDetails.width * tableDetails.scaleX) * 0.65) / 2 + offset,
+                        tableDetails.top * 0.65 + ((tableDetails.height * tableDetails.scaleY) * 0.65) / 2,
+                        table.TableNumber)
+                        .attr("fill", "#fff")
+                        .attr("font-size", "15px");
+                }
+            }
+        }
+    };
+
+    const updateModalTables = function () {
+        if ($scope.modalPlanBO) {
+            drawTablePlan();
+        } else {
+            const maps = $scope.storeMap.data;
+            for (const map of maps) {
+                for (const area of map.Areas) {
+                    for (const table of area.Objects) {
+                        const tab = $('#table' + table.Id + map.Name.split(' ').join('') + area.Name.split(' ').join('') + 'Info');
+                        if (table.inUseCutleries) {
+                            tab.find('.tableState').html(table.inUseCutleries + '/' + table.Cutleries);
+                            tab.css('background-color', getTableColorStyle(table));
+                        } else {
+                            tab.find('.tableState').html(table.inUseCutleries);
+                            tab.css('background-color', getTableColorStyle(table));
+                        }
+                    }
+                    if (area.Geo) {
+                        for (const shape of area.Geo.objects) {
+                            const table = $("#table" + shape.id + map.Name.split(' ').join('') + area.Name.split(' ').join(''));
+                            if (shape.type === 'Labeledcircle') {
+                                table.css('border-radius', '85px');
+                            }
+                            table.css('background-color', shape.fill);
+                        }
+                    }
+                }
+            }
+        }
+    };
+
+    const resetDefaultColor = function () {
+        const maps = $scope.storeMap.data;
+        for (const map of maps) {
+            for (const area of map.Areas) {
+                if (area.Geo) {
+                    for (const shape of area.Geo.objects) {
+                        $("#table" + shape.id + map.Name.split(' ').join('') + area.Name.split(' ').join(''))
+                            .css('background-color', shape.fill);
                     }
                 }
             }
@@ -271,46 +369,5 @@
         areas = areas.filter(el => el.Name === mapName)[0];
 
         this.showArea(mapName, areas.Areas[0].Name, 0);
-    };
-
-    let updateModalTables = function () {
-        let maps = $scope.storeMap.data;
-        for (let map of maps) {
-            for (let area of map.Areas) {
-                for (let table of area.Objects) {
-                    let tab = $('#table' + table.Id + map.Name.split(' ').join('') + area.Name.split(' ').join('') + 'Info');
-                    if (table.inUseCutleries) {
-                        tab.find('.tableState').html(table.inUseCutleries + '/' + table.Cutleries);
-                        tab.css('background-color', getTableColorStyle(table));
-                    } else {
-                        tab.find('.tableState').html(table.inUseCutleries);
-                        tab.css('background-color', getTableColorStyle(table));
-                    }
-                }
-                if (area.Geo) {
-                    for (let shape of area.Geo.objects) {
-                        let table = $("#table" + shape.id + map.Name.split(' ').join('') + area.Name.split(' ').join(''));
-                        if (shape.type === 'Labeledcircle') {
-                            table.css('border-radius', '85px');
-                        }
-                        table.css('background-color', shape.fill);
-                    }
-                }
-            }
-        }
-    };
-
-    let resetDefaultColor = function () {
-        let maps = $scope.storeMap.data;
-        for (let map of maps) {
-            for (let area of map.Areas) {
-                if (area.Geo) {
-                    for (let shape of area.Geo.objects) {
-                        $("#table" + shape.id + map.Name.split(' ').join('') + area.Name.split(' ').join(''))
-                            .css('background-color', shape.fill);
-                    }
-                }
-            }
-        }
     };
 });
