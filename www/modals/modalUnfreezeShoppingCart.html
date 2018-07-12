@@ -198,54 +198,77 @@
                 <uib-tab-heading>
                     <x translate>Commandes</x>
                     <div ng-if="orders.length > 0" class="tabNotif notifWarning">
-						<span class="tabNotif-text">
-							{{orders.length}}
-						</span>
+			<span class="tabNotif-text">
+				{{orders.length}}
+			</span>
                     </div>
                 </uib-tab-heading>
+
+                <div class="itemRow" style="text-align: center;margin: 0 -15px">
+                    <div style="margin: 0 15px;display:flex;">
+                        <strong id="orderTypeIconC" style="flex:1"></strong>
+                        <strong ng-if="$mdMedia('(min-width: 800px)')" style="flex:1;">
+                            <md-icon md-svg-src="img/icons/shoppingcart.svg"></md-icon>
+                        </strong>
+                        <strong style="flex:1;">
+                            <md-icon md-svg-src="img/icons/clock.svg"></md-icon>
+                        </strong>
+                        <strong style="flex:1;">
+                            <md-icon md-svg-src="img/icons/user.svg"></md-icon>
+                        </strong>
+                        <strong style="flex:1;">
+                            <md-icon md-svg-src="img/icons/box.svg"></md-icon>
+                        </strong>
+                        <strong style="flex:1;">
+                            <md-icon md-svg-src="img/icons/euro.svg"></md-icon>
+                        </strong>
+                    </div>
+                </div>
+
                 <div ng-if="orders != undefined && orders.length > 0">
-                    <div class="itemRow row" ng-repeat="order in orders track by $index" ng-click="selectOrder(order)"
-                         ng-style="(order.Customer != undefined || order.customerLoyalty != undefined) && {'line-height':'30px'} || {'line-height':'60px'}">
-                        <div style="margin-left:10px; margin-right:10px">
-                            <strong style="width:60%;float:left">
-                                <i ng-class="{'glyphicon-earphone': order.DatePickup, 'glyphicon-globe': order.Customer != undefined }"
-                                   class="glyphicon"></i>
-                                <x translate>Ticket</x>
-                                : {{order.Timestamp}}</strong>
-                            <strong style="width:20%;float:left">{{getItemsCount(order)}}
-                                <x translate>produit(s)</x>
-                            </strong>
-                            <strong style="width:20%;float:left">
-                                <x translate>TOTAL</x>
-                                : {{order.Total | CurrencyFormat}}</strong>
-                        </div>
-                        <br ng-if="order.Customer != undefined"/>
-                        <div style="margin-left:10px; margin-right:10px" ng-if="order.Customer != undefined">
-                            <strong style="width:40%;float:left">
-                                <x translate>Horaire</x>
-                                : {{order.ShippingOption}}</strong>
-                            <span style="width:30%;float:left">{{order.Customer.FirstName+" "+order.Customer.LastName}}</span>
-                            <span style="width:30%;float:left">{{order.Customer.Email}}</span>
-                        </div>
-                        <div style="margin-left:10px; margin-right:10px"
-                             ng-if="order.customerLoyalty != undefined && order.Customer == undefined">
-                            <strong style="width:40%;float:left">
-                                <x translate>Horaire</x>
-                                : {{order.DatePickup.split(" ")[1]}}</strong>
-                            <span style="width:30%;float:left">{{order.customerLoyalty.CustomerFirstName+" "+order.customerLoyalty.CustomerLastName}}</span>
-                            <span style="width:30%;float:left">{{order.customerLoyalty.CustomerEmail}}</span>
+                    <div class="itemRow row" ng-repeat="order in orders track by $index"
+                         ng-click="selectOrder(order)"
+                         ng-style="(order.Customer != undefined || order.customerLoyalty != undefined) && {'line-height':'30px'} || {'line-height':'60px'}"
+                         style="padding:5px 5px 0;line-height: 20px">
+
+                        <div class="unFreezeTable" layout="column" style="height: 75px;" flex>
+                            <div layout="row" style="align-items: center;" flex>
+                                <div layout="row" style="line-height: 20px;align-items: center;" flex>
+                                    <strong class="orderListTo" style="flex:1;">
+                                        <md-icon class="glyphicon" ng-class="{'glyphicon-earphone': order.DatePickup,
+							'glyphicon-globe': order.Customer != undefined }"></md-icon>
+                                    </strong>
+                                    <strong ng-if="$mdMedia('(min-width: 800px)')" style="flex:1;">
+                                        {{order.Timestamp}}
+                                    </strong>
+                                    <strong style="flex:1;">
+                                        {{order.DatePickup.split("T")[0]
+                                        + " " + order.DatePickup.split("T")[1].split(".")[0]}}
+                                    </strong>
+                                    <strong style="flex:1;" ng-if="order.Customer != undefined">
+                                        {{order.Customer.FirstName + " " + order.Customer.LastName}}
+                                    </strong>
+                                    <strong style="flex:1;" ng-if="order.Customer == undefined">
+                                        <div ng-if="order.customerLoyalty != undefined">
+                                            {{order.customerLoyalty.CustomerFirstName
+                                            + " " + order.customerLoyalty.CustomerLastName}}
+                                        </div>
+                                    </strong>
+                                    <strong style="flex:1;">
+                                        {{getItemsCount(order)}}
+                                    </strong>
+                                    <strong style="flex:1;">
+                                        {{order.Total | CurrencyFormat}}
+                                    </strong>
+                                </div>
+                            </div>
+                            <div class="productComment">{{order.ExtraInfos}}</div>
                         </div>
                     </div>
                 </div>
-                <div class="itemRow" ng-if="modelDb.orderReady == true && (orders == undefined || orders.length == 0)">
-                    <strong translate>Aucune commande en attente</strong>
-                </div>
-                <div class="itemRow" ng-if="!modelDb.orderReady">
-                    <strong>
-                        <x translate>Les commandes en attentes sont en cours de synchronisation</x>
-                        ...<br/><br/>
-                        <x translate>Veuillez patienter</x>
-                        ...</strong>
+                <div class="itemRow"
+                     ng-if="modelDb.orderReady == true && (ordersInProgress == undefined || ordersInProgress.length == 0)">
+                    <strong translate>Aucune commande à préparer</strong>
                 </div>
             </uib-tab>
         </uib-tabset>

@@ -16,6 +16,8 @@
         criterias: undefined,
         allCriteriasSelected: true
     };
+
+    $scope.modalPlanBO = !$mdMedia('max-width: 799px');
     $scope.modalPlanBO = false;
 
     $scope.$watch("mapSelectedIndex", function () {
@@ -207,7 +209,8 @@
     $scope.selectTableById = function (mapName, areaName, tableId) {
         resetDefaultColor();
 
-        $("#table" + tableId + mapName.split(' ').join('') + areaName.split(' ').join('')).css("background-color", "#E0B20B");
+        $("#table" + tableId + mapName.replace(/[^a-zA-Z0-9]/g, "")
+            + areaName.replace(/[^a-zA-Z0-9]/g, "")).css("background-color", "#E0B20B");
 
         let table = $scope.storeMap.data;
         table = table.filter(el => el.Name === mapName)[0];
@@ -228,58 +231,12 @@
                             $scope.showArea(map.Name, area.Name, map.Areas.indexOf(area));
                             $scope.selectTableById(map.Name, area.Name, currentTableId);
 
-                            $('#table' + table.Id + map.Name.split(' ').join('') + area.Name.split(' ').join('') + 'Info .tableState')
+                            $('#table' + table.Id + map.Name.replace(/[^a-zA-Z0-9]/g, "")
+                                + area.Name.replace(/[^a-zA-Z0-9]/g, "") + 'Info .tableState')
                                 .html(currentTableCutleries + '/' + table.Cutleries);
                             break mapsLoop;
                         }
                     }
-                }
-            }
-        }
-    };
-
-    const drawTablePlan = function () {
-        if ($scope.modalPlanBO) {
-            $scope.canvasPlanBO.clear();
-            const divCanvas = document.querySelector('#mainCanvasTables');
-            $scope.canvasPlanBO.rect(0, 0, divCanvas.offsetWidth, divCanvas.offsetHeight - 10)
-                .attr("fill", "lightgray")
-                .attr("stroke", "black");
-            const offset = (divCanvas.offsetWidth * 0.65) / 2;
-            for (const table of $scope.currentArea.Objects) {
-                const tableDetails = $scope.currentArea.Geo.objects.filter(el => el.id === table.Id)[0];
-                if (tableDetails.type === 'Labeledcircle') {
-                    $scope.canvasPlanBO.ellipse(
-                        (tableDetails.left * 0.65) + ((tableDetails.width * tableDetails.scaleX) / 2) + offset,
-                        (tableDetails.top * 0.65) + ((tableDetails.height * tableDetails.scaleY) / 2),
-                        ((tableDetails.width * tableDetails.scaleX) * 0.65) / 2,
-                        ((tableDetails.height * tableDetails.scaleY) * 0.65) / 2)
-                        .attr("fill", tableDetails.fill)
-                        .click(function () {
-                            alert(table.TableNumber);
-                        });
-                    $scope.canvasPlanBO.text(
-                        (tableDetails.left * 0.65) + ((tableDetails.width * tableDetails.scaleX) / 2) + offset,
-                        (tableDetails.top * 0.65) + ((tableDetails.height * tableDetails.scaleY) / 2),
-                        table.TableNumber)
-                        .attr("fill", "#fff")
-                        .attr("font-size", "15px");
-                } else {
-                    $scope.canvasPlanBO.rect(
-                        tableDetails.left * 0.65 + offset,
-                        tableDetails.top * 0.65,
-                        (tableDetails.width * tableDetails.scaleX) * 0.65,
-                        (tableDetails.height * tableDetails.scaleY) * 0.65)
-                        .attr("fill", tableDetails.fill)
-                        .click(function () {
-                            alert(table.TableNumber);
-                        });
-                    $scope.canvasPlanBO.text(
-                        tableDetails.left * 0.65 + ((tableDetails.width * tableDetails.scaleX) * 0.65) / 2 + offset,
-                        tableDetails.top * 0.65 + ((tableDetails.height * tableDetails.scaleY) * 0.65) / 2,
-                        table.TableNumber)
-                        .attr("fill", "#fff")
-                        .attr("font-size", "15px");
                 }
             }
         }
@@ -293,7 +250,8 @@
             for (const map of maps) {
                 for (const area of map.Areas) {
                     for (const table of area.Objects) {
-                        const tab = $('#table' + table.Id + map.Name.split(' ').join('') + area.Name.split(' ').join('') + 'Info');
+                        const tab = $('#table' + table.Id + map.Name.replace(/[^a-zA-Z0-9]/g, "")
+                            + area.Name.replace(/[^a-zA-Z0-9]/g, "") + 'Info');
                         if (table.inUseCutleries) {
                             tab.find('.tableState').html(table.inUseCutleries + '/' + table.Cutleries);
                             tab.css('background-color', getTableColorStyle(table));
@@ -304,7 +262,8 @@
                     }
                     if (area.Geo) {
                         for (const shape of area.Geo.objects) {
-                            const table = $("#table" + shape.id + map.Name.split(' ').join('') + area.Name.split(' ').join(''));
+                            const table = $("#table" + shape.id + map.Name.replace(/[^a-zA-Z0-9]/g, "")
+                                + area.Name.replace(/[^a-zA-Z0-9]/g, ""));
                             if (shape.type === 'Labeledcircle') {
                                 table.css('border-radius', '85px');
                             }
@@ -316,14 +275,87 @@
         }
     };
 
+    const drawTablePlan = function () {
+        $scope.canvasPlanBO.clear();
+        const divCanvas = document.querySelector('#mainCanvasTables');
+        let ratio;
+        if (divCanvas.offsetWidth > divCanvas.offsetHeight) {
+            ratio = (divCanvas.offsetHeight - 10) / 800;
+        } else {
+            ratio = (divCanvas.offsetWidth - 10) / 800;
+        }
+        $scope.canvasPlanBO.rect(0, 0, divCanvas.offsetWidth, divCanvas.offsetHeight - 10)
+            .attr("fill", "lightgray")
+            .attr("stroke", "black");
+        const offset = (divCanvas.offsetWidth / 2) - ((800 * ratio) / 2);
+        $scope.currentArea.objCanvas = [];
+        for (const table of $scope.currentArea.Objects) {
+            const tableDetails = $scope.currentArea.Geo.objects.filter(el => el.id === table.Id)[0];
+            if (tableDetails.type === 'Labeledcircle') {
+                let circle = $scope.canvasPlanBO.ellipse(
+                    (tableDetails.left * ratio) + (((tableDetails.width * tableDetails.scaleX) * ratio) / 2) + offset,
+                    (tableDetails.top * ratio) + (((tableDetails.height * tableDetails.scaleY) * ratio) / 2),
+                    ((tableDetails.width * tableDetails.scaleX) * ratio) / 2,
+                    ((tableDetails.height * tableDetails.scaleY) * ratio) / 2)
+                    .attr("fill", tableDetails.fill)
+                    .click(function () {
+                        resetDefaultColor();
+                        this.attr("fill", "#E0B20B");
+                    });
+                $scope.canvasPlanBO.text(
+                    (tableDetails.left * ratio) + (((tableDetails.width * tableDetails.scaleX) * ratio) / 2) + offset,
+                    (tableDetails.top * ratio) + (((tableDetails.height * tableDetails.scaleY) * ratio) / 2),
+                    table.TableNumber)
+                    .attr("fill", "#fff")
+                    .attr("font-size", "14px")
+                    .click(function () {
+                        resetDefaultColor();
+                        circle.attr("fill", "#E0B20B");
+                    });
+                circle.defaultColor = tableDetails.fill;
+                $scope.currentArea.objCanvas.push(circle);
+            } else {
+                let rect = $scope.canvasPlanBO.rect(
+                    tableDetails.left * ratio + offset,
+                    tableDetails.top * ratio,
+                    (tableDetails.width * tableDetails.scaleX) * ratio,
+                    (tableDetails.height * tableDetails.scaleY) * ratio)
+                    .attr("fill", tableDetails.fill)
+                    .click(function () {
+                        resetDefaultColor();
+                        this.attr("fill", "#E0B20B");
+                    });
+                $scope.canvasPlanBO.text(
+                    tableDetails.left * ratio + ((tableDetails.width * tableDetails.scaleX) * ratio) / 2 + offset,
+                    tableDetails.top * ratio + ((tableDetails.height * tableDetails.scaleY) * ratio) / 2,
+                    table.TableNumber)
+                    .attr("fill", "#fff")
+                    .attr("font-size", "14px")
+                    .click(function () {
+                        resetDefaultColor();
+                        rect.attr("fill", "#E0B20B");
+                    });
+                rect.defaultColor = tableDetails.fill;
+                $scope.currentArea.objCanvas.push(rect);
+            }
+        }
+    };
+
     const resetDefaultColor = function () {
-        const maps = $scope.storeMap.data;
-        for (const map of maps) {
-            for (const area of map.Areas) {
-                if (area.Geo) {
-                    for (const shape of area.Geo.objects) {
-                        $("#table" + shape.id + map.Name.split(' ').join('') + area.Name.split(' ').join(''))
-                            .css('background-color', shape.fill);
+        if ($scope.modalPlanBO && $scope.currentArea.objCanvas) {
+            for (const obj of $scope.currentArea.objCanvas) {
+                obj.attr("fill", obj.defaultColor);
+            }
+        } else {
+            const maps = $scope.storeMap.data;
+            for (const map of maps) {
+                for (const area of map.Areas) {
+                    if (area.Geo) {
+                        for (const shape of area.Geo.objects) {
+                            $("#table" + shape.id + map.Name.replace(/[^a-zA-Z0-9]/g, "")
+                                + area.Name.replace(/[^a-zA-Z0-9]/g, ""))
+                                .css('background-color', shape.fill);
+                        }
                     }
                 }
             }
@@ -331,15 +363,15 @@
     };
 
     $scope.showArea = function (mapName, areaName, idArea) {
-        $('.' + mapName.split(' ').join('') + 'AreaOnglet > div').each(function () {
+        $('.' + mapName.replace(/[^a-zA-Z0-9]/g, "") + 'AreaOnglet > div').each(function () {
             $(this).removeClass('tableOngletFocus');
         });
-        $('#' + mapName.split(' ').join('') + areaName.split(' ').join('') + "onglet").addClass('tableOngletFocus');
+        $('#' + mapName.replace(/[^a-zA-Z0-9]/g, "") + areaName.replace(/[^a-zA-Z0-9]/g, "") + "onglet").addClass('tableOngletFocus');
 
         $('#allGroupsTable > div').each(function () {
             $(this).hide();
         });
-        $('#' + mapName.split(' ').join('') + areaName.split(' ').join('')).css('display', 'flex');
+        $('#' + mapName.replace(/[^a-zA-Z0-9]/g, "") + areaName.replace(/[^a-zA-Z0-9]/g, "")).css('display', 'flex');
 
         $scope.currentMap.areaSelectedIndex = idArea;
         let areas = $scope.storeMap.data;
@@ -354,12 +386,12 @@
         $('#allMapsOnglet > div').each(function () {
             $(this).removeClass('tableOngletFocus');
         });
-        $('#' + mapName.split(' ').join('') + "onglet").addClass('tableOngletFocus');
+        $('#' + mapName.replace(/[^a-zA-Z0-9]/g, "") + "onglet").addClass('tableOngletFocus');
 
         $('#allAreasOnglet > div').each(function () {
             $(this).hide();
         });
-        $('#allAreasOnglet .' + mapName.split(' ').join('') + 'AreaOnglet').each(function () {
+        $('#allAreasOnglet .' + mapName.replace(/[^a-zA-Z0-9]/g, "") + 'AreaOnglet').each(function () {
             $(this).css('display', 'flex');
         });
 

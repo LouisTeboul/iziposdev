@@ -196,25 +196,8 @@ app.controller('ConfigurableMenuController', function ($scope, $rootScope, $stat
 
         var AttributeValue = Enumerable.from(Attribute.ProductAttributeValues).firstOrDefault("x => x.Id ==" + id);
         if (AttributeValue.Selected) {
-            /*
-            if (Attribute.IsRequired == false) {
-                if ($rootScope.borne) {
-                    AttributeValue.Selected = false;
-                    if (AttributeValue.PriceAdjustment) {
-                        $scope.TotalPrice -= AttributeValue.PriceAdjustment;
-                    }
-                } else {
-                    if (Attribute.Type == 3) {
-                        if (testSelectCheckbox(Attribute, AttributeValue, false)) {
-                            if (AttributeValue.PriceAdjustment) $scope.TotalPrice -= AttributeValue.PriceAdjustment;
-                        }
-                    }
-                }
-                */
-            if (Attribute.Type != 2) {
-                if (testSelectCheckbox(Attribute, AttributeValue, false)) {
-                    if (AttributeValue.PriceAdjustment) $scope.TotalPrice -= AttributeValue.PriceAdjustment;
-                }
+            if (testSelectCheckbox(Attribute, AttributeValue, false)) {
+                if (AttributeValue.PriceAdjustment) $scope.TotalPrice -= AttributeValue.PriceAdjustment;
             }
         }
         else {
@@ -282,14 +265,14 @@ app.controller('ConfigurableMenuController', function ($scope, $rootScope, $stat
             var nbSelect = container.querySelectorAll("button.attributeBox.active").length;
 
             // Si on veut selectionné et qu'on est en dessous du max, on autorise
-            if (nbSelect < max === true) {
+            if (nbSelect < max && state === true) {
                 AttributeValue.Selected = state;
                 return true;
             }
 
             // Si on veut déselectionné et qu'on est au dessus du min, on autorise
-            if (nbSelect > min === false) {
-                if (Attribute.IsRequired && nbSelect > 0) {
+            if (nbSelect > min && state === false) {
+                if (!Attribute.IsRequired && nbSelect > 0) {
                     AttributeValue.Selected = state;
                     return true
                 }

@@ -763,9 +763,11 @@ app.controller('MiniBasketController', ['$scope', '$http', '$rootScope', '$state
 
         var checkForBirthday = function () {
             if($scope.currentShoppingCart && $scope.currentShoppingCart.customerLoyalty && $scope.currentShoppingCart.customerLoyalty.CustomerDateOfBirth) {
-                console.log($scope.currentShoppingCart.customerLoyalty.CustomerDateOfBirth);
-                // TODO : Check si la date de naissance du client == a la date d'aujourd'hui
-                swal($translate.instant(`C'est l'anniversaire de ${$scope.currentShoppingCart.customerLoyalty.CustomerFirstName} ${$scope.currentShoppingCart.customerLoyalty.CustomerLastName} !`));
+                var arrDoB = $scope.currentShoppingCart.customerLoyalty.CustomerDateOfBirth.split('T')[0].split('-');
+
+                if(new Date().getMonth() == parseInt(arrDoB[1]) && new Date().getDaysInMonth() == parseInt(arrDoB[2])) {
+                    swal($translate.instant(`C'est l'anniversaire de ${$scope.currentShoppingCart.customerLoyalty.CustomerFirstName} ${$scope.currentShoppingCart.customerLoyalty.CustomerLastName} !`));
+                }
             }
 
         };

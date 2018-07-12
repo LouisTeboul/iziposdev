@@ -2,10 +2,12 @@
             flex>
     <div layout="column" flex>
         <div layout="row" style="height:50px;"
-             ng-show="!currentShoppingCart.ParentTicket && (!$root.UserPreset || $root.UserPreset.DisplayFid)">
+             ng-show="!currentShoppingCart.ParentTicket"
+             ng-class="{ 'fidHidden' :  $root.UserPreset && !$root.UserPreset.DisplayFid }">
             <ng-barcodetextfield flex></ng-barcodetextfield>
             <!--<md-button aria-label="client" class="btnAction"><span class="glyphicon glyphicon-user"></span></md-button>-->
-            <md-button aria-label="client" class="btnAction" style="height: 38px;"
+            <md-button aria-label="client"
+                       class="btnAction" style="height: 38px;"
                        ng-click="openClientModal()">
                 <span class="glyphicon glyphicon-user"></span>
             </md-button>
