@@ -190,6 +190,7 @@
             var storage = {};
 
             self.getCategoryByIdAsync(categoryId).then(function (category) {
+                storage.mainCategory = category;
                 if (!category.products) {
                     // Get products for this category
                     productService.getProductForCategoryAsync(categoryId).then(function (results) {
@@ -225,9 +226,6 @@
                         callback(storage);
                     }, 1);
                 }
-
-                storage.mainCategory = category;
-
 
                 self.getSubCategoriesByParentAsync(categoryId).then(function (subCategories) {
                     //Recupere toutes les sous categories du parent

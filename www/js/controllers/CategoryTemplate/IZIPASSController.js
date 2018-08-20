@@ -57,7 +57,7 @@ app.controller('IZIPASSController', function ($scope, $rootScope, $stateParams, 
             $scope.model.category = storage.mainCategory;
             $scope.model.products = storage.mainCategory.products;
             if (storage.subCategories) {
-                $scope.model.subCategories = storage.subCategories.sort( (a,b) => {
+                $scope.model.subCategories = storage.subCategories.sort((a, b) => {
                     return a.DisplayOrder - b.DisplayOrder;
                 });
                 storage.subCategories.forEach(function (subCat) {
@@ -75,8 +75,8 @@ app.controller('IZIPASSController', function ($scope, $rootScope, $stateParams, 
         if (updatedItemElem) {
             var top = updatedItemElem.offsetTop;
             $('#allCategories').animate({
-                scrollTop: top - 40
-            },200);
+                scrollTop: top - 175
+            }, 200);
         }
     };
 

@@ -32,6 +32,42 @@ app.directive('textField', function ($timeout, $rootScope) {
     }
 });
 
+app.directive('textFieldBorne', function ($timeout, $rootScope) {
+    return {
+        templateUrl: 'partials/textfieldBorne.html',
+        require: 'ngModel',
+        restrict: 'E',
+        scope: {
+            location: '@',
+            type: '@',
+            nativekeyboard: '@',
+            tostring: '@',
+            validfunction: '&',
+            fieldname: '@',
+            mandatory: '@'
+        },
+        link: function (scope, element, attrs, ngModelCtrl) {
+
+            scope.currentElement = element;
+            //scope.currentElement[0].className += " layout-fill";
+            scope.ngModelCtrl = ngModelCtrl;
+            var unregister = scope.$watch(function () {
+                return ngModelCtrl.$modelValue;
+            }, initialize);
+
+            function initialize(value) {
+                scope.valueType = typeof (value);
+                ngModelCtrl.$setViewValue(value);
+                scope.txtValue = value;
+                scope.init = true;
+                scope.$evalAsync();
+                $rootScope.$emit("updateModel", ngModelCtrl);
+                //unregister();
+            }
+        }
+    }
+});
+
 app.service('textFieldService', ['$rootScope', function ($rootScope) {
 
         var current = this;
@@ -55,21 +91,17 @@ app.service('textFieldService', ['$rootScope', function ($rootScope) {
 
 app.controller('TextFieldCtrl', function ($rootScope, $scope, textFieldService) {
 
-    var tsFocus;
-    var lastEvent;
-    var focusedTextFieldHandler = $rootScope.$on('focusedTextFieldChanged', function (evt, textfield) {
-        if (textfield == $scope.currentElement) {
-            $scope.isFocused = true;
-        } else {
-            $scope.isFocused = false;
-        }
+    let tsFocus;
+    let lastEvent;
+    const focusedTextFieldHandler = $rootScope.$on('focusedTextFieldChanged', (evt, textfield) => {
+        $scope.isFocused = textfield === $scope.currentElement;
         $scope.$evalAsync();
     });
 
-    var txtValueHandler = $scope.$watch('txtValue', function () {
+    const txtValueHandler = $scope.$watch('txtValue', () => {
 
-        var newValue;
-        if (!$scope.tostring && (!$scope.txtValue || $scope.txtValue.toString().indexOf("-") != 0) && ($scope.valueType == "number" || $scope.type == "numeric" || $scope.type == "decimal")) {
+        let newValue;
+        if (!$scope.tostring && (!$scope.txtValue || $scope.txtValue.toString().indexOf("-") !== 0) && ($scope.valueType === "number" || $scope.type === "numeric" || $scope.type === "decimal")) {
             newValue = Number.parseFloat($scope.txtValue);
             if (isNaN(newValue)) {
                 newValue = 0;
@@ -85,40 +117,39 @@ app.controller('TextFieldCtrl', function ($rootScope, $scope, textFieldService) 
     });
 
     /*
-     * D�terminer si le champ est visible pour �viter 
+     * Déterminer si le champ est visible pour éviter
      * 
      */
-    var isVisible = function () {
+    const isVisible = () => {
 
-        var el = $scope.currentElement[0];
-        var top = el.offsetTop;
-        var left = el.offsetLeft;
-        var width = el.offsetWidth;
-        var height = el.offsetHeight;
+        let el = $scope.currentElement[0];
+        let top = el.offsetTop;
+        let left = el.offsetLeft;
+        let width = el.offsetWidth;
+        let height = el.offsetHeight;
         while (el.offsetParent) {
             el = el.offsetParent;
             top += el.offsetTop;
             left += el.offsetLeft;
         }
-        var boolResult = top < (window.pageYOffset + document.body.offsetHeight) &&
+        return top < (window.pageYOffset + document.body.offsetHeight) &&
             left < (window.pageXOffset + document.body.offsetWidth) &&
             (top + height) > window.pageYOffset &&
             (left + width) > window.pageXOffset;
-        return boolResult;
     };
 
 
-    //D�termine le champ actif de la page
-    var currentElementHandler = $scope.$watch('currentElement', function () {
+    //Détermine le champ actif de la page
+    const currentElementHandler = $scope.$watch('currentElement', function () {
 
-        $scope.currentElement.bind("blur", function (e) {
+        $scope.currentElement.bind("blur", (e) => {
             if (e.timeStamp - tsFocus > 500) {
                 textFieldService.unfocusTextField($scope.currentElement);
             } else {
                 $scope.currentElement[0].focus();
             }
         });
-        $scope.currentElement.bind("focus", function (e) {
+        $scope.currentElement.bind("focus", (e) => {
             textFieldService.setFocusedTextField($scope.currentElement);
             tsFocus = e.timeStamp;
             if (!lastEvent || !lastEvent.type || lastEvent.type !== "keypress") {
@@ -126,8 +157,8 @@ app.controller('TextFieldCtrl', function ($rootScope, $scope, textFieldService) 
                 $rootScope.openKeyboard($scope.type, $scope.location, $scope);
             }
         });
-        var resizeInnerDiv = function () {
-            var currentHeight = $scope.currentElement[0].clientHeight;
+        const resizeInnerDiv = () => {
+            const currentHeight = $scope.currentElement[0].clientHeight;
             if (currentHeight > 0) {
                 $scope.currentElement.find("#txtValue")[0].style.minHeight = currentHeight + "px";
             }
@@ -140,13 +171,13 @@ app.controller('TextFieldCtrl', function ($rootScope, $scope, textFieldService) 
         }, 1000);
     });
 
-    var modelHandler = $rootScope.$on("updateModel", function (event, ngModel) {
-        if (ngModel == $scope.ngModelCtrl) {
+    const modelHandler = $rootScope.$on("updateModel", (event, ngModel) => {
+        if (ngModel === $scope.ngModelCtrl) {
             $scope.txtValue = $scope.ngModelCtrl.$viewValue;
         }
     });
 
-    $scope.$on("$destroy", function () {
+    $scope.$on("$destroy", () => {
 
         $rootScope.closeKeyboard();
         focusedTextFieldHandler();
@@ -196,14 +227,14 @@ app.controller('TextFieldCtrl', function ($rootScope, $scope, textFieldService) 
         //https://github.com/angular-ui/bootstrap/tree/master/src/modal/docs
         var isModal = $("body").hasClass("modal-open");
         if (isVisible() || isModal) {
-            if (e.keyCode == 13) { //enter
+            if (e.keyCode === 13) { //enter
                 setTimeout(function () {
                     $scope.$emit(Keypad.MODIFIER_KEY_PRESSED, "NEXT");
                 }, 500);
                 e.preventDefault();
                 e.stopPropagation();
             }
-            if (e.keyCode == 8) { //backspace
+            if (e.keyCode === 8) { //backspace
                 $scope.$emit(Keypad.MODIFIER_KEY_PRESSED, "CLEAR");
                 e.preventDefault();
                 e.stopPropagation();
@@ -211,10 +242,12 @@ app.controller('TextFieldCtrl', function ($rootScope, $scope, textFieldService) 
         }
     };
 
-    var keypressHandler = $rootScope.$on(Keypad.KEY_PRESSED, function (event, data) {
+    const keypressHandler = $rootScope.$on(Keypad.KEY_PRESSED, function (event, data) {
 
-        var isQrModal = $("#txtQRCode").hasClass("modalQrOpen");
-        var isModal = $("body").hasClass("modal-open");
+        // TODO : faire tampon avec une variable, pour eviter les perte de caractere du au delai du focus
+
+        const isQrModal = $("#txtQRCode").hasClass("modalQrOpen");
+        const isModal = $("body").hasClass("modal-open");
         if ($scope.isFocused || ($scope.nativekeyboard && isVisible() && (!isModal || isQrModal))) {
             if (!$scope.initialized && $scope.txtValue && $scope.txtValue.toString().length > 0) {
                 $scope.txtValue = data;
@@ -226,7 +259,7 @@ app.controller('TextFieldCtrl', function ($rootScope, $scope, textFieldService) 
         }
     });
 
-    var modifierKeyPressHandler = $rootScope.$on(Keypad.MODIFIER_KEY_PRESSED, function (event, key, id) {
+    const modifierKeyPressHandler = $rootScope.$on(Keypad.MODIFIER_KEY_PRESSED, function (event, key, id) {
 
         if ($scope.isFocused) {
             $scope.init = false;

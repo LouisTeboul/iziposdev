@@ -32,7 +32,7 @@
                                 var currentURL = $location.path().split("/")[1];
                                 if(currentURL !== "catalogBorne" && currentURL !== "idleScreen") {
                                     var modalInstance = $uibModal.open({
-                                        templateUrl: 'modals/modalConnection.html',
+                                        templateUrl: 'modals/modalConnectionMode.html',
                                         controller: 'ModalConnectionController',
                                         backdrop: 'static',
                                         keyboard :false,

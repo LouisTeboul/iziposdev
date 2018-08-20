@@ -24,15 +24,25 @@
 
 
 app.controller('CatalogController', function ($scope, $rootScope, $state, $uibModal, $location, $uibModalStack, $translate, $mdSidenav, $mdMedia, Idle, shoppingCartModel, posLogService, ngToast, orderShoppingCartService, settingService) {
-    var watchHandler = undefined;
-    var dbOrderChangedHandler = undefined;
-    var state = $state;
+
+    let watchHandler = undefined;
+    let dbOrderChangedHandler = undefined;
+
+    if ($rootScope.borne && $rootScope.borneVertical) { //vertical
+        $scope.layoutMain = "column";
+        $scope.layoutSec = "row";
+        $scope.categoryAlign = "center center";
+    } else { //horizontal
+        $scope.categoryAlign = "start center";
+        $scope.layoutMain = "row";
+        $scope.layoutSec = "column";
+    }
 
     $scope.$rootScope = $rootScope;
 
     $scope.$mdMedia = $mdMedia;
 
-    $scope.init = function (IdleProvider) {
+    $scope.init = function () {
         $rootScope.showShoppingCart = true;
         settingService.getPaymentModesAsync().then((pm) => {
                 if (!pm || pm.length <= 0) {
@@ -46,11 +56,11 @@ app.controller('CatalogController', function ($scope, $rootScope, $state, $uibMo
                     // Login needed
                     if ($rootScope.IziBoxConfiguration.LoginRequired) {
 
-                        watchHandler = $scope.$watch(function (scope) {
+                        watchHandler = $scope.$watch(function () {
                                 return $rootScope.PosUserId
                             },
                             function () {
-                                if ($rootScope.PosUserId == 0) {
+                                if ($rootScope.PosUserId === 0) {
                                     $scope.showLogin();
                                 }
                             }
@@ -62,7 +72,8 @@ app.controller('CatalogController', function ($scope, $rootScope, $state, $uibMo
                         }
                     }
                     if ($rootScope.borne) {
-                        Idle.setIdle(60);
+                        //Idle.setIdle($rootScope.IziBoxConfiguration.LoginTimeout);
+                        Idle.setIdle(30);
                         Idle.watch();
                     }
 
@@ -73,7 +84,7 @@ app.controller('CatalogController', function ($scope, $rootScope, $state, $uibMo
                     posLogService.updatePosLogAsync().then(function (posLog) {
                         $rootScope.PosLog = posLog;
                         $rootScope.hideLoading();
-                    }, function (errPosLog) {
+                    }, function () {
                         $rootScope.hideLoading();
                         swal({
                             title: "Critique",
@@ -83,13 +94,13 @@ app.controller('CatalogController', function ($scope, $rootScope, $state, $uibMo
                     });
 
                     dbOrderChangedHandler = $rootScope.$on('dbOrderChange', function (event, args) {
-                        var newOrder = Enumerable.from(args.docs).any(function (d) {
+                        const newOrder = Enumerable.from(args.docs).any(function (d) {
                             return !d._deleted;
                         });
 
                         if (newOrder) {
-                            Enumerable.from(args.docs).forEach(function (d) {
-                                var orderId = parseInt(d._id.replace("ShoppingCart_1_", ""));
+                            for (const doc of args.docs) {
+                                const orderId = parseInt(doc._id.replace("ShoppingCart_1_", ""));
                                 ngToast.create({
                                     className: 'danger',
                                     content: '<span class="bold">Nouvelle commande : ' + orderId + '</span>',
@@ -97,13 +108,13 @@ app.controller('CatalogController', function ($scope, $rootScope, $state, $uibMo
                                     timeout: 10000,
                                     dismissOnClick: true
                                 });
-                            });
+                            }
                             $rootScope.$evalAsync();
                         }
                     });
                 }
             },
-            (err) => {
+            () => { // err
                 swal({
                     title: "Critique",
                     text: "Aucun moyen de paiements",
@@ -154,16 +165,16 @@ app.controller('CatalogController', function ($scope, $rootScope, $state, $uibMo
     };
 
     $scope.showLogin = function () {
-        var modalInstance = $uibModal.open({
+        $uibModal.open({
             templateUrl: 'modals/modalLogin.html',
             controller: 'ModalLoginController',
             resolve: {
                 paymentMode: function () {
                     return 0;
-                },
+                }/*,
                 maxValue: function () {
                     return 0;
-                }
+                }*/
             },
             backdrop: 'static',
             keyboard: false
@@ -202,6 +213,8 @@ app.controller('CatalogController', function ($scope, $rootScope, $state, $uibMo
             shoppingCartModel.cancelShoppingCart();
             $uibModalStack.dismissAll();
             $location.path("/idleScreen");
+            $rootScope.closeKeyboard();
+            swal.close();
         } else {
             $scope.$emit(Keypad.OPEN, "numeric");
             $rootScope.PosUserId = 0;

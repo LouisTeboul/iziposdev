@@ -904,7 +904,11 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
                     $rootScope.currentConfigurableProduct = product;
                     $rootScope.isConfigurableProductOffer = formuleOfferte;
                     if ($rootScope.borne) {
-                        $state.go('catalogBorne.' + product.ProductTemplate.ViewPath, {id: product.Id, offer: offer});
+                        if(product.ProductTemplate.ViewPath === 'ProductTemplate.ConfigurableMenu') {
+                            $state.go('catalogBorne.ProductTemplate.ConfigurableMenuList', {id: product.Id, offer: offer});
+                        } else {
+                            $state.go('catalogBorne.' + product.ProductTemplate.ViewPath, {id: product.Id, offer: offer});
+                        }
                     } else {
                         $state.go('catalogPOS.' + product.ProductTemplate.ViewPath, {id: product.Id, offer: offer});
                     }
@@ -945,7 +949,7 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
                         });
                     }
 
-                    if (!cartItem || product.ProductAttributes.length > 0 || product.EmployeeTypePrice || product.ProductComments.length > 0 || ($rootScope.UserPreset && !$rootScope.UserPreset.GroupProducts) ) {
+                    if (!cartItem || product.ProductAttributes.length > 0 || product.EmployeeTypePrice || product.ProductComments.length > 0 || ($rootScope.UserPreset && !$rootScope.UserPreset.GroupProducts)) {
                         cartItem = new ShoppingCartItem();
                         cartItem.ProductId = product.Id;
                         cartItem.Product = product;
@@ -1201,6 +1205,8 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
                         current.printBorneShoppingCartAsync(true).then(function () {
                             current.printStepProdShoppingCartAsync(currentShoppingCart).then(function () {
                                 current.freezeShoppingCart();
+                            }, function () {
+                                swal($translate.instant("Une erreur s'est produite ! Veuillez réessayer ou demander de l'aide."));
                             });
                             $rootScope.hideLoading();
                             var textSwal, payed = true;
@@ -1222,12 +1228,11 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
                             });
                         }, function (err) {
                             $rootScope.hideLoading();
-                            console.log(err);
-                            borneService.redirectToHome();
+                            swal($translate.instant("Une erreur s'est produite ! Veuillez réessayer ou demander de l'aide."));
                         });
                     }, function (err) {
                         $rootScope.hideLoading();
-                        borneService.redirectToHome();
+                        swal($translate.instant("Une erreur s'est produite ! Veuillez réessayer ou demander de l'aide."));
                     });
                 }
             }
@@ -1541,7 +1546,9 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
 
                 if ($rootScope.UserPreset && $rootScope.UserPreset.PrintOnFreeze) {
                     if ($rootScope.IziBoxConfiguration.StepEnabled) {
-                        if (!currentShoppingCart.hasBeenFrozen) {
+                        // Recup la liste des item deja imprimé de la step à imprimer
+                        var printedItemsInStep = currentShoppingCart.Items.filter(x => x.Step === currentShoppingCart.CurrentStep && x.StepPrintCount > 0);
+                        if (printedItemsInStep.length === 0 || $rootScope.borne) {
                             current.printStepProdShoppingCartAsync(currentShoppingCart).then(() => {
                                 freezeCurrent();
                             })
@@ -1659,7 +1666,7 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
 
                     $rootScope.$emit("shoppingCartChanged", currentShoppingCart);
 
-                    if(shoppingCart.isJoinedShoppingCart) {
+                    if (shoppingCart.isJoinedShoppingCart) {
                         current.selectTableNumber();
                     }
                 }, function () {
@@ -1700,7 +1707,7 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
 
             var currentTableId;
 
-            if(currentShoppingCart && currentShoppingCart.TableId) {
+            if (currentShoppingCart && currentShoppingCart.TableId) {
                 currentTableId = currentShoppingCart.TableId;
             }
 
@@ -1786,7 +1793,7 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
                         currentTableCutleries: function () {
                             return currentTableCutleries;
                         },
-                        currentTableId: function() {
+                        currentTableId: function () {
                             return currentTableId;
                         }
                     },
@@ -2368,7 +2375,7 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
         };
 
         this.selectPaymentMode = function (selectedPaymentMode, customValue, isDirectPayment) {
-            if (currentShoppingCart != undefined) {
+            if (currentShoppingCart) {
                 if (!currentShoppingCart.PaymentModes) {
                     currentShoppingCart.PaymentModes = [];
                 }
@@ -2406,10 +2413,13 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
                     }
                 }
 
-                //
                 if (!isDirectPayment) {
+                    let modal = "modals/modalPayment.html";
+                    if ($rootScope.borne) {
+                        modal = "modals/modalPaymentBorne.html";
+                    }
                     var modalInstance = $uibModal.open({
-                        templateUrl: 'modals/modalPaymentMode.html',
+                        templateUrl: modal,
                         controller: 'ModalPaymentModeController',
                         resolve: {
                             paymentMode: function () {
@@ -2430,7 +2440,11 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
                             // Si le ticket a été totalement payé
                             if (currentShoppingCart.Residue === 0) {
                                 // On valide le ticket
-                                current.validShoppingCart();
+                                if ($rootScope.borne) {
+                                    current.validBorneOrder();
+                                } else {
+                                    current.validShoppingCart();
+                                }
                             }
                         }
                     }, function () {

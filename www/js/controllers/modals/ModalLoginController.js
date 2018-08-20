@@ -5,7 +5,7 @@
         $rootScope.closeKeyboard();
     };
 
-    var pouchDBChangedHandler = $rootScope.$on('pouchDBChanged', function (event, args) {
+    const pouchDBChangedHandler = $rootScope.$on('pouchDBChanged', function (event, args) {
         if (args.status == "Change" && (args.id.indexOf('PosUser') == 0 || args.id.indexOf('Picture') == 0)) {
             initializePosUsers();
         }
@@ -16,18 +16,18 @@
         $rootScope.closeKeyboard();
     });
 
-    var initializePosUsers = function () {
+    const initializePosUsers = function () {
         posUserService.getPosUsersAsync().then(function (posUsers) {
-            var posUsersEnabled = Enumerable.from(posUsers).orderBy('x => x.Name').toArray();
+            const posUsersEnabled = Enumerable.from(posUsers).orderBy('x => x.Name').toArray();
 
-            Enumerable.from(posUsersEnabled).forEach(function (c) {
-                pictureService.getPictureUrlAsync(c.PictureId).then(function (url) {
+            for (let cat of posUsersEnabled) {
+                pictureService.getPictureUrlAsync(cat.PictureId).then(function (url) {
                     if (!url) {
                         url = 'img/photo-non-disponible.png';
                     }
-                    c.PictureUrl = url;
+                    cat.PictureUrl = url;
                 });
-            });
+            }
 
             $scope.posUsers = posUsersEnabled;
         }, function (err) {
@@ -40,7 +40,7 @@
     $rootScope.$on(Keypad.KEY_PRESSED, function (event, data) {
         $scope.listenedString += data;
         $scope.password += "*";
-        if (md5.createHash($scope.listenedString) == $rootScope.PosUser.Password) {
+        if (md5.createHash($scope.listenedString) === $rootScope.PosUser.Password) {
             // Login successfull            
             $rootScope.PosUserId = $rootScope.PosUser.Id;
             $rootScope.PosUserName = $rootScope.PosUser.Name;
@@ -54,7 +54,7 @@
         $scope.$digest();
     });
 
-    $rootScope.$on(Keypad.MODIFIER_KEY_PRESSED, function (event, key, id) {
+    $rootScope.$on(Keypad.MODIFIER_KEY_PRESSED, function (event, key) {
         switch (key) {
             case "CLEAR":
                 $scope.listenedString = "";

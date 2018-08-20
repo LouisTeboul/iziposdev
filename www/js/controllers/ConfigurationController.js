@@ -30,14 +30,20 @@ app.controller('ConfigurationController', function ($scope, $rootScope, $locatio
     });
 
     $scope.init = function () {
+
+        $rootScope.tenantColor = "#98C8CC";
+
         if(window.localStorage.getItem("IsBorneDefault") ) {
             $rootScope.borne = window.localStorage.getItem("IsBorneDefault") === "true" ? true : false;
         }
         if(window.localStorage.getItem("IsBorneCBDefault") ) {
             $rootScope.borneCB = window.localStorage.getItem("IsBorneCBDefault") === "true" ? true : false;
         }
+        if(window.localStorage.getItem("IsBorneVerticalDefault") ) {
+            $rootScope.borneVertical = window.localStorage.getItem("IsBorneVerticalDefault") === "true" ? true : false;
+        }
 
-
+        $rootScope.isPMREnabled = false;
         $scope.Model = {};
         $scope.presetList = [];
         $scope.selectedPresetTitle = "";
@@ -445,6 +451,7 @@ app.controller('ConfigurationController', function ($scope, $rootScope, $locatio
         }
         window.localStorage.setItem("IsBorneDefault", $rootScope.borne ? $rootScope.borne.toString() : false);
         window.localStorage.setItem("IsBorneCBDefault", $rootScope.borneCB ? $rootScope.borneCB.toString() : false);
+        window.localStorage.setItem("IsBorneVerticalDefault", $rootScope.borneVertical ? $rootScope.borneVertical.toString() : false);
         window.localStorage.setItem("PosNumber", $rootScope.modelPos.posNumber);
         window.localStorage.setItem("POSPrinter", $rootScope.PrinterConfiguration.POSPrinter);
         window.localStorage.setItem("ProdPrinter", $rootScope.PrinterConfiguration.ProdPrinter);

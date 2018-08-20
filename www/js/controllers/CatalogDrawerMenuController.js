@@ -9,7 +9,7 @@
         var btnMenus = document.getElementsByClassName("btn-menu-closable");
 
         for (i = 0; i < btnMenus.length; i++) {
-            var btn = btnMenus[i];
+            var btn = btnMenus[i];0
             btn.onclick = function () {
                 $scope.closeDrawerMenu();
             }
@@ -273,6 +273,10 @@
         });
     };
     */
+
+    $scope.openConfig = function() {
+        window.location.reload();
+    };
 
     $scope.openDeviceMonitoring = function () {
         var modalInstance = $uibModal.open({

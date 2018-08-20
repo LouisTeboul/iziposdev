@@ -1,0 +1,38 @@
+<section id="modalPaymentMode" class="modalCenterFS" ng-init="init()">
+    <div class="modalCenterFS" ng-if="paymentMode.PaymentType == paymentType.CB"
+         style="flex:1;justify-content: space-evenly"
+         ng-style="{'flex-direction' : $root.borne && $root.borneVertical ? 'column' : 'row'}">
+        <md-icon class="imgLogoHeader" md-svg-src="img/icons/logo-ip.svg"
+                 ng-style="{'width' : $root.borne && $root.borneVertical ? '226px' : '600px'}"></md-icon>
+        <img class="imgTPE" src="img/tpe.png"/>
+        <div class="textAndArrow">
+            <span class="textTPE" translate>Veuillez suivre les instructions de paiement affichées sur le terminal de la borne</span>
+            <md-icon class="arrowTPE" md-svg-src="img/icons/arrow.svg"></md-icon>
+        </div>
+    </div>
+    <div ng-if="paymentMode.PaymentType == paymentType.EASYTRANSAC" class="modalCenterFS"
+         style="flex:1;justify-content: space-evenly"
+         ng-style="{'flex-direction' : $root.borne && $root.borneVertical ? 'column' : 'row'}">
+        <md-icon class="imgLogoHeader" md-svg-src="img/icons/logo-ip.svg"
+                 ng-style="{'width' : $root.borne && $root.borneVertical ? '226px' : '600px'}"></md-icon>
+        <md-icon class="imgTPE" md-svg-src="img/icons/cb.svg"></md-icon>
+        <div class="textAndArrow">
+            <span class="textTPE" translate>Veuillez passer votre carte sur le scanner NFC</span>
+            <md-icon class="arrowTPE" md-svg-src="img/icons/arrow.svg"></md-icon>
+        </div>
+    </div>
+    <div ng-if="paymentMode.PaymentType != paymentType.EASYTRANSAC && paymentMode.PaymentType != paymentType.CB"
+         ng-style="{'flex-direction' : $root.borne && $root.borneVertical ? 'column' : 'row'}"
+         class="modalCenterFS" style="flex:1;justify-content: space-evenly">
+        <md-icon class="imgLogoHeader" md-svg-src="img/icons/logo-ip.svg"
+                 ng-style="{'width' : $root.borne && $root.borneVertical ? '226px' : '600px'}"></md-icon>
+        <md-icon class="imgTPE" md-svg-src="img/icons/cb.svg"></md-icon>
+        <div class="textAndArrow">
+            <span class="textTPE" translate>Paiement en cours de traitement</span>
+            <md-icon class="arrowTPE" md-svg-src="img/icons/arrow.svg"></md-icon>
+        </div>
+    </div>
+    <md-button class="btnModalSmallS" style="margin-bottom:50px;" ng-click="cancel()">
+        <span translate>Annuler</span>
+    </md-button>
+</section>

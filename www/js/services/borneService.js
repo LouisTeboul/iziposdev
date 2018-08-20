@@ -7,7 +7,7 @@ app.service('borneService', ['$rootScope', '$q', '$location', 'posPeriodService'
                     posPeriodService.getYPeriodAsync(result, undefined, false).then(function (YPeriod) {
                         if (!angular.equals(YPeriod, {})) {
                             var modalInstance = $uibModal.open({
-                                templateUrl: 'modals/modalConnection.html',
+                                templateUrl: 'modals/modalConnectionMode.html',
                                 controller: 'ModalConnectionController',
                                 backdrop: 'static',
                                 keyboard :false,

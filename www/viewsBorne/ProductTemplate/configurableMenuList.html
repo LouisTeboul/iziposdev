@@ -1,101 +1,76 @@
-﻿<md-content md-no-ink ng-controller="ConfigurableMenuListController" ng-init="init()" id="configurableMenuList"
-            class="configurableMenuList" layout="row" layout-md="row" layout-xs="row" layout-sm="row" layout-wrap
-            layout-padding>
-    <div flex="80" flex-xs="100" flex-sm="100" flex-md="100">
-        <div id="configurableMenuHeader" layout="column" class="heading"
-             ng-class="(IziBoxConfiguration.StepEnabled) ? 'high' : ''">
-            <div layout="row" layout-wrap>
-                <div class="title"><h3 class="title-text">{{product.Name}} : {{TotalPrice | CurrencyFormat}}</h3></div>
-                <span flex></span>
-                <span flex></span>
+﻿<md-content ng-controller="ConfigurableMenuListController" id="ConfigurableMenuList" ng-init="init()"
+            ng-class="{'isBorneVertical': $root.borne && $root.borneVertical}" class="borneVStr">
+    <h1 class="cBRTitle"
+        ng-style="{ 'border-color' : $root.tenantColor}">Composez votre menu</h1>
+    <section id="allCategories" class="mainGroupOrder"
+             ng-style="{'flex-direction' :  $rootScope.borne && $rootScope.borneVertical ? 'column' : 'row'}">
+        <div class="summaryList" ng-style="{'width' :  $rootScope.borne && $rootScope.borneVertical ? '100%' : '750px',
+            'max-height' : canAddToCart && !productListOpen ? 'initial' : ($rootScope.isPMREnabled ? '200px' :
+            ($rootScope.borne && $rootScope.borneVertical ? '500px' : 'calc(100% - 50px'))}">
+            <div ng-repeat="attribute in product.ProductAttributes track by $index" ng-click="attributeNext($index)">
+                <div class="orderSProduct" ng-repeat="v in attribute.ProductAttributeValues track by $index"
+                     ng-style="{'margin-bottom' : $root.borne && $root.borneVertical ? '50px' : '40px'}"
+                     ng-if="v.Selected">
+                    <img ng-src="{{v.DefaultPictureUrl}}"/>
+                    <div data-ng-bind-html="v.Name"></div>
+                    <span ng-if="v.PriceAdjustment"
+                          ng-style="{ 'color' : $root.tenantColor}">{{v.PriceAdjustment | CurrencyFormat}}</span>
+                    <span ng-if="!v.PriceAdjustment && $index == 0"></span>
+                </div>
+            </div>
+            <div aria-label="NavigAttr" ng-repeat="attr in product.ProductAttributes track by $index"
+                 class="btnStepBorne {{$index}}" ng-click="attributeNext($index)"
+                 ng-style="{'background-color' : $root.tenantColor}"
+                 ng-if="attr.classDisplay == 'flex' && !canAddToCart">{{attr.Name}}
             </div>
         </div>
-        <md-content class="attributes" id="attributes">
-            <div class="text-center">
-                <md-button aria-label="NavigAttr" ng-repeat="attr in product.ProductAttributes track by $index"
-                           class="md-raised navigAction {{attr.DisplayOrder}} "
-                           ng-click="attributeNext(attr.DisplayOrder)"
-                           ng-class="{'md-warn md-hue-2' : attr.classDisplay == 'show' }">{{attr.Name | Truncate:16}}
-                </md-button>
-            </div>
-
+        <div ng-class="{ 'productCatMenuList' : $root.borne && $root.borneVertical,
+            'productCatMenuListHoriz' : $root.borne && !$root.borneVertical }"
+             ng-style="{ 'padding-top' : canAddToCart || ($root.borne && !$root.borneVertical) ? '0' : '50px'}">
             <div id="{{attribute.Name}}" ng-repeat="attribute in product.ProductAttributes track by $index"
-                 class="attributeList {{attribute.classDisplay}}" displayorder="{{attribute.DisplayOrder}}">
-
-                <div class="attributesPanel" layout="column">
-                    <div layout="row" layout-xs="row" layout-wrap layout-align="center center">
-                        <div ng-repeat="v in attribute.ProductAttributeValues track by $index" class="caseAttribute"
-                             flex="20" flex-xs="50" flex-sm="50" flex-md="30">
-                            <md-button aria-label="attributeBox" layout-fill class="attributeBox attributeList"
-                                       ng-class="v.DisableBuyButton ? 'disable' : (v.Selected == 1 ? 'active' : '')"
-                                       ng-click="v.DisableBuyButton ? null : selectAttributeValue(v.ProductAttributeId,v.Id)">
-                                <div layout="column" layout-fill>
-                                    <div class="conteneur-images">
-                                        <img class="imgAttribute" ng-src="{{v.DefaultPictureUrl}}"/>
-                                    </div>
-
-                                    <div class="attributeInfo-text">
-
-                                        <div ng-if="v.LinkedProduct" data-ng-bind-html="v.LinkedProduct.Name"></div>
-                                        <div ng-if="!v.LinkedProduct" data-ng-bind-html="v.Name"></div>
-
-                                    </div>
-                                    <div class="attributeInfo-text" layout="column" layout-align="center center">
-                                        <div ng-if="v.DisableBuyButton"><i class="glyphicon glyphicon-warning-sign"></i>
-                                            <x translate>Rupture</x>
-                                        </div>
-                                        <span class="priceAdjustment" ng-if="v.PriceAdjustment">+ {{v.PriceAdjustment | CurrencyFormat}} </span>
-                                        <span ng-if="IziBoxConfiguration.StepEnabled && v.Selected">{{attribute.Step | StepName:stepNames}}</span>
-                                        <span class="attributeInfo-comment" ng-if="v.Comment && v.Comment!=''">{{v.Comment}}</span>
-                                    </div>
-
-                                </div>
-                            </md-button>
+                 class="productsCat" style="display:{{attribute.classDisplay}};"
+                 displayorder="{{$index}}">
+                <div class="groupProductsCat">
+                    <div ng-repeat="v in attribute.ProductAttributeValues track by $index" class="itemCatMenuList"
+                         ng-class="{ 'disable': v.DisableBuyButton, 'active' : !v.DisableBuyButton && v.Selected == 1 }"
+                         ng-if="!canAddToCart || allowShowCat">
+                        <div class="productboxIZIPASS medium"
+                             ng-click="v.DisableBuyButton ? null : selectAttributeValue(v.ProductAttributeId,v.Id)">
+                            <div class="imgProduct">
+                                <img alt="" ng-src="{{v.DefaultPictureUrl}}" class="image"/>
+                            </div>
+                            <div class="titleRow" ng-if="v.LinkedProduct">{{v.LinkedProduct.Name}}</div>
+                            <div class="titleRow" ng-if="!v.LinkedProduct">{{v.Name}}</div>
+                            <div class="price">
+                                <span ng-if="!v.DisableBuyButton && v.PriceAdjustment"
+                                      ng-style="{ 'color' : $root.tenantColor}">+&nbsp;{{v.PriceAdjustment | CurrencyFormat}}</span>
+                                <span ng-if="v.DisableBuyButton">Rupture</span>
+                            </div>
                         </div>
                     </div>
-                    <div layout="row" layout-xs="row" layout-wrap ng-if="attribute.Type == '3'"
-                         layout-align="center center">
-                        <md-button ng-click="attributeNextButton(attribute)" class="md-hue-2 md-warn etapeSuivante"
-                                   translate>Etape Suivante
-                        </md-button>
-                    </div>
                 </div>
-
+                <md-button ng-click="attributeNextButton(attribute)"
+                           class="btnSkipStep" ng-if="attribute.Type == 3 && !canAddToCart" translate>
+                    Etape Suivante
+                </md-button>
+                <div class="pubProductsCut"
+                     ng-style="{ 'bottom' : attribute.Type == 3 || (attribute.Type != 3 && canAddToCart) ? '400px' : '250px'}"></div>
             </div>
-        </md-content>
-        <div layout-align="center center" class="text-center">
-
-            <md-button aria-label="AddToCart" ng-click="addToCart(product)" ng-if="canAddToCart"
-                       class="md-raised btnValidFormule AttributeValidFormule">
-                <x translate>Valider votre</x>
-                <br/>{{product.Name}}
-            </md-button>
         </div>
-    </div>
-    <div flex="20" flex-xs="100" flex-sm="100" flex-md="100" style="text-align:center;">
-        <div class="block-recap-commande">
-            <p class="recap-commande">
-                <x translate>Votre</x> {{product.Name}}</p>
-            <div ng-repeat="attribute in product.ProductAttributes track by $index">
-                <div ng-repeat="v in attribute.ProductAttributeValues track by $index" class="blockFormuleRecap">
-                    <img ng-if="v.Selected=='1'" ng-src="{{v.DefaultPictureUrl}}" class="imgAttributeRecap"/>
-                    <div ng-if="v.Selected=='1'" data-ng-bind-html="v.Name" class="nameFormuleRecap"></div>
-                    <div class="PriceAdjustmentFormuleRecap" ng-if="v.Selected=='1' && v.PriceAdjustment">+
-                        {{v.PriceAdjustment | CurrencyFormat}}
-                    </div>
-                </div>
-            </div>
-
+    </section>
+    <div class="rowConfirmOrderML" ng-if="canAddToCart">
+        <div class="totalOrderML">
+            <span translate>Total</span>
+            <span class="price"
+                  ng-style="{ 'color' : $root.tenantColor}">{{product.Price | CurrencyFormat}}</span>
         </div>
-
-        <md-button aria-label="AddToCart" ng-click="addToCart(product)" ng-if="canAddToCart"
-                   class="md-raised btnValidFormule">
-            <x translate>Valider</x>
+        <md-button class="btnConfirmMenuList"
+                   ng-style="{ 'background-color' : $root.tenantColor}"
+                   aria-label="AddToCart"
+                   ng-click="addToCart(product)">
+            <span translate>Valider mon Menu</span>
         </md-button>
     </div>
-
+    <div ng-class="{ 'pubProductsList' : $root.borne && $root.borneVertical, 'pubProductsListHoriz' : $root.borne && !$root.borneVertical}"
+         ng-if="!$rootScope.isPMREnabled"></div>
 </md-content>
-
-
-
-

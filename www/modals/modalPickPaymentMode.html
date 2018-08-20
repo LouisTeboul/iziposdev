@@ -1,0 +1,42 @@
+<section id="modalPickPaymentMode" class="modalCenterFS" ng-init="init()"
+         ng-style="{'flex-direction' : $root.borne && $root.borneVertical ? 'column' : 'row'}">
+    <section class="groupModal" style="flex:3"
+             ng-style="{'justify-content' : $root.borne && $root.borneVertical ? 'flex-end' : 'center'}">
+        <md-icon class="imgLogoHeader" md-svg-src="img/icons/logo-ip.svg"></md-icon>
+        <div class="firstTitle">
+            <span translate>Moyen de paiement</span>
+        </div>
+    </section>
+    <hr ng-class="{'smallModalHR': $root.borne && $root.borneVertical,
+                        'smallModalHRH': $root.borne && !$root.borneVertical}"
+        ng-style="{ 'background-color': $root.tenantColor }">
+    <section class="groupModal" style="flex:4"
+             ng-style="{'justify-content' : $root.borne && $root.borneVertical ? 'flex-start' : 'center'}">
+        <md-button class="btnModalBig" ng-repeat="paymentMode in pmAvailable" ng-click="selectPm(paymentMode)"
+                   ng-style="{'margin' : $root.borne && $root.borneVertical ? '50px 0 0' : '0'}">
+            <div class="btnMbIcon">
+                <img ng-src="{{paymentMode | PaymentTypeImg}}" alt="Image" width="75"
+                     ng-style="{ 'fill': $root.tenantColor }"/>
+            </div>
+            <hr class="verticalBtnMbHR"
+                ng-style="{ 'background-color': $root.tenantColor }">
+            <div class="btnMbText">
+                <span class="mainBtnMbText">{{paymentMode.Text}}</span>
+            </div>
+        </md-button>
+        <md-button class="btnModalBig" ng-click="payAtPos()">
+            <div class="btnMbIcon">
+                <md-icon md-svg-src="img/icons/cash.svg"
+                         ng-style="{ 'fill': $root.tenantColor }"></md-icon>
+            </div>
+            <hr class="verticalBtnMbHR"
+                ng-style="{ 'background-color': $root.tenantColor }">
+            <div class="btnMbText">
+                <span class="mainBtnMbText" translate>Au comptoir</span>
+            </div>
+        </md-button>
+        <md-button class="btnModalSmallS" ng-click="cancel()">
+            <span translate>Retour</span>
+        </md-button>
+    </section>
+</section>

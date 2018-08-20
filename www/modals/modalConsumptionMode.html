@@ -1,0 +1,45 @@
+<section id="modalConstumptionOpen" class="modalCenterFS" ng-init="init()"
+         ng-style="{'flex-direction' : $root.borne && $root.borneVertical ? 'column' : 'row'}">
+    <section class="groupModal" style="flex:3"
+             ng-style="{'justify-content' : $root.borne && $root.borneVertical ? 'flex-end' : 'center'}">
+        <md-icon class="imgLogoHeader" md-svg-src="img/icons/logo-ip.svg"></md-icon>
+        <div class="firstTitle">
+            <span translate>Commander ici</span>
+        </div>
+    </section>
+    <hr ng-class="{'smallModalHR': $root.borne && $root.borneVertical,
+                        'smallModalHRH': $root.borne && !$root.borneVertical}"
+        ng-style="{ 'background-color': $root.tenantColor }">
+    <section class="groupModal" style="flex:4"
+             ng-style="{'justify-content' : $root.borne && $root.borneVertical ? 'flex-start' : 'center'}">
+        <md-button class="btnModalBig" ng-click="setDeliveryType(DeliveryTypes.FORHERE)"
+                   ng-style="{'margin' : $root.borne && $root.borneVertical ? '50px 0 0' : '0'}">
+            <div class="btnMbIcon">
+                <md-icon md-svg-src="img/icons/sur-place.svg"
+                         ng-style="{ 'color': $root.tenantColor }"></md-icon>
+            </div>
+            <hr class="verticalBtnMbHR"
+                ng-style="{ 'background-color': $root.tenantColor }">
+            <div class="btnMbText">
+                <span class="mainBtnMbText" translate>Sur place</span>
+                <span class="altBtnMbText"><x translate>Commandez et savourez votre repas à table</x>&nbsp;!</span>
+            </div>
+        </md-button>
+        <md-button class="btnModalBig" ng-click="setDeliveryType(DeliveryTypes.TAKEOUT)">
+            <div class="btnMbIcon">
+                <md-icon md-svg-src="img/icons/emporter.svg"
+                         ng-style="{ 'color': $root.tenantColor }"></md-icon>
+            </div>
+            <hr class="verticalBtnMbHR"
+                ng-style="{ 'background-color': $root.tenantColor }">
+            <div class="btnMbText">
+                <span class="mainBtnMbText" translate>A emporter</span>
+                <span class="altBtnMbText"><x
+                        translate>Commandez et dégustez votre repas où vous voulez</x>&nbsp;!</span>
+            </div>
+        </md-button>
+        <md-button class="btnModalSmallS" ng-click="cancelDeliveryType()">
+            <span translate>Annuler</span>
+        </md-button>
+    </section>
+</section>

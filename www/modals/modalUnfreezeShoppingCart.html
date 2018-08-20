@@ -36,40 +36,42 @@
 
                 <div ng-if="shoppingCarts != undefined && shoppingCarts.length > 0">
                     <div class="itemRow" layout="column" ng-repeat="shoppingCart in shoppingCarts track by $index"
-                         ng-click="select(shoppingCart)"
                          ng-if="!shoppingCart.DatePickup"
-                         style="line-height: 30px; padding-top: 5px;margin: 0 -15px;">
+                         style="line-height: 30px;margin: 0 -15px;">
 
                         <div class="unFreezeTable" layout="column" style="height: 75px;" flex>
                             <div layout="row" style="align-items: center;" flex>
-                                <div layout="row" style="line-height: 20px;align-items: center;" flex>
-                                    <strong class="orderListTo">
+                                <div layout="row" style="height:100%;align-items: center;" flex>
+                                    <strong style="margin-right:10px;">
                                         <input type="checkbox"
                                                ng-click="$event.stopPropagation();checkShoppingCart(shoppingCart,$event);"
                                                style="width:25px;height:25px;">
                                     </strong>
-                                    <strong style="flex:1;">
-                                        <div ng-if="shoppingCart.TableNumber != undefined">
-                                            {{shoppingCart.TableNumber}}
-                                        </div>
-                                    </strong>
-                                    <strong ng-if="$mdMedia('(min-width: 800px)')" style="flex:1;">
-                                        {{shoppingCart.Timestamp}}
-                                    </strong>
-                                    <strong style="flex:1;">
-                                        <div ng-if="shoppingCart.TableCutleries != undefined">
-                                            {{shoppingCart.TableCutleries}}
-                                        </div>
-                                    </strong>
-                                    <strong style="flex:1;">
-                                        {{shoppingCart.PosUserName}}
-                                    </strong>
-                                    <strong style="flex:1;">
-                                        {{getItemsCount(shoppingCart)}}
-                                    </strong>
-                                    <strong style="flex:1;">
-                                        {{shoppingCart.Total | CurrencyFormat}}
-                                    </strong>
+                                    <div layout="row" style="line-height: 20px;height:100%;align-items: center;"
+                                         ng-click="select(shoppingCart)" flex>
+                                        <strong style="flex:1;">
+                                            <div ng-if="shoppingCart.TableNumber != undefined">
+                                                {{shoppingCart.TableNumber}}
+                                            </div>
+                                        </strong>
+                                        <strong ng-if="$mdMedia('(min-width: 800px)')" style="flex:1;">
+                                            {{shoppingCart.Timestamp}}
+                                        </strong>
+                                        <strong style="flex:1;">
+                                            <div ng-if="shoppingCart.TableCutleries != undefined">
+                                                {{shoppingCart.TableCutleries}}
+                                            </div>
+                                        </strong>
+                                        <strong style="flex:1;">
+                                            {{shoppingCart.PosUserName}}
+                                        </strong>
+                                        <strong style="flex:1;">
+                                            {{getItemsCount(shoppingCart)}}
+                                        </strong>
+                                        <strong style="flex:1;">
+                                            {{shoppingCart.Total | CurrencyFormat}}
+                                        </strong>
+                                    </div>
                                 </div>
                             </div>
                             <div class="productComment">

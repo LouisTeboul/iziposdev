@@ -1,0 +1,30 @@
+<section id="modalConnectionBorne" class="modalCenterFS" ng-init="init()"
+         ng-style="{'flex-direction' : $root.borne && $root.borneVertical ? 'column' : 'row'}">
+    <section class="groupModal" style="flex:3"
+             ng-style="{'justify-content' : $root.borne && $root.borneVertical ? 'flex-end' : 'center'}">
+        <md-icon class="imgLogoHeader" md-svg-src="img/icons/logo-ip.svg"></md-icon>
+        <div class="firstTitle">
+            <span translate>Mon compte fidélité</span>
+        </div>
+    </section>
+    <hr ng-class="{'smallModalHR': $root.borne && $root.borneVertical,
+                        'smallModalHRH': $root.borne && !$root.borneVertical}"
+        ng-style="{ 'background-color' : $root.tenantColor}">
+    <section class="groupModal" style="flex:4"
+             ng-style="{'justify-content' : $root.borne && $root.borneVertical ? 'flex-start' : 'center'}">
+        <div class="loyaltyFormGroup"
+             ng-style="{'margin' : $root.borne && $root.borneVertical ? '50px 0 0' : '0'}">
+            <div class="scanImg">
+                <x translate>Scannez</x>
+                <span translate>votre carte</span>
+            </div>
+            <span class="connectTypeSep" translate>ou</span>
+            <ng-barcodetextfield-borne></ng-barcodetextfield-borne>
+            <div class="groupBtn">
+                <md-button class="btnModalSmall" ng-click="closeConnexion()">
+                    <span class="mainBtnMsText" translate>Annuler</span>
+                </md-button>
+            </div>
+        </div>
+    </section>
+</section>

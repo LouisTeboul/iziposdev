@@ -1,7 +1,7 @@
 <md-content ng-controller="MiniBasketController" ng-init="init()" id="miniBasket" class="miniBasket" layout="column"
             flex>
     <div layout="column" flex>
-        <div layout="row" style="height:50px;"
+        <div layout="row" style="height:45px;"
              ng-show="!currentShoppingCart.ParentTicket"
              ng-class="{ 'fidHidden' :  $root.UserPreset && !$root.UserPreset.DisplayFid }">
             <ng-barcodetextfield flex></ng-barcodetextfield>
@@ -290,7 +290,7 @@
                                      class="panel panel-default miniBasket ">
                     <uib-accordion-heading>
                         <div layout="row" ng-if="!currentShoppingCart.ParentTicket">
-                            <img style="width: 25px;height: 20px;margin-left: -12px;" alt="Image" src="img/receipt.png">
+                            <img style="width: 25px;height: 20px;margin-left: -12px;" alt="Image" src="img/receipt.png"/>
                             <span flex></span>
 
                             <span ng-if="IziBoxConfiguration.StepEnabled && currentShoppingCart"
@@ -318,7 +318,7 @@
                                        ng-disabled="printStepProdDisabled"
                                        class="btn btn-success btnPrintStep"
                                        ng-click="$event.stopPropagation();selectStep(step.Step);printStepProdShoppingCart();">
-                                        <img class="imgMBStep" alt="Image" src="img/chef-hat.png">
+                                        <img class="imgMBStep" alt="Image" src="img/chef-hat.png"/>
                                     </a>
                                 </div>
                                 <div ng-repeat="item in step.Items track by $index" layout="column" class="itemRow"
@@ -404,8 +404,7 @@
                                                                ng-if=" (item.DiscountIT > 0 || item.DiscountET > 0) && currentShoppingCart.Discounts.length == 0 "
                                                                class="itemAction md-fab md-mini"
                                                                ng-click="$event.stopPropagation();removeOffer(item);">
-                                                        <img src="../www/img/remove-offer.png" height="18px"
-                                                             width="18px">
+                                                        <img src="../www/img/remove-offer.png" height="18px" width="18px"/>
                                                     </md-button>
 
                                                 </div>
@@ -453,7 +452,7 @@
                                      style="margin-bottom: 5px;">
                     <uib-accordion-heading>
                         <div layout="row">
-                            <img style="width: 20px;height: 20px;margin-left: -8px;" alt="Image" src="img/wallet.png">
+                            <img style="width: 20px;height: 20px;margin-left: -8px;" alt="Image" src="img/wallet.png"/>
                             <span flex></span>
                             <span style="font-size: 14px;padding-top: 3px;"
                                   ng-if="currentShoppingCart && totalDivider > 1">{{currentShoppingCart.Total | CurrencyFormat}} / {{totalDivider}} = {{(currentShoppingCart.Total/totalDivider) | CurrencyFormat}}</span>
@@ -464,7 +463,7 @@
                                 <a ng-if="currentShoppingCart && !currentShoppingCart.hasSplitItems && (!currentShoppingCart.shoppingCartQueue || currentShoppingCart.shoppingCartQueue.length ==0)"
                                    class="btn btn-warning btnDivideTotal"
                                    ng-click="$event.stopPropagation();divideTotal();">
-                                    <img style="width:26px;" alt="Image" src="img/divideUser.png">
+                                    <img style="width:26px;" alt="Image" src="img/divideUser.png"/>
                                 </a>
 
                                 <div layout="row">
@@ -474,8 +473,7 @@
                                         <div style="white-space:normal" layout="row" layout-align="center center"
                                              layout-fill>
                                             <div flex="60">
-                                                <img style="margin-top: -4px;width:26px;" alt="Image"
-                                                     src="img/merge.png">
+                                                <img style="margin-top: -4px;width:26px;" alt="Image" src="img/merge.png"/>
                                             </div>
 
                                             <div flex="30">
@@ -499,7 +497,7 @@
                                    class="btn btn-warning btnDivideReceipt"
                                    ng-class="{'disabled' : currentShoppingCart.shoppingCartQueue.length > 0}"
                                    ng-click="$event.stopPropagation();splitShoppingCart();">
-                                    <img style="margin-top: -4px;width:26px;" alt="Image" src="img/divideReceipt.png">
+                                    <img style="margin-top: -4px;width:26px;" alt="Image" src="img/divideReceipt.png"/>
                                 </a>
                             </div>
                         </div>
@@ -515,7 +513,7 @@
                                    'btn-payment-small':paymentModesAvailable.length >= 9 && paymentModesAvailable.length <= 10,
                                    'btn-payment-ultrasmall':paymentModesAvailable.length > 10}">
                                     <img class="btn-payment-image" alt="" ng-src="{{paymentMode | PaymentTypeImg}}"
-                                         ng-class="{'btn-payment-image-small':paymentModesAvailable.length > 10}">
+                                         ng-class="{'btn-payment-image-small':paymentModesAvailable.length > 10}"/>
                                     <br/>
                                     <span class="btn-payment-text"
                                           ng-class="{'btn-payment-text-small':paymentModesAvailable.length > 10}">{{paymentMode.Text}}</span>
@@ -556,7 +554,7 @@
                     <span flex="20"></span>
 
                     <div flex="60">
-                        <img class="btn-action-image" alt="Image" src="img/unfreeze.png">
+                        <img class="btn-action-image" alt="Image" src="img/unfreeze.png"/>
                     </div>
 
                     <div flex="20">
@@ -584,7 +582,7 @@
                ng-if="!currentShoppingCart.ParentTicket"
                ng-disabled="printStepProdDisabled"
                ng-click="freezeShoppingCart()" flex>
-                <span style="white-space:normal"><img class="btn-action-image" alt="Image" src="img/freeze.png"></span>
+                <span style="white-space:normal"><img class="btn-action-image" alt="Image" src="img/freeze.png"/></span>
             </a>
         </div>
 
@@ -595,7 +593,7 @@
                ng-class="{ 'disabled' : PhoneOrderMode }"
                ng-disabled=" PhoneOrderMode == true"
                flex>
-                <span style="white-space:normal"><img class="btn-action-image" alt="Image" src="img/valid.png"></span>
+                <span style="white-space:normal"><img class="btn-action-image" alt="Image" src="img/valid.png"/></span>
             </a>
 
             <a ng-if="PrinterConfiguration.POSPrinterCount > 0 && IziBoxConfiguration.LocalIpIziBox && !currentShoppingCart.ParentTicket && (!$root.UserPreset || $root.UserPreset.DisplayButtons.ValidAndPrint)"
@@ -606,19 +604,19 @@
                flex>
                 <span style="white-space:normal">
                     <!--<img style="width:25px;margin-right:2px;" alt="Image" src="img/valid.png">-->
-                    <img style="width:28px;margin-left:2px;" alt="Image" src="img/print.png">
+                    <img style="width:28px;margin-left:2px;" alt="Image" src="img/print.png"/>
                 </span>
             </a>
             <a class="shoppingCartAction btn btn-info"
                ng-if="!currentShoppingCart.ParentTicket && (!$root.UserPreset || $root.UserPreset.DisplayButtons.PrintProd)"
                ng-disabled="printProdDisabled"
                ng-click="printProdShoppingCart()" flex>
-                <span style="white-space:normal"><img style="width:35px" alt="Image" src="img/printProd.png"></span>
+                <span style="white-space:normal"><img style="width:35px" alt="Image" src="img/printProd.png"/></span>
             </a>
             <a class="shoppingCartAction btn btn-danger"
                ng-click="cancelShoppingCart()" flex
                ng-if=" (!currentShoppingCart.isPayed && !currentShoppingCart.hasSplitItems) || currentShoppingCart.ParentTicket ">
-                <span style="white-space:normal"><img class="btn-action-image" alt="Image" src="img/trash.png"></span>
+                <span style="white-space:normal"><img class="btn-action-image" alt="Image" src="img/trash.png"/></span>
             </a>
         </div>
     </div>

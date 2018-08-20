@@ -79,8 +79,8 @@
     };
 
     $scope.init = function (reload = false, savedModel = {}) {
-        $rootScope.validateLock = true;
-        checkValidateLock();
+        $rootScope.validateLock = false;
+        // checkValidateLock();
         if (savedModel) {
             function getmatchedPmTotal(hid, paymentType) {
                 var matchedHidMdl = Enumerable.from(savedModel).firstOrDefault(function (hidModel) {

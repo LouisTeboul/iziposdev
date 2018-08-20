@@ -34,7 +34,7 @@ app.directive('categoryRepeat', function ($rootScope, $compile, $filter) {
                         result +=
                             `<div class="layout-column layout-fill">
                         <div class="imageContainer">
-                            <img alt="" src='${product.DefaultPictureUrl}' class="image">
+                            <img alt="" src='${product.DefaultPictureUrl}' class="image"/>
                         </div>
                         <div class="titleRow">  
                             ${product.Name}

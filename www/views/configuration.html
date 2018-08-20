@@ -3,7 +3,7 @@
     <md-button class="md-fab md-mini md-fab-top-right" ng-if="IziBoxConfiguration != undefined && !isBrowser"
                aria-label="ClearCache" style="top:0;right:0;line-height:20px;background:#464646"
                ng-click="emptyCache()">
-        <img style="width:20px;height:20px;" class="btn-action-image" alt="Image" src="img/trash.png">
+        <img style="width:20px;height:20px;" class="btn-action-image" alt="Image" src="img/trash.png"/>
     </md-button>
     <div>
         <img style="width:70px;height:70px" src="img/logo.png"/>
@@ -118,6 +118,16 @@
                         <md-switch ng-model="$root.borne" aria-label="Enable?"></md-switch>
                     </div>
                 </div>
+
+                <div layout="row" layout-align="start center" layout-wrap ng-if="$root.borne">
+                    <div class="title" style="min-width:155px">
+                        <span class="bold" translate>Borne verticale</span> :
+                    </div>
+                    <div class="value" style="min-width:250px">
+                        <md-switch ng-model="$root.borneVertical" aria-label="Enable?"></md-switch>
+                    </div>
+                </div>
+
                 <div layout="row" layout-align="start center" layout-wrap ng-if="$root.borne">
                     <div class="title" style="min-width:155px">
                         <span class="bold" translate>Activer paiement CB</span> :

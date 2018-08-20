@@ -94,6 +94,7 @@
 
     $scope.select = function (shoppingCart) {
         shoppingCartService.unfreezeShoppingCartAsync(shoppingCart).then(function () {
+            shoppingCart.isJoinedShoppingCart = false;
             $uibModalInstance.close(shoppingCart);
         }, function () {
             swal($translate.instant("Erreur !"), $translate.instant("Le ticket n'a pas été supprimé."), "error");
@@ -102,6 +103,7 @@
 
     $scope.selectOrder = function (order) {
         orderShoppingCartService.loadOrderShoppingCartAsync(order).then(function () {
+            order.isJoinedShoppingCart = false;
             $uibModalInstance.close(order);
         });
     };

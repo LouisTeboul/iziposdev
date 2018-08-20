@@ -10,7 +10,7 @@
         })
 });
 
-app.controller('CatalogMenuController', function ($scope, $rootScope, $state, categoryService, pictureService, posPeriodService, posService, $http, $timeout) {
+app.controller('CatalogMenuController', function ($scope, $rootScope, $state, categoryService, pictureService, posPeriodService) {
     $scope.$state = $state;
     $scope.$rootScope = $rootScope;
 
@@ -29,15 +29,15 @@ app.controller('CatalogMenuController', function ($scope, $rootScope, $state, ca
     };
 
     $scope.navig = function (category) {
-        var currentState = {
+        const currentState = {
             name: $state.current.name,
             id: $state.params.id
         };
 
-        var catalogType = $rootScope.borne ? "catalogBorne." : "catalogPOS.";
+        const catalogType = $rootScope.borne ? "catalogBorne." : "catalogPOS.";
 
-        $state.go(catalogType + category.CategoryTemplate.ViewPath, { id: category.Id }).then(function (state, event) {
-            var newState = {
+        $state.go(catalogType + category.CategoryTemplate.ViewPath, {id: category.Id}).then(function () {
+            const newState = {
                 name: $state.current.name,
                 id: $state.params.id
             };
@@ -53,11 +53,11 @@ app.controller('CatalogMenuController', function ($scope, $rootScope, $state, ca
         $state.go('catalogPOS.Categories')
     };
 
-    var initializePosPeriod = function () {
+    const initializePosPeriod = function () {
         posPeriodService.getYPeriodAsync($rootScope.modelPos.hardwareId, $rootScope.PosUserId, false);
     };
 
-    var pouchDBChangedHandler = $rootScope.$on('pouchDBChanged', function (event, args) {
+    const pouchDBChangedHandler = $rootScope.$on('pouchDBChanged', function (event, args) {
         if (args.status == "Change" && (args.id.indexOf('Category') == 0 || args.id.indexOf('Picture') == 0)) {
             initializeCategories();
         }
@@ -67,22 +67,22 @@ app.controller('CatalogMenuController', function ($scope, $rootScope, $state, ca
         pouchDBChangedHandler();
     });
 
-    var initializeCategories = function () {
+    const initializeCategories = function () {
         categoryService.getCategoriesAsync().then(function (categories) {
-            var categoriesEnabled = Enumerable.from(categories).where('x=>x.IsEnabled === true').orderBy('x => x.DisplayOrder').toArray();
+            const categoriesEnabled = Enumerable.from(categories).where('x=>x.IsEnabled === true').orderBy('x => x.DisplayOrder').toArray();
 
-            Enumerable.from(categoriesEnabled).forEach(function (c) {
-                pictureService.getPictureUrlAsync(c.PictureId).then(function (url) {
+            for (let cat of categories) {
+                pictureService.getPictureUrlAsync(cat.PictureId).then(function (url) {
                     if (!url) {
                         url = 'img/photo-non-disponible.png';
                     }
-                    c.PictureUrl = url;
+                    cat.PictureUrl = url;
                 });
-            });
+            }
 
             $scope.categories = categoriesEnabled;
         }, function (err) {
             console.log(err);
         });
-    }
+    };
 });

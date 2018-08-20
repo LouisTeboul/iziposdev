@@ -284,6 +284,16 @@ text-field.flexbox div {
     margin-top: 5px;
 }
 
+.btn-config {
+    background: #f80;
+    color: #fff;
+    font-size: 14px;
+    /*height: 45px;*/
+    width: 85%;
+    margin-bottom: 5px;
+    margin-top: 5px;
+}
+
 .btn-logout {
     background: red;
     color: #fff;
@@ -400,6 +410,7 @@ text-field.flexbox div {
 }
 
 /*---------------------DEFAULT----------------------------*/
+
 .productboxIZIPASS {
     background: #fff;
     border: 1px solid #dbdada;
@@ -1456,9 +1467,13 @@ text-field.flexbox div {
     /*margin-bottom: 30px;*/
 }
 
+/* ------------------ Attribute Box ------------------ */
+
+/* ---- DEFAULT ---- */
+
 .attributeBox {
-    height: 85px !important;
-    width: 90px !important;
+    height: 85px;
+    width: 90px ;
     background: #fff !important;
     border: 1px solid #dbdada !important;
     color: #505050 !important;
@@ -1499,6 +1514,31 @@ text-field.flexbox div {
     background: #CACACA !important;
     color: white !important;
 }
+
+/* ---- BIG ---- */
+.attributeBox.big {
+    height: 130px;
+    width: 120px ;
+}
+
+.attributeBox.big .imgAttribute {
+    width: 60px;
+    height: 60px;
+}
+
+/* ---- MEDIUM ---- */
+
+.attributeBox.medium {
+    height: 110px;
+    width: 100px ;
+}
+
+.attributeBox.medium .imgAttribute {
+    width: 45px;
+    height: 45px;
+}
+
+/* ---------------------------------------------------- */
 
 .modfront-productsetinfo .productset-title {
     font-size: 20px;
@@ -2186,7 +2226,6 @@ md-input-container label:not(._md-container-ignore) {
 }
 
 .productMenuList {
-    width: 69px;
     margin: 0 20px;
 }
 
@@ -2236,6 +2275,7 @@ md-input-container label:not(._md-container-ignore) {
 
 .orderListTo {
     font-size: 20px;
+    margin-right:10px;
 }
 
 .btnFiltreCaisse {

@@ -17,8 +17,7 @@
         allCriteriasSelected: true
     };
 
-    $scope.modalPlanBO = !$mdMedia('max-width: 799px');
-    $scope.modalPlanBO = false;
+    $scope.modalPlanBO = $rootScope.IziBoxConfiguration.EnableTablePlan;
 
     $scope.$watch("mapSelectedIndex", function () {
         updateWatchers();
@@ -28,13 +27,29 @@
         shoppingCartService.getFreezedShoppingCartsAsync().then(function (freezedShoppingCarts) {
             $scope.freezedShoppingCarts = freezedShoppingCarts;
             updateStoreMap();
-            if ($scope.modalPlanBO) {
+            if ($mdMedia('min-width: 800px') && $scope.modalPlanBO) {
                 const divCanvas = document.querySelector('#mainCanvasTables');
                 $scope.canvasPlanBO = new Raphael(divCanvas, divCanvas.offsetWidth, divCanvas.offsetHeight);
                 drawTablePlan();
             }
             updateModalTables();
             selectCurrentTable();
+        });
+
+        window.addEventListener("resize", function () {
+            setTimeout(() => {
+                if ($mdMedia('min-width: 800px') && $scope.modalPlanBO) {
+                    const divCanvas = document.querySelector('#mainCanvasTables');
+                    if (divCanvas) {
+                        divCanvas.innerHTML = "";
+                        $scope.canvasPlanBO = new Raphael(divCanvas, divCanvas.offsetWidth, divCanvas.offsetHeight);
+                        drawTablePlan();
+                    }
+                }
+                updateStoreMap();
+                updateModalTables();
+                selectCurrentTable();
+            }, 100);
         });
     };
 
@@ -175,6 +190,7 @@
                 tableCutleries: tableCutleriesValue > 0 ? tableCutleriesValue : undefined,
                 tableId: tableId > 0 ? tableId : undefined
             };
+            window.removeEventListener("resize", null);
             $uibModalInstance.close(tableValues);
         }
     };
@@ -183,6 +199,7 @@
         $interval.cancel($scope.currentTimer);
         delete $scope.tableModel.activeTimer;
         $rootScope.closeKeyboard();
+        window.removeEventListener("resize", null);
         $uibModalInstance.dismiss('cancel');
     };
 
@@ -208,7 +225,6 @@
 
     $scope.selectTableById = function (mapName, areaName, tableId) {
         resetDefaultColor();
-
         $("#table" + tableId + mapName.replace(/[^a-zA-Z0-9]/g, "")
             + areaName.replace(/[^a-zA-Z0-9]/g, "")).css("background-color", "#E0B20B");
 
@@ -230,10 +246,25 @@
                             $scope.showMap(map.Name, maps.indexOf(map));
                             $scope.showArea(map.Name, area.Name, map.Areas.indexOf(area));
                             $scope.selectTableById(map.Name, area.Name, currentTableId);
-
-                            $('#table' + table.Id + map.Name.replace(/[^a-zA-Z0-9]/g, "")
-                                + area.Name.replace(/[^a-zA-Z0-9]/g, "") + 'Info .tableState')
-                                .html(currentTableCutleries + '/' + table.Cutleries);
+                            if ($scope.modalPlanBO && $mdMedia('min-width: 800px')) {
+                                for (const obj of $scope.currentArea.objCanvas) {
+                                    if (obj[2] === currentTableId) {
+                                        obj[1].attr({
+                                            "text": obj[3] + '(' + currentTableCutleries + '/' + table.Cutleries + ')',
+                                            "fill": "#f00"
+                                        });
+                                        obj[0].attr({
+                                            "stroke": "#f00",
+                                            "stroke-width": 3,
+                                            "fill":"#E0B20B"
+                                        });
+                                    }
+                                }
+                            } else {
+                                $('#table' + table.Id + map.Name.replace(/[^a-zA-Z0-9]/g, "")
+                                    + area.Name.replace(/[^a-zA-Z0-9]/g, "") + 'Info .tableState')
+                                    .html(currentTableCutleries + '/' + table.Cutleries);
+                            }
                             break mapsLoop;
                         }
                     }
@@ -243,7 +274,7 @@
     };
 
     const updateModalTables = function () {
-        if ($scope.modalPlanBO) {
+        if ($scope.modalPlanBO && $mdMedia('min-width: 800px')) {
             drawTablePlan();
         } else {
             const maps = $scope.storeMap.data;
@@ -256,7 +287,7 @@
                             tab.find('.tableState').html(table.inUseCutleries + '/' + table.Cutleries);
                             tab.css('background-color', getTableColorStyle(table));
                         } else {
-                            tab.find('.tableState').html(table.inUseCutleries);
+                            tab.find('.tableState').html(table.Cutleries);
                             tab.css('background-color', getTableColorStyle(table));
                         }
                     }
@@ -279,72 +310,105 @@
         $scope.canvasPlanBO.clear();
         const divCanvas = document.querySelector('#mainCanvasTables');
         let ratio;
+        if(!divCanvas) return;
         if (divCanvas.offsetWidth > divCanvas.offsetHeight) {
-            ratio = (divCanvas.offsetHeight - 10) / 800;
+            ratio = (divCanvas.offsetHeight - 11) / 800;
         } else {
-            ratio = (divCanvas.offsetWidth - 10) / 800;
+            ratio = (divCanvas.offsetWidth - 5) / 800;
         }
         $scope.canvasPlanBO.rect(0, 0, divCanvas.offsetWidth, divCanvas.offsetHeight - 10)
-            .attr("fill", "lightgray")
-            .attr("stroke", "black");
+            .attr({"fill": "lightgray", "stroke": "black"});
         const offset = (divCanvas.offsetWidth / 2) - ((800 * ratio) / 2);
         $scope.currentArea.objCanvas = [];
         for (const table of $scope.currentArea.Objects) {
             const tableDetails = $scope.currentArea.Geo.objects.filter(el => el.id === table.Id)[0];
+
+            let tableText = table.TableNumber;
+            let color = "#000";
+            let stroke = 1;
+            if (table.inUseCutleries) {
+                stroke = 3;
+                color = "#f00";
+                tableText += "(" + table.inUseCutleries + '/' + table.Cutleries + ")";
+            } else {
+                tableText += "(" + table.Cutleries + ")";
+            }
+
             if (tableDetails.type === 'Labeledcircle') {
                 let circle = $scope.canvasPlanBO.ellipse(
                     (tableDetails.left * ratio) + (((tableDetails.width * tableDetails.scaleX) * ratio) / 2) + offset,
-                    (tableDetails.top * ratio) + (((tableDetails.height * tableDetails.scaleY) * ratio) / 2),
+                    (tableDetails.top * ratio) + (((tableDetails.height * tableDetails.scaleY) * ratio) / 2) + 1,
                     ((tableDetails.width * tableDetails.scaleX) * ratio) / 2,
                     ((tableDetails.height * tableDetails.scaleY) * ratio) / 2)
-                    .attr("fill", tableDetails.fill)
+                    .attr({
+                        "fill": tableDetails.fill,
+                        "stroke": color,
+                        "stroke-width": stroke
+                    })
                     .click(function () {
-                        resetDefaultColor();
+                        $scope.selectTableById($scope.currentMap.Name, $scope.currentArea.Name, tableDetails.id);
                         this.attr("fill", "#E0B20B");
                     });
-                $scope.canvasPlanBO.text(
+                let cText = $scope.canvasPlanBO.text(
                     (tableDetails.left * ratio) + (((tableDetails.width * tableDetails.scaleX) * ratio) / 2) + offset,
-                    (tableDetails.top * ratio) + (((tableDetails.height * tableDetails.scaleY) * ratio) / 2),
-                    table.TableNumber)
-                    .attr("fill", "#fff")
-                    .attr("font-size", "14px")
+                    (tableDetails.top * ratio) + (((tableDetails.height * tableDetails.scaleY) * ratio) / 2) + 1,
+                    tableText)
+                    .attr({
+                        "fill": "#fff",
+                        "font-size": "14px"
+                    })
                     .click(function () {
-                        resetDefaultColor();
+                        $scope.selectTableById($scope.currentMap.Name, $scope.currentArea.Name, tableDetails.id);
                         circle.attr("fill", "#E0B20B");
                     });
+                if (color === "#f00") {
+                    cText.attr("stroke", color);
+                }
                 circle.defaultColor = tableDetails.fill;
-                $scope.currentArea.objCanvas.push(circle);
+                $scope.currentArea.objCanvas.push([circle, cText, table.Id, table.TableNumber]);
             } else {
                 let rect = $scope.canvasPlanBO.rect(
                     tableDetails.left * ratio + offset,
-                    tableDetails.top * ratio,
+                    tableDetails.top * ratio + 1,
                     (tableDetails.width * tableDetails.scaleX) * ratio,
                     (tableDetails.height * tableDetails.scaleY) * ratio)
-                    .attr("fill", tableDetails.fill)
+                    .attr({
+                        "fill": tableDetails.fill,
+                        "stroke": color,
+                        "stroke-width": stroke
+                    })
                     .click(function () {
-                        resetDefaultColor();
+                        $scope.selectTableById($scope.currentMap.Name, $scope.currentArea.Name, tableDetails.id);
                         this.attr("fill", "#E0B20B");
                     });
-                $scope.canvasPlanBO.text(
+                let rText = $scope.canvasPlanBO.text(
                     tableDetails.left * ratio + ((tableDetails.width * tableDetails.scaleX) * ratio) / 2 + offset,
-                    tableDetails.top * ratio + ((tableDetails.height * tableDetails.scaleY) * ratio) / 2,
-                    table.TableNumber)
-                    .attr("fill", "#fff")
-                    .attr("font-size", "14px")
+                    tableDetails.top * ratio + ((tableDetails.height * tableDetails.scaleY) * ratio) / 2 + 1,
+                    tableText)
+                    .attr({
+                        "fill": "#fff",
+                        "font-size": "14px"
+                    })
                     .click(function () {
-                        resetDefaultColor();
+                        $scope.selectTableById($scope.currentMap.Name, $scope.currentArea.Name, tableDetails.id);
                         rect.attr("fill", "#E0B20B");
                     });
+                if (color === "#f00") {
+                    rText.attr({
+                        "fill": color,
+                        "stroke": color
+                    });
+                }
                 rect.defaultColor = tableDetails.fill;
-                $scope.currentArea.objCanvas.push(rect);
+                $scope.currentArea.objCanvas.push([rect, rText, table.Id, table.TableNumber]);
             }
         }
     };
 
     const resetDefaultColor = function () {
-        if ($scope.modalPlanBO && $scope.currentArea.objCanvas) {
+        if ($scope.modalPlanBO && $mdMedia('min-width: 800px') && $scope.currentArea.objCanvas) {
             for (const obj of $scope.currentArea.objCanvas) {
-                obj.attr("fill", obj.defaultColor);
+                obj[0].attr("fill", obj[0].defaultColor);
             }
         } else {
             const maps = $scope.storeMap.data;

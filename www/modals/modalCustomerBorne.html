@@ -4,8 +4,6 @@
     </div>
     <div class="form-panel modal-body">
         <div ng-init="initRegister()">
-
-            <!-- PAGE 1 -->
             <div id="pageUne" class="pageRegister" ng-show="$root.currentPage == 1" layout="column" layout-margin>
                 <div layout="row">
                     <label flex="10" translate>Email</label>
@@ -29,7 +27,6 @@
                 </div>
             </div>
 
-            <!-- PAGE 2 -->
             <div id="pageDeux" class="pageRegister" ng-show="$root.currentPage == 2" layout="column" layout-margin>
                 <div layout="row" ng-if="signInSettings.City">
                     <label flex="10" translate>Ville</label>
@@ -57,7 +54,6 @@
                 </div>
             </div>
 
-            <!-- PAGE 3 -->
             <div id="pageTrois" class="pageRegister" ng-show="$root.currentPage == 3" layout="column" layout-margin>
                 <div layout="row" ng-if="signInSettings.ZipPostalCode">
                     <label flex="10" translate>Code Postal</label>
@@ -80,7 +76,6 @@
                 </div>
             </div>
 
-            <!-- PAGE 4 -->
             <div id="pageQuatre" class="pageRegister" ng-show="$root.currentPage == 4" layout="column" layout-margin>
                 <div layout="row" ng-if="signInSettings.Company">
                     <label flex="10" translate>Société</label>

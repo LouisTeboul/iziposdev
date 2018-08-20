@@ -5,6 +5,13 @@
 	}
 });
 
+app.directive('ngBarcodetextfieldBorne', function () {
+    return {
+        templateUrl: 'partials/BarcodeTextFieldBorne.html',
+        restrict: 'E'
+    }
+});
+
 app.directive('ngDataNotificationSwitch', function(){
 	return {
 		scope: {

@@ -1,6 +1,6 @@
-﻿app.controller('ModalPaymentModeController', function ($scope, $http, $rootScope, shoppingCartModel, $uibModalInstance, paymentMode, maxValue, $translate, $filter, $q, borneService) {
-    var current = this;
-    var currencyFormat = $filter('CurrencyFormat');
+﻿app.controller('ModalPaymentModeController', function ($scope, $http, $rootScope, shoppingCartModel, $uibModalInstance, paymentMode, maxValue, $translate, $filter, $q) {
+
+    const currencyFormat = $filter('CurrencyFormat');
 
     $scope.paymentMode = paymentMode;
     $scope.paymentType = PaymentType;
@@ -17,13 +17,19 @@
         }
         $scope.value.pay = paymentMode.Total;
         $scope.currentShoppingCart = shoppingCartModel.getCurrentShoppingCart();
-        setTimeout(function () {
-            var txtAmount = document.getElementById("txtAmount");
-            if (txtAmount) {
-                txtAmount.focus();
-            }
-
-        }, 100);
+        if(!$rootScope.borne) {
+            setTimeout(function () {
+                const txtAmount = document.getElementById("txtAmount");
+                if (txtAmount) {
+                    txtAmount.focus();
+                }
+            }, 100);
+        } else {
+            setTimeout(function () {
+                $scope.options.easytransacType = `NFC`;
+                $scope.ok();
+            }, 100);
+        }
     };
 
     $scope.removeTicketResto = function (tkResto) {
@@ -38,7 +44,7 @@
 
     $scope.calculate = function () {
         try {
-            var newValue = Math.round(eval($scope.value.pay) * 100) / 100;
+            const newValue = Math.round(eval($scope.value.pay) * 100) / 100;
 
             if (!isNaN(newValue)) {
                 $scope.value.pay = newValue;
@@ -49,18 +55,18 @@
     };
 
     $scope.toNFC = function () {
-        $scope.options.easytransacType = "NFC";
+        $scope.options.easytransacType = `NFC`;
         this.ok();
     };
     $scope.toScanner = function () {
-        $scope.options.easytransacType = "SCANNER";
+        $scope.options.easytransacType = `SCANNER`;
         this.ok();
     };
 
     $scope.ok = function () {
         $scope.calculate();
 
-        var totalPayment = parseFloat($scope.value.pay);
+        const totalPayment = parseFloat($scope.value.pay);
 
         if (isNaN(totalPayment)) {
             $scope.errorMessage = $translate.instant("Montant non valide");
@@ -98,14 +104,14 @@
         $scope.$evalAsync();
     };
 
-    var runPaymentProcessAsync = function () {
-        var processDefer = $q.defer();
+    const runPaymentProcessAsync = function () {
+        const processDefer = $q.defer();
         switch ($scope.paymentMode.PaymentType) {
             case PaymentType.EASYTRANSAC:
                 try {
-                    var apiKey = $scope.paymentMode.Options.EasyTransacKey;
-                    var amountCtsStr = (parseFloat($scope.value.pay) * 100).toString();
-                    var scannerType = $scope.options.easytransacType;
+                    const apiKey = $scope.paymentMode.Options.EasyTransacKey;
+                    const amountCtsStr = (parseFloat($scope.value.pay) * 100).toString();
+                    const scannerType = $scope.options.easytransacType;
 
                     cordova.EasyTransacPlugin.launch(apiKey, amountCtsStr, scannerType,
                         function (resEasyTransac) {
@@ -113,7 +119,7 @@
                             processDefer.resolve();
                         }, function (errEasyTransac) {
                             $scope.paymentMode.paymentProcessResult = errEasyTransac;
-                            var errorTxt = errEasyTransac && errEasyTransac.error ? errEasyTransac.error : JSON.stringify(errEasyTransac);
+                            const errorTxt = errEasyTransac && errEasyTransac.error ? errEasyTransac.error : JSON.stringify(errEasyTransac);
                             processDefer.reject(errorTxt);
                         });
                 } catch (pluginEx) {
@@ -123,18 +129,18 @@
             case PaymentType.CB:
                 if($rootScope.borne) {
                     try {
-                        var amountCts = Math.floor(maxValue * 100);
+                        const amountCts = Math.floor(maxValue * 100);
                         $scope.lockView = true;
 
                         if(window.tpaPayment) {
                             $scope.infoMessage = "Suivez les instructions sur le TPE";
-                            var tpaPromise = new Promise(function (resolve, reject) {
+                            const tpaPromise = new Promise(function (resolve, reject) {
                                 window.tpaPayment.initPaymentAsync(amountCts, resolve, reject);
                             });
 
                             tpaPromise.then( (ticket) => {
-                                var printerApiUrl = "http://" + $rootScope.IziBoxConfiguration.LocalIpIziBox + ":" + $rootScope.IziBoxConfiguration.RestPort + "/printhtml";
-                                var htmlPrintReq = {
+                                const printerApiUrl = "http://" + $rootScope.IziBoxConfiguration.LocalIpIziBox + ":" + $rootScope.IziBoxConfiguration.RestPort + "/printhtml";
+                                const htmlPrintReq = {
                                     PrinterIdx: $rootScope.PrinterConfiguration.POSPrinter,
                                     Html: ticket + "<cut></cut>"
                                 };
@@ -148,19 +154,20 @@
                             })
                         } else {
                             processDefer.reject('Le paiement par carte est indisponible');
+                            $scope.cancel();
+                            swal($translate.instant("Une erreur s'est produite ! Veuillez réessayer ou selectionner le paiement au comptoir."));
                         }
-
-
                     } catch (pluginEx) {
                         $scope.paymentMode.paymentProcessResult = "Error";
                         processDefer.reject($translate.instant("Le plugin Valina ne peut pas être appelé"));
+                        $scope.cancel();
+                        swal($translate.instant("Une erreur s'est produite ! Veuillez réessayer ou selectionner le paiement au comptoir."));
                     }
                 } else {
                     $scope.paymentMode.paymentProcessResult = "Success";
                     processDefer.resolve();
                 }
                 break;
-
             default:
                 $scope.paymentMode.paymentProcessResult = "Success";
                 processDefer.resolve();
@@ -175,8 +182,6 @@
 
         setTimeout(function () {
             $rootScope.closeKeyboard();
-            $rootScope.closeKeyboard();
         }, 500);
     }
-
 });

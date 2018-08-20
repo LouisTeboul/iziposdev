@@ -1,0 +1,62 @@
+﻿<section id="modalConnectionMode" class="modalCenterFS" ng-init="init()"
+         ng-style="{'flex-direction' : $root.borne && $root.borneVertical ? 'column' : 'row'}">
+    <section class="groupModal" style="flex:3"
+             ng-style="{'justify-content' : $root.borne && $root.borneVertical ? 'flex-end' : 'center'}">
+        <md-icon class="imgLogoHeader" md-svg-src="img/icons/logo-ip.svg"></md-icon>
+        <div class="firstTitle">
+            <span translate>Bienvenue</span>,&nbsp;
+            <span translate>identifiez-vous</span>
+        </div>
+    </section>
+    <hr ng-class="{'smallModalHR': $root.borne && $root.borneVertical,
+                        'smallModalHRH': $root.borne && !$root.borneVertical}"
+        ng-style="{ 'background-color' : $root.tenantColor}">
+    <section class="groupModal" style="flex:4"
+             ng-style="{'justify-content' : $root.borne && $root.borneVertical ? 'flex-start' : 'center'}">
+        <md-button class="btnModalBig" ng-click="redirectToConnection()"
+                   ng-style="{'margin' : $root.borne && $root.borneVertical ? '50px 0 0' : '0'}">
+            <div class="btnMbIcon">
+                <md-icon md-svg-src="img/icons/connexion.svg"
+                         ng-style="{ 'color' : $root.tenantColor}"></md-icon>
+            </div>
+            <hr class="verticalBtnMbHR"
+                ng-style="{ 'background-color' : $root.tenantColor}">
+            <div class="btnMbText">
+                <span class="mainBtnMbText" translate>Connexion</span>
+                <span class="altBtnMbText" translate>Connectez-vous en scannant votre carte de fidélité</span>
+            </div>
+        </md-button>
+        <md-button class="btnModalBig" ng-click="redirectToCustomer()">
+            <div class="btnMbIcon">
+                <md-icon md-svg-src="img/icons/inscription.svg"
+                         ng-style="{ 'color' : $root.tenantColor}"></md-icon>
+            </div>
+            <hr class="verticalBtnMbHR"
+                ng-style="{ 'background-color' : $root.tenantColor}">
+            <div class="btnMbText">
+                <span class="mainBtnMbText" translate>Inscription</span>
+                <span class="altBtnMbText"><x translate>Créez votre compte fidélité dès-maintenant</x>&nbsp;!</span>
+            </div>
+        </md-button>
+        <md-button class="btnModalBig" ng-click="close()">
+            <div class="btnMbIcon">
+                <md-icon md-svg-src="img/icons/skip.svg"
+                         ng-style="{ 'color' : $root.tenantColor}"></md-icon>
+            </div>
+            <hr class="verticalBtnMbHR"
+                ng-style="{ 'background-color' : $root.tenantColor}">
+            <div class="btnMbText">
+                <span class="mainBtnMbText" translate>Ignorer</span>
+                <span class="altBtnMbText"><x translate>Continuez sans vous identifier</x>.</span>
+            </div>
+        </md-button>
+        <div class="langSelection">
+            <div class="langBtn" ng-click="setLanguage('fr_FR')">
+                <md-icon md-svg-src="img/icons/flag-fr.svg"></md-icon>
+            </div>
+            <div class="langBtn" ng-click="setLanguage('en_EN')">
+                <md-icon md-svg-src="img/icons/flag-en.svg"></md-icon>
+            </div>
+        </div>
+    </section>
+</section>

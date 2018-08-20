@@ -1,58 +1,96 @@
 ﻿app.controller('ModalConnectionController', function ($scope, $rootScope, $uibModalInstance, $uibModal, shoppingCartService, ngToast, shoppingCartModel, $timeout, $uibModalStack, $translate) {
 
-    var deliveryTypeHandler = undefined;
-    var loyaltyChangedHandler = undefined;
+    let loyaltyChangedHandler = undefined;
+    let modalConsumption = undefined;
+    let borneUsedByCustomer = undefined;
 
     $scope.DeliveryTypes = DeliveryTypes;
+    $scope.connexionModal = undefined;
 
     $scope.init = function () {
 
-        var el = document.querySelector(".keyboardContainer");
+        let el = document.querySelector(".keyboardContainer");
         el.style.display = "flex";
 
-        $timeout(function () {
-            document.querySelector("#txtBarcode").focus();
-            document.querySelector("#txtValue > span").innerHTML = "";
-        }, 500);
-
-        $scope.deliveryType = shoppingCartModel.getDeliveryType();
-
-        deliveryTypeHandler = $scope.$watch('deliveryType', function () {
-            shoppingCartModel.setDeliveryType($scope.deliveryType);
-        });
-
-        loyaltyChangedHandler = $rootScope.$on('customerLoyaltyChanged', function (event, args) {
+        if (borneUsedByCustomer) {
+            $timeout(function () {
+                document.querySelector("#txtBarcode").focus();
+                document.querySelector("#txtValue > span").innerHTML = "";
+            }, 500);
+        }
+        borneUsedByCustomer = false;
+        loyaltyChangedHandler = $rootScope.$on('customerLoyaltyChanged', () => {
             console.log("Client connecté");
-            shoppingCartModel.setDeliveryType(0);
-            $uibModalInstance.close();
+            $scope.close();
         });
 
         shoppingCartModel.updatePaymentModes();
     };
 
-    $scope.setDeliveryType = function (value) {
-        $scope.deliveryType = value;
-        $scope.$evalAsync();
-    };
-
     $scope.close = function () {
-        var el = document.querySelector(".keyboardContainer");
-        el.style.display = "none";
-        shoppingCartModel.createShoppingCart();
-        shoppingCartModel.setDeliveryType(0);
+        $rootScope.closeKeyboard();
         $uibModalInstance.close();
+        if (!modalConsumption) {
+            modalConsumption = $uibModal.open({
+                templateUrl: 'modals/modalConsumptionMode.html',
+                controller: 'ModalConsumptionModeController',
+                size: 'lg',
+                backdrop: 'static'
+            });
+        }
+        modalConsumption.result.then(() => {
+            if ($rootScope.isBorneOrderCanceled) {
+                $uibModal.open({
+                    templateUrl: 'modals/modalConnectionMode.html',
+                    controller: 'ModalConnectionController',
+                    size: 'lg',
+                    backdrop: 'static'
+                });
+            } else {
+                shoppingCartModel.createShoppingCart();
+            }
+        }, function () {
+        });
     };
 
-    $scope.$on("$destroy", function () {
-        deliveryTypeHandler();
-    });
+    $scope.closeConnexion = function () {
+        delete $rootScope.currentPage;
+        $uibModal.open({
+            templateUrl: 'modals/modalConnectionMode.html',
+            controller: 'ModalConnectionController',
+            backdrop: 'static',
+            keyboard: false,
+            size: 'lg'
+        });
+        $timeout(function () {
+            $uibModalInstance.dismiss('cancel');
+        }, 250);
+    };
 
     $scope.redirectToCustomer = function () {
         if ($rootScope.borne) {
-            var top = $uibModalStack.getTop();
-            var modalInstance = $uibModal.open({
-                templateUrl: 'modals/modalCustomerBorne.html',
+            const top = $uibModalStack.getTop();
+            $uibModal.open({
+                templateUrl: 'modals/modalCustomerBorneVertical.html',
                 controller: 'ModalCustomerBorneController',
+                backdrop: 'static',
+                size: 'lg'
+            });
+            $timeout(function () {
+                if (top) {
+                    $uibModalStack.dismiss(top.key);
+                }
+            }, 250);
+        }
+    };
+
+    $scope.redirectToConnection = function () {
+        if ($rootScope.borne) {
+            borneUsedByCustomer = true;
+            const top = $uibModalStack.getTop();
+            $scope.connexionModal = $uibModal.open({
+                templateUrl: 'modals/modalConnectionBorne.html',
+                controller: 'ModalConnectionController',
                 backdrop: 'static',
                 size: 'lg'
             });

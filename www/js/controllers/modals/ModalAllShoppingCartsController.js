@@ -29,15 +29,15 @@ app.controller('ModalAllShoppingCartsController', function ($scope, $rootScope, 
                     "<span class='glyphicon glyphicon-pencil'></span>" +
                     "</button>" +
                     "<button class='btn btn-rose spaced' ng-init='isServiceOpen(dataItem)' ng-show='modelItem[dataItem.yPeriodId] && !dataItem.Deleted && !dataItem.ParentTicket' ng-click='cancelShopCart(dataItem)'>" +
-                    "<img style='width:20px;'  alt='Image' src='img/trash.png'>" +
+                    "<img style='width:20px;'  alt='Image' src='img/trash.png'/>" +
                     "</button>" +
                     "</div>", title: " ", width: 80
                 },
                 {
                     template: "" +
                     "<div layout-align='center center' layout='column'>" +
-                    "<button class='btn btn-info spaced' ng-click='printNote(dataItem)'><img style='width:20px;' alt='Image' src='img/receipt.png'></button>" +
-                    "<button class='btn btn-warning spaced' ng-click='selectShopCartItem(dataItem)'><img style='width:20px;' alt='Image' src='img/print.png'></button>" +
+                    "<button class='btn btn-info spaced' ng-click='printNote(dataItem)'><img style='width:20px;' alt='Image' src='img/receipt.png'/></button>" +
+                    "<button class='btn btn-warning spaced' ng-click='selectShopCartItem(dataItem)'><img style='width:20px;' alt='Image' src='img/print.png'/></button>" +
                     "</div>"
                     , title: " ", width: 80
                 }
@@ -54,10 +54,10 @@ app.controller('ModalAllShoppingCartsController', function ($scope, $rootScope, 
                     "<span class='glyphicon glyphicon-pencil'></span>" +
                     "</button>" +
                     "<button class='btn btn-rose spaced' ng-init='isServiceOpen(dataItem)' ng-show='modelItem[dataItem.yPeriodId] && !dataItem.Deleted && !dataItem.ParentTicket' ng-click='cancelShopCart(dataItem)'>" +
-                    "<img style='width:20px;'  alt='Image' src='img/trash.png'>" +
+                    "<img style='width:20px;'  alt='Image' src='img/trash.png'/>" +
                     "</button>" +
-                    "<button class='btn btn-info spaced' ng-click='printNote(dataItem)'><img style='width:20px;' alt='Image' src='img/receipt.png'></button>" +
-                    "<button class='btn btn-warning spaced' ng-click='selectShopCartItem(dataItem)'><img style='width:20px;' alt='Image' src='img/print.png'></button>" +
+                    "<button class='btn btn-info spaced' ng-click='printNote(dataItem)'><img style='width:20px;' alt='Image' src='img/receipt.png'/></button>" +
+                    "<button class='btn btn-warning spaced' ng-click='selectShopCartItem(dataItem)'><img style='width:20px;' alt='Image' src='img/print.png'/></button>" +
                     "</div>", title: " ", width: 80
                 }
             ];
@@ -379,7 +379,17 @@ app.controller('ModalAllShoppingCartsController', function ($scope, $rootScope, 
                                 });
                             });
 
-                            $scope.displayShoppingCarts(tabFilterPaiement);
+                            let outTab = [];
+                            let timestamps = []
+
+                            for (let ticket of tabFilterPaiement) {
+                                if (timestamps.indexOf(ticket.Timestamp) === -1) {
+                                    timestamps.push(ticket.Timestamp);
+                                    outTab.push(ticket);
+                                }
+                            }
+
+                            $scope.displayShoppingCarts(outTab);
 
                         }, function () {
                             $scope.loading = false;

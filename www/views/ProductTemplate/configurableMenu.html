@@ -39,7 +39,10 @@
                 <div layout="row" layout-wrap>
                     <div ng-repeat="v in attribute.ProductAttributeValues track by $index">
                         <md-button aria-label="attributeBox" layout-fill class="attributeBox"
-                                   ng-class="v.DisableBuyButton ? 'disable' : (v.Selected == 1 ? 'active' : '')"
+                                   ng-class="{ 'disable': v.DisableBuyButton,
+                                    'active' : !v.DisableBuyButton && v.Selected == 1,
+                                    'medium': $root.UserPreset && $root.UserPreset.ItemSize == 2 && $mdMedia('min-width: 800px'),
+                                    'big': $root.UserPreset && $root.UserPreset.ItemSize == 3 && $mdMedia('min-width: 800px')}"
                                    ng-click="v.DisableBuyButton ? null : selectAttributeValue(v.ProductAttributeId,v.Id,null, $event)">
                             <div layout="column" style="align-items: center;justify-content: space-between" layout-fill>
                                 <img class="imgAttribute" ng-src="{{v.DefaultPictureUrl}}"

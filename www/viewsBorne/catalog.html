@@ -1,30 +1,47 @@
 <md-content class="catalog" ng-controller="CatalogController" ng-init="init()" layout="column" layout-fill>
-    <div id="catalogMenuDiv" ng-include="'viewsBorne/catalogMenu.html'"></div>
-    <md-sidenav class="md-sidenav-left md-whiteframe-z2 drawerMenu" md-component-id="drawerMenuDiv" id="drawerMenuDiv"
-                ng-include="'viewsBorne/catalogDrawerMenu.html'">
-    </md-sidenav>
-    <md-content layout="row" style="overflow-y: hidden;" flex>
-        <md-content div id="catalogViewDiv" flex ui-view layout="column">
+    <div id="PMREnabled" style="flex:3" ng-if="$rootScope.borne && $rootScope.isPMREnabled">
+        <div class="pubProductsList" ng-if="$rootScope.isPMREnabled"></div>
+    </div>
+    <div layout="column" ng-if="$rootScope.borne && !$rootScope.borneVertical" style="flex:5" flex>
+        <div id="catalogMenuDiv" ng-include="'viewsBorne/catalogMenu.html'"></div>
+        <md-content layout="row" style="overflow-y: hidden;" flex>
+            <md-content id="catalogViewDiv" flex ui-view layout="column">
+            </md-content>
+            <md-sidenav class="md-sidenav-right md-whiteframe-z2 miniBasketSlide" style="min-width:345px"
+                        md-is-locked-open="!$rootScope.adminMode.state && ($mdMedia('min-width: 800px') || $rootScope.showShoppingCart)">
+                <md-content id="catalogBasketDiv" class="catalogBasketDiv" ng-include="'viewsBorne/miniBasket.html'"
+                            layout="column"
+                            style="height:100%" flex>
+                </md-content>
+            </md-sidenav>
         </md-content>
-
-        <md-sidenav class="md-sidenav-right md-whiteframe-z2 miniBasketSlide"
+    </div>
+    <div layout="column" ng-if="$rootScope.borne && $rootScope.borneVertical" style="flex:5"
+         ng-style="{'border-top' : $rootScope.isPMREnabled ? '1px solid #E5E5E5' : '0'}" flex>
+        <md-content layout="row" style="overflow-y:hidden;flex:1;" flex>
+            <div id="catalogMenuDivVertical" ng-include="'viewsBorne/catalogMenu.html'"></div>
+            <md-content id="catalogViewDivVertical" flex ui-view layout="column">
+            </md-content>
+        </md-content>
+        <md-sidenav class="md-sidenav-right md-whiteframe-z2 miniBasketSlide" style="min-width:100%"
                     md-is-locked-open="!$rootScope.adminMode.state && ($mdMedia('min-width: 800px') || $rootScope.showShoppingCart)">
-            <md-content id="catalogBasketDiv" class="catalogBasketDiv" ng-include="'viewsBorne/miniBasket.html'"
-                        layout="column" flex>
+            <md-content id="catalogBasketDivVertical" class="catalogBasketDiv"
+                        ng-include="'viewsBorne/miniBasket.html'"
+                        layout="column"
+                        style="height:402px" flex>
             </md-content>
         </md-sidenav>
-    </md-content>
-
+    </div>
     <script type="text/ng-template" id="warning-dialog.html">
-        <div class="modal-header">
-            <h3 translate>Attention ! Mise en veille !</h3>
-        </div>
-        <div idle-countdown="countdown" ng-init="countdown=15" class="modal-body">
-            <uib-progressbar max="15" value="15" animate="false" class="progress-striped active">
-                <x translate>Mise en veille dans</x>
-                {{countdown}}
-                <x translate>secondes</x>.
-            </uib-progressbar>
-        </div>
+        <section class="modalCenterFS">
+            <section class="groupModal">
+                <md-icon class="imgLogoHeader" md-svg-src="img/icons/logo-ip.svg"></md-icon>
+                <div class="firstTitle" idle-countdown="countdown" ng-init="countdown=15">
+                    <span translate>Mise en veille dans</span>
+                    <span>&nbsp;{{countdown}}&nbsp;</span>
+                    <span translate>secondes</span>...
+                </div>
+            </section>
+        </section>
     </script>
 </md-content>

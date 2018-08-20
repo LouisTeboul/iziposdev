@@ -191,7 +191,6 @@ app.service('shoppingCartService', ["$http", "$rootScope", "$q", "$filter", "zpo
 
             shoppingCart.rev = undefined;
             shoppingCart.id = shoppingCart.Timestamp;
-            shoppingCart.hasBeenFrozen = true;
 
             $rootScope.dbFreeze.rel.save('ShoppingCart', shoppingCart).then(function (result) {
                 freezeDefer.resolve(true);

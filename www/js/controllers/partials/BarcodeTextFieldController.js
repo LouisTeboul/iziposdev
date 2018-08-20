@@ -8,11 +8,20 @@ app.controller('BarcodeTextFieldController', function ($scope, $rootScope, $uibM
         $scope.barcode = shoppingCartModel.getCurrentBarcode();
 
         $rootScope.$on(Keypad.KEY_PRESSED, function (event, data) {
-            if (!textFieldService.getFocusedTextField() && document.getElementsByClassName("modal").length == 0) {
+            if (!textFieldService.getFocusedTextField() && document.querySelectorAll(".modal").length == 0) {
                 $scope.$evalAsync(function () {
                     focusTextField();
-                    Navigator.vibrate(10);
-                    $scope.barcode.barcodeValue += data;
+                    try {
+                        Navigator.vibrate(10);
+                    }
+                    catch (error) {
+                        console.error(error);
+                    }
+                    finally {
+                        $scope.barcode.barcodeValue += data;
+                    }
+
+
                 });
             }
         });

@@ -18,6 +18,7 @@ app.controller('ModalCustomerBorneController', function ($scope, $rootScope, $q,
         $scope.clientSelected = false;
         $scope.registerFull = false;
         $scope.signInSettings = undefined;
+        $scope.pubMail = true;
 
         var settingApi = $rootScope.IziBoxConfiguration.UrlSmartStoreApi + '/RESTLoyalty/RESTLoyalty/getCustomerSettings';
         console.log(settingApi);
@@ -410,8 +411,8 @@ app.controller('ModalCustomerBorneController', function ($scope, $rootScope, $q,
 
     $scope.close = function () {
         delete $rootScope.currentPage;
-        var modalInstance = $uibModal.open({
-            templateUrl: 'modals/modalConnection.html',
+        $uibModal.open({
+            templateUrl: 'modals/modalConnectionMode.html',
             controller: 'ModalConnectionController',
             backdrop: 'static',
             keyboard :false,

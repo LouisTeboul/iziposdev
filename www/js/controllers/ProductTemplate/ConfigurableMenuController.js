@@ -19,7 +19,7 @@
 });
 
 
-app.controller('ConfigurableMenuController', function ($scope, $rootScope, $stateParams, $location, categoryService, settingService, productService, pictureService, shoppingCartModel) {
+app.controller('ConfigurableMenuController', function ($scope, $rootScope, $stateParams, $location, $mdMedia, categoryService, settingService, productService, pictureService, shoppingCartModel) {
     var deliveryType = shoppingCartModel.getDeliveryType();
     $rootScope.$on('deliveryTypeChanged', (e, newValue) => {
         var nextDeliveryType = newValue;
@@ -46,6 +46,7 @@ app.controller('ConfigurableMenuController', function ($scope, $rootScope, $stat
 
     });
     $scope.init = function () {
+        $scope.$mdMedia = $mdMedia;
         if ($rootScope.IziBoxConfiguration.StepEnabled) {
             settingService.getStepNamesAsync().then(function (stepNames) {
                 $scope.stepNames = stepNames;
@@ -272,9 +273,11 @@ app.controller('ConfigurableMenuController', function ($scope, $rootScope, $stat
 
             // Si on veut déselectionné et qu'on est au dessus du min, on autorise
             if (nbSelect > min && state === false) {
-                if (!Attribute.IsRequired && nbSelect > 0) {
+                if (Attribute.IsRequired && nbSelect === 0) {
+                    return false;
+                } else {
                     AttributeValue.Selected = state;
-                    return true
+                    return true;
                 }
             }
 
@@ -301,11 +304,13 @@ app.controller('ConfigurableMenuController', function ($scope, $rootScope, $stat
         $scope.canAddToCart = retval;
     };
 
-
     $scope.scrollTo = function (elementId) {
-        var updatedItemElem = document.getElementById('a' + elementId);
-        if (updatedItemElem) {
-            $("#attributes").scrollTo(updatedItemElem);
+        const elem = document.querySelector('#a' + elementId);
+        if (elem) {
+            const top = elem.offsetTop;
+            $('#attributes').animate({
+                scrollTop: top - 40
+            }, 200);
         }
     };
 });

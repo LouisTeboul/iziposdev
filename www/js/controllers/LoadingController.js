@@ -160,8 +160,8 @@ app.controller('LoadingController', function ($scope, $rootScope, $location, $ti
                     categories = categories.filter(c => c.IsEnabled);
 
                     function callback(storage) {
-                        if($scope.skipCategoryLoading) {
-                            if(!$rootScope.init) {
+                        if ($scope.skipCategoryLoading) {
+                            if (!$rootScope.init) {
                                 console.log($rootScope.storedCategories);
                                 $rootScope.init = true;
                                 initServices($rootScope, $injector);
@@ -170,10 +170,9 @@ app.controller('LoadingController', function ($scope, $rootScope, $location, $ti
                         } else {
                             if (storage.mainProducts === 0 && storage.subProducts === 0) {
                                 $scope.loadingProgress += 1 / categories.length * 100;
-                                //window.localStorage.setItem('Category' + storage.mainCategory.id, JSON.stringify(storage));
                                 $rootScope.storedCategories['' + storage.mainCategory.Id] = storage;
 
-                                if (Object.keys($rootScope.storedCategories).length === categories.length && !$rootScope.init) {
+                                if (($scope.loadingProgress === 100 || (Object.keys($rootScope.storedCategories).length === categories.length)) && !$rootScope.init) {
                                     $rootScope.init = true;
                                     initServices($rootScope, $injector);
                                     borneService.redirectToHome();
@@ -182,9 +181,10 @@ app.controller('LoadingController', function ($scope, $rootScope, $location, $ti
                         }
                     }
 
-                    categories.forEach(function (c, index) {
-                        if($scope.skipCategoryLoading) {
-                            if(!$rootScope.init) {
+                    console.log(categories);
+                    categories.forEach(function (c) {
+                        if ($scope.skipCategoryLoading) {
+                            if (!$rootScope.init) {
                                 console.log($rootScope.storedCategories);
                                 $rootScope.init = true;
                                 initServices($rootScope, $injector);
@@ -201,6 +201,14 @@ app.controller('LoadingController', function ($scope, $rootScope, $location, $ti
 
 
                     });
+
+                    /*
+                    if(!$rootScope.init) {
+                        $rootScope.init= true;
+                        initServices($rootScope, $injector);
+                        borneService.redirectToHome();
+                    }*/
+
                 });
             } else {
                 $rootScope.modelDb.databaseReady = true;

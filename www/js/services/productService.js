@@ -113,7 +113,7 @@
             return productTemplatesDefer.promise;
         };
 
-        /** Get product attributes */
+        /** Get product attributes given an array of Ids */
         this.getProductAttributesForProductIdsAsync = function (productIds) {
             var self = this;
             var productAttributesDefer = $q.defer();

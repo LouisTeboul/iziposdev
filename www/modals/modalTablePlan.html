@@ -3,8 +3,8 @@
         <h1 class="modal-title" translate>Tables</h1>
     </div>
     <div class="modal-body" layout="row" style="justify-content: space-between" flex>
-        <table-repeat ng-if="!modalPlanBO" style="flex:1;"></table-repeat>
-        <table-plan-repeat ng-if="modalPlanBO" style="flex:1;"></table-plan-repeat>
+        <table-repeat ng-if="$mdMedia('max-width: 799px') || !modalPlanBO" style="flex:1;"></table-repeat>
+        <table-plan-repeat ng-if="$mdMedia('min-width: 800px') && modalPlanBO" style="flex:1;"></table-plan-repeat>
         <div ng-show="!isLoading" layout="column" class="tableInfos" style="flex:1;margin-top:50px;" flex>
             <div layout="row" layout-wrap>
                 <md-checkbox class="checkbox-criterias" ng-checked="tableModel.allCriteriasSelected"
