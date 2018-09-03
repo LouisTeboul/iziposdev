@@ -34,14 +34,26 @@ app.controller('ConfigurationController', function ($scope, $rootScope, $locatio
         $rootScope.tenantColor = "#98C8CC";
 
         if(window.localStorage.getItem("IsBorneDefault") ) {
-            $rootScope.borne = window.localStorage.getItem("IsBorneDefault") === "true" ? true : false;
+            $rootScope.borne = window.localStorage.getItem("IsBorneDefault") === "true";
         }
         if(window.localStorage.getItem("IsBorneCBDefault") ) {
-            $rootScope.borneCB = window.localStorage.getItem("IsBorneCBDefault") === "true" ? true : false;
+            $rootScope.borneCB = window.localStorage.getItem("IsBorneCBDefault") === "true";
         }
         if(window.localStorage.getItem("IsBorneVerticalDefault") ) {
-            $rootScope.borneVertical = window.localStorage.getItem("IsBorneVerticalDefault") === "true" ? true : false;
+            $rootScope.borneVertical = window.localStorage.getItem("IsBorneVerticalDefault") === "true";
         }
+
+        $rootScope.$watch('borne', function () {
+            if($rootScope.IziBoxConfiguration) {
+                if($rootScope.borne) {
+                    if($rootScope.IziBoxConfiguration.StoreBorneId) {
+                        $rootScope.IziBoxConfiguration.StoreId = $rootScope.IziBoxConfiguration.StoreBorneId;
+                    }
+                } else {
+                    $rootScope.IziBoxConfiguration.StoreId = $rootScope.IziBoxConfiguration.defaultStoreId;
+                }
+            }
+        });
 
         $rootScope.isPMREnabled = false;
         $scope.Model = {};
@@ -532,6 +544,9 @@ app.controller('ConfigurationController', function ($scope, $rootScope, $locatio
             $rootScope.IziBoxConfiguration = data;
             if ($rootScope.borne) {
                 $rootScope.IziBoxConfiguration.LoginRequired = false;
+                if($rootScope.IziBoxConfiguration.StoreBorneId) {
+                    $rootScope.IziBoxConfiguration.StoreId = $rootScope.IziBoxConfiguration.StoreBorneId;
+                }
             }
             data.WithoutIzibox = true;
             data.UseProdPrinter = false;

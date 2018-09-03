@@ -1,8 +1,8 @@
 <section id="customerModal" class="modalCenterFS" ng-init="init()"
-         ng-style="{'flex-direction' : $root.borne && $root.borneVertical ? 'column' : 'row'}">
+         ng-style="customStyle">
     <section class="groupModal" style="flex:3"
              ng-style="{'justify-content' : $root.borne && $root.borneVertical ? 'flex-end' : 'center'}">
-        <md-icon class="imgLogoHeader" md-svg-src="img/icons/logo-ip.svg"></md-icon>
+        <img ng-src="{{$root.borneMainLogo && $root.borneMainLogo || 'img/logo.png'}}" class="imgLogoHeader"/>
         <div class="firstTitle">
             <span translate>Mon compte fidélité</span>
         </div>
@@ -10,7 +10,7 @@
     <hr ng-class="{'smallModalHR': $root.borne && $root.borneVertical,
                         'smallModalHRH': $root.borne && !$root.borneVertical}"
         ng-style="{ 'background-color': $root.tenantColor }">
-    <section class="groupModal" style="flex:4"
+    <section class="groupModal" style="flex:8"
              ng-style="{'justify-content' : $root.borne && $root.borneVertical ? 'flex-start' : 'center'}">
         <div class="loyaltyFormGroup"
              ng-style="{'padding' : $root.borne && $root.borneVertical ? '75px' : '25px 50px',

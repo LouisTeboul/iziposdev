@@ -2,7 +2,7 @@
  *  Modal for customer comment on product
  */
 app.controller('ModalCommentController', function ($scope, $rootScope, $uibModalInstance, obj) {
-    var current = this;
+    let current = this;
 
     $scope.model = {toast: []};
 
@@ -10,9 +10,9 @@ app.controller('ModalCommentController', function ($scope, $rootScope, $uibModal
         obj.Comment = "";
     }
     else {
-        var comments = obj.Comment.split(', ');
+        let comments = obj.Comment.split(', ');
 
-        for (var i = 0; i < comments.length; i++) {
+        for (let i = 0; i < comments.length; i++) {
             $scope.model.toast.push({idx: i, text: comments[i]});
         }
 
@@ -28,7 +28,7 @@ app.controller('ModalCommentController', function ($scope, $rootScope, $uibModal
 
     $scope.init = function () {
         setTimeout(function () {
-            var txtComment = document.getElementById("txtComment");
+            let txtComment = document.getElementById("txtComment");
             if (txtComment) {
                 txtComment.focus();
             }
@@ -44,7 +44,7 @@ app.controller('ModalCommentController', function ($scope, $rootScope, $uibModal
 
         if (!$scope.ProductComments || $scope.ProductComments.length == 0) {
             $rootScope.closeKeyboard();
-            var val = Enumerable.from($scope.model.toast).select("x=>x.text").toArray().join(', ');
+            const val = Enumerable.from($scope.model.toast).select("x=>x.text").toArray().join(', ');
             $uibModalInstance.close(val);
         }
     };
@@ -66,13 +66,13 @@ app.controller('ModalCommentController', function ($scope, $rootScope, $uibModal
     $scope.close = function () {
         $scope.ok();
         $rootScope.closeKeyboard();
-        var val = Enumerable.from($scope.model.toast).select("x=>x.text").toArray().join(', ');
+        const val = Enumerable.from($scope.model.toast).select("x=>x.text").toArray().join(', ');
         $uibModalInstance.close(val);
     };
 
     $scope.delSelectedChip = function (event) {
         setTimeout(function () {
-            var chipController = angular.element(event.currentTarget).controller('mdChips');
+            let chipController = angular.element(event.currentTarget).controller('mdChips');
             if (chipController.selectedChip >= 0) {
                 chipController.removeChipAndFocusInput(chipController.selectedChip);
             }

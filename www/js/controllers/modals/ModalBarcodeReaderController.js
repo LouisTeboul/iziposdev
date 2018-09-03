@@ -1,6 +1,5 @@
 ﻿app.controller('ModalBarcodeReaderController', function ($scope, $rootScope, $uibModalInstance) {
-    var video;
-    var current = this;
+    let current = this;
 
     $scope.value = "";
 

@@ -1,9 +1,9 @@
-<section id="modalPaymentMode" class="modalCenterFS" ng-init="init()">
+<section id="modalPaymentMode" ng-init="init()">
     <div class="modalCenterFS" ng-if="paymentMode.PaymentType == paymentType.CB"
          style="flex:1;justify-content: space-evenly"
-         ng-style="{'flex-direction' : $root.borne && $root.borneVertical ? 'column' : 'row'}">
-        <md-icon class="imgLogoHeader" md-svg-src="img/icons/logo-ip.svg"
-                 ng-style="{'width' : $root.borne && $root.borneVertical ? '226px' : '600px'}"></md-icon>
+         ng-style="customStyle">
+        <img ng-src="{{$root.borneMainLogo && $root.borneMainLogo || 'img/logo.png'}}" class="imgLogoHeader" alt=""
+             ng-style="{'width' : $root.borne && $root.borneVertical ? '226px' : '600px'}"/>
         <img class="imgTPE" src="img/tpe.png"/>
         <div class="textAndArrow">
             <span class="textTPE" translate>Veuillez suivre les instructions de paiement affichées sur le terminal de la borne</span>
@@ -12,9 +12,10 @@
     </div>
     <div ng-if="paymentMode.PaymentType == paymentType.EASYTRANSAC" class="modalCenterFS"
          style="flex:1;justify-content: space-evenly"
-         ng-style="{'flex-direction' : $root.borne && $root.borneVertical ? 'column' : 'row'}">
-        <md-icon class="imgLogoHeader" md-svg-src="img/icons/logo-ip.svg"
-                 ng-style="{'width' : $root.borne && $root.borneVertical ? '226px' : '600px'}"></md-icon>
+         ng-style="{'flex-direction' : $root.borne && $root.borneVertical ? 'column' : 'row',
+         'background-image': $root.borneBgModal ? 'url(' + $root.borneBgModal + ')' : 'url(\'img/fond-borne\')'}">
+        <img ng-src="{{$root.borneMainLogo && $root.borneMainLogo || 'img/logo.png'}}" class="imgLogoHeader" alt=""
+             ng-style="{'width' : $root.borne && $root.borneVertical ? '226px' : '600px'}"/>
         <md-icon class="imgTPE" md-svg-src="img/icons/cb.svg"></md-icon>
         <div class="textAndArrow">
             <span class="textTPE" translate>Veuillez passer votre carte sur le scanner NFC</span>
@@ -22,10 +23,10 @@
         </div>
     </div>
     <div ng-if="paymentMode.PaymentType != paymentType.EASYTRANSAC && paymentMode.PaymentType != paymentType.CB"
-         ng-style="{'flex-direction' : $root.borne && $root.borneVertical ? 'column' : 'row'}"
-         class="modalCenterFS" style="flex:1;justify-content: space-evenly">
-        <md-icon class="imgLogoHeader" md-svg-src="img/icons/logo-ip.svg"
-                 ng-style="{'width' : $root.borne && $root.borneVertical ? '226px' : '600px'}"></md-icon>
+         class="modalCenterFS" style="flex:1;justify-content: space-evenly"
+         ng-style="customStyle">
+        <img ng-src="{{$root.borneMainLogo && $root.borneMainLogo || 'img/logo.png'}}" class="imgLogoHeader" alt=""
+             ng-style="{'width' : $root.borne && $root.borneVertical ? '226px' : '600px'}"/>
         <md-icon class="imgTPE" md-svg-src="img/icons/cb.svg"></md-icon>
         <div class="textAndArrow">
             <span class="textTPE" translate>Paiement en cours de traitement</span>

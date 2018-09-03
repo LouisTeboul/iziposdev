@@ -43,7 +43,7 @@
 
     $scope.splitToIn = function (item) {
 
-        var modalInstance = $uibModal.open({
+        let modalInstance = $uibModal.open({
             templateUrl: 'modals/modalSplitItem.html',
             controller: 'ModalSplitItemController',
             backdrop: 'static',
@@ -93,10 +93,11 @@
         });
 
         if (matchedItem) {
+            let qty;
             if (Number.isInteger(itemIn.Quantity) || itemIn.Quantity >= 1) {
-                var qty = 1
+                qty = 1
             } else {
-                var qty = itemIn.Quantity;
+                qty = itemIn.Quantity;
             }
             matchedItem.Quantity += qty;
             itemIn.Quantity -= qty;
@@ -112,7 +113,7 @@
 
             */
 
-            if(itemIn.Quantity ==0){
+            if(itemIn.Quantity == 0){
                 //Transfer le discout en même temps que le dernier item de la ligne.
                 //Pose probleme dans le cas ou le discount ligne > prix unitaire de l'article
 
@@ -140,21 +141,14 @@
         }
     };
 
-
     $scope.ok = function () {
         if ($scope.currentShoppingCartIn.Items.length > 0) {
             //Si le nb de couvert du ticket split est superieur au nb de couvert du ticket d'origine
-            if ($scope.result.nb == $scope.currentShoppingCartOut.TableCutleries
-                && $scope.currentShoppingCartOut.Items.length > 0) {
-
+            if ($scope.result.nb == $scope.currentShoppingCartOut.TableCutleries && $scope.currentShoppingCartOut.Items.length > 0) {
                 $scope.errorMessage = "Le ticket d'origine doit être vide pour transferer tout les couverts au ticket secondaire";
-
             } else {
                 if ($scope.result.nb > $scope.currentShoppingCartOut.TableCutleries) {
-
                     $scope.errorMessage = "Le nombre de couvert dans le ticket secondaire doit être inferieur ou égal au ticket d'origine";
-
-
                 } else {
                     if ($scope.currentShoppingCartOut.TableCutleries) {
                         $scope.currentShoppingCartIn.TableCutleries = $scope.result.nb;
@@ -167,19 +161,16 @@
                     $uibModalInstance.close($scope.value);
                 }
             }
-
-
         } else {
             shoppingCartModel.setCurrentShoppingCartIn(undefined);
             shoppingCartModel.setCurrentShoppingCartOut(undefined);
             shoppingCartModel.setCurrentShoppingCart($scope.currentShoppingCartOut);
             $uibModalInstance.close($scope.value);
         }
-
     };
 
     $scope.cancel = function () {
-        var hdid = $scope.currentShoppingCartOut.HardwareId;
+        const hdid = $scope.currentShoppingCartOut.HardwareId;
 
         posService.getUpdDailyTicketAsync(hdid, -1);
 
@@ -189,27 +180,25 @@
         $uibModalInstance.close($scope.value);
     };
 
-    var cloneShoppingCart = function (shoppingCart) {
-        var ret = clone(shoppingCart);
+    const cloneShoppingCart = function (shoppingCart) {
+        let ret = clone(shoppingCart);
+        let cloneItemsArray = [];
 
-        var cloneItemsArray = [];
-
-        Enumerable.from(shoppingCart.Items).forEach(function (item) {
+        for(let item of shoppingCart.Items) {
             if (item.Quantity > 0) {
                 cloneItemsArray.push(clone(item));
             }
-        });
+        }
 
         ret.Items = cloneItemsArray;
-
         ret.Discounts = [];
 
         if (shoppingCart.Discounts && shoppingCart.Discounts.length > 0) {
-            Enumerable.from(shoppingCart.Discounts).forEach(function (d) {
-                var newDiscount = clone(d);
+            for(let d of shoppingCart.Discounts) {
+                let newDiscount = clone(d);
                 newDiscount.Total = 0;
                 ret.Discounts.push(newDiscount);
-            });
+            }
         }
 
         return ret;

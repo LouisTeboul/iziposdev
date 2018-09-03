@@ -1,6 +1,5 @@
-app.controller('ModalCashRegisterShoppingCartsController', function ($scope, $rootScope, $uibModalInstance, $uibModal, zposService, shoppingCartService, shoppingCartModel, hid, zpid, ypid, posPeriodService) {
-    var currentFilterAmount = undefined;
-
+app.controller('ModalCashRegisterShoppingCartsController', function ($scope, $rootScope, $uibModalInstance, $uibModal, zposService, shoppingCartService, shoppingCartModel, hid, zpid, ypid) {
+    let currentFilterAmount = undefined;
 
     $scope.init = function () {
         $scope.gridColumns = [
@@ -16,7 +15,10 @@ app.controller('ModalCashRegisterShoppingCartsController', function ($scope, $ro
                 width: 80
             },
             {
-                template: "<button class=\"btn btn-info\" ng-click=\"printNote(dataItem)\"><img style=\"width:20px;\" alt=\"Image\" src=\"img/receipt.png\"/></button><button class=\"btn btn-rose\" style=\"margin-left:5px\" ng-click=\"selectShopCartItem(dataItem)\"><img style=\"width:20px;\" alt=\"Image\" src=\"img/print.png\"></button>",
+                template: "<button class=\"btn btn-info\" ng-click=\"printNote(dataItem)\">" +
+                    "<img style=\"width:20px;\" alt=\"Image\" src=\"img/receipt.png\"/></button>" +
+                    "<button class=\"btn btn-rose\" style=\"margin-left:5px\" ng-click=\"selectShopCartItem(dataItem)\">" +
+                    "<img style=\"width:20px;\" alt=\"Image\" src=\"img/print.png\"></button>",
                 title: " ",
                 width: 133
             }
@@ -27,15 +29,12 @@ app.controller('ModalCashRegisterShoppingCartsController', function ($scope, $ro
 
         $scope.loadValues(zpid, hid, ypid, currentFilterAmount);
 
-
         // Reload values if amount filtered search
         // On click of a button
         $scope.filterAmountHandler = function () {
             currentFilterAmount = $scope.filterAmount;
             $scope.loadValues(zpid, hid, ypid, currentFilterAmount);
-
         };
-
     };
 
     $scope.displayShoppingCarts = function (shoppingCarts) {
@@ -49,13 +48,12 @@ app.controller('ModalCashRegisterShoppingCartsController', function ($scope, $ro
                         Date: {
                             type: "date", parse: function (e) {
                                 // HACK -> However, JavaScript does work with mm/dd/yyyy format by default.
-                                var res = e.split("/");
-                                var tmp = res[0];
+                                let res = e.split("/");
+                                const tmp = res[0];
                                 res[0] = res[1];
                                 res[1] = tmp;
                                 e = res.join("/");
-                                var test = Date.parse(e, 'dd/MM/yyyy HH:mm:ss');
-                                return test
+                                return Date.parse(e, 'dd/MM/yyyy HH:mm:ss');
                             }
                         },
                         Timestamp: {type: "string"},
@@ -92,7 +90,7 @@ app.controller('ModalCashRegisterShoppingCartsController', function ($scope, $ro
             if (isNaN(filterAmount) || filterAmount == 0) {
                 $scope.displayShoppingCarts(shoppingCarts);
             } else {
-                var tmpSp = [];
+                let tmpSp = [];
                 Enumerable.from(shoppingCarts).forEach(function (sp, index) {
                     if (sp.Total == filterAmount) {
                         tmpSp.push(sp);
@@ -135,7 +133,7 @@ app.controller('ModalCashRegisterShoppingCartsController', function ($scope, $ro
      */
     $scope.editShopCartItem = function (selectedShoppingCart) {
         console.log(selectedShoppingCart);
-        var modalInstance = $uibModal.open({
+        let modalInstance = $uibModal.open({
             templateUrl: 'modals/modalEditShoppingCart.html',
             controller: 'ModalEditShoppingCartController',
             resolve: {

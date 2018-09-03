@@ -6,17 +6,15 @@ app.controller('ModalSplitItemController', function ($scope, $rootScope, $uibMod
     $scope.errorMessage = undefined;
 
     $scope.result = {
-        montant : 0,
-        part : 0,
+        montant: 0,
+        part: 0,
     };
     $scope.init = function () {
-
         $scope.setFocusMontant();
-
     };
 
-    $scope.setMode= function(mode){
-        switch(mode){
+    $scope.setMode = function (mode) {
+        switch (mode) {
             case "PART":
                 $scope.setFocusPart();
                 break;
@@ -26,7 +24,6 @@ app.controller('ModalSplitItemController', function ($scope, $rootScope, $uibMod
             default :
                 break;
         }
-
     };
 
 
@@ -66,7 +63,7 @@ app.controller('ModalSplitItemController', function ($scope, $rootScope, $uibMod
                 $scope.errorMessageMontant = "Le prix renseigné est supérieur au prix de l'article"
             } else {
                 $uibModalInstance.close({
-                    montant : $scope.result.montant
+                    montant: $scope.result.montant
                 });
             }
 
@@ -80,13 +77,10 @@ app.controller('ModalSplitItemController', function ($scope, $rootScope, $uibMod
         if ($scope.result.part > 0) {
 
             $uibModalInstance.close({
-                nbPart : $scope.result.part,
-                montant : $scope.item.PriceIT / $scope.result.part,
-                makeParts : true,
+                nbPart: $scope.result.part,
+                montant: $scope.item.PriceIT / $scope.result.part,
+                makeParts: true,
             });
-
         }
-
     };
-
 });

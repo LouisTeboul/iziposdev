@@ -4,7 +4,7 @@
  */
 app.controller('ModalCustomerForPhoneController', function ($scope, $rootScope, $q, $http, $uibModalInstance, $uibModal, shoppingCartService, loyaltyService, ngToast, shoppingCartModel, $translate, $timeout) {
 
-    var current = this;
+    let current = this;
     $rootScope.currentPage = 1;
 
     $scope.init = function () {
@@ -19,7 +19,7 @@ app.controller('ModalCustomerForPhoneController', function ($scope, $rootScope, 
         $scope.registerFull = false;
         $scope.signInSettings = undefined;
 
-        var settingApi = $rootScope.IziBoxConfiguration.UrlSmartStoreApi + '/RESTLoyalty/RESTLoyalty/getCustomerSettings';
+        let settingApi = $rootScope.IziBoxConfiguration.UrlSmartStoreApi + '/RESTLoyalty/RESTLoyalty/getCustomerSettings';
         console.log(settingApi);
 
 
@@ -182,27 +182,26 @@ app.controller('ModalCustomerForPhoneController', function ($scope, $rootScope, 
     };
 
     $scope.validEmail = function (strEmail) {
-        var re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-        var myResult = re.test(strEmail);
-        return myResult;
+        const re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+        return re.test(strEmail);
     };
 
     $scope.validPhone = function (strPhone) {
-        var reFrance = /^0[1-9][0-9]{8}$/;
-        var resultFrance = reFrance.test(strPhone);
+        const reFrance = /^0[1-9][0-9]{8}$/;
+        const resultFrance = reFrance.test(strPhone);
 
-        var reCanada = /^\(?([0-9]{3})\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})$/;
-        var resultCanada = reCanada.test(strPhone);
+        const reCanada = /^\(?([0-9]{3})\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})$/;
+        const resultCanada = reCanada.test(strPhone);
         return (resultCanada || resultFrance);
     };
 
 
     $scope.validZipPostCode = function (strZip) {
-        var reFrance = /^[0-9]{5}$/;
-        var resultFrance = reFrance.test(strZip);
+        const reFrance = /^[0-9]{5}$/;
+        const resultFrance = reFrance.test(strZip);
 
-        var reCanada = /[ABCEGHJKLMNPRSTVXY][0-9][ABCEGHJKLMNPRSTVWXYZ] ?[0-9][ABCEGHJKLMNPRSTVWXYZ][0-9]/;
-        var resultCanada = reCanada.test(strZip);
+        const reCanada = /[ABCEGHJKLMNPRSTVXY][0-9][ABCEGHJKLMNPRSTVWXYZ] ?[0-9][ABCEGHJKLMNPRSTVWXYZ][0-9]/;
+        const resultCanada = reCanada.test(strZip);
         return (resultCanada || resultFrance);
     };
 
@@ -220,7 +219,7 @@ app.controller('ModalCustomerForPhoneController', function ($scope, $rootScope, 
                 }
             );
         } catch (err) {
-            var modalInstance = $uibModal.open({
+            let modalInstance = $uibModal.open({
                 templateUrl: 'modals/modalBarcodeReader.html',
                 controller: 'ModalBarcodeReaderController',
                 backdrop: 'static'
@@ -236,7 +235,7 @@ app.controller('ModalCustomerForPhoneController', function ($scope, $rootScope, 
 
     $scope.setBarcodeFocus = function () {
         console.log("barcode Focus");
-        var test = document.getElementById("txtBarcodeCustomer");
+        const test = document.getElementById("txtBarcodeCustomer");
         test.focus();
 
     };
@@ -334,7 +333,7 @@ app.controller('ModalCustomerForPhoneController', function ($scope, $rootScope, 
                 //On verifie si le champs du formulaire qui lui est associé est valide
                 // Si non, la methode retourne false
                 try {
-                    Enumerable.from($scope.signInSettings).forEach(function (field) {
+                    for(let field of $scope.signInSettings) {
                         //Si le champs est requis
                         if (field.value == true) {
                             //On verifie si le champs est renseigné
@@ -343,7 +342,7 @@ app.controller('ModalCustomerForPhoneController', function ($scope, $rootScope, 
                                 throw 0;
                             }
                         }
-                    });
+                    }
                     $scope.validDisabled = false;
                     return true;
                 }
@@ -370,7 +369,6 @@ app.controller('ModalCustomerForPhoneController', function ($scope, $rootScope, 
                     console.log(loyalty);
 
                     /*
-
                     if (!curShoppingCart.deliveryAddress) {
                         // Proposer de renseigner une adresse de livraison
                         var modalInstance = $uibModal.open({
@@ -394,13 +392,11 @@ app.controller('ModalCustomerForPhoneController', function ($scope, $rootScope, 
                                 Digicode: deliveryAddress.Digicode,
                                 InterCom: deliveryAddress.InterCom,
                                 PhoneNumber: deliveryAddress.PhoneNumber,
-
                             };
 
                         }, function () {
                             $rootScope.hideLoading();
                         });
-
                     }
 
                     */
@@ -430,9 +426,6 @@ app.controller('ModalCustomerForPhoneController', function ($scope, $rootScope, 
                     $scope.validDisabled = false;
                     console.log(err);
                 });
-
-
-
 
             } else {
                 $scope.validDisabled = false;
@@ -467,7 +460,7 @@ app.controller('ModalCustomerForPhoneController', function ($scope, $rootScope, 
     //-------------------------------------------------------------------------Fid----------------------------------------------------------------------------------
 
     $scope.containsBalanceType = function (balanceType) {
-        var ret = false;
+        let ret = false;
 
         if ($scope.currentShoppingCart && $scope.currentShoppingCart.customerLoyalty && $scope.currentShoppingCart.customerLoyalty.Balances && $scope.currentShoppingCart.customerLoyalty.Balances.length > 0) {
             ret = Enumerable.from($scope.currentShoppingCart.customerLoyalty.Balances).any(function (balance) {
@@ -483,8 +476,8 @@ app.controller('ModalCustomerForPhoneController', function ($scope, $rootScope, 
     };
 
     $scope.getTotalPositiveHistory = function (history, balance) {
-        var total = 0;
-        for (var i = 0; i < history.length; i++) {
+        let total = 0;
+        for (let i = 0; i < history.length; i++) {
             total += history[i].Value > 0 && history[i].BalanceType_Id == balance.BalanceType_Id ? history[i].Value : 0;
         }
         return balance.UseToPay ? roundValue(total) : total;

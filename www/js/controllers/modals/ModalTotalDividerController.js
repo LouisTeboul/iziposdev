@@ -3,7 +3,7 @@
 
     $scope.init = function () {
         setTimeout(function () {
-            var txtDivider = document.getElementById("txtDivider");
+            const txtDivider = document.getElementById("txtDivider");
             if (txtDivider) {
                 txtDivider.focus();
             }
@@ -12,7 +12,7 @@
 
     $scope.ok = function () {
         $rootScope.closeKeyboard();
-        var totalDividerValue = parseInt($scope.valueDivider);
+        const totalDividerValue = parseInt($scope.valueDivider);
 
         if (isNaN(totalDividerValue) || totalDividerValue <= 0 || !Number.isInteger(totalDividerValue)) {
             $scope.errorMessage = $translate.instant("Valeur non valide");

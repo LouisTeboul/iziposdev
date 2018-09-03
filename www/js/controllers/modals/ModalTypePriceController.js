@@ -1,10 +1,10 @@
 ﻿app.controller('ModalTypePriceController', function ($scope, $rootScope, $uibModalInstance, currentPrice, minPrice, maxPrice, $translate, $filter) {
-    var currencyFormat = $filter('CurrencyFormat');
+    let currencyFormat = $filter('CurrencyFormat');
     $scope.valuePrice = currentPrice;
 
     $scope.init = function () {
         setTimeout(function () {
-            var txtPrice = document.getElementById("txtPrice");
+            const txtPrice = document.getElementById("txtPrice");
             if (txtPrice) {
                 txtPrice.focus();
             }
@@ -12,7 +12,7 @@
     };
 
     $scope.ok = function () {
-        var newValue = parseFloat($scope.valuePrice);
+        const newValue = parseFloat($scope.valuePrice);
 
         if (isNaN(newValue)) {
             $scope.errorMessage = $translate.instant("Valeur non valide");

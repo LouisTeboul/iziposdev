@@ -44,7 +44,7 @@ app.controller('ModalChooseOfferController', function ($scope, $rootScope, $uibM
 
     $scope.setFocus = function () {
 
-        var focus = setTimeout(function () {
+        setTimeout(function () {
             if (document.querySelector('#txtAmount')) {
                 document.querySelector('#txtAmount').focus();
                 $rootScope.openKeyboard('decimal', "end-start");
@@ -53,10 +53,7 @@ app.controller('ModalChooseOfferController', function ($scope, $rootScope, $uibM
     };
 
     $scope.isMode = function () {
-        if ($scope.mode)
-            return false;
-        else
-            return true;
+        return !$scope.mode;
     };
 
     $scope.cancel = function () {

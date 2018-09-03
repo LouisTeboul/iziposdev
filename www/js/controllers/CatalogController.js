@@ -45,83 +45,84 @@ app.controller('CatalogController', function ($scope, $rootScope, $state, $uibMo
     $scope.init = function () {
         $rootScope.showShoppingCart = true;
         settingService.getPaymentModesAsync().then((pm) => {
-                if (!pm || pm.length <= 0) {
-                    swal({
-                        title: "Critique",
-                        text: "Aucun moyen de paiements !",
-                        allowEscapeKey: false,
-                        showConfirmButton: false
-                    });
-                } else {
-                    // Login needed
-                    if ($rootScope.IziBoxConfiguration.LoginRequired) {
-
-                        watchHandler = $scope.$watch(function () {
-                                return $rootScope.PosUserId
-                            },
-                            function () {
-                                if ($rootScope.PosUserId === 0) {
-                                    $scope.showLogin();
-                                }
-                            }
-                        );
-                        $rootScope.PosUserId = 0;
-                        // configure Idle settings
-                        if (!$rootScope.borne) {
-                            Idle.setIdle($rootScope.IziBoxConfiguration.LoginTimeout);
-                        }
-                    }
-                    if ($rootScope.borne) {
-                        //Idle.setIdle($rootScope.IziBoxConfiguration.LoginTimeout);
-                        Idle.setIdle(30);
-                        Idle.watch();
-                    }
-
-                    $rootScope.showLoading();
-
-                    orderShoppingCartService.init();
-
-                    posLogService.updatePosLogAsync().then(function (posLog) {
-                        $rootScope.PosLog = posLog;
-                        $rootScope.hideLoading();
-                    }, function () {
-                        $rootScope.hideLoading();
-                        swal({
-                            title: "Critique",
-                            text: "Erreur d'identification, veuillez relancer l'application.",
-                            showConfirmButton: false
-                        });
-                    });
-
-                    dbOrderChangedHandler = $rootScope.$on('dbOrderChange', function (event, args) {
-                        const newOrder = Enumerable.from(args.docs).any(function (d) {
-                            return !d._deleted;
-                        });
-
-                        if (newOrder) {
-                            for (const doc of args.docs) {
-                                const orderId = parseInt(doc._id.replace("ShoppingCart_1_", ""));
-                                ngToast.create({
-                                    className: 'danger',
-                                    content: '<span class="bold">Nouvelle commande : ' + orderId + '</span>',
-                                    dismissOnTimeout: true,
-                                    timeout: 10000,
-                                    dismissOnClick: true
-                                });
-                            }
-                            $rootScope.$evalAsync();
-                        }
-                    });
-                }
-            },
-            () => { // err
+            if (!pm || pm.length <= 0) {
                 swal({
                     title: "Critique",
-                    text: "Aucun moyen de paiements",
+                    text: "Aucun moyen de paiements !",
+                    allowEscapeKey: false,
                     showConfirmButton: false
                 });
-            });
+            } else {
+                // Login needed
+                if ($rootScope.IziBoxConfiguration.LoginRequired) {
 
+                    watchHandler = $scope.$watch(function () {
+                            return $rootScope.PosUserId
+                        },
+                        function () {
+                            if ($rootScope.PosUserId === 0) {
+                                $scope.showLogin();
+                            }
+                        }
+                    );
+                    $rootScope.PosUserId = 0;
+                    // configure Idle settings
+                    if (!$rootScope.borne) {
+                        Idle.setIdle($rootScope.IziBoxConfiguration.LoginTimeout);
+                    }
+                }
+                if ($rootScope.borne) {
+                    //Idle.setIdle($rootScope.IziBoxConfiguration.LoginTimeout);
+                    Idle.setIdle(30);
+                    Idle.watch();
+                }
+
+                $rootScope.showLoading();
+
+                orderShoppingCartService.init();
+
+                posLogService.updatePosLogAsync().then(function (posLog) {
+                    $rootScope.PosLog = posLog;
+                    $rootScope.hideLoading();
+                }, function () {
+                    $rootScope.hideLoading();
+                    swal({
+                        title: "Critique",
+                        text: "Erreur d'identification, veuillez relancer l'application.",
+                        showConfirmButton: false
+                    });
+                });
+
+                dbOrderChangedHandler = $rootScope.$on('dbOrderChange', function (event, args) {
+                    const newOrder = Enumerable.from(args.docs).any(function (d) {
+                        return !d._deleted;
+                    });
+
+                    if (newOrder) {
+                        for (const doc of args.docs) {
+                            const orderId = parseInt(doc._id.replace("ShoppingCart_1_", ""));
+                            ngToast.create({
+                                className: 'danger',
+                                content: '<span class="bold">Nouvelle commande : ' + orderId + '</span>',
+                                dismissOnTimeout: true,
+                                timeout: 10000,
+                                dismissOnClick: true
+                            });
+                        }
+                        $rootScope.$evalAsync();
+                    }
+                });
+            }
+        }, () => { // err
+            swal({
+                title: "Critique",
+                text: "Aucun moyen de paiements",
+                showConfirmButton: false
+            });
+        });
+        $scope.customStyle = {
+            'background-image': $rootScope.bornePubImages ? 'url(' + $rootScope.bornePubImages[0] + ')' : 'url(img/ad.png)'
+        };
     };
 
     $scope.$on("$destroy", function () {

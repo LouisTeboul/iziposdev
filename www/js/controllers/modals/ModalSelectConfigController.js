@@ -1,6 +1,6 @@
 ﻿app.controller('ModalSelectConfigController', function ($scope, $rootScope, $uibModalInstance, configs) {
-    var current = this;
-    var configsArgs = configs;
+    let current = this;
+    let configsArgs = configs;
 
     $scope.model = {
         configs: [],
@@ -9,9 +9,9 @@
 
     $scope.init = function () {
         if (configsArgs && configsArgs.length > 0) {
-            Enumerable.from(configsArgs).forEach(function (arg) {
+            for(let arg of configsArgs) {
                 $scope.model.configs.push(arg);
-            });
+            }
         }
     };
 

@@ -1,7 +1,7 @@
 ﻿/**
  * Modal for selecting a loyalty custom action
  */
-app.controller('ModalCustomActionController', function ($scope, $rootScope, $q, $uibModalInstance, $uibModal, shoppingCartService, ngToast, shoppingCartModel, $translate) {
+app.controller('ModalCustomActionController', function ($scope, $rootScope, $q, $uibModalInstance, $uibModal, shoppingCartService, ngToast, shoppingCartModel) {
 
     $scope.init = function () {
         $scope.isUsingAction = true;

@@ -72,14 +72,34 @@
             var pictureIdsDefer = $q.defer();
             idProduct = parseInt(idProduct);
             this.getAllPicturesAsync().then(function (productPictures) {
-                var pictureIds = Enumerable.from(productPictures).where("x => x.ProductId == " + idProduct).orderBy("x => x.DisplayOrder").select('x => x.PictureId').toArray();
+                var pictureIds = Enumerable.from(productPictures).where("x => x.ProductId == " + idProduct).orderBy("x => x.DisplayOrder").toArray();
                 pictureIdsDefer.resolve(pictureIds);
-
             }, function (err) {
                 pictureIdsDefer.reject();
             });
 
             return pictureIdsDefer.promise;
+        };
+
+        this.getCorrectPictureId = function (listIds) {
+            let id = 0;
+            for(let i = 0; i < listIds.length; i++) {
+                if($rootScope.borne && listIds[i].ProductPictureFor === 3) {
+                    id = listIds[i].PictureId;
+                    break;
+                } else if(!$rootScope.borne && listIds[i].ProductPictureFor === 2) {
+                    id = listIds[i].PictureId;
+                    break;
+                } else if (listIds[i].ProductPictureFor === 1) {
+                    id = -1;
+                    break;
+                } else if (listIds[i].ProductPictureFor || listIds[i].ProductPictureFor === 0) {
+                    id = listIds[i].PictureId;
+                } else {
+                    id = Enumerable.from(listIds).firstOrDefault().PictureId;
+                }
+            }
+            return id;
         };
 
         this.getPictureUrlAsync = function (pictureId) {

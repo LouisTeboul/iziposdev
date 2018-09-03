@@ -8,7 +8,7 @@
     $scope.init = function () {
 
         setTimeout(function () {
-            var txtNbNote = document.getElementById("txtNbNote");
+            const txtNbNote = document.getElementById("txtNbNote");
             if (txtNbNote) {
                 txtNbNote.focus();
             }
@@ -18,7 +18,7 @@
 
     $scope.ok = function () {
         $rootScope.closeKeyboard();
-        var nbNote = parseInt($scope.value);
+        const nbNote = parseInt($scope.value);
 
         if (isNaN(nbNote)) {
             $scope.errorMessage = $translate.instant("Saisissez le nombre de repas");

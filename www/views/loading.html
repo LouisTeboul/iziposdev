@@ -1,6 +1,6 @@
 ﻿<section class="loading" ng-controller="LoadingController" ng-init="init()" layout="column" layout-padding layout-fill>
     <md-content layout="column" layout-align="start center" style="align-items: center" flex>
-        <img src="img/logo.png" alt="" width="80" height="80"/>
+        <img ng-src="{{$root.borneMainLogo && $root.borneMainLogo || 'img/logo.png'}}" alt="" width="80" height="80"/>
         <div ng-if="!isDemo">
             <h1>Loading...</h1>
         </div>

@@ -32,7 +32,7 @@ app.controller('ModalPromptDeliveryAddressController', function ($scope, $rootSc
 
         console.log('Add');
 
-        var modalInstance = $uibModal.open({
+        let modalInstance = $uibModal.open({
             templateUrl: 'modals/modalAddAddressForm.html',
             controller: 'ModalAddAddressFormController',
             backdrop: 'static'
@@ -40,7 +40,7 @@ app.controller('ModalPromptDeliveryAddressController', function ($scope, $rootSc
 
         modalInstance.result.then(function (newAddress) {
 
-            var formattedAddress = {
+            const formattedAddress = {
                 Address1 : newAddress.mandatory.Address1,
                 City : newAddress.mandatory.City,
                 ZipPostalCode : newAddress.mandatory.ZipPostalCode,
@@ -60,19 +60,18 @@ app.controller('ModalPromptDeliveryAddressController', function ($scope, $rootSc
                 method: 'POST',
                 url: $rootScope.IziBoxConfiguration.UrlSmartStoreApi + '/RESTLoyalty/RESTLoyalty/AddAddress?barcode=' + barcodeClient,
                 data: JSON.stringify(formattedAddress)
-            })
-                .then(function (success) {
-                    console.log(success);
-                    //Recharge la liste des adresses
-                    $http.get($rootScope.IziBoxConfiguration.UrlSmartStoreApi + '/RESTLoyalty/RESTLoyalty/GetAddresses?barcode=' + barcodeClient).then(function (response) {
-                        //Bind les adresse a une variable du scope
-                        console.log(response);
-                        $scope.addresses = response.data.Addresses;
-                    });
-                }, function (error) {
-                    console.log(error);
-                    swal($translate.instant("Impossible d'ajouter l'adresse !"));
+            }).then(function (success) {
+                console.log(success);
+                //Recharge la liste des adresses
+                $http.get($rootScope.IziBoxConfiguration.UrlSmartStoreApi + '/RESTLoyalty/RESTLoyalty/GetAddresses?barcode=' + barcodeClient).then(function (response) {
+                    //Bind les adresse a une variable du scope
+                    console.log(response);
+                    $scope.addresses = response.data.Addresses;
                 });
+            }, function (error) {
+                console.log(error);
+                swal($translate.instant("Impossible d'ajouter l'adresse !"));
+            });
 
         }, function () {
             // Cancel, ne fait rien

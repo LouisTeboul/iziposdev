@@ -19,11 +19,10 @@ app.controller('ModalAllCashMovementsController', function ($scope, $rootScope, 
         });
         // get Y
         // Si c'est le gérant on recup toutes les YPeriod du Z
-        if ($scope.model.closingEnable) {
-            console.log('all');
+        if ($scope.model.closingEnable) { //all
             posPeriodService.getAllYPeriodAsync('*').then(function (yperiods) {
                 console.log(yperiods);
-                Enumerable.from(yperiods).forEach(function (yp) {
+                for(let yp of yperiods) {
                     posPeriodService.getYPaymentValuesAsync(yp.id).then(function (p) {
                         posService.getPosNameAsync(p.hardwareId).then(function (alias) {
                             console.log(p);
@@ -33,11 +32,9 @@ app.controller('ModalAllCashMovementsController', function ($scope, $rootScope, 
                         });
 
                     });
-                });
-
+                }
             });
-        } else {
-            console.log('Pas all');
+        } else { //not all
             posPeriodService.getYPeriodAsync($rootScope.modelPos.hardwareId, null, false).then(function (yp) {
                 // Query couchdb et recupere tout les cash movement lines
                 posPeriodService.getYPaymentValuesAsync(yp.id).then(function (p) {

@@ -121,14 +121,21 @@ app.directive('categoryBorneRepeat', function ($rootScope, $compile, $filter) {
 
             if (!$rootScope.isPMREnabled) {
                 template += `<div class="pubProductsCut" id="pubProductsCutB" style="bottom:250px"></div><div class="pubProductsCut reverse"></div>`;
-                template += `<div class="pubProductsList" id="pubProductsList" style="display:block"></div>`;
+                if($rootScope.bornePubImages) {
+                    template += `<div class="pubProductsList" id="pubProductsList" style="display:block;background-image: url(` + $rootScope.bornePubImages + `);"></div>`;
+                } else {
+                    template += `<div class="pubProductsList" id="pubProductsList" style="display:block;background-image: url('/img/ad.png');"></div>`;
+                }
             } else {
                 template += `<div class="pubProductsCut" id="pubProductsCutB" style="bottom:0"></div><div class="pubProductsCut reverse"></div>`;
-                template += `<div class="pubProductsList" id="pubProductsList" style="display:none"></div>`;
+                if($rootScope.bornePubImages) {
+                    template += `<div class="pubProductsList" id="pubProductsList" style="display:none;background-image: url(` + $rootScope.bornePubImages + `);"></div>`;
+                } else {
+                    template += `<div class="pubProductsList" id="pubProductsList" style="display:none;background-image: url('/img/ad.png');"></div>`;
+                }
             }
 
             element.append(template);
-            //});
         }
     }
 });

@@ -71,6 +71,7 @@
             <span translate>Valider mon Menu</span>
         </md-button>
     </div>
-    <div ng-class="{ 'pubProductsList' : $root.borne && $root.borneVertical, 'pubProductsListHoriz' : $root.borne && !$root.borneVertical}"
+    <div ng-class="{'pubProductsList' : $root.borne && $root.borneVertical, 'pubProductsListHoriz' : $root.borne && !$root.borneVertical}"
+         ng-style="{'background-image': $root.bornePubImages ? 'url(' + $root.bornePubImages[0] + ')' : 'url(\'img/ad.png\')'}"
          ng-if="!$rootScope.isPMREnabled"></div>
 </md-content>

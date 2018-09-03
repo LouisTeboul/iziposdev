@@ -1624,15 +1624,14 @@ app.service('zposService', ['$http', '$rootScope', '$q', 'posLogService', 'posPe
             //        1 = zpos period
 
             var printDefer = $q.defer();
+            let html;
 
             if (type == 0) {
-
-                var html = this.createZPosHtml(zpos);
+                html = this.createZPosHtml(zpos);
             }
 
             if (type == 1) {
-
-                var html = this.createZPosHtml_v2(zpos, printY);
+                html = this.createZPosHtml_v2(zpos, printY);
             }
 
 

@@ -25,6 +25,11 @@
         });
 
         shoppingCartModel.updatePaymentModes();
+
+        $scope.customStyle = {
+            'flex-direction' : $rootScope.borne && $rootScope.borneVertical ? 'column' : 'row',
+            'background-image': $rootScope.borneBgModal ? 'url(' + $rootScope.borneBgModal + ')' : 'url(img/fond-borne.jpg)'
+        }
     };
 
     $scope.close = function () {

@@ -1,6 +1,6 @@
 <md-content class="catalog" ng-controller="CatalogController" ng-init="init()" layout="column" layout-fill>
     <div id="PMREnabled" style="flex:3" ng-if="$rootScope.borne && $rootScope.isPMREnabled">
-        <div class="pubProductsList" ng-if="$rootScope.isPMREnabled"></div>
+        <div class="pubProductsList" ng-if="$rootScope.isPMREnabled" ng-style="customStyle"></div>
     </div>
     <div layout="column" ng-if="$rootScope.borne && !$rootScope.borneVertical" style="flex:5" flex>
         <div id="catalogMenuDiv" ng-include="'viewsBorne/catalogMenu.html'"></div>
@@ -10,8 +10,7 @@
             <md-sidenav class="md-sidenav-right md-whiteframe-z2 miniBasketSlide" style="min-width:345px"
                         md-is-locked-open="!$rootScope.adminMode.state && ($mdMedia('min-width: 800px') || $rootScope.showShoppingCart)">
                 <md-content id="catalogBasketDiv" class="catalogBasketDiv" ng-include="'viewsBorne/miniBasket.html'"
-                            layout="column"
-                            style="height:100%" flex>
+                            layout="column" style="height:100%" flex>
                 </md-content>
             </md-sidenav>
         </md-content>
@@ -33,9 +32,9 @@
         </md-sidenav>
     </div>
     <script type="text/ng-template" id="warning-dialog.html">
-        <section class="modalCenterFS">
+        <section class="modalCenterFS" ng-style="{'background-image': $root.borneBgModal ? 'url(' + $root.borneBgModal + ')' : 'url(\'img/fond-borne.jpg\')'}">
             <section class="groupModal">
-                <md-icon class="imgLogoHeader" md-svg-src="img/icons/logo-ip.svg"></md-icon>
+                <img ng-src="{{$root.borneMainLogo && $root.borneMainLogo || 'img/logo.png'}}" class="imgLogoHeader bigLogo"/>
                 <div class="firstTitle" idle-countdown="countdown" ng-init="countdown=15">
                     <span translate>Mise en veille dans</span>
                     <span>&nbsp;{{countdown}}&nbsp;</span>

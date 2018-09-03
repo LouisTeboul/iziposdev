@@ -1,8 +1,8 @@
 <section id="modalConstumptionOpen" class="modalCenterFS" ng-init="init()"
-         ng-style="{'flex-direction' : $root.borne && $root.borneVertical ? 'column' : 'row'}">
+         ng-style="customStyle">
     <section class="groupModal" style="flex:3"
              ng-style="{'justify-content' : $root.borne && $root.borneVertical ? 'flex-end' : 'center'}">
-        <md-icon class="imgLogoHeader" md-svg-src="img/icons/logo-ip.svg"></md-icon>
+        <img ng-src="{{$root.borneMainLogo && $root.borneMainLogo || 'img/logo.png'}}" class="imgLogoHeader" alt=""/>
         <div class="firstTitle">
             <span translate>Commander ici</span>
         </div>

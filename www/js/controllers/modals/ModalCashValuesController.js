@@ -3,15 +3,15 @@ app.controller('ModalCashValuesController', function ($scope, $rootScope, $uibMo
     this.currentEdit = undefined;
     this.currentText = "";
     this.currentEditElement = undefined;
-    var current = this;
+    let current = this;
 
     //Recupere l'objet contenant le symbole et le code de la devise
     //Fournis par le settingService
-    var currency = settingService.getCurrencyAsync().$$state.value;
+    let currency = settingService.getCurrencyAsync().$$state.value;
 
-    var billsHandler = undefined;
-    var coinsHandler = undefined;
-    var otherHandler = undefined;
+    let billsHandler = undefined;
+    let coinsHandler = undefined;
+    let otherHandler = undefined;
 
     $scope.model = {
         keypad: "partials/numeric.html"
@@ -19,7 +19,6 @@ app.controller('ModalCashValuesController', function ($scope, $rootScope, $uibMo
 
     // TODO: Changer les devises
     // TODO: Récupérer le settings devise
-
 
     $scope.init = function () {
         console.log(currency);
@@ -263,13 +262,13 @@ app.controller('ModalCashValuesController', function ($scope, $rootScope, $uibMo
         }
 
 
-        for (i = 0; i < $scope.money.bills.length; i++) {
+        for (let i = 0; i < $scope.money.bills.length; i++) {
             billsHandler = $scope.$watch("money.bills[" + i + "].count", function () {
                 $scope.updateTotal();
             });
         }
 
-        for (i = 0; i < $scope.money.coins.length; i++) {
+        for (let i = 0; i < $scope.money.coins.length; i++) {
             coinsHandler = $scope.$watch("money.coins[" + i + "].count", function () {
                 $scope.updateTotal();
             });
@@ -303,9 +302,9 @@ app.controller('ModalCashValuesController', function ($scope, $rootScope, $uibMo
 
         current.currentText = evt.toElement.value == 0 ? "" : evt.toElement.value;
 
-        var elementBounds = evt.toElement.getBoundingClientRect();
+        const elementBounds = evt.toElement.getBoundingClientRect();
 
-        var params = {
+        let params = {
             position: {
                 x: 0,
                 y: 0
@@ -336,9 +335,9 @@ app.controller('ModalCashValuesController', function ($scope, $rootScope, $uibMo
 
         current.currentText = evt.toElement.value == 0 ? "" : evt.toElement.value;
 
-        var elementBounds = evt.toElement.getBoundingClientRect();
+        const elementBounds = evt.toElement.getBoundingClientRect();
 
-        var params = {
+        let params = {
             position: {
                 x: 0,
                 y: 0
@@ -395,16 +394,15 @@ app.controller('ModalCashValuesController', function ($scope, $rootScope, $uibMo
     $scope.updateTotal = function () {
         var total = 0;
 
-        Enumerable.from($scope.money.bills).forEach(function (b) {
+        for(let b of $scope.money.bills) {
             total = total + (b.value * b.count);
-        });
+        }
 
-        Enumerable.from($scope.money.coins).forEach(function (c) {
+        for(let c of $scope.money.coins) {
             total = total + (c.value * c.count);
-        });
+        }
 
         total = total + roundValue($scope.money.other);
-
         $scope.money.total = roundValue(total);
     };
 

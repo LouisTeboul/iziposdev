@@ -18,5 +18,11 @@ app.controller('BorneClosedController', function ($scope, $rootScope, $interval,
                 }
             })
         });
+
+        $scope.customStyle = {
+            'background-image': $rootScope.borneBgModal ? 'url(' + $rootScope.borneBgModal + ')' : 'url(img/fond-borne.jpg)',
+            'align-items': $rootScope.borne && $rootScope.borneVertical ? 'center' : 'flex-start',
+            'padding-left': $rootScope.borne && $rootScope.borneVertical ? '0px' : '250px'
+        }
     };
 });

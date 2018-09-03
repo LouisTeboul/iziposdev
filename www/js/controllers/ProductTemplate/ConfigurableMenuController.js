@@ -140,20 +140,21 @@ app.controller('ConfigurableMenuController', function ($scope, $rootScope, $stat
         $scope.productIsValid();
 
         //Load selected value
-        Enumerable.from($scope.product.ProductAttributes).forEach(function (pAttr) {
-            var pAttrId = pAttr.Id;
-            Enumerable.from(pAttr.ProductAttributeValues).forEach(function (pAttrValue) {
-
+        for(let pAttr of $scope.product.ProductAttributes) {
+            let pAttrId = pAttr.Id;
+            for(let pAttrValue of pAttr.ProductAttributeValues) {
                 //Load pictures for attributes values
                 if (!pAttrValue.DefaultPictureUrl) {
                     pictureService.getPictureIdsForProductAsync(pAttrValue.LinkedProductId).then(function (ids) {
-                        var id = Enumerable.from(ids).firstOrDefault();
-                        pictureService.getPictureUrlAsync(id).then(function (url) {
-                            if (!url) {
-                                url = 'img/photo-non-disponible.png';
-                            }
-                            pAttrValue.DefaultPictureUrl = url;
-                        });
+                        const id = pictureService.getCorrectPictureId(ids);
+                        if(id !== -1) {
+                            pictureService.getPictureUrlAsync(id).then(function (url) {
+                                if (!url) {
+                                    url = 'img/photo-non-disponible.png';
+                                }
+                                pAttrValue.DefaultPictureUrl = url;
+                            });
+                        }
                     });
                 }
 
@@ -162,8 +163,8 @@ app.controller('ConfigurableMenuController', function ($scope, $rootScope, $stat
                     pAttrValue.Selected = false;
                     $scope.selectAttributeValue(pAttrId, pAttrValue.Id, true);
                 }
-            });
-        });
+            }
+        }
     };
 
     //#region Actions

@@ -1,8 +1,11 @@
 <section ng-init="init()" ng-controller="IdleScreenController" ng-click="disableIdle()">
     <div class="lIdleScreen" ng-style="{'flex-direction' : $root.borne && $root.borneVertical ? 'column' : 'row'}">
         <div class="imageIdleScreen" ng-style="{'width' : $root.borne && $root.borneVertical ? '100%' : 'auto',
-        'height' : $root.borne && $root.borneVertical ? 'auto' : '100%'}">
-            <md-icon md-svg-src="img/icons/logo-ip.svg"></md-icon>
+        'height' : $root.borne && $root.borneVertical ? 'auto' : '100%',
+        'background-image': $root.borneBgIdle ? 'url(' + $root.borneBgIdle + ')' : 'url(\'img/borne-idle.jpg\')'}">
+            <img ng-src="{{$root.borneMainLogo && $root.borneMainLogo || 'img/logo.png'}}" alt=""
+                 ng-style="{'margin-bottom' : $root.borne && $root.borneVertical ? '1000px' : '750px',
+                 'width': $root.borne && $root.borneVertical ? '240px' : '200px'}"/>
         </div>
         <div class="bottomIdleScreen"
              ng-style="{ 'background-color': $root.tenantColor,

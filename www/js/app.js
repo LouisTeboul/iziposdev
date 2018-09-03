@@ -40,7 +40,7 @@ app.run(function ($rootScope, $location, $q, $http, ipService, zposService, $tra
     try {
         angularLocation = $location;
 
-        $rootScope.Version = "3.0.4.08201";
+        $rootScope.Version = "3.0.4.08301";
         $rootScope.adminMode = { state: false };
         $rootScope.loading = 0;
 
@@ -234,6 +234,12 @@ var init = function ($rootScope, $location, $q, $http, ipService, zposService, $
         } else {
 
             $rootScope.IziBoxConfiguration = config;
+            if($rootScope.borne) {
+                if($rootScope.IziBoxConfiguration.StoreBorneId) {
+                    $rootScope.IziBoxConfiguration.defaultStoreId = $rootScope.IziBoxConfiguration.StoreId;
+                    $rootScope.IziBoxConfiguration.StoreId = $rootScope.IziBoxConfiguration.StoreBorneId;
+                }
+            }
             // $rootScope.IziBoxConfiguration.LoginRequired = false;
 
             // Convert settings from 'string' to 'boolean'

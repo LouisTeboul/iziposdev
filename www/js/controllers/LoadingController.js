@@ -139,7 +139,6 @@ app.controller('LoadingController', function ($scope, $rootScope, $location, $ti
         if (configReplicationReadyHandler) configReplicationReadyHandler();
     });
 
-
     var checkDbReady = function () {
         if ($rootScope.modelDb &&
             $rootScope.modelDb.configReplicationReady &&

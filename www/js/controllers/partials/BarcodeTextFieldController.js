@@ -1,6 +1,6 @@
 app.controller('BarcodeTextFieldController', function ($scope, $rootScope, $uibModal, shoppingCartModel, textFieldService) {
 
-    var txtBarcode;
+    let txtBarcode;
 
     $scope.init = function () {
         txtBarcode = document.getElementById("txtBarcode");
@@ -45,7 +45,7 @@ app.controller('BarcodeTextFieldController', function ($scope, $rootScope, $uibM
         else {
             focusTextField();
 
-            var location = "end-center";
+            let location = "end-center";
 
             if ($scope.accordionStatus && !$scope.accordionStatus.ticketOpen) {
                 location = "start-center";
@@ -56,7 +56,7 @@ app.controller('BarcodeTextFieldController', function ($scope, $rootScope, $uibM
         }
     };
 
-    var focusTextField = function () {
+    const focusTextField = function () {
         if (txtBarcode) {
             txtBarcode.focus();
         }
@@ -68,31 +68,31 @@ app.controller('BarcodeTextFieldController', function ($scope, $rootScope, $uibM
     };
 
     $scope.validTextField = function (scanned) {
-        var result = false;
+        let result = false;
         if ($scope.barcode.barcodeValue) {
-            var barcode = $scope.barcode.barcodeValue.trim();
+            let barcode = $scope.barcode.barcodeValue.trim();
             barcode = barcode.replace(/.+\//, '');
-            var barcodeLength = barcode.length;
+            const barcodeLength = barcode.length;
 
             if (barcodeLength > 0) {
                 if /* Freezed shoppingCart */ (barcode.indexOf("TK") == 0) {
-                    var id = barcode.replace("TK", "");
+                    let id = barcode.replace("TK", "");
                     id = parseInt(id);
                     shoppingCartModel.unfreezeShoppingCartById(id);
                     result = true;
                 } else if /* Avoir */ (barcode.indexOf("AV") == 0) {
                     if (shoppingCartModel.getCurrentShoppingCart()) {
-                        var avoirValues = (atob(barcode.replace("AV", ""))).split("|");
-                        var avoirAmount = parseFloat(avoirValues[1]) / 100;
+                        const avoirValues = (atob(barcode.replace("AV", ""))).split("|");
+                        const avoirAmount = parseFloat(avoirValues[1]) / 100;
                         console.log("Avoir : " + avoirValues + " Montant : " + avoirAmount);
 
-                        var paymentModes = shoppingCartModel.getPaymentModesAvailable();
-                        var avoirPaymentMode = Enumerable.from(paymentModes).firstOrDefault(function (pm) {
+                        const paymentModes = shoppingCartModel.getPaymentModesAvailable();
+                        const avoirPaymentMode = Enumerable.from(paymentModes).firstOrDefault(function (pm) {
                             return pm.PaymentType == PaymentType.AVOIR;
                         });
 
                         if (avoirPaymentMode) {
-                            var paymentByAvoir = clone(avoirPaymentMode);
+                            let paymentByAvoir = clone(avoirPaymentMode);
                             paymentByAvoir.Total = avoirAmount;
                             shoppingCartModel.addPaymentMode(paymentByAvoir);
                         }
@@ -151,7 +151,7 @@ app.controller('BarcodeTextFieldController', function ($scope, $rootScope, $uibM
                 }
             );
         } catch (err) {
-            var modalInstance = $uibModal.open({
+            let modalInstance = $uibModal.open({
                 templateUrl: 'modals/modalBarcodeReader.html',
                 controller: 'ModalBarcodeReaderController',
                 backdrop: 'static'

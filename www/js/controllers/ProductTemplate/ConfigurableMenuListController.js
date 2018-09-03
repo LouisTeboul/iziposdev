@@ -69,20 +69,21 @@ app.controller('ConfigurableMenuListController', function ($scope, $rootScope, $
         $scope.productIsValid();
 
         //Load selected value
-        Enumerable.from($scope.product.ProductAttributes).forEach(function (pAttr) {
+        for (let pAttr of $scope.product.ProductAttributes) {
             let pAttrId = pAttr.Id;
-            Enumerable.from(pAttr.ProductAttributeValues).forEach(function (pAttrValue) {
-
+            for (let pAttrValue of pAttr.ProductAttributeValues) {
                 //Load pictures for attributes values
                 if (!pAttrValue.DefaultPictureUrl) {
                     pictureService.getPictureIdsForProductAsync(pAttrValue.LinkedProductId).then(function (ids) {
-                        const id = Enumerable.from(ids).firstOrDefault();
-                        pictureService.getPictureUrlAsync(id).then(function (url) {
-                            if (!url) {
-                                url = 'img/photo-non-disponible.png';
-                            }
-                            pAttrValue.DefaultPictureUrl = url;
-                        });
+                        const id = pictureService.getCorrectPictureId(ids);
+                        if (id !== -1) {
+                            pictureService.getPictureUrlAsync(id).then(function (url) {
+                                if (!url) {
+                                    url = 'img/photo-non-disponible.png';
+                                }
+                                pAttrValue.DefaultPictureUrl = url;
+                            });
+                        }
                     });
                 }
 
@@ -91,8 +92,8 @@ app.controller('ConfigurableMenuListController', function ($scope, $rootScope, $
                     pAttrValue.Selected = false;
                     $scope.selectAttributeValue(pAttrId, pAttrValue.Id, true);
                 }
-            });
-        });
+            }
+        }
     };
 
     //#region Actions
@@ -220,17 +221,16 @@ app.controller('ConfigurableMenuListController', function ($scope, $rootScope, $
             retval = retval && Enumerable.from(attribute.ProductAttributeValues).any("x => x.Selected");
         }
         $scope.canAddToCart = retval;
-        if(retval) {
-            setTimeout(function () {
-                let element = document.querySelector(".summaryList");
-                element.scrollTop = 0;
-            }, 100);
-        } else {
-            setTimeout(function () {
-                let element = document.querySelector(".summaryList");
-                element.scrollTop = element.scrollHeight;
-            }, 100);
-        }
+        setTimeout(function () {
+            let element = document.querySelector(".summaryList");
+            if (element) {
+                if (retval) {
+                    element.scrollTop = 0;
+                } else {
+                    element.scrollTop = element.scrollHeight;
+                }
+            }
+        }, 100);
     };
 
     $scope.scrollTo = function (elementId) {

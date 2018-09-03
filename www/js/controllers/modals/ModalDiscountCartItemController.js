@@ -7,7 +7,7 @@
 
     $scope.init = function () {
         setTimeout(function () {
-            var txtAmount = document.getElementById("txtAmount");
+            const txtAmount = document.getElementById("txtAmount");
             if (txtAmount) {
                 txtAmount.focus();
             }
@@ -17,7 +17,7 @@
 
     $scope.ok = function () {
         $rootScope.closeKeyboard();
-        var totalDiscount = parseFloat($scope.result.value);
+        let totalDiscount = parseFloat($scope.result.value);
 
         if (isNaN(totalDiscount)) {
             $scope.errorMessage = $translate.instant("Valeur non valide");

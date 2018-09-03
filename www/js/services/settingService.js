@@ -1,5 +1,5 @@
-﻿app.service('settingService', ['$rootScope', '$q',
-    function ($rootScope, $q) {
+﻿app.service('settingService', ['$rootScope', '$q', 'pictureService',
+    function ($rootScope, $q, pictureService) {
         var cacheStepNames = undefined;
         var cacheCurrency = undefined;
         var cacheUseRoundPrices = undefined;
@@ -27,6 +27,9 @@
             this.getRoundPriceSettingAsync();
             this.getRoundNumberPrecisionAsync();
             this.getCompanyInfoAsync();
+            if($rootScope.borne) {
+                this.getBorneImages();
+            }
         };
 
         /** Get the rounding settings for calculation money values */
@@ -72,25 +75,18 @@
                 $rootScope.dbInstance.rel.find('Setting').then(function (results) {
                     var roundPriceSetting = Enumerable.from(results.Settings).firstOrDefault("s => s.Name == 'shoppingcartsettings.roundpricesdigits'");
                     if (roundPriceSetting) {
-
-
                         cacheRoundPricesDigit = parseInt(roundPriceSetting.Value);
-
-                        //--> utils.js
                         ROUND_NB_DIGIT = cacheRoundPricesDigit;
-
                         roundPricesDefer.resolve(cacheRoundPricesDigit);
                     } else {
                         roundPricesDefer.reject("Round price setting not found !");
                     }
-
                 }, function (err) {
                     roundPricesDefer.reject(err);
                 });
             } else {
                 roundPricesDefer.reject("Database isn't ready !");
             }
-
             return roundPricesDefer.promise;
         };
 
@@ -132,6 +128,10 @@
                             if (PosSetting.SettingKey == 'VatId') {
                                 companyInfo.VatNumber = PosSetting.SettingValue;
                             }
+                            if (PosSetting.SettingKey == 'MainColor') {
+                                companyInfo.MainColor = PosSetting.SettingValue;
+                                $rootScope.tenantColor = PosSetting.SettingValue;
+                            }
                         }
 
                         cacheCompanyInfo = companyInfo;
@@ -149,6 +149,43 @@
             return companyInfoDefer.promise;
         };
 
+        this.getBorneImages = function () {
+            if ($rootScope.modelDb.dataReady) {
+                $rootScope.dbInstance.rel.find('Setting').then(function (results) {
+                    let settings = Enumerable.from(results.Settings).toArray();
+                    if (settings) {
+                        for (let setting of settings) {
+                            if (setting.Name && setting.Name === "smartstore.core.domain.cms.contentslidersettings") {
+                                let dataImgs = JSON.parse(setting.Value);
+                                let listPubImages = [];
+                                for(let image of dataImgs.Slides) {
+                                    if(image.Group === "PicturesBorne") {
+                                        if(image.Title === "backgroundIdle") {
+                                            pictureService.getPictureUrlAsync(image.PictureId).then(function (data) {
+                                                $rootScope.borneBgIdle = data;
+                                            });
+                                        } else if(image.Title === "mainLogo") {
+                                            pictureService.getPictureUrlAsync(image.PictureId).then(function (data) {
+                                                $rootScope.borneMainLogo = data;
+                                            });
+                                        } else if(image.Title === "backgroundModalBorne") {
+                                            pictureService.getPictureUrlAsync(image.PictureId).then(function (data) {
+                                                $rootScope.borneBgModal = data;
+                                            });
+                                        }
+                                    } else if(image.Group === "PubBorne") {
+                                        pictureService.getPictureUrlAsync(image.PictureId).then(function (data) {
+                                            listPubImages.push(data);
+                                            $rootScope.bornePubImages = listPubImages;
+                                        });
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        };
 
         this.getCompanyInfo = function () {
             return cacheCompanyInfo;
@@ -163,52 +200,54 @@
         this.getPaymentModesAsync = function () {
             var self = this;
             var paymentDefer = $q.defer();
-            if ($rootScope.modelDb.dataReady) {
-                $rootScope.dbInstance.rel.find('Setting').then(function (results) {
-                    var paymentSetting = undefined;
+            if($rootScope.modelDb) {
+                if ($rootScope.modelDb.dataReady) {
+                    $rootScope.dbInstance.rel.find('Setting').then(function (results) {
+                        var paymentSetting = undefined;
 
-                    // Payment modes generic
-                    var paymentWillbecard = Enumerable.from(results.Settings).firstOrDefault("s => s.Name == 'willbecardpaymentsettings.paiementoptionlist'");
-                    if (paymentWillbecard) {
-                        paymentSetting = JSON.parse(paymentWillbecard.Value);
-                    }
-
-                    // EasyTransac
-                    var paymentEasyTransac = Enumerable.from(results.Settings).firstOrDefault("s => s.Name == 'easytransacpaymentsettings.easytransackey'");
-                    if (paymentEasyTransac) {
-                        if (!paymentSetting) {
-                            paymentSetting = [];
+                        // Payment modes generic
+                        var paymentWillbecard = Enumerable.from(results.Settings).firstOrDefault("s => s.Name == 'willbecardpaymentsettings.paiementoptionlist'");
+                        if (paymentWillbecard) {
+                            paymentSetting = JSON.parse(paymentWillbecard.Value);
                         }
 
-                        var easytransacValue = {
-                            Disabled: false,
-                            Group: null,
-                            PaymentType: PaymentType.EASYTRANSAC,
-                            Selected: false,
-                            Text: "EasyTransac",
-                            Value: "EasyTransac",
-                            Options: {
-                                EasyTransacKey: paymentEasyTransac.Value
+                        // EasyTransac
+                        var paymentEasyTransac = Enumerable.from(results.Settings).firstOrDefault("s => s.Name == 'easytransacpaymentsettings.easytransackey'");
+                        if (paymentEasyTransac) {
+                            if (!paymentSetting) {
+                                paymentSetting = [];
                             }
-                        };
 
-                        paymentSetting.push(easytransacValue);
+                            var easytransacValue = {
+                                Disabled: false,
+                                Group: null,
+                                PaymentType: PaymentType.EASYTRANSAC,
+                                Selected: false,
+                                Text: "EasyTransac",
+                                Value: "EasyTransac",
+                                Options: {
+                                    EasyTransacKey: paymentEasyTransac.Value
+                                }
+                            };
 
-                    }
+                            paymentSetting.push(easytransacValue);
+
+                        }
 
 
-                    if (paymentSetting) {
-                        paymentDefer.resolve(paymentSetting);
-                    } else {
-                        paymentDefer.reject("Setting not found !");
-                    }
+                        if (paymentSetting) {
+                            paymentDefer.resolve(paymentSetting);
+                        } else {
+                            paymentDefer.reject("Setting not found !");
+                        }
 
 
-                }, function (err) {
-                    paymentDefer.reject(err);
-                });
-            } else {
-                paymentDefer.reject("Database isn't ready !");
+                    }, function (err) {
+                        paymentDefer.reject(err);
+                    });
+                } else {
+                    paymentDefer.reject("Database isn't ready !");
+                }
             }
 
             return paymentDefer.promise;

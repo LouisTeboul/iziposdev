@@ -23,7 +23,6 @@ app.controller('ModalCustomerBorneController', function ($scope, $rootScope, $q,
         var settingApi = $rootScope.IziBoxConfiguration.UrlSmartStoreApi + '/RESTLoyalty/RESTLoyalty/getCustomerSettings';
         console.log(settingApi);
 
-
         $http.get(settingApi).success(function (settings) {
             console.log(settings);
             $scope.signInSettings = {
@@ -44,6 +43,11 @@ app.controller('ModalCustomerBorneController', function ($scope, $rootScope, $q,
 
         $scope.currentShoppingCart = shoppingCartModel.getCurrentShoppingCart();
         $scope.clientUrl = $rootScope.IziBoxConfiguration.UrlSmartStoreApi.replace("/api", "");
+
+        $scope.customStyle = {
+            'flex-direction' : $rootScope.borne && $rootScope.borneVertical ? 'column' : 'row',
+            'background-image': $rootScope.borneBgModal ? 'url(' + $rootScope.borneBgModal + ')' : 'url(img/fond-borne.jpg)'
+        }
     };
 
     $scope.pageChanged = function () {

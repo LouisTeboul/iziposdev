@@ -4,9 +4,9 @@
                 class="toolsContainer">
                 <!--ng-style="{'flex-direction' : $rootScope.borne && $rootScope.borneVertical ? 'column' : 'row'}">-->
         <div layout="column" class="tools" ng-class="{'vertical': $root.borne && $root.borneVertical}"
-             ng-style="{'margin-left' : $root.borne && root.borneVertical ? '0' : '3px'}"
+             ng-style="{'margin-left' : $root.borne && root.borneVertical ? '0' : '25px'}"
              layout-align="center center">
-            <md-icon class="logo" md-svg-src="img/icons/logo-ip.svg"></md-icon>
+            <img ng-src="{{$root.borneMainLogo && $root.borneMainLogo || 'img/logo.png'}}" class="imgLogoHeader smallCatalogLogo"/>
             <div class="clock">
                 <horloge format="HH:mm"></horloge>
             </div>

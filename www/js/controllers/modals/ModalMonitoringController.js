@@ -1,6 +1,6 @@
 app.controller('ModalMonitoringController', function ($scope, $rootScope, $uibModal, $uibModalInstance, $http, $timeout, posPeriodService) {
 
-    var registerApiUrl = "http://" + $rootScope.IziBoxConfiguration.LocalIpIziBox + ":" + $rootScope.IziBoxConfiguration.RestPort + "/registeredDevices";
+    let registerApiUrl = "http://" + $rootScope.IziBoxConfiguration.LocalIpIziBox + ":" + $rootScope.IziBoxConfiguration.RestPort + "/registeredDevices";
 
     $scope.init = function () {
         updateListDaemon()
@@ -11,12 +11,12 @@ app.controller('ModalMonitoringController', function ($scope, $rootScope, $uibMo
             .then(function (res) {
                 if(res.data != $scope.onlineDevices) {
                     $scope.onlineDevices = res.data;
-                    var d = new Date();
+                    const d = new Date();
                     $scope.lastUpdateTime = d.getHours() + ":" + d.getMinutes() + ":" + d.getSeconds();
                     $scope.$evalAsync();
                 }
                 $timeout(updateListDaemon, 10000);
-            }, function (err) {
+            }, function () {
                 $timeout(updateListDaemon, 10000);
             })
     }

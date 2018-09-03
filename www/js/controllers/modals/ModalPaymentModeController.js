@@ -30,6 +30,10 @@
                 $scope.ok();
             }, 100);
         }
+        $scope.customStyle = {
+            'flex-direction' : $rootScope.borne && $rootScope.borneVertical ? 'column' : 'row',
+            'background-image': $rootScope.borneBgModal ? 'url(' + $rootScope.borneBgModal + ')' : 'url(img/fond-borne.jpg)'
+        }
     };
 
     $scope.removeTicketResto = function (tkResto) {
@@ -132,7 +136,7 @@
                         const amountCts = Math.floor(maxValue * 100);
                         $scope.lockView = true;
 
-                        if(window.tpaPayment) {
+                        if(window.tpaPayment) { //MonoPlugin
                             $scope.infoMessage = "Suivez les instructions sur le TPE";
                             const tpaPromise = new Promise(function (resolve, reject) {
                                 window.tpaPayment.initPaymentAsync(amountCts, resolve, reject);

@@ -8,6 +8,10 @@ app.controller('ModalPickPaymentModeController', function ($scope, $rootScope, $
             || (paymentMode.PaymentType === 2 && $rootScope.borneCB ))
         });
 
+        $scope.customStyle = {
+            'flex-direction' : $rootScope.borne && $rootScope.borneVertical ? 'column' : 'row',
+            'background-image': $rootScope.borneBgModal ? 'url(' + $rootScope.borneBgModal + ')' : 'url(img/fond-borne.jpg)'
+        }
     };
 
     $scope.selectPm = function(pm) {

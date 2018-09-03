@@ -1,6 +1,6 @@
 ﻿app.controller('ModalDeliveryChoiceController', function ($scope, $rootScope, $timeout, $uibModalInstance, $uibModal, shoppingCartService, ngToast, parameter, shoppingCartModel) {
 
-    var deliveryTypeHandler = undefined;
+    let deliveryTypeHandler = undefined;
 
     //Indique si on imprime le ticket ou non
     $scope.printTicket = parameter;
@@ -42,6 +42,5 @@
     $scope.$on("$destroy", function () {
         if (deliveryTypeHandler) deliveryTypeHandler();
     });
-
 
 });

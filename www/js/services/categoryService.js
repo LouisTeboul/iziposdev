@@ -197,24 +197,25 @@
                         if (results) {
 
                             category.products = Enumerable.from(results).orderBy('x => x.ProductCategory.DisplayOrder').toArray();
-
                             storage.mainProducts = category.products.length;
 
                             // Pictures
-                            Enumerable.from(category.products).forEach(function (p) {
+                            for(let p of category.products) {
                                 pictureService.getPictureIdsForProductAsync(p.Id).then(function (ids) {
-                                    var id = Enumerable.from(ids).firstOrDefault();
-                                    pictureService.getPictureUrlAsync(id).then(function (url) {
-                                        if (!url) {
-                                            url = 'img/photo-non-disponible.png';
-                                        }
-                                        p.DefaultPictureUrl = url;
+                                    const id = pictureService.getCorrectPictureId(ids);
+                                    if(id !== -1) {
+                                        pictureService.getPictureUrlAsync(id).then(function (url) {
+                                            if (!url) {
+                                                url = 'img/photo-non-disponible.png';
+                                            }
+                                            p.DefaultPictureUrl = url;
 
-                                        storage.mainProducts--;
-                                        callback(storage);
-                                    });
+                                            storage.mainProducts--;
+                                            callback(storage);
+                                        });
+                                    }
                                 });
-                            });
+                            }
                         }
                     }, function (err) {
                         console.log(err);
@@ -251,16 +252,18 @@
                                     // Pictures
                                     Enumerable.from(subCat.products).forEach(function (p) {
                                         pictureService.getPictureIdsForProductAsync(p.Id).then(function (ids) {
-                                            var id = Enumerable.from(ids).firstOrDefault();
-                                            pictureService.getPictureUrlAsync(id).then(function (url) {
-                                                if (!url) {
-                                                    url = 'img/photo-non-disponible.png';
-                                                }
-                                                p.DefaultPictureUrl = url;
+                                            const id = pictureService.getCorrectPictureId(ids);
+                                            if(id !== -1) {
+                                                pictureService.getPictureUrlAsync(id).then(function (url) {
+                                                    if (!url) {
+                                                        url = 'img/photo-non-disponible.png';
+                                                    }
+                                                    p.DefaultPictureUrl = url;
 
-                                                storage.subProducts--;
-                                                callback(storage);
-                                            });
+                                                    storage.subProducts--;
+                                                    callback(storage);
+                                                });
+                                            }
                                         });
                                     });
                                 }

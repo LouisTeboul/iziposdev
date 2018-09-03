@@ -788,8 +788,7 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
                 }).then(function () {
                     $rootScope.$emit("shoppingCartChanged", currentShoppingCartOut);
                 });
-            }
-            else {
+            } else {
                 currentShoppingCartOut = clone(currentShoppingCart);
 
                 var hdid = currentShoppingCartOut.HardwareId;
@@ -1201,6 +1200,7 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
             if ($rootScope.borne) {
                 if (currentShoppingCart.Items.length > 0) {
                     $rootScope.showLoading();
+
                     current.printBorneShoppingCartAsync(false).then(function () {
                         current.printBorneShoppingCartAsync(true).then(function () {
                             current.printStepProdShoppingCartAsync(currentShoppingCart).then(function () {
@@ -1454,7 +1454,6 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
         this.printBorneShoppingCartAsync = function (toPos) {
             var printDefer = $q.defer();
             if (currentShoppingCart != undefined && currentShoppingCart.Items.length > 0) {
-
                 currentShoppingCart.Date = new Date().toString('dd/MM/yyyy H:mm:ss');
 
                 //Suppression des lignes à qté 0
@@ -1469,7 +1468,26 @@ app.service('shoppingCartModel', ['$rootScope', '$q', '$state', '$timeout', '$ui
                 }
 
                 shoppingCartService.printShoppingCartAsync(toPrint, printer, toPos, $rootScope.PrinterConfiguration.ProdPrinterCount, false, 0, printDefer).then(function (msg) {
+                    console.log(msg);
+
+                    const processDefer = $q.defer();
+
+                    if(window.printBorne) { //MonoPlugin
+                        const printPromise = new Promise(function (resolve, reject) {
+                            window.printBorne.initPrintUSB("Print message", resolve, reject);
+                        });
+
+                        printPromise.then( (data) => {
+                            console.log(data);
+                            processDefer.resolve();
+                        }, (err) => {
+                            processDefer.reject(err);
+                        })
+                    } else {
+                        processDefer.reject("L'impression est indisponible. Veuillez vous rendre en caisse.");
+                    }
                 }, function (err) {
+                    console.log(err);
                 });
             }
             return printDefer.promise;

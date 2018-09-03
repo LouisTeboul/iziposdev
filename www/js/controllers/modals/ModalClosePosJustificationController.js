@@ -1,4 +1,4 @@
-﻿app.controller('ModalClosePosJustificationController', function ($scope, $rootScope, $uibModal, $uibModalInstance, settingService, eventService, cashMovementService, zposService, $translate, posPeriodService, justificationParameters, posUserService, posService) {
+﻿app.controller('ModalClosePosJustificationController', function ($scope, $rootScope, $uibModal, $uibModalInstance, settingService, eventService, cashMovementService, zposService, $translate, posPeriodService, justificationParameters, posUserService) {
     $scope.justificationParameters = justificationParameters;
 
 
@@ -13,7 +13,7 @@
      * @param hid
      */
     $scope.correctTickets = function (hid) {
-        var modalInstance = $uibModal.open({
+        let modalInstance = $uibModal.open({
             templateUrl: 'modals/modalCashRegisterShoppingCarts.html',
             controller: 'ModalCashRegisterShoppingCartsController',
             size: 'lg',
@@ -34,12 +34,10 @@
                 }
 
             },
-
         });
 
-
         modalInstance.result.then(function () {
-            var param = {
+            const param = {
                 refresh: true
             };
             $uibModalInstance.close(param);
@@ -53,12 +51,12 @@
 
         if (posUserService.isEnable('CASH')) {
 
-            var createPeriodIfNeadeed = posUserService.isEnable('CLOS', true);
+            const createPeriodIfNeadeed = posUserService.isEnable('CLOS', true);
 
             posPeriodService.getYPeriodAsync(hid, $rootScope.PosUserId, createPeriodIfNeadeed, false, true).then(function (yPeriod) {
 
                 if (yPeriod && !yPeriod.endDate) {
-                    var modalInstance = $uibModal.open({
+                    let modalInstance = $uibModal.open({
                         templateUrl: 'modals/modalOpenPos.html',
                         controller: 'ModalOpenPosController',
                         resolve: {
@@ -73,16 +71,15 @@
                         backdrop: 'static'
                     });
                     modalInstance.result.then(function () {
-                        var param = {
+                        const param = {
                             refresh: true
                         };
                         $uibModalInstance.close(param);
 
                     }, function () {
                     });
-                }
-                else if (yPeriod && yPeriod.endDate) {
-                    var param = {
+                } else if (yPeriod && yPeriod.endDate) {
+                    const param = {
                         refresh: true
                     };
                     $uibModalInstance.close(param);
@@ -96,7 +93,7 @@
 
     $scope.cancel = function () {
         $uibModalInstance.dismiss('cancel');
-    }
+    };
 
     $scope.ok = function () {
         $uibModalInstance.close();

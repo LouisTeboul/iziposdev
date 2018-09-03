@@ -273,7 +273,7 @@ app.service('shoppingCartService', ["$http", "$rootScope", "$q", "$filter", "zpo
             shoppingCart.id = Number(shoppingCart.Timestamp);
 
             // Enlever le mode de règlement "Cagnotte" il est déjà pris en compte dans BalanceUpdate
-            var PaymentModesWithoutLoyalty = []
+            var PaymentModesWithoutLoyalty = [];
             Enumerable.from(shoppingCart.PaymentModes).forEach(function (p) {
                 if (p.PaymentType !== PaymentType.FIDELITE) {
                     PaymentModesWithoutLoyalty.push(p);
@@ -317,7 +317,7 @@ app.service('shoppingCartService', ["$http", "$rootScope", "$q", "$filter", "zpo
             }
             shoppingCart.PosUserId = $rootScope.PosUserId;
             shoppingCart.PosUserName = $rootScope.PosUserName;
-            shoppingCart.ShowNameOnTicket = $rootScope.PosUser == undefined ? false : $rootScope.PosUser.ShowNameOnTicket; // should be defined?
+            shoppingCart.ShowNameOnTicket = $rootScope.PosUser === undefined ? false : $rootScope.PosUser.ShowNameOnTicket; // should be defined?
 
             var shoppingCartPrinterReq = {
                 PrinterIdx: printerIdx,
@@ -328,32 +328,37 @@ app.service('shoppingCartService', ["$http", "$rootScope", "$q", "$filter", "zpo
                 IgnorePrintTicket: ignorePrintTicket,
                 PrintQRCode: !isPosTicket && $rootScope.IziBoxConfiguration.PrintProdQRCode,
                 NbNote: nbNote,
-                ReprintType: "Customer" // TODO: Implement the customer/Internal value of the reprint
+                ReprintType: "Customer", // TODO: Implement the customer/Internal value of the reprint
+                WaitingPrint: $rootScope.borne
             };
 
             // TODO : remove the ignorePrintRequest
             // This value was only useful in the previous versions
             // There is no validation without print or email sending
-            if (shoppingCartPrinterReq.IgnorePrintTicket == undefined) {
+            if (shoppingCartPrinterReq.IgnorePrintTicket === undefined) {
                 shoppingCartPrinterReq.IgnorePrintTicket = false;
             }
 
             if ($rootScope.IziBoxConfiguration.LocalIpIziBox && printCount > 0) {
+                let printerApiUrl = "";
                 if (!isPosTicket) {
                     // For note impression
-                    var printerApiUrl = "http://" + $rootScope.IziBoxConfiguration.LocalIpIziBox + ":" + $rootScope.IziBoxConfiguration.RestPort + "/print";
-                }
-                else {
-                    var printerApiUrl = "http://" + $rootScope.IziBoxConfiguration.LocalIpIziBox + ":" + $rootScope.IziBoxConfiguration.RestPort + "/validateticket";
+                    printerApiUrl = "http://" + $rootScope.IziBoxConfiguration.LocalIpIziBox + ":" + $rootScope.IziBoxConfiguration.RestPort + "/print";
+                } else {
+                    printerApiUrl = "http://" + $rootScope.IziBoxConfiguration.LocalIpIziBox + ":" + $rootScope.IziBoxConfiguration.RestPort + "/validateticket";
                 }
 
-                this.printShoppingCartPOST(printerApiUrl, shoppingCartPrinterReq, printDefer);
+                //this.printShoppingCartPOST(printerApiUrl, shoppingCartPrinterReq, printDefer);
 
             } else {
                 setTimeout(function () {
                     printDefer.resolve(shoppingCartPrinterReq);
                 }, 100);
             }
+
+            //TODO:REMOVE
+            printDefer.resolve();
+
             return printDefer.promise;
         };
 

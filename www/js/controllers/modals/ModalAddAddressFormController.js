@@ -21,18 +21,15 @@ app.controller('ModalAddAddressFormController', function ($scope, $rootScope, $u
     };
 
     $scope.validPhone = function (strPhone) {
-        var re = /^0[1-68][0-9]{8}$/;
-        var myResult = re.test(strPhone);
-        return myResult;
+        let re = /^0[1-68][0-9]{8}$/;
+        return re.test(strPhone);
     };
 
 
     $scope.validZipPostCode = function (strZip) {
-        var re = /^[0-9]{5}$/;
-        var myResult = re.test(strZip);
-        return myResult;
+        let re = /^[0-9]{5}$/;
+        return re.test(strZip);
     };
-
 
     $scope.pageChanged = function () {
         $rootScope.closeKeyboard();

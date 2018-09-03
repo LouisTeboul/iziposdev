@@ -34,29 +34,29 @@ app.controller('ModalOpenPosController', function ($scope, $rootScope, $uibModal
 
 
         if ($scope.openPosParameters.previousYPeriod && !$scope.openPosParameters.previousYPeriod.emptyCash && !$scope.openPosParameters.editMode) {
-            var total = 0;
-            var totalKnown = 0;
+            let total = 0;
+            let totalKnown = 0;
             // Get the amout "cash" count in the previous yPeriod
-            Enumerable.from($scope.openPosParameters.previousYPeriod.YCountLines).forEach(function (l) {
+            for(let l of $scope.openPosParameters.previousYPeriod.YCountLines) {
                 // Cash only
                 if (l.PaymentMode && l.PaymentMode.PaymentType == PaymentType.ESPECE) {
                     total = roundValue(total + l.PaymentMode.Total);
                     totalKnown = roundValue(totalKnown + l.TotalKnown);
                 }
-            });
+            }
             $scope.model.total = total;
             $scope.model.totalKnown = totalKnown;
         }
         else {
             posPeriodService.getYPaymentValuesAsync($scope.openPosParameters.yPeriodId).then(function (paymentValues) {
                 if (paymentValues) {
-                    var total = 0;
-                    Enumerable.from(paymentValues.PaymentLines).forEach(function (l) {
+                    let total = 0;
+                    for(let l of paymentValues.PaymentLines) {
                         // Cash only
                         if (l.PaymentMode && l.PaymentMode.PaymentType == PaymentType.ESPECE) {
                             total = roundValue(total + l.PaymentMode.Total);
                         }
-                    });
+                    }
                     $scope.model.total = total;
                     $scope.model.totalKnown = total;
                 }
@@ -65,13 +65,13 @@ app.controller('ModalOpenPosController', function ($scope, $rootScope, $uibModal
 
         settingService.getPaymentModesAsync().then(function (paymentSetting) {
 
-            var paymentModesAvailable = paymentSetting;
+            let paymentModesAvailable = paymentSetting;
 
-            var cashPaymentMode = Enumerable.from(paymentModesAvailable).firstOrDefault(function (x) {
+            let cashPaymentMode = Enumerable.from(paymentModesAvailable).firstOrDefault(function (x) {
                 return x.PaymentType == PaymentType.ESPECE;
             });
 
-            var dateOpen = new Date().toString('dd/MM/yyyy H:mm:ss'); //TODO: bug formatage
+            const dateOpen = new Date().toString('dd/MM/yyyy H:mm:ss'); //TODO: bug formatage
 
             $scope.openPosValues = {
                 HardwareId: $rootScope.PosLog.HardwareId,
@@ -84,7 +84,7 @@ app.controller('ModalOpenPosController', function ($scope, $rootScope, $uibModal
                 CashMovementLines: []
             };
 
-            var addPaymentMode = {
+            const addPaymentMode = {
                 PaymentType: cashPaymentMode.PaymentType,
                 Value: cashPaymentMode.Value,
                 Text: cashPaymentMode.Text,
@@ -92,7 +92,7 @@ app.controller('ModalOpenPosController', function ($scope, $rootScope, $uibModal
                 IsBalance: cashPaymentMode.IsBalance
             };
 
-            var lineOpenPos = {
+            const lineOpenPos = {
                 PaymentMode: addPaymentMode
             };
 
@@ -108,7 +108,7 @@ app.controller('ModalOpenPosController', function ($scope, $rootScope, $uibModal
     };
 
     $scope.editCashValues = function () {
-        var modalInstance = $uibModal.open({
+        let modalInstance = $uibModal.open({
             templateUrl: 'modals/modalCashValues.html',
             controller: 'ModalCashValuesController',
             size: 'lg',
@@ -143,14 +143,13 @@ app.controller('ModalOpenPosController', function ($scope, $rootScope, $uibModal
                     $scope.openPosValues.MovementType_Id = $scope.model.motif.Id;
 
                     if ($scope.openPosParameters.previousYPeriod && !$scope.openPosParameters.previousYPeriod.emptyCash) {
-                        var previousYperiodButClosed = $scope.openPosParameters.previousYPeriod;
+                        const previousYperiodButClosed = $scope.openPosParameters.previousYPeriod;
                         if (previousYperiodButClosed) {
 
                             // Créer le motif négatif isSytem "Fin de service" du montant espèce du précédent yPeriod dans le yPeriod précédent
-                            posPeriodService.emptyCashYPeriodAsync(previousYperiodButClosed, previousYperiodButClosed.YCountLines).then(function (paymentValues) {
+                            posPeriodService.emptyCashYPeriodAsync(previousYperiodButClosed, previousYperiodButClosed.YCountLines).then(function () {
                                 //Appel aprés la création de la fermeture du service précédent pour que la date du motif de l'ouverture du service soit aprés le motif de fermeture du service pr�c�dent
                                 $scope.openPosValues.CashMovementLines[0].PaymentMode.Total = $scope.model.totalKnown;
-
                                 openCashMachine();
                             });
                         }
@@ -176,22 +175,22 @@ app.controller('ModalOpenPosController', function ($scope, $rootScope, $uibModal
          * TODO: Log this event
          */
         if (posUserService.isEnable('ODRAW')) {
-            var configApiUrl = "http://" + $rootScope.IziBoxConfiguration.LocalIpIziBox + ":" + $rootScope.IziBoxConfiguration.RestPort + "/open/" + $rootScope.PrinterConfiguration.POSPrinter;
+            const configApiUrl = "http://" + $rootScope.IziBoxConfiguration.LocalIpIziBox + ":" + $rootScope.IziBoxConfiguration.RestPort + "/open/" + $rootScope.PrinterConfiguration.POSPrinter;
             $http.get(configApiUrl, {timeout: 10000});
         }
     };
 
     $scope.cancel = function () {
         $uibModalInstance.dismiss('cancel');
-    }
+    };
 
-    var openCashMachine = function () {
+    const openCashMachine = function () {
 
         $scope.openPosValues.Date = new Date().toString('dd/MM/yyyy H:mm:ss');
 
-        var updPaymentModes = [];
+        let updPaymentModes = [];
 
-        var newPaymentMode = clone($scope.openPosValues.CashMovementLines[0].PaymentMode);
+        let newPaymentMode = clone($scope.openPosValues.CashMovementLines[0].PaymentMode);
 
         newPaymentMode.Total = roundValue(parseFloat(newPaymentMode.Total).toFixed(2));
 
@@ -202,7 +201,7 @@ app.controller('ModalOpenPosController', function ($scope, $rootScope, $uibModal
         updPaymentModes.push(newPaymentMode);
 
         // Pour stoker l'historique des mouvements
-        var cashMovement = {
+        let cashMovement = {
             CashMovementLines: updPaymentModes,
             Date: $scope.openPosValues.Date,
             MovementType_Id: $scope.openPosValues.MovementType_Id,
@@ -211,7 +210,7 @@ app.controller('ModalOpenPosController', function ($scope, $rootScope, $uibModal
 
         if ($scope.model.motif.IsCashFunds) {
 
-            posPeriodService.replacePaymentValuesAsync($scope.openPosParameters.yPeriodId, $scope.openPosParameters.zPeriodId, $rootScope.PosLog.HardwareId, updPaymentModes, cashMovement).then(function (paymentMode) {
+            posPeriodService.replacePaymentValuesAsync($scope.openPosParameters.yPeriodId, $scope.openPosParameters.zPeriodId, $rootScope.PosLog.HardwareId, updPaymentModes, cashMovement).then(function ()  {
                 $scope.model.validateDisabled = false;
                 // Send to BO
                 cashMovementService.saveMovementAsync($scope.openPosValues);
@@ -227,23 +226,22 @@ app.controller('ModalOpenPosController', function ($scope, $rootScope, $uibModal
         }
         else {
 
-            posPeriodService.updatePaymentValuesAsync($scope.openPosParameters.yPeriodId, $scope.openPosParameters.zPeriodId, $rootScope.PosLog.HardwareId, updPaymentModes, undefined, cashMovement).then(function (paymentMode) {
+            posPeriodService.updatePaymentValuesAsync($scope.openPosParameters.yPeriodId, $scope.openPosParameters.zPeriodId, $rootScope.PosLog.HardwareId, updPaymentModes, undefined, cashMovement).then(function () {
                 $scope.model.validateDisabled = false;
                 // Send to BO
                 cashMovementService.saveMovementAsync($scope.openPosValues);
                 $uibModalInstance.close();
             }, function (err) {
                 $scope.model.validateDisabled = false;
-                message = err ? err : $translate.instant("La izibox n'est pas accèssible");
+                let message = err ? err : $translate.instant("La izibox n'est pas accèssible");
                 sweetAlert({ title: message }, function () {
                 });
             });
-
         }
 
         // Logging the event
         if ($scope.model.motif.IsCashFunds) {
-            var event = {
+            let event = {
                 Code: 170,
                 Description: "Ouverture de caisse",
                 OperatorCode: $rootScope.PosUserId,
@@ -252,15 +250,15 @@ app.controller('ModalOpenPosController', function ($scope, $rootScope, $uibModal
                 Informations: []
             };
 
-            Enumerable.from(updPaymentModes).forEach(function (pm) {
+            for(let pm of updPaymentModes) {
                 event.Informations.push(pm.Text + ":" + pm.Total);
-            });
-
-
+            }
             eventService.sendEvent(event);
         }
     }
-});app.controller('ModalOpenPosController', function ($scope, $rootScope, $uibModal, $http, $uibModalInstance, settingService, eventService, cashMovementService, posPeriodService, posUserService, $translate, openPosParameters) {
+});
+
+app.controller('ModalOpenPosController', function ($scope, $rootScope, $uibModal, $http, $uibModalInstance, settingService, eventService, cashMovementService, posPeriodService, posUserService, $translate, openPosParameters) {
     $scope.openPosParameters = openPosParameters;
 
     $scope.init = function () {
@@ -296,29 +294,29 @@ app.controller('ModalOpenPosController', function ($scope, $rootScope, $uibModal
 
 
         if ($scope.openPosParameters.previousYPeriod && !$scope.openPosParameters.previousYPeriod.emptyCash && !$scope.openPosParameters.editMode) {
-            var total = 0;
-            var totalKnown = 0;
+            let total = 0;
+            let totalKnown = 0;
             // Get the amout "cash" count in the previous yPeriod
-            Enumerable.from($scope.openPosParameters.previousYPeriod.YCountLines).forEach(function (l) {
+            for(let l of $scope.openPosParameters.previousYPeriod.YCountLines) {
                 // Cash only
                 if (l.PaymentMode && l.PaymentMode.PaymentType == PaymentType.ESPECE) {
                     total = roundValue(total + l.PaymentMode.Total);
                     totalKnown = roundValue(totalKnown + l.TotalKnown);
                 }
-            });
+            }
             $scope.model.total = total;
             $scope.model.totalKnown = totalKnown;
         }
         else {
             posPeriodService.getYPaymentValuesAsync($scope.openPosParameters.yPeriodId).then(function (paymentValues) {
                 if (paymentValues) {
-                    var total = 0;
-                    Enumerable.from(paymentValues.PaymentLines).forEach(function (l) {
+                    let total = 0;
+                    for(let l of paymentValues.PaymentLines) {
                         // Cash only
                         if (l.PaymentMode && l.PaymentMode.PaymentType == PaymentType.ESPECE) {
                             total = roundValue(total + l.PaymentMode.Total);
                         }
-                    });
+                    }
                     $scope.model.total = total;
                     $scope.model.totalKnown = total;
                 }
@@ -327,13 +325,13 @@ app.controller('ModalOpenPosController', function ($scope, $rootScope, $uibModal
 
         settingService.getPaymentModesAsync().then(function (paymentSetting) {
 
-            var paymentModesAvailable = paymentSetting;
+            let paymentModesAvailable = paymentSetting;
 
-            var cashPaymentMode = Enumerable.from(paymentModesAvailable).firstOrDefault(function (x) {
+            let cashPaymentMode = Enumerable.from(paymentModesAvailable).firstOrDefault(function (x) {
                 return x.PaymentType == PaymentType.ESPECE;
             });
 
-            var dateOpen = new Date().toString('dd/MM/yyyy H:mm:ss'); //TODO: bug formatage
+            const dateOpen = new Date().toString('dd/MM/yyyy H:mm:ss'); //TODO: bug formatage
 
             $scope.openPosValues = {
                 HardwareId: $rootScope.PosLog.HardwareId,
@@ -346,7 +344,7 @@ app.controller('ModalOpenPosController', function ($scope, $rootScope, $uibModal
                 CashMovementLines: []
             };
 
-            var addPaymentMode = {
+            const addPaymentMode = {
                 PaymentType: cashPaymentMode.PaymentType,
                 Value: cashPaymentMode.Value,
                 Text: cashPaymentMode.Text,
@@ -354,7 +352,7 @@ app.controller('ModalOpenPosController', function ($scope, $rootScope, $uibModal
                 IsBalance: cashPaymentMode.IsBalance
             };
 
-            var lineOpenPos = {
+            const lineOpenPos = {
                 PaymentMode: addPaymentMode
             };
 
@@ -370,7 +368,7 @@ app.controller('ModalOpenPosController', function ($scope, $rootScope, $uibModal
     };
 
     $scope.editCashValues = function () {
-        var modalInstance = $uibModal.open({
+        let modalInstance = $uibModal.open({
             templateUrl: 'modals/modalCashValues.html',
             controller: 'ModalCashValuesController',
             size: 'lg',
@@ -405,11 +403,11 @@ app.controller('ModalOpenPosController', function ($scope, $rootScope, $uibModal
                     $scope.openPosValues.MovementType_Id = $scope.model.motif.Id;
 
                     if ($scope.openPosParameters.previousYPeriod && !$scope.openPosParameters.previousYPeriod.emptyCash) {
-                        var previousYperiodButClosed = $scope.openPosParameters.previousYPeriod;
+                        let previousYperiodButClosed = $scope.openPosParameters.previousYPeriod;
                         if (previousYperiodButClosed) {
 
                             // Créer le motif négatif isSytem "Fin de service" du montant espèce du précédent yPeriod dans le yPeriod précédent
-                            posPeriodService.emptyCashYPeriodAsync(previousYperiodButClosed, previousYperiodButClosed.YCountLines).then(function (paymentValues) {
+                            posPeriodService.emptyCashYPeriodAsync(previousYperiodButClosed, previousYperiodButClosed.YCountLines).then(function () {
                                 //Appel aprés la création de la fermeture du service précédent pour que la date du motif de l'ouverture du service soit aprés le motif de fermeture du service pr�c�dent
                                 $scope.openPosValues.CashMovementLines[0].PaymentMode.Total = $scope.model.totalKnown;
 
@@ -438,22 +436,22 @@ app.controller('ModalOpenPosController', function ($scope, $rootScope, $uibModal
          * TODO: Log this event
          */
         if (posUserService.isEnable('ODRAW')) {
-            var configApiUrl = "http://" + $rootScope.IziBoxConfiguration.LocalIpIziBox + ":" + $rootScope.IziBoxConfiguration.RestPort + "/open/" + $rootScope.PrinterConfiguration.POSPrinter;
+            let configApiUrl = "http://" + $rootScope.IziBoxConfiguration.LocalIpIziBox + ":" + $rootScope.IziBoxConfiguration.RestPort + "/open/" + $rootScope.PrinterConfiguration.POSPrinter;
             $http.get(configApiUrl, {timeout: 10000});
         }
     };
 
     $scope.cancel = function () {
         $uibModalInstance.dismiss('cancel');
-    }
+    };
 
-    var openCashMachine = function () {
+    const openCashMachine = function () {
 
         $scope.openPosValues.Date = new Date().toString('dd/MM/yyyy H:mm:ss');
 
-        var updPaymentModes = [];
+        let updPaymentModes = [];
 
-        var newPaymentMode = clone($scope.openPosValues.CashMovementLines[0].PaymentMode);
+        let newPaymentMode = clone($scope.openPosValues.CashMovementLines[0].PaymentMode);
 
         newPaymentMode.Total = roundValue(parseFloat(newPaymentMode.Total).toFixed(2));
 
@@ -464,7 +462,7 @@ app.controller('ModalOpenPosController', function ($scope, $rootScope, $uibModal
         updPaymentModes.push(newPaymentMode);
 
         // Pour stoker l'historique des mouvements
-        var cashMovement = {
+        let cashMovement = {
             CashMovementLines: updPaymentModes,
             Date: $scope.openPosValues.Date,
             MovementType_Id: $scope.openPosValues.MovementType_Id,
@@ -473,7 +471,7 @@ app.controller('ModalOpenPosController', function ($scope, $rootScope, $uibModal
 
         if ($scope.model.motif.IsCashFunds) {
 
-            posPeriodService.replacePaymentValuesAsync($scope.openPosParameters.yPeriodId, $scope.openPosParameters.zPeriodId, $rootScope.PosLog.HardwareId, updPaymentModes, cashMovement).then(function (paymentMode) {
+            posPeriodService.replacePaymentValuesAsync($scope.openPosParameters.yPeriodId, $scope.openPosParameters.zPeriodId, $rootScope.PosLog.HardwareId, updPaymentModes, cashMovement).then(function () {
                 $scope.model.validateDisabled = false;
                 // Send to BO
                 cashMovementService.saveMovementAsync($scope.openPosValues);
@@ -482,20 +480,20 @@ app.controller('ModalOpenPosController', function ($scope, $rootScope, $uibModal
                 $scope.model.validateDisabled = false;
                 if(err) {
                     sweetAlert({ title: $translate.instant("La izibox n'est pas accessible") }, function () {
-                    });Z
+                    });
                 }
             });
         }
         else {
 
-            posPeriodService.updatePaymentValuesAsync($scope.openPosParameters.yPeriodId, $scope.openPosParameters.zPeriodId, $rootScope.PosLog.HardwareId, updPaymentModes, undefined, cashMovement).then(function (paymentMode) {
+            posPeriodService.updatePaymentValuesAsync($scope.openPosParameters.yPeriodId, $scope.openPosParameters.zPeriodId, $rootScope.PosLog.HardwareId, updPaymentModes, undefined, cashMovement).then(function () {
                 $scope.model.validateDisabled = false;
                 // Send to BO
                 cashMovementService.saveMovementAsync($scope.openPosValues);
                 $uibModalInstance.close();
             }, function (err) {
                 $scope.model.validateDisabled = false;
-                message = err ? err : $translate.instant("La izibox n'est pas accèssible");
+                const message = err ? err : $translate.instant("La izibox n'est pas accèssible");
                 sweetAlert({ title: message }, function () {
                 });
             });
@@ -504,7 +502,7 @@ app.controller('ModalOpenPosController', function ($scope, $rootScope, $uibModal
 
         // Logging the event
         if ($scope.model.motif.IsCashFunds) {
-            var event = {
+            let event = {
                 Code: 170,
                 Description: "Ouverture de caisse",
                 OperatorCode: $rootScope.PosUserId,
@@ -513,10 +511,9 @@ app.controller('ModalOpenPosController', function ($scope, $rootScope, $uibModal
                 Informations: []
             };
 
-            Enumerable.from(updPaymentModes).forEach(function (pm) {
+            for(let pm of updPaymentModes) {
                 event.Informations.push(pm.Text + ":" + pm.Total);
-            });
-
+            }
 
             eventService.sendEvent(event);
         }

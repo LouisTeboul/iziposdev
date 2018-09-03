@@ -4,7 +4,7 @@
 
     $scope.init = function () {
         setTimeout(function () {
-            var txtTable = document.getElementById("txtTable");
+            const txtTable = document.getElementById("txtTable");
             if (txtTable) {
                 txtTable.focus();
             }
@@ -14,8 +14,8 @@
 
     $scope.ok = function () {
         $rootScope.closeKeyboard();
-        var tableNumberValue = parseInt($scope.valueTable);
-        var tableCutleriesValue = parseInt($scope.valueCutleries);
+        const tableNumberValue = parseInt($scope.valueTable);
+        const tableCutleriesValue = parseInt($scope.valueCutleries);
 
         if (isNaN(tableNumberValue) || isNaN(tableCutleriesValue) || tableNumberValue < 0 || tableCutleriesValue < 0) {
             $scope.errorMessage = $translate.instant("Valeur non valide");
@@ -28,7 +28,7 @@
             $scope.$evalAsync();
         } else {
 
-            var tableValues = {
+            const tableValues = {
                 tableNumber: tableNumberValue > 0 ? tableNumberValue : undefined,
                 tableCutleries: tableCutleriesValue > 0 ? tableCutleriesValue : undefined
             };

@@ -1,12 +1,12 @@
 app.controller('ModalAllShoppingCartsController', function ($scope, $rootScope, $uibModalInstance, $uibModal, $uibModalStack, $mdMedia, zposService, shoppingCartService, shoppingCartModel, posPeriodService, taxesService) {
-    var currentDateStart = undefined;
-    var currentDateEnd = undefined;
-    var currentFilterAlias = undefined;
-    var currentFilterAmount = undefined;
-    var currentFilterPaiement = undefined;
-    var dateStartHandler = undefined;
-    var dateEndHandler = undefined;
-    var filterAliasHandler = undefined;
+    let currentDateStart = undefined;
+    let currentDateEnd = undefined;
+    let currentFilterAlias = undefined;
+    let currentFilterAmount = undefined;
+    let currentFilterPaiement = undefined;
+    let dateStartHandler = undefined;
+    let dateEndHandler = undefined;
+    let filterAliasHandler = undefined;
 
     $scope.modelItem = {};
 
@@ -234,12 +234,11 @@ app.controller('ModalAllShoppingCartsController', function ($scope, $rootScope, 
                                     type: "date", parse: function (e) {
                                         // HACK -> However, JavaScript does work with mm/dd/yyyy format by default.
 
-                                        var res = e.split("/");
-                                        var tmp = res[0];
+                                        let res = e.split("/");
+                                        const tmp = res[0];
                                         res[0] = res[1];
                                         res[1] = tmp;
-                                        var ldate = res.join("/");
-                                        return ldate
+                                        return res.join("/");
                                     }
                                 },
                                 Timestamp: {type: "string"},
@@ -266,12 +265,11 @@ app.controller('ModalAllShoppingCartsController', function ($scope, $rootScope, 
                                     type: "date", parse: function (e) {
                                         // HACK -> However, JavaScript does work with mm/dd/yyyy format by default.
 
-                                        var res = e.split("/");
-                                        var tmp = res[0];
+                                        let res = e.split("/");
+                                        const tmp = res[0];
                                         res[0] = res[1];
                                         res[1] = tmp;
-                                        var ldate = res.join("/");
-                                        return ldate
+                                        return res.join("/");
                                     }
                                 },
                                 Total: {type: "number"}
@@ -299,7 +297,7 @@ app.controller('ModalAllShoppingCartsController', function ($scope, $rootScope, 
      */
     $scope.editShopCartItem = function (selectedShoppingCart) {
         console.log(selectedShoppingCart);
-        var modalInstance = $uibModal.open({
+        let modalInstance = $uibModal.open({
             templateUrl: 'modals/modalEditShoppingCart.html',
             controller: 'ModalEditShoppingCartController',
             resolve: {
@@ -335,17 +333,16 @@ app.controller('ModalAllShoppingCartsController', function ($scope, $rootScope, 
             $scope.listAliases = [];
             $scope.listPaiements = [];
 
-            Enumerable.from(a).forEach(function (b) {
+            for(let b of a) {
                 $scope.listAliases.push(b.alias);
-            });
+            }
             $scope.listAliases = uniq($scope.listAliases);
 
             zposService.getPaiementByDateAsync(dateStart, dateEnd).then(function (ans) {
-                Enumerable.from(ans).forEach(function (val) {
+                for(let val of ans) {
                     $scope.listPaiements.push(val);
-                });
-
-                var tabIds = [], tabPayments = [];
+                }
+                let tabIds = [], tabPayments = [];
                 $scope.listPaiements.forEach((val) => {
                     if (tabIds.indexOf(val.id) == -1) {
                         tabIds.push(val.id);
@@ -370,7 +367,7 @@ app.controller('ModalAllShoppingCartsController', function ($scope, $rootScope, 
                     if (filterPaiement) {
                         zposService.getShoppingCartByPaiementDateAsync(dateStart, dateEnd, filterPaiement).then(function (shoppingCarts) {
 
-                            var tabFilterPaiement = [];
+                            let tabFilterPaiement = [];
                             shoppingCarts.forEach(function (ticket) {
                                 ticket.PaymentModes.forEach(function (payment) {
                                     if (payment.PaymentType == filterPaiement) {
@@ -434,16 +431,15 @@ app.controller('ModalAllShoppingCartsController', function ($scope, $rootScope, 
         // On s'assure qu'il n'existe pas de shopping cart
         if (!shoppingCartModel.getCurrentShoppingCart()) {
             shoppingCartModel.createShoppingCart();
-            var csp = shoppingCartModel.getCurrentShoppingCart();
+            let csp = shoppingCartModel.getCurrentShoppingCart();
             csp.ParentTicket = parseInt(selectedShoppingCart.Timestamp);
 
             //Recupere la category de taxe du produit
             taxesService.getTaxCategoriesAsync().then(function (alltaxCategories) {
-
-                Enumerable.from(selectedShoppingCart.Items).forEach(function (i) {
+                for(let i of selectedShoppingCart.Items) {
                     //Recup les taxDetails de l'item
                     console.log(i.Product);
-                    var matchedTaxCategory = Enumerable.from(alltaxCategories).firstOrDefault(function (x) {
+                    let matchedTaxCategory = Enumerable.from(alltaxCategories).firstOrDefault(function (x) {
                         return x.TaxCategoryId == i.Product.TaxCategoryId;
                     });
 
@@ -460,19 +456,19 @@ app.controller('ModalAllShoppingCartsController', function ($scope, $rootScope, 
                         i.MinQuantity = clone(i.Quantity);
                         shoppingCartModel.addCartItem(i);
                     }
-                });
+                }
 
-                Enumerable.from(selectedShoppingCart.PaymentModes).forEach(function (pm) {
+                for(let pm of selectedShoppingCart.PaymentModes) {
                     pm.Total *= -1;
                     shoppingCartModel.addPaymentMode(pm, true);
-                });
+                }
 
                 if (selectedShoppingCart.Barcode) {
                     shoppingCartModel.getLoyalty(selectedShoppingCart.Barcode);
                 }
 
                 if (selectedShoppingCart.BalanceUpdate && selectedShoppingCart.BalanceUpdate.UpdateValue > 0) {
-                    var balanceUpdate = selectedShoppingCart.BalanceUpdate;
+                    let balanceUpdate = selectedShoppingCart.BalanceUpdate;
                     balanceUpdate.UpdateValue *= -1;
                     shoppingCartModel.addBalanceUpdate(balanceUpdate);
                 }
@@ -527,7 +523,7 @@ app.controller('ModalAllShoppingCartsController', function ($scope, $rootScope, 
      * Open the zpos management view
      */
     $scope.showZPos = function () {
-        var modalInstance = $uibModal.open({
+        $uibModal.open({
             templateUrl: 'modals/modalZPos.html',
             controller: 'ModalZPosController',
             size: 'max',

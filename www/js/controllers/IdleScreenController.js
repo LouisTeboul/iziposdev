@@ -8,14 +8,14 @@
 
 
 app.controller('IdleScreenController', function ($scope, $rootScope, $location, $q, borneService) {
-    var current = this;
+    let current = this;
 
     $scope.init = function () {
-        var el = document.querySelector(".keyboardContainer");
+        let el = document.querySelector(".keyboardContainer");
         el.style.display = "none";
     };
 
     $scope.disableIdle = function () {
         borneService.redirectToHome();
-    }
+    };
 });

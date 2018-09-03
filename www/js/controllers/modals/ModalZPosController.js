@@ -25,13 +25,14 @@
             $scope.zheaders.push($translate.instant("Avoirs émis"));
 
             ////Headers TVA
-            Enumerable.from(resZpos.taxDetails).forEach(function (tax) {
+            for(let tax of resZpos.taxDetails) {
                 $scope.zheaders.push(tax.taxCode);
-            });
+            }
 
             ////Headers Modes de paiement
-            Enumerable.from(resZpos.paymentModes).forEach(function (pm) {// Des moyens de paiement utilise des - !!! pk?
-                var pmTitle = pm.type;
+            for(let pm of resZpos.paymentModes) {
+                // Des moyens de paiement utilise des - !!! pk?
+                let pmTitle = pm.type;
 
                 if (pm.type.indexOf("-") != -1) {
                     if(pm.type.indexOf("-") == 0) {
@@ -43,81 +44,80 @@
                 }
 
                 $scope.zheaders.push(pmTitle);
-            });
+            }
 
             $scope.zheaders.push("Cagnotte");
 
             //Values
-            var lineValues = [];
-            Enumerable.from(resZpos.totalsByDate).forEach(function (line) {
-                var columnValues = [];
+            let lineValues = [];
+            for(let line of resZpos.totalsByDate) {
+                let columnValues = [];
                 columnValues.push(Date.parseExact(line.date, "yyyyMMdd").toString("dd/MM/yyyy"));//date
                 columnValues.push(line.count);//nb
                 columnValues.push(roundValue(line.totalIT));//total
 
                 //Cutleries
-                var lineCutleries = Enumerable.from(resZpos.cutleries.byDate).firstOrDefault(function (value) {
+                const lineCutleries = Enumerable.from(resZpos.cutleries.byDate).firstOrDefault(function (value) {
                     return value.date == line.date;
                 });
                 columnValues.push(lineCutleries ? lineCutleries.count : 0);
 
                 //Sur place
-                var lineForHere = Enumerable.from(resZpos.deliveryValues).firstOrDefault(function (value) {
+                const lineForHere = Enumerable.from(resZpos.deliveryValues).firstOrDefault(function (value) {
                     return value.type == DeliveryTypes.FORHERE;
                 });
-                var lineTotalForHere = lineForHere ? Enumerable.from(lineForHere.byDate).firstOrDefault(function (value) {
+                const lineTotalForHere = lineForHere ? Enumerable.from(lineForHere.byDate).firstOrDefault(function (value) {
                     return value.date == line.date;
                 }) : undefined;
                 columnValues.push(lineTotalForHere ? roundValue(lineTotalForHere.total) : 0);
 
                 //Emporté
-                var lineTakeOut = Enumerable.from(resZpos.deliveryValues).firstOrDefault(function (value) {
+                const lineTakeOut = Enumerable.from(resZpos.deliveryValues).firstOrDefault(function (value) {
                     return value.type == DeliveryTypes.TAKEOUT;
                 });
-                var lineTotalTakeOut = lineTakeOut ? Enumerable.from(lineTakeOut.byDate).firstOrDefault(function (value) {
+                const lineTotalTakeOut = lineTakeOut ? Enumerable.from(lineTakeOut.byDate).firstOrDefault(function (value) {
                     return value.date == line.date;
                 }) : undefined;
                 columnValues.push(lineTotalTakeOut ? roundValue(lineTotalTakeOut.total) : 0);
 
                 //Livré
-                var lineDelivery = Enumerable.from(resZpos.deliveryValues).firstOrDefault(function (value) {
+                const lineDelivery = Enumerable.from(resZpos.deliveryValues).firstOrDefault(function (value) {
                     return value.type == DeliveryTypes.DELIVERY;
                 });
-                var lineTotalDelivery = lineDelivery ? Enumerable.from(lineDelivery.byDate).firstOrDefault(function (value) {
+                const lineTotalDelivery = lineDelivery ? Enumerable.from(lineDelivery.byDate).firstOrDefault(function (value) {
                     return value.date == line.date;
                 }) : undefined;
                 columnValues.push(lineTotalDelivery ? roundValue(lineTotalDelivery.total) : 0);
 
                 //Avoirs émis
-                var lineCredit = Enumerable.from(resZpos.credit.byDate).firstOrDefault(function (value) {
+                const lineCredit = Enumerable.from(resZpos.credit.byDate).firstOrDefault(function (value) {
                     return value.date == line.date;
                 });
                 columnValues.push(lineCredit ? roundValue(lineCredit.total) : 0);
 
 
                 //Taxes
-                Enumerable.from(resZpos.taxDetails).forEach(function (tax) {
-
-
-                    var lineTax = Enumerable.from(tax.byDate).firstOrDefault(function (value) {
+                for(let tax of resZpos.taxDetails) {
+                    let lineTax = Enumerable.from(tax.byDate).firstOrDefault(function (value) {
                         return value.date == line.date;
                     });
+                    let dispTax;
                     if(lineTax && lineTax.total){
-                        var dispTax = String(lineTax.total).substring(0, 4);
+                        dispTax = String(lineTax.total).substring(0, 4);
                     }
 
                     columnValues.push(lineTax ? roundValue(dispTax) : 0);
-                });
+                }
 
 
                 //Rendu
-                var lineRepaid = Enumerable.from(resZpos.repaid.byDate).firstOrDefault(function (value) {
+                let lineRepaid = Enumerable.from(resZpos.repaid.byDate).firstOrDefault(function (value) {
                     return value.date == line.date;
                 });
 
                 //PaymentModes
-                Enumerable.from(resZpos.paymentModes).forEach(function (pm) {
-                    var linePM = Enumerable.from(pm.byDate).firstOrDefault(function (value) {
+                for(let pm of resZpos.paymentModes) {
+                    let linePM = Enumerable.from(pm.byDate).firstOrDefault(function (value) {
                         return value.date == line.date;
                     });
                     // Pour les especes
@@ -131,19 +131,17 @@
                     } else {
                         columnValues.push(linePM ? roundValue(linePM.total) : 0);
                     }
-                });
+                }
 
 
                 //Paiement cagnotte
-                var lineBalance = Enumerable.from(resZpos.balance.byDate).firstOrDefault(function (value) {
+                let lineBalance = Enumerable.from(resZpos.balance.byDate).firstOrDefault(function (value) {
                     return value.date == line.date;
                 });
                 columnValues.push(lineBalance ? roundValue(lineBalance.total) : 0);
 
                 lineValues.push(columnValues);
-
-
-            });
+            }
 
             $scope.zlines = lineValues;
 
@@ -153,17 +151,17 @@
             $scope.ztotal.push(roundValue(resZpos.totalIT));
             $scope.ztotal.push(resZpos.cutleries.count);
 
-            var lineForHere = Enumerable.from(resZpos.deliveryValues).firstOrDefault(function (value) {
+            const lineForHere = Enumerable.from(resZpos.deliveryValues).firstOrDefault(function (value) {
                 return value.type == DeliveryTypes.FORHERE;
             });
             $scope.ztotal.push(lineForHere ? roundValue(lineForHere.total) : 0);
 
-            var lineTakeOut = Enumerable.from(resZpos.deliveryValues).firstOrDefault(function (value) {
+            const lineTakeOut = Enumerable.from(resZpos.deliveryValues).firstOrDefault(function (value) {
                 return value.type == DeliveryTypes.TAKEOUT;
             });
             $scope.ztotal.push(lineTakeOut ? roundValue(lineTakeOut.total) : 0);
 
-            var lineDelivery = Enumerable.from(resZpos.deliveryValues).firstOrDefault(function (value) {
+            const lineDelivery = Enumerable.from(resZpos.deliveryValues).firstOrDefault(function (value) {
                 return value.type == DeliveryTypes.DELIVERY;
             });
             $scope.ztotal.push(lineDelivery ? roundValue(lineDelivery.total) : 0);

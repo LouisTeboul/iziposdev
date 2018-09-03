@@ -16,11 +16,11 @@ app.controller('ModalEditDeliveryInfoController', function ($scope, $rootScope, 
             existing.timeGoal = Date.parseExact(existing.timeGoal, "dd/MM/yyyy HH:mm:ss");
 
             console.log(existing.timeGoal.getMinutes());
-            var timeDiff = existing.timeGoal.getTime() - new Date().getTime();
-            var diffMinutes = Math.ceil(timeDiff / ( 1000 * 60 ));
+            const timeDiff = existing.timeGoal.getTime() - new Date().getTime();
+            const diffMinutes = Math.ceil(timeDiff / ( 1000 * 60 ));
 
-            var dispHeures = Math.trunc(diffMinutes / 60);
-            var dispMinutes = diffMinutes - dispHeures * 60;
+            const dispHeures = Math.trunc(diffMinutes / 60);
+            const dispMinutes = diffMinutes - dispHeures * 60;
             $scope.modelTime ={
                 In : {
                     hours : dispHeures > 0 ? dispHeures : 0,
@@ -34,9 +34,9 @@ app.controller('ModalEditDeliveryInfoController', function ($scope, $rootScope, 
                 date : new Date()
             }
         } else {
-            var d = new Date();
-            var dispMinutes;
-            var dispHeures = d.getHours();
+            const d = new Date();
+            let dispMinutes;
+            let dispHeures = d.getHours();
 
 
             if(d.getMinutes() + 15 < 60){
@@ -91,7 +91,7 @@ app.controller('ModalEditDeliveryInfoController', function ($scope, $rootScope, 
     };
 
     $scope.selectCustomer = function(){
-        var modalInstance = $uibModal.open({
+        let modalInstance = $uibModal.open({
             templateUrl: 'modals/modalCustomerForPhone.html',
             controller: 'ModalCustomerForPhoneController',
             backdrop: 'static',
@@ -122,7 +122,7 @@ app.controller('ModalEditDeliveryInfoController', function ($scope, $rootScope, 
     $scope.promptDeliveryAddress = function(barcode){
         // console.log($scope.result.customerLoyalty);
         /**Proposer de renseigner une adresse de livraison */
-        var modalInstance = $uibModal.open({
+        let modalInstance = $uibModal.open({
             templateUrl: 'modals/modalPromptDeliveryAddress.html',
             controller: 'ModalPromptDeliveryAddressController',
             resolve: {

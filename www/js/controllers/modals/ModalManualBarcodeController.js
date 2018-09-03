@@ -1,11 +1,10 @@
 ﻿app.controller('ModalManualBarcodeController', function ($scope, $rootScope, $uibModalInstance) {
-    var video;
 
     $scope.barcode = "";
 
     $scope.init = function () {
         setTimeout(function () {
-            var txtBarcode = document.getElementById("txtBarcode");
+            const txtBarcode = document.getElementById("txtBarcode");
             if (txtBarcode) {
                 txtBarcode.focus();
             }

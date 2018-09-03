@@ -2,6 +2,6 @@
      ng-class="{'focused': isFocused == true}" class="textfieldBorne"
      ng-click="focus($event)">
     <span class="tfBorneTitle" ng-if="!txtValue" translate>{{fieldname}}</span>
-    <span ng-if="mandatory" ng-style="{ 'color' : $root.tenantColor}">&nbsp;*</span>
+    <span ng-if="mandatory && txtValue == ''" ng-style="{'color' : $root.tenantColor}">&nbsp;*</span>
     <span class="tfBorneText" ng-bind="txtValue" ng-if="txtValue"></span>
 </div>

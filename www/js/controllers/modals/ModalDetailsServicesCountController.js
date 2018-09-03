@@ -11,21 +11,18 @@ app.controller('ModalDetailsServicesCountController', function ($scope, $rootSco
         // Renseigner ce que le ou les utilisateurs on déjà renseigné lors de la fermeture du(des) services 
         posPeriodService.getYCountLinesDetailsByHidAsync(detailsServicesParameters.zPeriodId, detailsServicesParameters.hid).then(function (yPeriodsDetails) {
 
-            var yPeriods = Enumerable.from(yPeriodsDetails.yPeriods).orderBy("x => x.startDate").toArray();
+            let yPeriods = Enumerable.from(yPeriodsDetails.yPeriods).orderBy("x => x.startDate").toArray();
 
-            Enumerable.from(yPeriods).forEach(function (yp) {
-
-                Enumerable.from(yp.YCountLines).forEach(function (ypl) {
+            for(let yp of yPeriods) {
+                for(let ypl of yp.YCountLines) {
                     ypl.cashDiscrepancy = 0;
                     if (ypl.PaymentMode) {
                         ypl.cashDiscrepancy = ypl.PaymentMode.Total - ypl.TotalKnown;
                     }
-                });
-
+                }
                 $scope.model.yPeriodsModels.push(yp);
-            });
+            }
         });
-
     };
 
     $scope.printDate = function (yp) {
