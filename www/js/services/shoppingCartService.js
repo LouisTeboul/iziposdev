@@ -347,17 +347,15 @@ app.service('shoppingCartService', ["$http", "$rootScope", "$q", "$filter", "zpo
                 } else {
                     printerApiUrl = "http://" + $rootScope.IziBoxConfiguration.LocalIpIziBox + ":" + $rootScope.IziBoxConfiguration.RestPort + "/validateticket";
                 }
-
-                //this.printShoppingCartPOST(printerApiUrl, shoppingCartPrinterReq, printDefer);
+                this.printShoppingCartPOST(printerApiUrl, shoppingCartPrinterReq, printDefer);
 
             } else {
                 setTimeout(function () {
                     printDefer.resolve(shoppingCartPrinterReq);
                 }, 100);
             }
-
             //TODO:REMOVE
-            printDefer.resolve();
+            //printDefer.resolve();
 
             return printDefer.promise;
         };
