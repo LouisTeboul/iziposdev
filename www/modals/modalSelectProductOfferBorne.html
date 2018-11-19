@@ -1,0 +1,29 @@
+﻿<section class="offerModal" ng-init="init()">
+    <div class="offerModalHeader">
+        <span class="offerModalTitle" translate>{{category.Name}}</span>
+    </div>
+    <div class="pubProductsCut reverse" style="top:174px !important;"></div>
+    <div class="listOffers">
+        <div class="itemOfferList" ng-repeat="product in products track by $index" ng-class="{'noBar': $first}">
+            <div class="offerImage">
+                <img ng-src="{{product.DefaultPictureUrl}}" ng-if="product.DefaultPictureUrl" class="offerImage"/>
+                <img src="img/offer.png" ng-if="!product.DefaultPictureUrl" class="offerImage"/>
+            </div>
+            <div class="offerDetails">
+                <span class="offerTitle" translate>{{product.Name}}</span>
+                <span class="offerDescription">{{product.Price | CurrencyFormat}}</span>
+            </div>
+            <md-button class="offerModalBtn" ng-click="addToCart(product)" aria-label="Confirm"
+                       ng-style="{'background-color' : product.DisableBuyButton ? '#cacac9' : $root.tenantColor}">
+                <span ng-if="!product.DisableBuyButton && product.ProductAttributes.length == 0 && !product.EmployeeTypePrice"
+                      class="offerModalBtnText" ng-style="{ 'background-color' : $root.tenantColor}" translate>Ajouter au panier</span>
+                <span ng-if="!product.DisableBuyButton && product.ProductAttributes.length > 0 && !product.EmployeeTypePrice"
+                      class="offerModalBtnText" ng-style="{ 'background-color' : $root.tenantColor}" translate>Choisir produit</span>
+                <span ng-if="!product.DisableBuyButton && product.ProductAttributes.length == 0 && product.EmployeeTypePrice"
+                      class="offerModalBtnText" ng-style="{ 'background-color' : $root.tenantColor}" translate>Saisir le prix</span>
+                <span ng-if="product.DisableBuyButton" class="offerModalBtnText" translate>Rupture</span>
+            </md-button>
+        </div>
+    </div>
+    <div class="pubProductsCut" style="bottom: 74px;"></div>
+</section>

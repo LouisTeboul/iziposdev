@@ -7,6 +7,7 @@ app.controller('ModalAllShoppingCartsController', function ($scope, $rootScope, 
     let dateStartHandler = undefined;
     let dateEndHandler = undefined;
     let filterAliasHandler = undefined;
+    let currentYPeriods = {};
 
     $scope.modelItem = {};
 
@@ -14,7 +15,7 @@ app.controller('ModalAllShoppingCartsController', function ($scope, $rootScope, 
 
         if ($mdMedia('(min-width: 800px)')) {
             $scope.gridColumns = [
-                {field: "alias", title: "Caisse"},
+                {field: "AliasCaisse", title: "Caisse"},
                 {field: "PosUserName", title: "Opérateur"},
                 {field: "Date", title: "Date", type: "date", format: "{0:dd/MM/yyyy HH:mm:ss}", width: 120},
                 {field: "Timestamp", title: "No Ticket", width: 150},
@@ -23,46 +24,47 @@ app.controller('ModalAllShoppingCartsController', function ($scope, $rootScope, 
                 {
                     template: "" +
 
-                    "<div layout-align='center center' layout='column'>" +
-                    "<div><span ng-show='dataItem.Canceled' class='glyphicon glyphicon-remove' style='color:red; display:inline-block'></span></div>" +
-                    "<button class='btn btn-default spaced'  ng-init='isServiceOpen(dataItem)' ng-show='modelItem[dataItem.yPeriodId]' ng-click='editShopCartItem(dataItem)' style='display:inline-block'>" +
-                    "<span class='glyphicon glyphicon-pencil'></span>" +
-                    "</button>" +
-                    "<button class='btn btn-rose spaced' ng-init='isServiceOpen(dataItem)' ng-show='modelItem[dataItem.yPeriodId] && !dataItem.Deleted && !dataItem.ParentTicket' ng-click='cancelShopCart(dataItem)'>" +
-                    "<img style='width:20px;'  alt='Image' src='img/trash.png'/>" +
-                    "</button>" +
-                    "</div>", title: " ", width: 80
+                        "<div layout-align='center center' layout='column' ng-show='modelItem[dataItem.yPeriodId]'>" +
+                        "<div><span ng-show='dataItem.Canceled' class='glyphicon glyphicon-remove' style='color:red; display:inline-block'></span></div>" +
+                        "<button class='btn btn-default spaced'  ng-init='isServiceOpen(dataItem)' ng-click='editShopCartItem(dataItem)' style='display:inline-block'>" +
+                        "<span class='glyphicon glyphicon-pencil'></span>" +
+                        "</button>" +
+                        "<button class='btn btn-rose spaced' ng-init='isServiceOpen(dataItem)' ng-show='!dataItem.Deleted && !dataItem.ParentTicket' ng-click='cancelShopCart(dataItem)'>" +
+                        "<img style='width:20px;'  alt='Image' src='img/trash.png'/>" +
+                        "</button>" +
+                        "</div>", title: " ", width: 80
                 },
                 {
                     template: "" +
-                    "<div layout-align='center center' layout='column'>" +
-                    "<button class='btn btn-info spaced' ng-click='printNote(dataItem)'><img style='width:20px;' alt='Image' src='img/receipt.png'/></button>" +
-                    "<button class='btn btn-warning spaced' ng-click='selectShopCartItem(dataItem)'><img style='width:20px;' alt='Image' src='img/print.png'/></button>" +
-                    "</div>"
+                        "<div layout-align='center center' layout='column'>" +
+                        "<button class='btn btn-info spaced' ng-click='printNote(dataItem)'><img style='width:20px;' alt='Image' src='img/receipt.png'/></button>" +
+                        "<button class='btn btn-warning spaced' ng-click='selectShopCartItem(dataItem)'><img style='width:20px;' alt='Image' src='img/print.png'/></button>" +
+                        "</div>"
                     , title: " ", width: 80
                 }
             ];
         } else {
             $scope.gridColumns = [
-                {field: "alias", title: "Caisse"},
+                {field: "AliasCaisse", title: "Caisse"},
                 {field: "Date", title: "Date", type: "date", format: "{0:dd/MM/yyyy HH:mm:ss}", width: 120},
                 {field: "Total", title: "Total", width: 80},
                 {
                     template: "<div layout-align='center center' layout='column'>" +
-                    "<div><span ng-show='dataItem.Canceled' class='glyphicon glyphicon-remove' style='color:red; display:inline-block'></span></div>" +
-                    "<button class='btn btn-default spaced'  ng-init='isServiceOpen(dataItem)' ng-show='modelItem[dataItem.yPeriodId]' ng-click='editShopCartItem(dataItem)' style='display:inline-block'>" +
-                    "<span class='glyphicon glyphicon-pencil'></span>" +
-                    "</button>" +
-                    "<button class='btn btn-rose spaced' ng-init='isServiceOpen(dataItem)' ng-show='modelItem[dataItem.yPeriodId] && !dataItem.Deleted && !dataItem.ParentTicket' ng-click='cancelShopCart(dataItem)'>" +
-                    "<img style='width:20px;'  alt='Image' src='img/trash.png'/>" +
-                    "</button>" +
-                    "<button class='btn btn-info spaced' ng-click='printNote(dataItem)'><img style='width:20px;' alt='Image' src='img/receipt.png'/></button>" +
-                    "<button class='btn btn-warning spaced' ng-click='selectShopCartItem(dataItem)'><img style='width:20px;' alt='Image' src='img/print.png'/></button>" +
-                    "</div>", title: " ", width: 80
+                        "<div><span ng-show='dataItem.Canceled' class='glyphicon glyphicon-remove' style='color:red; display:inline-block'></span></div>" +
+                        "<button class='btn btn-default spaced'  ng-init='isServiceOpen(dataItem)' ng-show='modelItem[dataItem.yPeriodId]' ng-click='editShopCartItem(dataItem)' style='display:inline-block'>" +
+                        "<span class='glyphicon glyphicon-pencil'></span>" +
+                        "</button>" +
+                        "<button class='btn btn-rose spaced' ng-init='isServiceOpen(dataItem)' ng-show='modelItem[dataItem.yPeriodId] && !dataItem.Deleted && !dataItem.ParentTicket' ng-click='cancelShopCart(dataItem)'>" +
+                        "<img style='width:20px;'  alt='Image' src='img/trash.png'/>" +
+                        "</button>" +
+                        "<button class='btn btn-info spaced' ng-click='printNote(dataItem)'><img style='width:20px;' alt='Image' src='img/receipt.png'/></button>" +
+                        "<button class='btn btn-warning spaced' ng-click='selectShopCartItem(dataItem)'><img style='width:20px;' alt='Image' src='img/print.png'/></button>" +
+                        "</div>", title: " ", width: 80
                 }
             ];
         }
 
+        //TODO : Revoir fonctionnement filtres
         $scope.dateStart = new Date();
         $scope.dateEnd = new Date();
 
@@ -71,71 +73,76 @@ app.controller('ModalAllShoppingCartsController', function ($scope, $rootScope, 
         $scope.filterAmount = 0;
         //Par default, undefined affiche toute les caisses
         $scope.filterPaiement = undefined;
-        $scope.filterPaiementId = undefined;
-
         $scope.filterAliasDisabled = false;
         $scope.filterAmountDisabled = false;
         $scope.filterPaiementDisabled = false;
 
         // Reload values if the dates are changed
-        dateStartHandler = $scope.$watch('dateStart', function () {
-            var dateStart = $scope.dateStart ? $scope.dateStart.toString("dd/MM/yyyy") : new Date().toString("dd/MM/yyyy");
-            var dateEnd = $scope.dateEnd ? $scope.dateEnd.toString("dd/MM/yyyy") : new Date().toString("dd/MM/yyyy");
+        dateStartHandler = $scope.$watch('dateStart', function (newvalue, oldvalue) {
+            if (newvalue !== oldvalue) {
+                let dateStart = $scope.dateStart ? $scope.dateStart.toString("dd/MM/yyyy") : new Date().toString("dd/MM/yyyy");
+                let dateEnd = $scope.dateEnd ? $scope.dateEnd.toString("dd/MM/yyyy") : new Date().toString("dd/MM/yyyy");
 
-            if (dateStart != currentDateStart || dateEnd != currentDateEnd || $scope.filterAlias != currentFilterAlias || $scope.filterAmount != currentFilterAmount || $scope.filterPaiement != currentFilterPaiement) {
-                currentDateStart = dateStart;
-                currentDateEnd = dateEnd;
-                currentFilterAlias = $scope.filterAlias;
-                currentFilterAmount = undefined;
-                currentFilterPaiement = undefined;
+                if (dateStart !== currentDateStart || dateEnd !== currentDateEnd
+                    || $scope.filterAlias !== currentFilterAlias || $scope.filterAmount !== currentFilterAmount || $scope.filterPaiement !== currentFilterPaiement) {
+                    currentDateStart = dateStart;
+                    currentDateEnd = dateEnd;
+                    currentFilterAlias = $scope.filterAlias;
+                    currentFilterAmount = undefined;
+                    currentFilterPaiement = undefined;
 
-                $scope.loadValues(dateStart, dateEnd, $scope.filterAlias, $scope.filterAmount, $scope.filterPaiementId);
+                    $scope.loadValues($scope.dateStart, $scope.dateEnd, $scope.filterAlias, $scope.filterPaiement, $scope.filterAmount);
+                }
             }
         });
 
-        dateEndHandler = $scope.$watch('dateEnd', function () {
-            $scope.$evalAsync();
-            var dateStart = $scope.dateStart ? $scope.dateStart.toString("dd/MM/yyyy") : new Date().toString("dd/MM/yyyy");
-            var dateEnd = $scope.dateEnd ? $scope.dateEnd.toString("dd/MM/yyyy") : undefined;
+        dateEndHandler = $scope.$watch('dateEnd', function (newvalue, oldvalue) {
+            if (newvalue !== oldvalue) {
+                $scope.$evalAsync();
+                let dateStart = $scope.dateStart ? $scope.dateStart.toString("dd/MM/yyyy") : new Date().toString("dd/MM/yyyy");
+                let dateEnd = $scope.dateEnd ? $scope.dateEnd.toString("dd/MM/yyyy") : undefined;
 
-            if (dateStart != currentDateStart || dateEnd != currentDateEnd || $scope.filterAlias != currentFilterAlias || $scope.filterAmount != currentFilterAmount || $scope.filterPaiement != currentFilterPaiement) {
-                currentDateStart = dateStart;
-                currentDateEnd = dateEnd;
-                currentFilterAlias = $scope.filterAlias;
-                currentFilterAmount = undefined;
-                currentFilterPaiement = undefined;
+                if (dateStart !== currentDateStart || dateEnd !== currentDateEnd
+                    || $scope.filterAlias !== currentFilterAlias || $scope.filterAmount !== currentFilterAmount || $scope.filterPaiement !== currentFilterPaiement) {
+                    currentDateStart = dateStart;
+                    currentDateEnd = dateEnd;
+                    currentFilterAlias = $scope.filterAlias;
+                    currentFilterAmount = undefined;
+                    currentFilterPaiement = undefined;
 
-                $scope.loadValues(dateStart, dateEnd, $scope.filterAlias, $scope.filterAmount, $scope.filterPaiementId);
+                    $scope.loadValues($scope.dateStart, $scope.dateEnd, $scope.filterAlias, $scope.filterPaiement, $scope.filterAmount);
+                }
             }
         });
 
         // Reload values if alias filter has changed
         $scope.updateFilterAlias = function (alias) {
             $scope.filterAlias = alias;
-            if ($scope.filterAlias != 0) {
+            if ($scope.filterAlias !== 0) {
                 $scope.filterAmountDisabled = true;
                 $scope.filterPaiementDisabled = true;
             } else {
                 $scope.filterAmountDisabled = false;
                 $scope.filterPaiementDisabled = false;
             }
-            var dateStart = $scope.dateStart ? $scope.dateStart.toString("dd/MM/yyyy") : new Date().toString("dd/MM/yyyy");
-            var dateEnd = $scope.dateEnd ? $scope.dateEnd.toString("dd/MM/yyyy") : new Date().toString("dd/MM/yyyy");
+            let dateStart = $scope.dateStart ? $scope.dateStart.toString("dd/MM/yyyy") : new Date().toString("dd/MM/yyyy");
+            let dateEnd = $scope.dateEnd ? $scope.dateEnd.toString("dd/MM/yyyy") : new Date().toString("dd/MM/yyyy");
 
-            if (dateStart != currentDateStart || dateEnd != currentDateEnd || $scope.filterAlias != currentFilterAlias || $scope.filterAmount != currentFilterAmount || $scope.filterPaiement != currentFilterPaiement) {
+            if (dateStart !== currentDateStart || dateEnd !== currentDateEnd
+                || $scope.filterAlias !== currentFilterAlias || $scope.filterAmount !== currentFilterAmount || $scope.filterPaiement !== currentFilterPaiement) {
                 currentDateStart = dateStart;
                 currentDateEnd = dateEnd;
                 currentFilterAlias = alias;
                 currentFilterAmount = undefined;
                 currentFilterPaiement = undefined;
 
-                $scope.loadValues(dateStart, dateEnd, alias, $scope.filterAmount, $scope.filterPaiementId);
+                $scope.loadValues($scope.dateStart, $scope.dateEnd, alias, $scope.filterPaiement, $scope.filterAmount);
             }
         };
 
-        $scope.updateFilterPaiement = function (paiementI, paiementN) {
-            $scope.filterPaiement = paiementN;
-            $scope.filterPaiementId = paiementI;
+        // Reload values if paiement filtered search
+        $scope.updateFilterPaiement = function (paymentMode) {
+            $scope.filterPaiement = paymentMode;
             if ($scope.filterPaiement) {
                 $scope.filterAmountDisabled = true;
                 $scope.filterAliasDisabled = true;
@@ -143,23 +150,48 @@ app.controller('ModalAllShoppingCartsController', function ($scope, $rootScope, 
                 $scope.filterAmountDisabled = false;
                 $scope.filterAliasDisabled = false;
             }
-            var dateStart = $scope.dateStart ? $scope.dateStart.toString("dd/MM/yyyy") : new Date().toString("dd/MM/yyyy");
-            var dateEnd = $scope.dateEnd ? $scope.dateEnd.toString("dd/MM/yyyy") : new Date().toString("dd/MM/yyyy");
+            let dateStart = $scope.dateStart ? $scope.dateStart.toString("dd/MM/yyyy") : new Date().toString("dd/MM/yyyy");
+            let dateEnd = $scope.dateEnd ? $scope.dateEnd.toString("dd/MM/yyyy") : new Date().toString("dd/MM/yyyy");
 
-            if (dateStart != currentDateStart || dateEnd != currentDateEnd || $scope.filterAlias != currentFilterAlias || $scope.filterAmount != currentFilterAmount || $scope.filterPaiement != currentFilterPaiement) {
+            if (dateStart !== currentDateStart || dateEnd !== currentDateEnd
+                || $scope.filterAlias !== currentFilterAlias || $scope.filterAmount !== currentFilterAmount || $scope.filterPaiement !== currentFilterPaiement) {
                 currentDateStart = dateStart;
                 currentDateEnd = dateEnd;
-                currentFilterPaiement = paiementI;
+                currentFilterPaiement = paymentMode;
                 currentFilterAmount = undefined;
                 currentFilterAlias = undefined;
 
-                $scope.loadValues(dateStart, dateEnd, $scope.filterAlias, $scope.filterAmount, paiementI);
+                $scope.loadValues($scope.dateStart, $scope.dateEnd, $scope.filterAlias, paymentMode, $scope.filterAmount);
+            }
+        };
+
+        // Reload values if amount filtered search
+        $scope.filterAmountHandler = function () {
+            if ($scope.filterAmount !== 0) {
+                $scope.filterAliasDisabled = true;
+                $scope.filterPaiementDisabled = true;
+            } else {
+                $scope.filterAliasDisabled = false;
+                $scope.filterPaiementDisabled = false;
+            }
+            let dateStart = $scope.dateStart ? $scope.dateStart.toString("dd/MM/yyyy") : new Date().toString("dd/MM/yyyy");
+            let dateEnd = $scope.dateEnd ? $scope.dateEnd.toString("dd/MM/yyyy") : new Date().toString("dd/MM/yyyy");
+
+            if (dateStart !== currentDateStart || dateEnd !== currentDateEnd
+                || $scope.filterAlias !== currentFilterAlias || $scope.filterAmount !== currentFilterAmount || $scope.filterPaiement !== currentFilterPaiement) {
+                currentDateStart = dateStart;
+                currentDateEnd = dateEnd;
+                currentFilterAlias = $scope.filterAlias;
+                currentFilterAmount = $scope.filterAmount;
+                currentFilterPaiement = $scope.filterPaiement;
+
+                $scope.loadValues($scope.dateStart, $scope.dateEnd, $scope.filterAlias, $scope.filterPaiement, $scope.filterAmount);
             }
         };
 
         // Reload values if alias filter has changed
         $scope.isAliasFilterDisabled = $scope.$watch('filterAmount', function () {
-            if ($scope.filterAmount != 0) {
+            if ($scope.filterAmount !== 0) {
                 $scope.filterAliasDisabled = true;
                 $scope.filterPaiementDisabled = true;
             } else {
@@ -177,7 +209,7 @@ app.controller('ModalAllShoppingCartsController', function ($scope, $rootScope, 
             }
         });
         $scope.isPaiementFilterDisabled = $scope.$watch('filterAlias', function () {
-            if ($scope.filterAlias != 0) {
+            if ($scope.filterAlias !== 0) {
                 $scope.filterAmountDisabled = true;
                 $scope.filterPaiementDisabled = true;
             } else {
@@ -186,29 +218,7 @@ app.controller('ModalAllShoppingCartsController', function ($scope, $rootScope, 
             }
         });
 
-        // Reload values if amount filtered search
-        // On click of a button
-        $scope.filterAmountHandler = function () {
-            if ($scope.filterAmount != 0) {
-                $scope.filterAliasDisabled = true;
-                $scope.filterPaiementDisabled = true;
-            } else {
-                $scope.filterAliasDisabled = false;
-                $scope.filterPaiementDisabled = false;
-            }
-            var dateStart = $scope.dateStart ? $scope.dateStart.toString("dd/MM/yyyy") : new Date().toString("dd/MM/yyyy");
-            var dateEnd = $scope.dateEnd ? $scope.dateEnd.toString("dd/MM/yyyy") : new Date().toString("dd/MM/yyyy");
-
-            if (dateStart != currentDateStart || dateEnd != currentDateEnd || $scope.filterAlias != currentFilterAlias || $scope.filterAmount != currentFilterAmount || $scope.filterPaiement != currentFilterPaiement) {
-                currentDateStart = dateStart;
-                currentDateEnd = dateEnd;
-                currentFilterAlias = $scope.filterAlias;
-                currentFilterAmount = $scope.filterAmount;
-                currentFilterPaiement = $scope.filterPaiement;
-
-                $scope.loadValues(dateStart, dateEnd, $scope.filterAlias, $scope.filterAmount, $scope.filterPaiementId);
-            }
-        };
+        $scope.loadValues($scope.dateStart, $scope.dateEnd, $scope.filterAlias, $scope.filterPaiement, $scope.filterAmount);
     };
 
     /**
@@ -229,16 +239,10 @@ app.controller('ModalAllShoppingCartsController', function ($scope, $rootScope, 
                         model: {
                             fields: {
                                 PosUserName: {type: "string"},
-                                alias: {type: "string"},
+                                AliasCaisse: {type: "string"},
                                 Date: {
-                                    type: "date", parse: function (e) {
-                                        // HACK -> However, JavaScript does work with mm/dd/yyyy format by default.
-
-                                        let res = e.split("/");
-                                        const tmp = res[0];
-                                        res[0] = res[1];
-                                        res[1] = tmp;
-                                        return res.join("/");
+                                    type: "date", parse: (d) => {
+                                        return moment(d,"DD/MM/YYYY HH:mm:ss").format("DD/MM/YYYY HH:mm:ss");
                                     }
                                 },
                                 Timestamp: {type: "string"},
@@ -260,16 +264,10 @@ app.controller('ModalAllShoppingCartsController', function ($scope, $rootScope, 
                     schema: {
                         model: {
                             fields: {
-                                alias: {type: "string"},
+                                AliasCaisse: {type: "string"},
                                 Date: {
-                                    type: "date", parse: function (e) {
-                                        // HACK -> However, JavaScript does work with mm/dd/yyyy format by default.
-
-                                        let res = e.split("/");
-                                        const tmp = res[0];
-                                        res[0] = res[1];
-                                        res[1] = tmp;
-                                        return res.join("/");
+                                    type: "date", parse: function (d) {
+                                        return moment(d,"DD/MM/YYYY HH:mm:ss").format("DD/MM/YYYY HH:mm:ss");
                                     }
                                 },
                                 Total: {type: "number"}
@@ -287,7 +285,7 @@ app.controller('ModalAllShoppingCartsController', function ($scope, $rootScope, 
 
         $scope.gridDatas.sort();
         $scope.loading = false;
-
+        $scope.$evalAsync();
     };
 
 
@@ -317,102 +315,50 @@ app.controller('ModalAllShoppingCartsController', function ($scope, $rootScope, 
      * Load ticket on time frame
      * @param dateStart The beginning date
      * @param dateEnd The end date
+     * @param filterAlias Alias to find
+     * @param filterAmount Amount to find
+     * @param filterPaiement PaimentMode to find
      */
-    $scope.loadValues = function (dateStart, dateEnd, filterAlias, filterAmount, filterPaiement) {
+    $scope.loadValues = function (dateStart, dateEnd, filterAlias, filterPaiement, filterAmount) {
         $scope.loading = true;
-        if (dateStart && typeof dateStart == "string") {
-            dateStart = Date.parseExact(dateStart, "dd/MM/yyyy")
-        }
-        if (dateEnd && typeof dateEnd == "string") {
-            dateEnd = Date.parseExact(dateEnd, "dd/MM/yyyy")
-        }
 
-        zposService.getAliasesByDateAsync(dateStart, dateEnd).then(function (a) {
+        zposService.getShoppingCartsByFilterDateAsync(dateStart, dateEnd, filterAlias, filterPaiement, filterAmount).then(function (dataLists) {
+            $scope.listAliases = dataLists.Devices;
+            $scope.listPaiements = dataLists.PaymentModes;
 
-            $scope.aliases = a;
-            $scope.listAliases = [];
-            $scope.listPaiements = [];
-
-            for(let b of a) {
-                $scope.listAliases.push(b.alias);
-            }
-            $scope.listAliases = uniq($scope.listAliases);
-
-            zposService.getPaiementByDateAsync(dateStart, dateEnd).then(function (ans) {
-                for(let val of ans) {
-                    $scope.listPaiements.push(val);
-                }
-                let tabIds = [], tabPayments = [];
-                $scope.listPaiements.forEach((val) => {
-                    if (tabIds.indexOf(val.id) == -1) {
-                        tabIds.push(val.id);
-                        tabPayments.push(val);
-                    }
-                });
-                $scope.listPaiements = tabPayments;
-            });
-
-            //Si aucun filtre par alias n'est selectionné
-            if (filterAlias == 0) {
-                // Si on filtre par Montant
-                if (filterAmount != 0) {
-                    zposService.getShoppingCartByAmountDateAsync(dateStart, dateEnd, filterAmount).then(function (shoppingCarts) {
-
-                        $scope.displayShoppingCarts(shoppingCarts);
-
-                    }, function () {
-                        $scope.loading = false;
+            const loadPage = () => {
+                $scope.displayShoppingCarts(dataLists.ShoppingCarts);
+                $scope.loading = false;
+                $scope.$evalAsync();
+            };
+            let countDone = 0;
+            if(dataLists.Devices.length > 0) {
+                for (let hardwareId of dataLists.Devices) {
+                    posPeriodService.getYPeriodAsync(hardwareId, null, false, false).then(function (yp) {
+                        currentYPeriods[hardwareId] = yp;
+                        countDone++;
+                        if (countDone === dataLists.Devices.length) {
+                            loadPage();
+                        }
+                    }, () => {
+                        countDone++;
+                        if (countDone === dataLists.Devices.length) {
+                            loadPage();
+                        }
                     });
-                } else {
-                    if (filterPaiement) {
-                        zposService.getShoppingCartByPaiementDateAsync(dateStart, dateEnd, filterPaiement).then(function (shoppingCarts) {
-
-                            let tabFilterPaiement = [];
-                            shoppingCarts.forEach(function (ticket) {
-                                ticket.PaymentModes.forEach(function (payment) {
-                                    if (payment.PaymentType == filterPaiement) {
-                                        tabFilterPaiement.push(ticket);
-                                    }
-                                });
-                            });
-
-                            let outTab = [];
-                            let timestamps = []
-
-                            for (let ticket of tabFilterPaiement) {
-                                if (timestamps.indexOf(ticket.Timestamp) === -1) {
-                                    timestamps.push(ticket.Timestamp);
-                                    outTab.push(ticket);
-                                }
-                            }
-
-                            $scope.displayShoppingCarts(outTab);
-
-                        }, function () {
-                            $scope.loading = false;
-                        });
-                    } else {
-                        $scope.filterAmount = 0;
-                        $scope.filterPaiement = undefined;
-                        $scope.filterPaiementId = undefined;
-                        zposService.getAllShoppingCartsAsync(dateStart, dateEnd, filterAlias).then(function (shoppingCarts) {
-                            $scope.displayShoppingCarts(shoppingCarts);
-
-                        }, function () {
-                            $scope.loading = false;
-                        });
-                    }
                 }
             } else {
-                // Si les tickets sont filtrés par alias
-                $scope.filterAmount = 0;
-                zposService.getShoppingCartByAliasDateAsync(dateStart, dateEnd, filterAlias).then(function (shoppingCarts) {
-                    $scope.displayShoppingCarts(shoppingCarts);
-                }, function () {
-                    $scope.loading = false;
-                });
+                loadPage();
             }
         });
+    };
+
+    $scope.isServiceOpen = function (line) {
+        if(currentYPeriods[line.HardwareId]) {
+            $scope.modelItem[line.yPeriodId] = currentYPeriods[line.HardwareId].id === line.yPeriodId;
+        } else {
+            $scope.modelItem[line.yPeriodId] = false;
+        }
     };
 
     /**
@@ -436,33 +382,36 @@ app.controller('ModalAllShoppingCartsController', function ($scope, $rootScope, 
 
             //Recupere la category de taxe du produit
             taxesService.getTaxCategoriesAsync().then(function (alltaxCategories) {
-                for(let i of selectedShoppingCart.Items) {
-                    //Recup les taxDetails de l'item
-                    console.log(i.Product);
-                    let matchedTaxCategory = Enumerable.from(alltaxCategories).firstOrDefault(function (x) {
-                        return x.TaxCategoryId == i.Product.TaxCategoryId;
-                    });
 
-                    if (matchedTaxCategory) {
-                        i.Product.TaxCategory = matchedTaxCategory;
-                        //Met la quantité en negatif
-                        i.Quantity *= -1;
-                        if (i.DiscountIT) {
-                            i.DiscountIT *= -1;
+                if (selectedShoppingCart.Items) {
+                    for (let i of Array.from(selectedShoppingCart.Items)) {
+                        //Recup les taxDetails de l'item
+                        console.log(i.Product);
+                        let matchedTaxCategory = Enumerable.from(alltaxCategories).firstOrDefault(function (x) {
+                            return x.TaxCategoryId === i.Product.TaxCategoryId;
+                        });
+
+                        if (matchedTaxCategory) {
+                            i.Product.TaxCategory = matchedTaxCategory;
+                            //Met la quantité en negatif
+                            i.Quantity *= -1;
+                            if (i.DiscountIT) {
+                                i.DiscountIT *= -1;
+                            }
+                            if (i.DiscountET) {
+                                i.DiscountET *= -1;
+                            }
+                            i.MinQuantity = clone(i.Quantity);
+                            shoppingCartModel.addCartItem(i);
                         }
-                        if (i.DiscountET) {
-                            i.DiscountET *= -1;
-                        }
-                        i.MinQuantity = clone(i.Quantity);
-                        shoppingCartModel.addCartItem(i);
                     }
                 }
-
-                for(let pm of selectedShoppingCart.PaymentModes) {
-                    pm.Total *= -1;
-                    shoppingCartModel.addPaymentMode(pm, true);
+                if (selectedShoppingCart.PaymentModes) {
+                    for (let pm of Array.from(selectedShoppingCart.PaymentModes)) {
+                        pm.Total *= -1;
+                        shoppingCartModel.addPaymentMode(pm, true);
+                    }
                 }
-
                 if (selectedShoppingCart.Barcode) {
                     shoppingCartModel.getLoyalty(selectedShoppingCart.Barcode);
                 }
@@ -477,16 +426,6 @@ app.controller('ModalAllShoppingCartsController', function ($scope, $rootScope, 
             });
         }
     };
-
-
-    $scope.isServiceOpen = function (line) {
-        $scope.modelItem[line.yPeriodId] = false;
-        posPeriodService.getYPeriodAsync(line.HardwareId, null, false, false).then(function (yp) {
-            $scope.modelItem[line.yPeriodId] = yp.id == line.yPeriodId;
-
-        });
-    };
-
 
     /**
      * Print a note - the note doesn't contains the details of the product

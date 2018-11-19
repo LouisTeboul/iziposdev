@@ -1,0 +1,89 @@
+<section id="customerModal" class="modalCenterFS" ng-init="init()"
+         ng-style="customStyle" style="overflow:hidden">
+    <section class="groupModal" style="flex:3.5"
+             ng-style="{'justify-content' : $root.borne && $root.borneVertical ? 'flex-end' : 'center'}">
+        <img ng-src="{{$root.borneMainLogo && $root.borneMainLogo || 'img/logo.png'}}"
+             class="imgLogoHeader" draggable="false" alt="" src=""/>
+        <div class="firstTitle">
+            <span translate>Mon compte fidélité</span>
+        </div>
+    </section>
+    <hr ng-class="{'smallModalHR': $root.borne && $root.borneVertical,
+                        'smallModalHRH': $root.borne && !$root.borneVertical}"
+        ng-style="{ 'background-color': $root.tenantColor, 'margin-right': $root.borne && $root.borneVertical ? '0' : '10px' }">
+    <section class="groupModal"  style="min-width: 300px;max-height: 100%;"
+             ng-style="{'justify-content' : $root.borne && $root.borneVertical ? 'flex-start' : 'center',
+                    'flex' : $root.borne && $root.borneVertical ? '8' : '4',
+                    'margin': mdMedia('min-width: 800px') ? '0' :
+                    $root.borne && $root.borneVertical ? '26px 0 10px' :
+                    (mdMedia('min-width: 800px') ? '26px 10px 0 0' : '10px 10px 0 0')}">
+        <div class="loyaltyFormGroup" style="min-height:565px;"
+             ng-style="{'padding' : mdMedia('min-width: 800px') ?
+             ($root.borne && $root.borneVertical ? '75px 50px' : '50px 50px') :
+             ($root.borne && $root.borneVertical ? '20px' : '250px 20px 20px'),
+             'margin' : mdMedia('min-width: 800px') ?($root.borne && $root.borneVertical ? '50px 0 0' : '26px 0 0') : '0',
+             'min-height': mdMedia('min-width: 800px') ? '675px' :
+             ($root.borne && $root.borneVertical ? '575px' : '800px') }">
+            <text-field-borne id="lastName" ng-model="newLoyalty.CustomerLastName" validfunction="$root.closeKeyboard"
+                              nativekeyboard="true" location="center-end" type="azerty" fieldname="Nom"
+                              mandatory="true"></text-field-borne>
+            <text-field-borne id="firstName" ng-model="newLoyalty.CustomerFirstName" validfunction="$root.closeKeyboard"
+                              nativekeyboard="true" location="center-end" type="azerty" fieldname="Prénom"
+                              mandatory="true"></text-field-borne>
+            <text-field-borne id="email" ng-model="newLoyalty.CustomerEmail" validfunction="$root.closeKeyboard"
+                              nativekeyboard="true" location="center-end" type="azerty" fieldname="Email"
+                              mandatory="true"></text-field-borne>
+            <text-field-borne id="streetAddress" ng-model="newLoyalty.CustomerStreetAddress"
+                              validfunction="$root.closeKeyboard" ng-if="signInSettings.StreetAddress"
+                              nativekeyboard="true" location="center-end" type="azerty"
+                              fieldname="Adresse"></text-field-borne>
+            <text-field-borne id="streetAddress2" ng-model="newLoyalty.CustomerStreetAddress2"
+                              validfunction="$root.closeKeyboard" ng-if="signInSettings.StreetAddress2"
+                              nativekeyboard="true" location="center-end" type="azerty"
+                              fieldname="Adresse 2"></text-field-borne>
+            <div class="groupTextfield">
+                <text-field-borne id="city" ng-model="newLoyalty.CustomerCity" validfunction="$root.closeKeyboard"
+                                  nativekeyboard="true" location="center-end" type="azerty" fieldname="Ville"
+                                  mandatory="true" ng-style="{'margin': mdMedia('min-width: 800px') ? '0 26px 0 0' : '0 10px 0 0'}"
+                                  ng-if="signInSettings.City"></text-field-borne>
+                <text-field-borne id="ZipPostalCode" ng-model="newLoyalty.CustomerZipPostalCode"
+                                  validfunction="$root.closeKeyboard" ng-if="signInSettings.ZipPostalCode"
+                                  nativekeyboard="true" location="center-end" type="azerty" fieldname="Code Postal"
+                                  mandatory="true" style="margin:0;"></text-field-borne>
+            </div>
+            <text-field-borne id="phone" ng-model="newLoyalty.CustomerPhone" validfunction="$root.closeKeyboard"
+                              nativekeyboard="true" location="center-end" type="azerty"
+                              fieldname="Téléphone" ng-if="signInSettings.Phone"></text-field-borne>
+            <text-field-borne id="fax" ng-model="newLoyalty.CustomerFax" validfunction="$root.closeKeyboard"
+                              nativekeyboard="true" location="center-end" type="azerty" fieldname="Fax"
+                              ng-if="signInSettings.Fax"></text-field-borne>
+            <text-field-borne id="company" ng-model="newLoyalty.CustomerCompany" validfunction="$root.closeKeyboard"
+                              nativekeyboard="true" location="center-end" type="azerty"
+                              fieldname="Société" ng-if="signInSettings.Company"></text-field-borne>
+            <text-field-borne id="txtBarcodeCustomer" ng-model="newLoyalty.barcode.barcodeValue"
+                              validfunction="$root.closeKeyboard"
+                              nativekeyboard="true" location="center-end" type="azerty"
+                              fieldname="N&#176; Carte"></text-field-borne>
+            <div ng-model="pubMail" class="checkboxBorneH" ng-click="pubMail = !pubMail"
+                         ng-style="{ 'background-color' : pubMail ? $root.tenantColor : 'white',
+                     'border-color' : pubMail ? $root.tenantColor : '#E5E5E5' }" translate>
+                J'accepte de recevoir par mail les informations concernant mon compte et les offres de fidélité
+            </div>
+            <div ng-model="acceptRules" class="checkboxBorneH" ng-click="acceptRules = !acceptRules"
+                         ng-style="{ 'background-color' : acceptRules ? $root.tenantColor : 'white',
+                     'border-color' : acceptRules ? $root.tenantColor : '#E5E5E5' }" translate>
+                En cliquant sur cette case, vous acceptez notre politique sur les données personnelles
+            </div>
+            <div class="groupBtn">
+                <md-button class="btnModalSmall btnLeft" ng-click="close()">
+                    <span class="mainBtnMsText" translate>Annuler</span>
+                </md-button>
+                <md-button class="btnModalSmall btnRight colored"
+                           ng-style="{ 'background-color': $root.tenantColor }"
+                           ng-click="validCustomer()">
+                    <span class="mainBtnMsText" style="color: white;" translate>Enregistrer</span>
+                </md-button>
+            </div>
+        </div>
+    </section>
+</section>

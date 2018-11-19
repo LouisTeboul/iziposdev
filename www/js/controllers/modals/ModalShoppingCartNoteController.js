@@ -1,5 +1,5 @@
 ﻿app.controller('ModalShoppingCartNoteController', function ($scope, $rootScope, $uibModalInstance, $translate) {
-    var current = this;
+    let current = this;
 
     $scope.valueKeyboard = "";
     $scope.value = "";

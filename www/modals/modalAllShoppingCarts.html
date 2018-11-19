@@ -1,5 +1,4 @@
-﻿
-<section class="shoppingCartModal" ng-init="init()">
+﻿<section class="shoppingCartModal" ng-init="init()">
     <div class="modal-header">
         <h1 class="modal-title">Tickets enregistrés</h1>
     </div>
@@ -67,7 +66,7 @@
                             <a ng-click="updateFilterPaiement(undefined)">Moyens de paiement</a>
                         </li>
                         <li ng-repeat="paiement in listPaiements" class="item">
-                            <a ng-click="updateFilterPaiement(paiement.id,paiement.name)">&nbsp;{{paiement.name}}</a>
+                            <a ng-click="updateFilterPaiement(paiement)">&nbsp;{{paiement}}</a>
                         </li>
                     </ul>
                 </div>
@@ -85,7 +84,10 @@
             </div>
         </div>
         <div ng-if="loading">
-            <div style="text-align: center;"><h2>Chargement...</h2></div>
+            <div style="text-align: center;">
+                <h2>Chargement, Cela peut prendre jusqu'à une minute.</h2><br>
+                <h2>Veuillez patienter...</h2>
+            </div>
         </div>
         <kendo-grid ng-hide="loading" k-data-source="gridDatas"
                     k-columns="gridColumns" k-sortable="true" k-filterable="false" k-groupable="false" k-pageable="true"

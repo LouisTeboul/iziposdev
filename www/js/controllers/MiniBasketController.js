@@ -155,8 +155,9 @@ app.controller('MiniBasketController', ['$scope', '$http', '$rootScope', '$state
 
         $scope.setDeliveryType = function (value) {
             if (value !== 0 &&
-                ($rootScope.IziBoxConfiguration.OrderPopUpOnDeliveryChange ||
-                    $rootScope.UserPreset && $rootScope.UserPreset.PhoneOrder && $rootScope.UserPreset.PhoneOrder.Popup)) {
+                 ($rootScope.IziBoxConfiguration.OrderPopUpOnDeliveryChange ||
+                    ($rootScope.UserPreset && $rootScope.UserPreset.PhoneOrder && $rootScope.UserPreset.PhoneOrder.Popup) )
+                ) {
                 shoppingCartModel.editDeliveryInfos();
             }
 
@@ -216,7 +217,7 @@ app.controller('MiniBasketController', ['$scope', '$http', '$rootScope', '$state
 
                     for (let item of $scope.currentShoppingCart.Items) {
                         if (item.Attributes && item.Attributes.length > 0) {
-                            for (let attr of item.Attributes) {
+                            for (let attr of Array.from(item.Attributes)) {
                                 addItemToStep(item, attr.Step);
                             }
                         } else {
@@ -321,10 +322,12 @@ app.controller('MiniBasketController', ['$scope', '$http', '$rootScope', '$state
             resizeMiniBasket();
 
             let updatedItemElem;
-            if ($rootScope.borne) {
-                updatedItemElem = document.getElementById(item.ProductId);
-            } else {
-                updatedItemElem = document.querySelector(`#itemRow${item.hashkey}`);
+            if (item) {
+                if ($rootScope.borne) {
+                    updatedItemElem = document.getElementById(item.ProductId);
+                } else {
+                    updatedItemElem = document.querySelector(`#itemRow${item.hashkey}`);
+                }
             }
             if (updatedItemElem && $mdMedia('min-width: 800px')) {
                 updatedItemElem.scrollIntoView({block: "end", inline: "nearest", behavior: "smooth"});
@@ -579,12 +582,16 @@ app.controller('MiniBasketController', ['$scope', '$http', '$rootScope', '$state
 
 
         function tryMatch(itemIn, shoppingCartTo) {
+            // Unsplit
+            itemIn.isPartSplitItem = false;
             if (shoppingCartTo.Items) {
                 let matchedItem = Enumerable.from(shoppingCartTo.Items).firstOrDefault(function (itemTo) {
                     return itemTo.hashkey === itemIn.hashkey && itemTo.Product.Name === itemIn.Product.Name;
                 });
 
                 if (matchedItem) {
+                    // Unsplit
+                    matchedItem.isPartSplitItem = false;
                     const miq = new Decimal(matchedItem.Quantity);
                     const iiq = new Decimal(itemIn.Quantity);
                     matchedItem.Quantity = parseFloat(miq.plus(iiq));
@@ -602,10 +609,10 @@ app.controller('MiniBasketController', ['$scope', '$http', '$rootScope', '$state
                     }
 
                 } else {
-                    shoppingCartTo.Items.push(itemIn)
+                    shoppingCartTo.Items.push(itemIn);
                 }
             } else {
-                shoppingCartTo.Items.push(itemIn)
+                shoppingCartTo.Items.push(itemIn);
             }
         }
 
@@ -669,17 +676,21 @@ app.controller('MiniBasketController', ['$scope', '$http', '$rootScope', '$state
         };
 
         $scope.validShoppingCart = function (ignorePrintTicket) {
-            if ($rootScope.UserPreset && $rootScope.UserPreset.ForceOnCreateTicket && $rootScope.UserPreset.ForceOnCreateTicket.Cutleries) {
+            // The Delivery Choice Modal and the Cutleries Model are not shown when we cancel a stored Ticket (From the ticket List)
+            if ($scope.currentShoppingCart.ParentTicket) {
+                shoppingCartModel.validShoppingCart(ignorePrintTicket);
+            }
+            else if ($rootScope.UserPreset && $rootScope.UserPreset.ForceOnCreateTicket && $rootScope.UserPreset.ForceOnCreateTicket.Cutleries) {
                 const modalInstance = $uibModal.open({
                     templateUrl: 'modals/modalCutleries.html',
                     controller: 'ModalCutleriesController',
                     size: 'sm',
                     resolve: {
                         initCutleries: function () {
-                            return $scope.currentShoppingCart.TableCutleries
+                            return $scope.currentShoppingCart.TableCutleries;
                         }
                     },
-                    backdrop: 'static',
+                    backdrop: 'static'
                 });
 
                 modalInstance.result.then(function (nbCutleries) {
@@ -702,24 +713,27 @@ app.controller('MiniBasketController', ['$scope', '$http', '$rootScope', '$state
         };
 
         $scope.confirmBorneOrder = function () {
-            if ($scope.currentShoppingCart.Items.length > 0) {
-                const modalInstance = $uibModal.open({
-                    templateUrl: 'modals/modalPickPaymentMode.html',
-                    controller: 'ModalPickPaymentModeController',
-                    backdrop: 'static',
-                    resolve: {
-                        pmAvailable: function () {
-                            return $scope.paymentModesAvailable;
-                        },
-                    }
-                });
-                modalInstance.result.then(function (toPos) {
-                    if (toPos) {
-                        shoppingCartModel.validBorneOrder();
-                    }
-                }, function () {
-                    console.log('Erreur');
-                });
+            if($scope.currentShoppingCart) {
+                if ($scope.currentShoppingCart.Items.length > 0) {
+                    const modalInstance = $uibModal.open({
+                        templateUrl: 'modals/modalPickPaymentMode.html',
+                        controller: 'ModalPickPaymentModeController',
+                        backdrop: 'static',
+                        windowClass: 'mainModals',
+                        resolve: {
+                            pmAvailable: function () {
+                                return $scope.paymentModesAvailable;
+                            },
+                        }
+                    });
+                    modalInstance.result.then(function (toPos) {
+                        if (toPos) {
+                            shoppingCartModel.validBorneOrder();
+                        }
+                    }, function () {
+                        console.log('Erreur');
+                    });
+                }
             }
         };
 
@@ -766,30 +780,33 @@ app.controller('MiniBasketController', ['$scope', '$http', '$rootScope', '$state
         };
 
         $scope.cancelShoppingCart = function () {
-            if (!$scope.currentShoppingCart.isPayed) {
-                if (!$scope.currentShoppingCart.ParentTicket) {
-                    if (posUserService.isEnable('DELT')) {
-                        const errMess = $scope.shoppingCartQueue && $scope.shoppingCartQueue.length > 0 ? "Vous allez supprimer toutes les parts d'un ticket partagé" : "";
-                        const title = $rootScope.borne ? "Abandonner la commande ?" : "Supprimer le ticket ?";
-                        swal({
-                                title: $translate.instant(title),
-                                text: errMess, type: "warning",
-                                showCancelButton: true,
-                                confirmButtonColor: "#d83448",
-                                confirmButtonText: $translate.instant("Oui"),
-                                cancelButtonText: $translate.instant("Non"),
-                                closeOnConfirm: true
-                            },
-                            function () {
-                                $scope.shoppingCartQueue = [];
-                                shoppingCartModel.cancelShoppingCartAndSend();
-                                if ($rootScope.borne) {
-                                    borneService.redirectToHome();
-                                }
-                            });
+            if ($scope.currentShoppingCart) {
+                if (!$scope.currentShoppingCart.isPayed) {
+                    $rootScope.isCustomerLog = false;
+                    if (!$scope.currentShoppingCart.ParentTicket) {
+                        if (posUserService.isEnable('DELT')) {
+                            const errMess = $scope.shoppingCartQueue && $scope.shoppingCartQueue.length > 0 ? "Vous allez supprimer toutes les parts d'un ticket partagé" : "";
+                            const title = $rootScope.borne ? "Abandonner la commande ?" : "Supprimer le ticket ?";
+                            swal({
+                                    title: $translate.instant(title),
+                                    text: errMess, type: "warning",
+                                    showCancelButton: true,
+                                    confirmButtonColor: "#d83448",
+                                    confirmButtonText: $translate.instant("Oui"),
+                                    cancelButtonText: $translate.instant("Non"),
+                                    closeOnConfirm: true
+                                },
+                                function () {
+                                    $scope.shoppingCartQueue = [];
+                                    shoppingCartModel.cancelShoppingCartAndSend();
+                                    if ($rootScope.borne) {
+                                        borneService.redirectToHome();
+                                    }
+                                });
+                        }
+                    } else {
+                        shoppingCartModel.clearShoppingCart();
                     }
-                } else {
-                    shoppingCartModel.clearShoppingCart();
                 }
             }
         };
@@ -885,7 +902,7 @@ app.controller('MiniBasketController', ['$scope', '$http', '$rootScope', '$state
         };
 
         $scope.getNbItems = function () {
-            return Math.round10(shoppingCartModel.getNbItems(), -2);
+            return roundValue(shoppingCartModel.getNbItems(), -2);
         };
 
         /** Clear the loyalty info linked to the ticket */

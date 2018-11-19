@@ -3,22 +3,22 @@ app.controller('ModalCashRegisterShoppingCartsController', function ($scope, $ro
 
     $scope.init = function () {
         $scope.gridColumns = [
-            {field: "alias", title: "Caisse"},
+            {field: "AliasCaisse", title: "Caisse"},
             {field: "PosUserName", title: "Opérateur"},
             {field: "Date", title: "Date", type: "date", format: "{0:dd/MM/yyyy HH:mm:ss}"},
             {field: "Timestamp", title: "No Ticket", width: 150},
             {field: "TableNumber", title: "Table", width: 80},
             {field: "Total", title: "Total", width: 80},
             {
-                template: "<button class=\"btn btn-default\" ng-click=\"editShopCartItem(dataItem)\"><span class='glyphicon glyphicon-pencil'></span></button>",
+                template: "<button class='btn btn-default' ng-click='editShopCartItem(dataItem)'><span class='glyphicon glyphicon-pencil'></span></button>",
                 title: " ",
                 width: 80
             },
             {
-                template: "<button class=\"btn btn-info\" ng-click=\"printNote(dataItem)\">" +
-                    "<img style=\"width:20px;\" alt=\"Image\" src=\"img/receipt.png\"/></button>" +
-                    "<button class=\"btn btn-rose\" style=\"margin-left:5px\" ng-click=\"selectShopCartItem(dataItem)\">" +
-                    "<img style=\"width:20px;\" alt=\"Image\" src=\"img/print.png\"></button>",
+                template: "<button class='btn btn-info spaced' ng-click='printNote(dataItem)'>" +
+                    "<img style='width:20px;' alt='Image' src='img/receipt.png'/></button>" +
+                    "<button class='btn btn-rose spaced' ng-click='selectShopCartItem(dataItem)'>" +
+                    "<img style='width:20px;' alt='Image' src='img/print.png'></button>",
                 title: " ",
                 width: 133
             }
@@ -44,16 +44,10 @@ app.controller('ModalCashRegisterShoppingCartsController', function ($scope, $ro
                 model: {
                     fields: {
                         PosUserName: {type: "string"},
-                        alias: {type: "string"},
+                        AliasCaisse: {type: "string"},
                         Date: {
-                            type: "date", parse: function (e) {
-                                // HACK -> However, JavaScript does work with mm/dd/yyyy format by default.
-                                let res = e.split("/");
-                                const tmp = res[0];
-                                res[0] = res[1];
-                                res[1] = tmp;
-                                e = res.join("/");
-                                return Date.parse(e, 'dd/MM/yyyy HH:mm:ss');
+                            type: "date", parse: (d) => {
+                                return moment(d, 'dd/MM/yyyy HH:mm:ss').toDate();
                             }
                         },
                         Timestamp: {type: "string"},
@@ -83,24 +77,14 @@ app.controller('ModalCashRegisterShoppingCartsController', function ($scope, $ro
      */
     $scope.loadValues = function (zpid, hid, ypid, filterAmount) {
         $scope.loading = true;
-        if (!ypid) ypid = {};
 
         // Get shopping cart by Hid ZPid
         zposService.getShoppingCartsByPeriodAsync(zpid, hid, ypid).then(function (shoppingCarts) {
-            if (isNaN(filterAmount) || filterAmount == 0) {
+            if (isNaN(filterAmount) || filterAmount === 0) {
                 $scope.displayShoppingCarts(shoppingCarts);
             } else {
-                let tmpSp = [];
-                Enumerable.from(shoppingCarts).forEach(function (sp, index) {
-                    if (sp.Total == filterAmount) {
-                        tmpSp.push(sp);
-                    }
-
-                    if (index == shoppingCarts.length - 1) {
-                        $scope.displayShoppingCarts(tmpSp);
-                    }
-                })
-
+                let filteredShoppingCarts = shoppingCarts.filter(s => s.Total === filterAmount);
+                $scope.displayShoppingCarts(filteredShoppingCarts);
             }
 
         }, function () {

@@ -3,7 +3,7 @@ var ROUND_NB_DIGIT = 2;
 //Les calculs sont faits sur la base d'une précision de 3 chiffres mais affiché avec une précision de deux
 var roundValue = function (value) {
     if (!isNaN(value)) {
-        var pow = Math.pow(10, 3);
+        var pow = Math.pow(10, ROUND_NB_DIGIT);
         return Math.round(value * pow) / pow;
     } else {
         return value;
@@ -13,10 +13,10 @@ var roundValue = function (value) {
 var adjustDividedQuantity = function (originalQuantity, value, divider) {
     if(value != 0 ){
         var delta = originalQuantity - (parseFloat(value) * divider);
-        delta = parseFloat(Math.round10(delta, -5));
+        delta = parseFloat(Math.round10(delta, -3));
         value = parseFloat(value) + delta;
     }
-    return value
+    return value;
 };
 
 var clone = function (objToClone) {

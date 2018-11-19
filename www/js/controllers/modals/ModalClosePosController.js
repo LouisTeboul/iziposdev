@@ -1,4 +1,4 @@
-﻿app.controller('ModalClosePosController', function ($scope, $rootScope, $http, $uibModal, $uibModalInstance, $translate, $q, settingService, shoppingCartService, eventService, cashMovementService, zposService, posPeriodService, closePosParameters, modalStats, posUserService, posService) {
+﻿app.controller('ModalClosePosController', function ($scope, $rootScope, $http, $uibModal, $uibModalInstance, $translate, $q, settingService, shoppingCartService, eventService, cashMovementService, zposService, posPeriodService, closePosParameters, modalStats, posUserService, posService, shoppingCartModel) {
     $scope.closePosParameters = closePosParameters;
     $scope.paymentType = PaymentType;
 
@@ -33,6 +33,7 @@
                             }
                         }, (err) => {
                             console.log(err);
+                            clearInterval(checkLockInterval);
                         })
                     });
                     return checkDefer.promise;
@@ -450,7 +451,7 @@
                     if ($scope.closePosParameters.yperiod) {
                         return $scope.closePosParameters.yperiod.id;
                     } else {
-                        return {};
+                        return null;
                     }
                 }
             }
@@ -513,7 +514,7 @@
     $scope.openZ = function () {
         $uibModalInstance.close();
 
-        $uibModal.open({
+        $rootScope.modalStatsEnabled = $uibModal.open({
             templateUrl: 'modals/modalStatsPeriod.html',
             controller: 'ModalStatsPeriodController',
             size: 'max',
@@ -550,6 +551,7 @@
                     }
                 }
             }
+
             if (hasGapGlobal) {
                 let modalInstance = $uibModal.open({
                     templateUrl: 'modals/modalClosePosJustification.html',
@@ -594,9 +596,7 @@
                 closeOnConfirm: true
             }, function (willClose) {
                 if (willClose) {
-
                     setTimeout(closePos, 500);
-
                 }
             });
 
@@ -625,13 +625,6 @@
     $scope.cancel = function () {
         clearInterval(checkLockInterval);
         $uibModalInstance.dismiss('cancel');
-
-        /*$uibModal.open({
-            templateUrl: 'modals/modalYperiodPick.html',
-            controller: 'ModalYperiodPickController',
-            size: 'lg',
-            backdrop: 'static'
-        });*/
 
         setTimeout(function () {
             $rootScope.closeKeyboard();
@@ -684,7 +677,7 @@
 
     const closeCashMachine = function (nbFreeze) {
         if (!$rootScope.modelPos.iziboxConnected) {
-            sweetAlert({title: $translate.instant("La izibox n'est pas accessible")}, function () {
+            sweetAlert({ title: $translate.instant("La izibox n'est pas accessible") }, function () {
             });
         } else {
             const textFreeze = nbFreeze && nbFreeze > 0 ? "Vous avez " + nbFreeze + " ticket en attente" : "";
@@ -698,6 +691,24 @@
                 cancelButtonText: $translate.instant("Non"),
                 closeOnConfirm: true
             }, function () {
+                const yperiodId = closePosParameters.yperiod ? $scope.closePosParameters.yperiod.id : null;
+
+                const periodRequest = {
+                    ZperiodId: closePosParameters.zperiod.id,
+                    YperiodId: yperiodId
+                };
+
+
+                let printMode = null;
+                if (yperiodId) {
+                    printMode = StatsPrintMode.Y;
+                } else {
+                    printMode = StatsPrintMode.Z;
+                }
+
+                const periodStatsApiUrl = "http://" + $rootScope.IziBoxConfiguration.LocalIpIziBox + ":" + $rootScope.IziBoxConfiguration.RestPort + "/zpos/getPeriodStats";
+
+                shoppingCartModel.clearShoppingCart();
 
                 let updPaymentModes = [];
                 switch ($scope.closePosParameters.mode.idMode) {
@@ -708,13 +719,25 @@
                             return hidModel.hid == $scope.closePosParameters.hid;
                         });
 
-                        posPeriodService.closeYPeriodAsync($scope.closePosParameters.yperiod, hardwareIdModel.CashMovementLines, $scope.model.emptyCash).then(function () {
+                        posPeriodService.closeYPeriodAsync($scope.closePosParameters.yperiod, hardwareIdModel.CashMovementLines, $scope.model.emptyCash).then(function (yPeriodRet) {
+
+                            // Impression du récap :
+                            $http.post(periodStatsApiUrl, periodRequest).then((statsAfterClose) => {
+                                const closingTicketHtml = zposService.composeStatsHTML(statsAfterClose.data, printMode, $scope.model.hardwareIdModels, false);
+                                zposService.printZPosAsync(closingTicketHtml);
+
+                            }, function (err) {
+                                const message = $translate.instant("Erreur lors de la récupération des données");
+                                sweetAlert({ title: message }, function () {
+                                });
+                            });
+
                             // Si vider le cash, création d'un mouvement fermeture
                             emptyCashYperiod(hardwareIdModel.CashMovementLines);
 
                         }, function (err) {
-                            const message = err ? err : $translate.instant("La izibox n'est pas accèssible");
-                            sweetAlert({title: message}, function () {
+                            const message = err ? err : $translate.instant("La izibox n'est pas accessible");
+                            sweetAlert({ title: message }, function () {
                             });
                         });
 
@@ -730,12 +753,24 @@
                             let hardwareIdModel = Enumerable.from($scope.model.hardwareIdModels).firstOrDefault(function (hidModel) {
                                 return hidModel.hid == $scope.closePosParameters.hid;
                             });
-                            posPeriodService.closeYPeriodAsync(yPeriod, hardwareIdModel.CashMovementLines, $scope.model.emptyCash).then(function () {
+                            posPeriodService.closeYPeriodAsync(yPeriod, hardwareIdModel.CashMovementLines, $scope.model.emptyCash).then(function (yPeriodRet) {
+
+                                // Impression du récap :
+                                $http.post(periodStatsApiUrl, periodRequest).then((statsAfterClose) => {
+                                    const closingTicketHtml = zposService.composeStatsHTML(statsAfterClose.data, printMode, $scope.model.hardwareIdModels, false);
+                                    zposService.printZPosAsync(closingTicketHtml);
+
+                                }, function (err) {
+                                    const message = $translate.instant("Erreur lors de la récupération des données");
+                                    sweetAlert({ title: message }, function () {
+                                    });
+                                });
+
                                 // Si vider le cash, création d'un mouvement fermeture
                                 emptyCashYperiod(hardwareIdModel.CashMovementLines);
                             }, function (err) {
-                                const message = err ? err : $translate.instant("La izibox n'est pas accèssible");
-                                sweetAlert({title: message}, function () {
+                                const message = err ? err : $translate.instant("La izibox n'est pas accessible");
+                                sweetAlert({ title: message }, function () {
                                 });
                             });
                         }
@@ -744,11 +779,27 @@
                     case 3:
                         //Fermeture de Z
 
+                        // Et on le stock dans la base Zarchive
+                        // TODO : Avoir la meme date de fin pour cet ID, et dans le Z
+                        // ATTENTION : Vu qu'on imprime avant de cloturer le Z, on a pas la "vrai" date de fermeture
+                        // zposService.saveZArchive( $rootScope.IziBoxConfiguration.StoreId + "_" + stats.data.DateStart + "_" + new Date().getTime(), stats.data, closingTicketHtml);
+
                         // Fermeture de la période
-                        posPeriodService.closeZPeriodAsync($scope.closePosParameters.zperiod).then(function () {
+                        posPeriodService.closeZPeriodAsync($scope.closePosParameters.zperiod).then(function (zPeriodRet) {
+
+                            // Impression du récap :
+                            $http.post(periodStatsApiUrl, periodRequest).then((statsAfterClose) => {
+                                const closingTicketHtml = zposService.composeStatsHTML(statsAfterClose.data, printMode, $scope.model.hardwareIdModels, false);
+                                zposService.printZPosAsync(closingTicketHtml);
+
+                            }, function (err) {
+                                const message = $translate.instant("Erreur lors de la récupération des données");
+                                sweetAlert({ title: message }, function () {
+                                });
+                            });
 
                             // Pour chaque caisse faire envoyer au BO les valeurs saisie lors de la fermeture
-                            for(let hidModel of $scope.model.hardwareIdModels) {
+                            for (let hidModel of $scope.model.hardwareIdModels) {
 
                                 updPaymentModes = [];
                                 let closPosVal = clone($scope.closePosValues);
@@ -758,7 +809,7 @@
                                 // Set the value
                                 closPosVal.CashMovementLines = hidModel.CashMovementLines;
 
-                                for(let cm of hidModel.CashMovementLines) {
+                                for (let cm of hidModel.CashMovementLines) {
                                     let cmExist = Enumerable.from(updPaymentModes).firstOrDefault(function (pm) {
                                         return pm.PaymentMode.Text == cm.PaymentMode.Text;
                                     });
@@ -776,24 +827,26 @@
                                     $uibModalInstance.close();
                                 }, function (err) {
                                     const message = err ? err : $translate.instant("Erreur lors de la fermeture");
-                                    sweetAlert({title: message}, function () {
+                                    sweetAlert({ title: message }, function () {
                                     });
                                 });
                             }
 
                         }, function (err) {
-                            const message = err ? err : $translate.instant("La izibox n'est pas accèssible");
-                            sweetAlert({title: message}, function () {
+                            console.log(err);
+                            const message = err ? err : $translate.instant("La izibox n'est pas accessible");
+                            sweetAlert({ title: message }, function () {
                             });
                         });
 
                         break;
                 }
+
                 setTimeout(function () {
                     $rootScope.closeKeyboard();
                 }, 500);
             }, function () {
             });
         }
-    }
+    };
 });

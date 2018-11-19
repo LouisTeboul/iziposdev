@@ -1,8 +1,9 @@
 ﻿<section id="modalConnectionMode" class="modalCenterFS" ng-init="init()"
          ng-style="customStyle">
-    <section class="groupModal" style="flex:3"
+    <section class="groupModal"
              ng-style="{'justify-content' : $root.borne && $root.borneVertical ? 'flex-end' : 'center'}">
-        <img ng-src="{{$root.borneMainLogo && $root.borneMainLogo || 'img/logo.png'}}" class="imgLogoHeader" alt=""/>
+        <img ng-src="{{$root.borneMainLogo && $root.borneMainLogo || 'img/logo.png'}}"
+             class="imgLogoHeader" draggable="false" alt="" src=""/>
         <div class="firstTitle">
             <span translate>Bienvenue</span>,&nbsp;
             <span translate>identifiez-vous</span>
@@ -14,7 +15,8 @@
     <section class="groupModal" style="flex:4"
              ng-style="{'justify-content' : $root.borne && $root.borneVertical ? 'flex-start' : 'center'}">
         <md-button class="btnModalBig" ng-click="redirectToConnection()"
-                   ng-style="{'margin' : $root.borne && $root.borneVertical ? '50px 0 0' : '0'}">
+                   ng-style="{'margin' : $root.borne && $root.borneVertical ?
+                   (mdMedia('min-width: 800px') ? '50px 0 0' : '26px 0 0') : '0'}">
             <div class="btnMbIcon">
                 <md-icon md-svg-src="img/icons/connexion.svg"
                          ng-style="{ 'color' : $root.tenantColor}"></md-icon>
@@ -23,10 +25,12 @@
                 ng-style="{ 'background-color' : $root.tenantColor}">
             <div class="btnMbText">
                 <span class="mainBtnMbText" translate>Connexion</span>
-                <span class="altBtnMbText" translate>Connectez-vous en scannant votre carte de fidélité</span>
+                <span class="altBtnMbText"
+                      ng-if="mdMedia('min-width:800px')" translate>Connectez-vous en scannant votre carte de fidélité</span>
             </div>
         </md-button>
-        <md-button class="btnModalBig" ng-click="redirectToCustomer()">
+        <md-button class="btnModalBig" ng-click="redirectToCustomer()" ng-style="{'margin': $root.borne && $root.borneVertical ?
+        (mdMedia('min-width: 800px') ? '50px 0 0' : '20px 0 0') : (mdMedia('min-width: 800px') ? '50px 0 0' : '10px 0 0')}">
             <div class="btnMbIcon">
                 <md-icon md-svg-src="img/icons/inscription.svg"
                          ng-style="{ 'color' : $root.tenantColor}"></md-icon>
@@ -35,10 +39,12 @@
                 ng-style="{ 'background-color' : $root.tenantColor}">
             <div class="btnMbText">
                 <span class="mainBtnMbText" translate>Inscription</span>
-                <span class="altBtnMbText"><x translate>Créez votre compte fidélité dès-maintenant</x>&nbsp;!</span>
+                <span class="altBtnMbText"
+                      ng-if="mdMedia('min-width: 800px')"><x translate>Créez votre compte fidélité dès-maintenant</x>&nbsp;!</span>
             </div>
         </md-button>
-        <md-button class="btnModalBig" ng-click="close()">
+        <md-button class="btnModalBig" ng-click="close()" ng-style="{'margin': $root.borne && $root.borneVertical ?
+        (mdMedia('min-width: 800px') ? '50px 0 0' : '20px 0 0') : (mdMedia('min-width: 800px') ? '50px 0 0' : '10px 0 0')}">
             <div class="btnMbIcon">
                 <md-icon md-svg-src="img/icons/skip.svg"
                          ng-style="{ 'color' : $root.tenantColor}"></md-icon>
@@ -47,7 +53,7 @@
                 ng-style="{ 'background-color' : $root.tenantColor}">
             <div class="btnMbText">
                 <span class="mainBtnMbText" translate>Ignorer</span>
-                <span class="altBtnMbText"><x translate>Continuez sans vous identifier</x>.</span>
+                <span class="altBtnMbText" ng-if="mdMedia('min-width: 800px')"><x translate>Continuez sans vous identifier</x>.</span>
             </div>
         </md-button>
         <div class="langSelection">

@@ -142,7 +142,7 @@ app.controller('CatalogController', function ($scope, $rootScope, $state, $uibMo
     };*/
 
     $scope.getNbItems = function () {
-        return Math.round10(shoppingCartModel.getNbItems(), -2);
+        return roundValue(shoppingCartModel.getNbItems());
     };
     //#endregion
 
@@ -200,7 +200,7 @@ app.controller('CatalogController', function ($scope, $rootScope, $state, $uibMo
 
         $scope.warning = $uibModal.open({
             templateUrl: 'warning-dialog.html',
-            windowClass: 'modal-danger'
+            windowClass: 'mainModals modal-danger'
         });
     });
 
@@ -210,6 +210,7 @@ app.controller('CatalogController', function ($scope, $rootScope, $state, $uibMo
 
     $scope.$on('IdleTimeout', function () {
         closeModals();
+        $rootScope.closeKeyboard();
         if ($rootScope.borne) {
             shoppingCartModel.cancelShoppingCart();
             $uibModalStack.dismissAll();

@@ -63,7 +63,6 @@
     src: url('fonts/SignikaNegative-Bold.ttf') format('truetype');
 }
 
-
 @font-face {
     font-family: 'LEDCalculator';
     src: url('fonts/LEDCalculator.ttf') format('truetype');
@@ -152,8 +151,7 @@ label {
 
 .loadingMessage {
     text-align: center;
-    padding: 20px;
-    font-size: 20px;
+    padding: 20px 0 10px;
 }
 
 input:focus, textarea:focus {
@@ -231,13 +229,16 @@ md-input-container label:not(._md-container-ignore) {
 
 @media (min-width: 800px) {
 
+    .loadingTitle {
+        font-size: 36px;
+    }
+
     .loading .gaugeValue {
         bottom: 100px;
         font-size: 15px;
     }
 
     .gaugeWrap {
-        width: auto;
         margin-top: 100px;
     }
 
@@ -250,9 +251,30 @@ md-input-container label:not(._md-container-ignore) {
     .loading .gauge {
         margin-left: -75px;
     }
+
+    .loadingMessage {
+        font-size: 20px;
+    }
+
+    .configRow .value.special {
+        min-width: 250px;
+    }
 }
 
 @media (max-width: 799px) {
+
+    .configRow .value.special {
+        min-width: 100px;
+    }
+
+    .loadingMessage {
+        font-size: 14px;
+    }
+
+    .loadingTitle {
+        font-size: 20px;
+    }
+
     .configuration {
         zoom: 70%;
     }
@@ -262,14 +284,13 @@ md-input-container label:not(._md-container-ignore) {
     }
 
     .gaugeWrap {
-        width: 240px;
-        margin-top: 50px;
+        margin-top: 0;
     }
 
     .loading .gaugeContainer {
         height: 75px;
         width: 100px;
-        margin: 25px 10px;
+        margin: 10px 0;
     }
 
     .loading .gaugeContainer .gauge {
@@ -290,9 +311,13 @@ md-input-container label:not(._md-container-ignore) {
 }
 
 .configRow {
-    min-height: 30px;
+    min-height: 26px;
     padding-top: 0;
     padding-bottom: 0;
+}
+
+.configRow.special {
+    border-bottom: 1px solid #C2C2C2;
 }
 
 .configRow .title {
@@ -301,6 +326,10 @@ md-input-container label:not(._md-container-ignore) {
 
 .configRow .value {
     text-align: center;
+}
+
+.configRow .value.special md-switch {
+    margin:10px 0;
 }
 
 .configRow .uib-dropdown-menu .menuItemLink {
@@ -379,4 +408,15 @@ md-input-container label:not(._md-container-ignore) {
 
 .productIPDisabled img {
     filter: brightness(0.7);
+}
+
+.logoConfig {
+    pointer-events: none;
+    width: 70px;
+    height: 70px;
+}
+
+.imgLogoHeader.smallCatalogLogo {
+    pointer-events: none;
+    max-width: 100px;
 }

@@ -7,79 +7,62 @@
         <div layout="column" layout-margin>
 
             <!-- PAGE 1-->
-
             <div layout="row" ng-show="$root.currentPage == 1">
                 <label flex="20" translate>Adresse*</label>
-                <text-field flex="70" class="flexbox" id="Address1" ng-model="model.mandatory.Address1"
-                            location="center-end" type="azerty" validfunction="$root.closeKeyboard"
-                            style="width:510px;margin-right:10px;min-height:34px;"></text-field>
+                <text-field flex="70" class="flexbox tfBorne" id="Address1" ng-model="model.mandatory.Address1"
+                            location="center-end" type="azerty" validfunction="$root.closeKeyboard"></text-field>
             </div>
             <div layout="row" ng-show="$root.currentPage == 1">
                 <label flex="20" translate>Code Postal*</label>
-                <text-field flex="70" class="flexbox" id="ZipPostalCode" ng-model="model.mandatory.ZipPostalCode"
-                            location="center-end" type="azerty" validfunction="$root.closeKeyboard"
-                            style="width:510px;margin-right:10px;min-height:34px;"></text-field>
+                <text-field flex="70" class="flexbox tfBorne" id="ZipPostalCode" ng-model="model.mandatory.ZipPostalCode"
+                            location="center-end" type="azerty" validfunction="$root.closeKeyboard"></text-field>
             </div>
             <div layout="row" ng-show="$root.currentPage == 1">
                 <label flex="20" translate>Ville*</label>
-                <text-field flex="70" class="flexbox" id="City" ng-model="model.mandatory.City"
-                            location="center-end" type="azerty" validfunction="$root.closeKeyboard"
-                            style="width:510px;margin-right:10px;min-height:34px;"></text-field>
+                <text-field flex="70" class="flexbox tfBorne" id="City" ng-model="model.mandatory.City"
+                            location="center-end" type="azerty" validfunction="$root.closeKeyboard"></text-field>
             </div>
             <div layout="row" ng-show="$root.currentPage == 1">
                 <label flex="20" translate>Tel.*</label>
-                <text-field flex="70" class="flexbox" id="Phone" ng-model="model.mandatory.Phone"
-                            location="center-end" type="azerty" validfunction="$root.closeKeyboard"
-                            style="width:510px;margin-right:10px;min-height:34px;"></text-field>
+                <text-field flex="70" class="flexbox tfBorne" id="Phone" ng-model="model.mandatory.Phone"
+                            location="center-end" type="azerty" validfunction="$root.closeKeyboard"></text-field>
             </div>
 
             <!-- PAGE 2-->
-
-
             <div layout="row" ng-show="$root.currentPage == 2">
                 <label flex="20" translate>Etage </label>
-                <text-field flex="70" class="flexbox" id="Floor" ng-model="model.Floor"
-                            location="center-end" type="azerty" validfunction="$root.closeKeyboard"
-                            style="width:510px;margin-right:10px;min-height:34px;"></text-field>
+                <text-field flex="70" class="flexbox tfBorne" id="Floor" ng-model="model.Floor"
+                            location="center-end" type="azerty" validfunction="$root.closeKeyboard"></text-field>
             </div>
             <div layout="row" ng-show="$root.currentPage == 2">
                 <label flex="20" translate>Porte </label>
-                <text-field flex="70" class="flexbox" id="Door" ng-model="model.Door"
-                            location="center-end" type="azerty" validfunction="$root.closeKeyboard"
-                            style="width:510px;margin-right:10px;min-height:34px;"></text-field>
+                <text-field flex="70" class="flexbox tfBorne" id="Door" ng-model="model.Door"
+                            location="center-end" type="azerty" validfunction="$root.closeKeyboard"></text-field>
             </div>
             <div layout="row" ng-show="$root.currentPage == 2">
                 <label flex="20" translate>Digicode </label>
-                <text-field flex="70" class="flexbox" id="Digicode" ng-model="model.Digicode"
-                            location="center-end" type="azerty" validfunction="$root.closeKeyboard"
-                            style="width:510px;margin-right:10px;min-height:34px;"></text-field>
+                <text-field flex="70" class="flexbox tfBorne" id="Digicode" ng-model="model.Digicode"
+                            location="center-end" type="azerty" validfunction="$root.closeKeyboard"></text-field>
             </div>
 
             <!-- PAGE 3-->
-
             <div layout="row" ng-show="$root.currentPage == 3">
                 <label flex="20" translate>Interphone </label>
-                <text-field flex="70" class="flexbox" id="Interphone" ng-model="model.InterCom"
-                            location="center-end" type="azerty" validfunction="$root.closeKeyboard"
-                            style="width:510px;margin-right:10px;min-height:34px;"></text-field>
+                <text-field flex="70" class="flexbox tfBorne" id="Interphone" ng-model="model.InterCom"
+                            location="center-end" type="azerty" validfunction="$root.closeKeyboard"></text-field>
             </div>
         </div>
-
         <div style="margin-left:40%">
             <ul direction-links="false" uib-pagination items-per-page="3" total-items="7"
                 ng-model="$root.currentPage" ng-change="pageChanged()"></ul>
         </div>
-
     </div>
-
-    <div class="inp" ng-if="errorMessage" style="text-align: center; display: block;">
+    <div class="inp" ng-if="errorMessage" style="text-align:center;display:block;">
         <span class="labelErr">{{errorMessage}}</span>
     </div>
-
     <div class="modal-footer">
         <button class="btn btn-green" ng-click="ok()">OK
         </button>
         <button class="btn btn-rose" ng-click="cancel()" translate>Annuler</button>
     </div>
-
 </section>

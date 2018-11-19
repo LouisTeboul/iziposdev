@@ -334,73 +334,75 @@
                 tableText += "(" + table.Cutleries + ")";
             }
 
-            if (tableDetails.type === 'Labeledcircle') {
-                let circle = $scope.canvasPlanBO.ellipse(
-                    (tableDetails.left * ratio) + (((tableDetails.width * tableDetails.scaleX) * ratio) / 2) + offset,
-                    (tableDetails.top * ratio) + (((tableDetails.height * tableDetails.scaleY) * ratio) / 2) + 1,
-                    ((tableDetails.width * tableDetails.scaleX) * ratio) / 2,
-                    ((tableDetails.height * tableDetails.scaleY) * ratio) / 2)
-                    .attr({
-                        "fill": tableDetails.fill,
-                        "stroke": color,
-                        "stroke-width": stroke
-                    })
-                    .click(function () {
-                        $scope.selectTableById($scope.currentMap.Name, $scope.currentArea.Name, tableDetails.id);
-                        this.attr("fill", "#E0B20B");
-                    });
-                let cText = $scope.canvasPlanBO.text(
-                    (tableDetails.left * ratio) + (((tableDetails.width * tableDetails.scaleX) * ratio) / 2) + offset,
-                    (tableDetails.top * ratio) + (((tableDetails.height * tableDetails.scaleY) * ratio) / 2) + 1,
-                    tableText)
-                    .attr({
-                        "fill": "#fff",
-                        "font-size": "14px"
-                    })
-                    .click(function () {
-                        $scope.selectTableById($scope.currentMap.Name, $scope.currentArea.Name, tableDetails.id);
-                        circle.attr("fill", "#E0B20B");
-                    });
-                if (color === "#f00") {
-                    cText.attr("stroke", color);
+            if(tableDetails) {
+                if (tableDetails.type === 'Labeledcircle') {
+                    let circle = $scope.canvasPlanBO.ellipse(
+                        (tableDetails.left * ratio) + (((tableDetails.width * tableDetails.scaleX) * ratio) / 2) + offset,
+                        (tableDetails.top * ratio) + (((tableDetails.height * tableDetails.scaleY) * ratio) / 2) + 1,
+                        ((tableDetails.width * tableDetails.scaleX) * ratio) / 2,
+                        ((tableDetails.height * tableDetails.scaleY) * ratio) / 2)
+                        .attr({
+                            "fill": tableDetails.fill,
+                            "stroke": color,
+                            "stroke-width": stroke
+                        })
+                        .click(function () {
+                            $scope.selectTableById($scope.currentMap.Name, $scope.currentArea.Name, tableDetails.id);
+                            this.attr("fill", "#E0B20B");
+                        });
+                    let cText = $scope.canvasPlanBO.text(
+                        (tableDetails.left * ratio) + (((tableDetails.width * tableDetails.scaleX) * ratio) / 2) + offset,
+                        (tableDetails.top * ratio) + (((tableDetails.height * tableDetails.scaleY) * ratio) / 2) + 1,
+                        tableText)
+                        .attr({
+                            "fill": "#fff",
+                            "font-size": "14px"
+                        })
+                        .click(function () {
+                            $scope.selectTableById($scope.currentMap.Name, $scope.currentArea.Name, tableDetails.id);
+                            circle.attr("fill", "#E0B20B");
+                        });
+                    if (color === "#f00") {
+                        cText.attr("stroke", color);
+                    }
+                    circle.defaultColor = tableDetails.fill;
+                    $scope.currentArea.objCanvas.push([circle, cText, table.Id, table.TableNumber]);
+                } else {
+                    let rect = $scope.canvasPlanBO.rect(
+                        tableDetails.left * ratio + offset,
+                        tableDetails.top * ratio + 1,
+                        (tableDetails.width * tableDetails.scaleX) * ratio,
+                        (tableDetails.height * tableDetails.scaleY) * ratio)
+                        .attr({
+                            "fill": tableDetails.fill,
+                            "stroke": color,
+                            "stroke-width": stroke
+                        })
+                        .click(function () {
+                            $scope.selectTableById($scope.currentMap.Name, $scope.currentArea.Name, tableDetails.id);
+                            this.attr("fill", "#E0B20B");
+                        });
+                    let rText = $scope.canvasPlanBO.text(
+                        tableDetails.left * ratio + ((tableDetails.width * tableDetails.scaleX) * ratio) / 2 + offset,
+                        tableDetails.top * ratio + ((tableDetails.height * tableDetails.scaleY) * ratio) / 2 + 1,
+                        tableText)
+                        .attr({
+                            "fill": "#fff",
+                            "font-size": "14px"
+                        })
+                        .click(function () {
+                            $scope.selectTableById($scope.currentMap.Name, $scope.currentArea.Name, tableDetails.id);
+                            rect.attr("fill", "#E0B20B");
+                        });
+                    if (color === "#f00") {
+                        rText.attr({
+                            "fill": color,
+                            "stroke": color
+                        });
+                    }
+                    rect.defaultColor = tableDetails.fill;
+                    $scope.currentArea.objCanvas.push([rect, rText, table.Id, table.TableNumber]);
                 }
-                circle.defaultColor = tableDetails.fill;
-                $scope.currentArea.objCanvas.push([circle, cText, table.Id, table.TableNumber]);
-            } else {
-                let rect = $scope.canvasPlanBO.rect(
-                    tableDetails.left * ratio + offset,
-                    tableDetails.top * ratio + 1,
-                    (tableDetails.width * tableDetails.scaleX) * ratio,
-                    (tableDetails.height * tableDetails.scaleY) * ratio)
-                    .attr({
-                        "fill": tableDetails.fill,
-                        "stroke": color,
-                        "stroke-width": stroke
-                    })
-                    .click(function () {
-                        $scope.selectTableById($scope.currentMap.Name, $scope.currentArea.Name, tableDetails.id);
-                        this.attr("fill", "#E0B20B");
-                    });
-                let rText = $scope.canvasPlanBO.text(
-                    tableDetails.left * ratio + ((tableDetails.width * tableDetails.scaleX) * ratio) / 2 + offset,
-                    tableDetails.top * ratio + ((tableDetails.height * tableDetails.scaleY) * ratio) / 2 + 1,
-                    tableText)
-                    .attr({
-                        "fill": "#fff",
-                        "font-size": "14px"
-                    })
-                    .click(function () {
-                        $scope.selectTableById($scope.currentMap.Name, $scope.currentArea.Name, tableDetails.id);
-                        rect.attr("fill", "#E0B20B");
-                    });
-                if (color === "#f00") {
-                    rText.attr({
-                        "fill": color,
-                        "stroke": color
-                    });
-                }
-                rect.defaultColor = tableDetails.fill;
-                $scope.currentArea.objCanvas.push([rect, rText, table.Id, table.TableNumber]);
             }
         }
     };

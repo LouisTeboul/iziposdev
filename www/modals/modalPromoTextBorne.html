@@ -1,0 +1,23 @@
+﻿<section class="offerModal promo">
+    <div class="offerModalHeader promo">
+        <span class="offerModalTitle" translate>{{offerPromoText.OfferClassDescription}}</span>
+    </div>
+    <div class="listOffers">
+        <div class="itemOfferList">
+            <div class="offerDetails">
+                <span class="offerTitle" translate>{{offerPromoText.OfferObjectDescription}}</span>
+                <span class="offerDescription" ng-if="offer.DateOfValidity != undefined" translate>Offre valable jusqu'au : {{offerPromoText.DateOfValidity | date:"dd/MM/yyyy"}}</span>
+            </div>
+        </div>
+        <div class="itemOfferList" style="height:75px;"></div>
+    </div>
+    <div class="offerModalFooter">
+        <md-button class="offerModalBtn" ng-click="cancel()">
+            <span class="offerModalBtnText" translate>Annuler</span>
+        </md-button>
+        <md-button class="offerModalBtn" ng-click="useOfferText(offerPromoText)"
+                   style="margin-right:50px;" ng-style="{ 'background-color' : $root.tenantColor}">
+            <span class="offerModalBtnText" translate>Utiliser l'offre</span>
+        </md-button>
+    </div>
+</section>

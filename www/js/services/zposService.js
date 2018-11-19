@@ -2,11 +2,11 @@
  * @function zposService
  * @description This is a service to manage the zpos data
  */
-app.service('zposService', ['$http', '$rootScope', '$q', 'posLogService', 'posPeriodService',
-    function ($http, $rootScope, $q, posLogService, posPeriodService) {
-        var current = this;
-        var hardwareId = undefined;
-        var allYperiods = [];
+app.service('zposService', ['$http', '$rootScope', '$q', '$filter', '$translate', 'settingService',
+    function ($http, $rootScope, $q, $filter, $translate, settingService) {
+
+        let hardwareId = undefined;
+        const maxEndDate = "9999999999999999";
 
         this.init = function () {
             hardwareId = $rootScope.modelPos.hardwareId;
@@ -17,11 +17,11 @@ app.service('zposService', ['$http', '$rootScope', '$q', 'posLogService', 'posPe
          * @param ShoppingCartId The Shopping cart ID
          */
         this.getShoppingCartByIdAsync = function (ShoppingCartId) {
-            var valueDefer = $q.defer();
-            var db = $rootScope.remoteDbZPos ? $rootScope.remoteDbZPos : $rootScope.dbZPos;
+            let valueDefer = $q.defer();
+            let db = $rootScope.remoteDbZPos ? $rootScope.remoteDbZPos : $rootScope.dbZPos;
 
             db.get(ShoppingCartId).then(function (shoppingCart) {
-                var item = shoppingCart.data;
+                let item = shoppingCart.data;
                 item.id = shoppingCart._id;
                 item.rev = shoppingCart._rev;
                 valueDefer.resolve(item);
@@ -32,190 +32,10 @@ app.service('zposService', ['$http', '$rootScope', '$q', 'posLogService', 'posPe
             return valueDefer.promise;
         };
 
-        /**
-         * Recupere les ticket par alias et par date
-         * @param amount : montant du ticket recherché
-         * @param dateStart : date debut
-         * @param dateEnd : date fin
-         */
-        this.getShoppingCartByAmountDateAsync = function (dateStart, dateEnd, amount) {
-            var byAmountDate = $q.defer();
-            var db = $rootScope.remoteDbZPos ? $rootScope.remoteDbZPos : $rootScope.dbZPos;
-
-            if (!dateEnd) {
-                dateEnd = new Date(dateStart.toString());
-            }
-
-            var dateStartKey = dateStart.toString("yyyyMMdd");
-            var dateEndKey = dateEnd.toString("yyyyMMdd");
-
-
-            db.query("zpos/byAmountDate", {
-                startkey: [amount, dateStartKey],
-                endkey: [amount, dateEndKey]
-            }).then(function (resShoppingCarts) {
-                var allShoppingCarts = Enumerable.from(resShoppingCarts.rows).select(function (x) {
-
-                    var item = x.value.data;
-                    item.id = x.value._id;
-                    item.rev = x.value._rev;
-                    item.alias = x.value.data.AliasCaisse ? x.value.data.AliasCaisse : x.value.data.HardwareId;
-                    return item;
-                }).toArray();
-                byAmountDate.resolve(allShoppingCarts);
-
-            });
-
-            //Retourne un tableau de tout les shopping cart correspondant a un montant,
-            // durant la periode renseigné
-            return byAmountDate.promise;
-        };
-
-        this.getShoppingCartByPaiementDateAsync = function (dateStart, dateEnd, paiement) {
-            var byPaiementDate = $q.defer();
-            var db = $rootScope.remoteDbZPos ? $rootScope.remoteDbZPos : $rootScope.dbZPos;
-
-            if (!dateEnd) {
-                dateEnd = new Date(dateStart.toString());
-            }
-
-            var dateStartKey = dateStart.toString("yyyyMMdd");
-            var dateEndKey = dateEnd.toString("yyyyMMdd");
-
-            db.query("zpos/pmByDate", {
-                startkey: [ dateStartKey, paiement],
-                endkey: [ dateEndKey,paiement,{}]
-            }).then(function (resShoppingCarts) {
-                var allShoppingCarts = Enumerable.from(resShoppingCarts.rows).select(function (x) {
-
-                    var item = x.value.data;
-                    item.id = x.value._id;
-                    item.rev = x.value._rev;
-                    item.alias = x.value.data.AliasCaisse ? x.value.data.AliasCaisse : x.value.data.HardwareId;
-
-                    return item;
-                }).toArray();
-                byPaiementDate.resolve(allShoppingCarts);
-
-            });
-            return byPaiementDate.promise;
-        };
-
-        this.getPaiementByDateAsync = function (dateStart, dateEnd) {
-
-            var PaiementByDateDefer = $q.defer();
-            var db = $rootScope.remoteDbZPos;
-            if (!dateEnd) {
-                dateEnd = new Date(dateStart.toString());
-            }
-            var dateStartKey = dateStart.toString("yyyyMMdd");
-            var dateEndKey = dateEnd.toString("yyyyMMdd");
-
-            db.query("zpos/pmByDate", {
-                startkey: [dateStartKey],
-                endkey: [dateEndKey, {}, {}]
-            }).then(function (resShoppingCarts) {
-                var allPayments = Enumerable.from(resShoppingCarts.rows).select(function (x) {
-                    var item = {};
-                    item.name = x.key[2];
-                    item.id = x.key[1];
-                    return item;
-                }).toArray();
-                PaiementByDateDefer.resolve(allPayments);
-            }, function (errGet) {
-                console.log("erreur");
-                PaiementByDateDefer.reject(errGet);
-            });
-            return PaiementByDateDefer.promise;
-        };
-
-        /**
-         * Recupere les ticket par alias et par date
-         * @param alias
-         * @param dateStart : date debut
-         * @param dateEnd : date fin
-         */
-        this.getShoppingCartByAliasDateAsync = function (dateStart, dateEnd, alias) {
-            var byAliasDate = $q.defer();
-            var db = $rootScope.remoteDbZPos ? $rootScope.remoteDbZPos : $rootScope.dbZPos;
-
-            if (!dateEnd) {
-                dateEnd = new Date(dateStart.toString());
-            }
-
-            var dateStartKey = dateStart.toString("yyyyMMdd");
-            var dateEndKey = dateEnd.toString("yyyyMMdd");
-
-            db.query("zpos/byAliasDate", {
-                startkey: [alias, dateStartKey],
-                endkey: [alias, dateEndKey]
-            }).then(function (resShoppingCarts) {
-                var allShoppingCarts = Enumerable.from(resShoppingCarts.rows).select(function (x) {
-                    var item = x.value.data;
-                    item.id = x.value._id;
-                    item.rev = x.value._rev;
-                    item.alias = x.value.data.AliasCaisse ? x.value.data.AliasCaisse : x.value.data.HardwareId;
-
-                    return item;
-                }).toArray();
-                byAliasDate.resolve(allShoppingCarts);
-
-            });
-
-            //Retourne un tableau de tout les shopping cart correspondant a un alias,
-            // durant la periode renseigné
-            return byAliasDate.promise;
-        };
-
-
-        /**
-         * Recupere la liste des alias correspondant aux ticket des dates
-         * Pour la LOV du select
-         * @param dateStart : date de debut
-         * @param dateEnd : date de fin
-         */
-        this.getAliasesByDateAsync = function (dateStart, dateEnd) {
-
-            var aliasByDateDefer = $q.defer();
-            var db = $rootScope.remoteDbZPos ? $rootScope.remoteDbZPos : $rootScope.dbZPos;
-
-            if (!dateEnd) {
-                dateEnd = new Date(dateStart.toString());
-            }
-            var dateStartKey = dateStart.toString("yyyyMMdd");
-            var dateEndKey = dateEnd.toString("yyyyMMdd");
-
-
-            db.query("zpos/aliasByDate", {
-                startkey: dateStartKey,
-                endkey: dateEndKey
-            }).then(function (resShoppingCarts) {
-                var allAliases = Enumerable.from(resShoppingCarts.rows).select(function (x) {
-                    var item = {};
-                    //Fallback sur l'hid si pas d'alias
-                    item.alias = x.value[0] ? x.value[0] : x.value[1];
-                    item.hid = x.value[1];
-
-                    return item;
-
-                }).toArray();
-                aliasByDateDefer.resolve(allAliases);
-
-                //Retourne un tableau contenant tout les alias des tickets de la periode renseigné
-
-            }, function (errGet) {
-                console.log("erreur");
-                aliasByDateDefer.reject(errGet);
-            });
-            return aliasByDateDefer.promise;
-
-        };
-
         this.getLastShoppingCartAsync = function (hardwareId) {
-            var queryDefer = $q.defer();
-            var db = $rootScope.remoteDbZPos ? $rootScope.remoteDbZPos : $rootScope.dbZPos;
-
-            var dateStartKey = new Date().toString("yyyyMMdd");
+            let queryDefer = $q.defer();
+            let db = $rootScope.remoteDbZPos ? $rootScope.remoteDbZPos : $rootScope.dbZPos;
+            const dateStartKey = new Date().toString("yyyyMMdd");
 
             db.query("zpos/byHidAndDate", {
                 startkey: [hardwareId, dateStartKey],
@@ -223,7 +43,7 @@ app.service('zposService', ['$http', '$rootScope', '$q', 'posLogService', 'posPe
                 limit: 1,
                 descending: true
             }).then(function (resShoppingCarts) {
-                var shoppingCartRow = Enumerable.from(resShoppingCarts.rows).firstOrDefault();
+                let shoppingCartRow = Enumerable.from(resShoppingCarts.rows).firstOrDefault();
                 if (shoppingCartRow) {
                     queryDefer.resolve(shoppingCartRow.value.data);
                 } else {
@@ -234,1471 +54,748 @@ app.service('zposService', ['$http', '$rootScope', '$q', 'posLogService', 'posPe
                 queryDefer.reject();
             });
 
-
             return queryDefer.promise;
         };
 
-
-        /**
-         *
-         * @param dateStart : date de debut
-         * @param dateEnd : date de fin
-         * @param filterAlias : l'alias qu'on souhaite filtrer
-         */
-        this.getAllShoppingCartsAsync = function (dateStart, dateEnd, filterAlias) {
-            var allShoppingCartsDefer = $q.defer();
-            var db = $rootScope.remoteDbZPos ? $rootScope.remoteDbZPos : $rootScope.dbZPos;
-
-            if (!dateEnd) {
-                dateEnd = new Date(dateStart.toString());
-            }
-            var dateStartKey = dateStart.toString("yyyyMMdd");
-            var dateEndKey = dateEnd.toString("yyyyMMdd");
-
-            db.query("zpos/byDate", {
-                startkey: dateStartKey,
-                endkey: dateEndKey
-            }).then(function (resShoppingCarts) {
-                var allShoppingCarts = Enumerable.from(resShoppingCarts.rows).select(function (x) {
-                    var item = x.value.data;
-                    item.id = x.value._id;
-                    item.rev = x.value._rev;
-                    item.alias = x.value.data.AliasCaisse ? x.value.data.AliasCaisse : x.value.data.HardwareId;
-
-                    return item;
-
-                }).toArray();
-
-                // If an alias is selected for filtering
-                if (filterAlias != 0) {
-                    setTimeout(function () {
-                        for (var i = 0; i < allShoppingCarts.length; i++) {
-                            // Iterate through all shopping carts
-                            // delete those which doesnt match filtered alias
-                            if (String(allShoppingCarts[i].alias) != String(filterAlias)) {
-                                allShoppingCarts.splice(i, 1);
-                            }
-                        }
-                    }, 100);
-                }
-
-                setTimeout(function () {
-                    allShoppingCartsDefer.resolve(allShoppingCarts);
-                }, 100);
-
-            }, function (errGet) {
-                console.log("erreur");
-                allShoppingCartsDefer.reject(errGet);
-            });
-
-            return allShoppingCartsDefer.promise;
-        };
-
-
         this.getShoppingCartsByPeriodAsync = function (zpid, hid, ypid) {
-            var ShoppingCartsByPeriodDefer = $q.defer();
-            var db = $rootScope.remoteDbZPos ? $rootScope.remoteDbZPos : $rootScope.dbZPos;
-            var startKey = undefined;
+            let ShoppingCartsByPeriodDefer = $q.defer();
 
-            if (!jQuery.isEmptyObject(ypid)) {
-                startKey = [zpid, hid, ypid]
-            } else {
-                startKey = [zpid, hid]
-            }
-            db.query("zpos/byPeriod", {
-                startkey: startKey,
-                endkey: [zpid, hid, ypid]
-            }).then(function (resShoppingCarts) {
-                var allShoppingCarts = Enumerable.from(resShoppingCarts.rows).select(function (x) {
-                    var item = x.value.data;
-                    item.id = x.value._id;
-                    item.rev = x.value._rev;
-                    item.alias = x.value.data.AliasCaisse ? x.value.data.AliasCaisse : x.value.data.HardwareId;
+            const apiURL = "http://" + $rootScope.IziBoxConfiguration.LocalIpIziBox + ":" + $rootScope.IziBoxConfiguration.RestPort + "/zpos/getShoppingCartsByPeriod";
 
+            const req = {
+                ZPeriodId: zpid,
+                YPeriodId: ypid,
+                HardwareId: hid
+            };
 
-                    return item;
+            $http.post(apiURL, req).then((ret) => {
+                ret.data.map(s => {
+                    if (!s.AliasCaisse) {
 
-                }).toArray();
-
-
-                // ATTENTION
-                // Bricolage extreme, il faut trouver une meilleur solution pour assurer la syncronisation
-                setTimeout(function () {
-                    ShoppingCartsByPeriodDefer.resolve(allShoppingCarts);
-                }, 100);
-
-            }, function (errGet) {
-                console.log("erreur");
-                ShoppingCartsByPeriodDefer.reject(errGet);
+                    }
+                });
+                ShoppingCartsByPeriodDefer.resolve(ret.data);
+            }, (err) => {
+                console.error(err);
+                ShoppingCartsByPeriodDefer.reject(err);
             });
 
             return ShoppingCartsByPeriodDefer.promise;
         };
 
-
         /**
-         * Recupere les ticket par periode et montant
-         * @param amount : montant du ticket recherché
-         * @param dateStart : date debut
-         * @param dateEnd : date fin
+         * Get shoppingCarts by filters
          */
-        this.getShoppingCartByAmountDateAsync = function (dateStart, dateEnd, amount) {
-            var byAmountDate = $q.defer();
-            var db = $rootScope.remoteDbZPos ? $rootScope.remoteDbZPos : $rootScope.dbZPos;
+        this.getShoppingCartsByFilterDateAsync = function (dateStart, dateEnd, alias, paiementMode, amount) {
+            let listShoppingCartsDefer = $q.defer();
 
             if (!dateEnd) {
                 dateEnd = new Date(dateStart.toString());
             }
-            var dateStartKey = dateStart.toString("yyyyMMdd");
-            var dateEndKey = dateEnd.toString("yyyyMMdd");
-
-
-            db.query("zpos/byAmountDate", {
-                startkey: [amount, dateStartKey],
-                endkey: [amount, dateEndKey]
-            }).then(function (resShoppingCarts) {
-                var allShoppingCarts = Enumerable.from(resShoppingCarts.rows).select(function (x) {
-
-                    var item = x.value.data;
-                    item.id = x.value._id;
-                    item.rev = x.value._rev;
-                    item.alias = x.value.data.AliasCaisse ? x.value.data.AliasCaisse : x.value.data.HardwareId;
-
-                    return item;
-
-                }).toArray();
-                byAmountDate.resolve(allShoppingCarts);
-
-            });
-
-            //Retourne un tableau de tout les shopping cart correspondant a un montant,
-            // durant la periode renseigné
-            return byAmountDate.promise;
-        };
-
-        /**
-         * Zpos view creation
-         * We're using data rendered from a couchDb View
-         * @param zposDefer
-         * @param dateStart Beginning of the period
-         * @param dateEnd End of the period
-         * @param taxByDate taxByDate view
-         * @param paymentModesByDate paymentModesByDate view
-         * @param repaidByDate repaidByDate view
-         * @param countByDate countByDate view
-         * @param cutleriesByDate cutleriesByDate view
-         * @param creditByDate creditByDate view
-         * @param deliveryTypeByDate deliveryTypeByDate view
-         * @param userByDate userByDate view
-         */
-        var createZPos = function (zposDefer, dateStart, dateEnd, taxByDate, paymentModesByDate, balanceByDate, repaidByDate, countByDate, cutleriesByDate, creditByDate, deliveryTypeByDate, userByDate, hidByDate) {
-            var zpos = {
-                dateStart: dateStart,
-                dateEnd: dateEnd,
-                editionDate: new Date().toString('dd/MM/yyyy H:mm:ss'),
-                totalIT: 0,
-                totalET: 0,
-                count: 0,
-                totalsByDate: [],//{date,totalIT,totalET,count}
-                paymentModes: [], //{type,total/date[],total}
-                balance: {
-                    total: 0,
-                    byDate: []
-                },
-                deliveryValues: [], //{type,total/date[],total}
-                employees: [], //{nom,total/date[],total}
-                taxDetails: [], //{taxcode,total/date[],total}
-                cutleries: {
-                    count: 0,
-                    byDate: []
-                },
-                credit: {
-                    total: 0,
-                    byDate: []
-                },
-                repaid: {
-                    total: 0,
-                    byDate: []
-                },
-                hid: {
-                    byDate: []
-                }
-
+            const apiURL = "http://" + $rootScope.IziBoxConfiguration.LocalIpIziBox + ":" + $rootScope.IziBoxConfiguration.RestPort + "/zpos/shoppingCartsByFilterDate";
+            dateStart = moment(dateStart).startOf("day");
+            dateEnd = moment(dateEnd).endOf("day");
+            const dataRequest = {
+                DateStart: dateStart.format("x"),
+                DateEnd: dateEnd.format("x")
             };
-
-            // Total by date
-            Enumerable.from(countByDate).forEach(function (row) {
-                var newLine = {
-                    date: row.key,
-                    totalIT: roundValue(row.value.TotalIT),
-                    totalET: roundValue(row.value.TotalET),
-                    count: row.value.Count
-                };
-                zpos.totalsByDate.push(newLine);
-                zpos.totalIT = roundValue(zpos.totalIT + newLine.totalIT);
-                zpos.totalET = roundValue(zpos.totalET + newLine.totalET);
-                zpos.count += newLine.count;
-            });
-
-            // Total by payment modes and by date
-            Enumerable.from(paymentModesByDate).forEach(function (row) {
-                var type = row.key[1];
-                var type_id = row.key[2];
-
-                var newPM = Enumerable.from(zpos.paymentModes).firstOrDefault(function (pm) {
-                    return pm.type == type;
-                });
-                if (newPM) {
-                    newPM.total = roundValue(newPM.total + row.value.Total);
-                    newPM.count += row.value.Count;
-                    newPM.byDate.push({
-                        date: row.key[0],
-                        total: roundValue(row.value.Total),
-                        count: row.value.Count
-                    });
-
-                } else {
-                    newPM = {
-                        type: type,
-                        type_id: type_id,
-                        byDate: [],
-                        total: roundValue(row.value.Total),
-                        count: row.value.Count
-                    };
-                    newPM.byDate.push({
-                        date: row.key[0],
-                        total: roundValue(row.value.Total),
-                        count: row.value.Count
-                    });
-
-                    newPM.total = roundValue(newPM.total);
-                    zpos.paymentModes.push(newPM);
-                }
-
-            });
-
-            // Balance by date
-            Enumerable.from(balanceByDate).forEach(function (row) {
-                zpos.balance.total = roundValue(zpos.balance.total + row.value);
-                zpos.balance.byDate.push({
-                    date: row.key,
-                    total: roundValue(row.value)
-                });
-
-            });
-
-
-            // Total by delivery type and by date
-            Enumerable.from(deliveryTypeByDate).forEach(function (row) {
-                var type = row.key[1];
-
-                var newDelivery = Enumerable.from(zpos.deliveryValues).firstOrDefault(function (del) {
-                    return del.type == type;
-                });
-                if (newDelivery) {
-                    newDelivery.total = roundValue(newDelivery.total + row.value);
-                    newDelivery.byDate.push({
-                        date: row.key[0],
-                        total: roundValue(row.value)
-                    });
-
-                } else {
-                    newDelivery = {
-                        type: type,
-                        byDate: [],
-                        total: roundValue(row.value)
-                    };
-                    newDelivery.byDate.push({
-                        date: row.key[0],
-                        total: roundValue(row.value)
-                    });
-                    zpos.deliveryValues.push(newDelivery);
-                }
-
-            });
-
-            // Total by Pos User
-            Enumerable.from(userByDate).forEach(function (row) {
-                var name = row.key[1];
-
-                var newUser = Enumerable.from(zpos.employees).firstOrDefault(function (user) {
-                    return user.name == name;
-                });
-                if (newUser) {
-                    newUser.total = roundValue(newUser.total + row.value);
-                    newUser.byDate.push({
-                        date: row.key[0],
-                        total: roundValue(row.value)
-                    });
-                } else {
-                    newUser = {
-                        name: name,
-                        byDate: [],
-                        total: roundValue(row.value)
-                    };
-                    newUser.byDate.push({
-                        date: row.key[0],
-                        total: roundValue(row.value)
-                    });
-                    zpos.employees.push(newUser);
-                }
-            });
-
-            // Total by Tax and by date
-            Enumerable.from(taxByDate).forEach(function (row) {
-
-                var taxCode = row.key[1];
-
-                var newTax = Enumerable.from(zpos.taxDetails).firstOrDefault(function (tax) {
-                    return tax.taxCode == taxCode;
-                });
-                if (newTax) {
-                    newTax.total = roundValue(newTax.total + row.value);
-                    newTax.byDate.push({
-                        date: row.key[0],
-                        total: roundValue(row.value)
-                    });
-
-                } else {
-                    newTax = {
-                        taxCode: taxCode,
-                        byDate: [],
-                        total: roundValue(row.value)
-                    };
-                    newTax.byDate.push({
-                        date: row.key[0],
-                        total: roundValue(row.value)
-                    });
-                    zpos.taxDetails.push(newTax);
-                }
-
-            });
-
-            // Total by number of diner and by date
-            Enumerable.from(cutleriesByDate).forEach(function (row) {
-                zpos.cutleries.count += row.value;
-                zpos.cutleries.byDate.push({
-                    date: row.key,
-                    count: row.value
-                });
-            });
-
-            // Total of credit note by date
-            Enumerable.from(creditByDate).forEach(function (row) {
-                zpos.credit.total = roundValue(zpos.credit.total + row.value);
-                zpos.credit.byDate.push({
-                    date: row.key,
-                    total: roundValue(row.value)
-                });
-            });
-
-            // Total of repaid cash by date
-            Enumerable.from(repaidByDate).forEach(function (row) {
-                zpos.repaid.total = roundValue(zpos.repaid.total + row.value);
-                zpos.repaid.byDate.push({
-                    date: row.key,
-                    total: roundValue(row.value)
-                });
-            });
-
-
-            // List of all alias, by date
-            Enumerable.from(hidByDate).forEach(function (row) {
-                zpos.hid.byDate.push({
-                    date: row.key,
-                });
-            });
-
-            zpos.totalET = roundValue(zpos.totalET);
-            zpos.totalIT = roundValue(zpos.totalIT);
-
-            zpos.totalsByDate = roundValue(zpos.totalsByDate);
-            zposDefer.resolve(zpos);
-        };
-        //#endregion
-
-        var createZPos_v2 = function (zposDefer, startDate, endDate, taxByPeriod, paymentModesByPeriod, balanceByPeriod, repaidByPeriod, countByPeriod, cutleriesByPeriod, creditByPeriod, deliveryTypeByPeriod, userByPeriod) {
-            console.log('Balance : ', balanceByPeriod);
-            console.log('PM : ', paymentModesByPeriod);
-            console.log('Tax : ', taxByPeriod);
-            var zpos = {
-                dateDebPeriode: startDate,
-                dateFinPeriode: endDate,
-                editionDate: new Date().toString('dd/MM/yyyy H:mm:ss'),
-                totalIT: 0,
-                totalET: 0,
-                count: 0,
-                totalsByPeriod: [],//{date,totalIT,totalET,count}
-                paymentModes: [], //{type,total/date[],total}
-                deliveryValues: [], //{type,total/date[],total}
-                employees: [], //{nom,total/date[],total}
-                taxDetails: [], //{taxcode,total/date[],total}
-                balance: {
-                    total: 0,
-                    byPeriod: []
-                },
-                cutleries: {
-                    count: 0,
-                    byPeriod: []
-                },
-                credit: {
-                    total: 0,
-                    byPeriod: []
-
-                },
-                repaid: {
-                    total: 0,
-                    byPeriod: []
-                }
-            };
-
-            // Total by period
-            countByPeriod.sort(function (a, b) {
-                return new Date(a.period.start) - new Date(b.period.start);
-            });
-            Enumerable.from(countByPeriod).forEach(function (row) {
-                var newLine = {
-                    id: row.key[2],
-                    hid: row.key[1],
-                    start: row.period.start,
-                    end: row.period.end,
-                    totalIT: roundValue(row.value.TotalIT),
-                    totalET: roundValue(row.value.TotalET),
-                    count: row.value.Count
-                };
-                zpos.totalsByPeriod.push(newLine);
-                zpos.totalIT = roundValue(zpos.totalIT + newLine.totalIT);
-                zpos.totalET = roundValue(zpos.totalET + newLine.totalET);
-                zpos.count += newLine.count;
-
-
-            });
-
-            // Total by payment modes and by period
-            Enumerable.from(paymentModesByPeriod).forEach(function (row) {
-                var type = row.key[3];
-                var type_id = row.key[4];
-
-                var newPM = Enumerable.from(zpos.paymentModes).firstOrDefault(function (pm) {
-                    return pm.type == type;
-                });
-                if (newPM) {
-                    newPM.total = roundValue(newPM.total + row.value.Total);
-                    newPM.count += row.value.Count;
-                    newPM.byPeriod.push({
-                        start: row.period.start,
-                        end: row.period.end,
-                        total: roundValue(row.value.Total),
-                        count: row.value.Count
-                    });
-
-                } else {
-                    newPM = {
-                        type: type,
-                        type_id: type_id,
-                        byPeriod: [],
-                        total: roundValue(row.value.Total),
-                        count: row.value.Count
-                    };
-                    newPM.byPeriod.push({
-                        start: row.period.start,
-                        end: row.period.end,
-                        total: roundValue(row.value.Total),
-                        count: row.value.Count
-                    });
-
-                    newPM.total = roundValue(newPM.total);
-                    zpos.paymentModes.push(newPM);
-                }
-
-            });
-
-
-            Enumerable.from(balanceByPeriod).forEach(function (row) {
-                zpos.balance.total += row.value;
-                zpos.balance.byPeriod.push({
-                    start: row.period.start,
-                    end: row.period.end,
-                    total: row.value
-                });
-            });
-
-            // Total by delivery type and by date
-            Enumerable.from(deliveryTypeByPeriod).forEach(function (row) {
-                var type = row.key[3];
-
-                var newDelivery = Enumerable.from(zpos.deliveryValues).firstOrDefault(function (del) {
-                    return del.type == type;
-                });
-                if (newDelivery) {
-                    newDelivery.total = roundValue(newDelivery.total + row.value);
-                    newDelivery.byPeriod.push({
-                        start: row.period.start,
-                        end: row.period.end,
-                        total: roundValue(row.value)
-                    });
-
-                } else {
-                    newDelivery = {
-                        type: type,
-                        byPeriod: [],
-                        total: roundValue(row.value)
-                    };
-                    newDelivery.byPeriod.push({
-                        start: row.period.start,
-                        end: row.period.end,
-                        total: roundValue(row.value)
-                    });
-                    zpos.deliveryValues.push(newDelivery);
-                }
-
-            });
-
-            // Total by Pos User
-            Enumerable.from(userByPeriod).forEach(function (row) {
-                var name = row.key[3];
-
-                var newUser = Enumerable.from(zpos.employees).firstOrDefault(function (user) {
-                    return user.name == name;
-                });
-                if (newUser) {
-                    newUser.total = roundValue(newUser.total + row.value);
-                    newUser.byPeriod.push({
-                        start: row.period.start,
-                        end: row.period.end,
-                        total: roundValue(row.value)
-                    });
-                } else {
-                    newUser = {
-                        name: name,
-                        byPeriod: [],
-                        total: roundValue(row.value)
-                    };
-                    newUser.byPeriod.push({
-                        start: row.period.start,
-                        end: row.period.end,
-                        total: roundValue(row.value)
-                    });
-                    zpos.employees.push(newUser);
-                }
-            });
-
-            // Total by Tax and by date
-            Enumerable.from(taxByPeriod).forEach(function (row) {
-
-                var taxCode = row.key[3];
-
-                var newTax = Enumerable.from(zpos.taxDetails).firstOrDefault(function (tax) {
-                    return tax.taxCode == taxCode;
-                });
-                if (newTax) {
-                    newTax.total = roundValue(newTax.total + row.value);
-                    newTax.byPeriod.push({
-                        start: row.period.start,
-                        end: row.period.end,
-                        total: roundValue(row.value)
-                    });
-
-                } else {
-                    newTax = {
-                        taxCode: taxCode,
-                        byPeriod: [],
-                        total: roundValue(row.value)
-                    };
-                    newTax.byPeriod.push({
-                        start: row.period.start,
-                        end: row.period.end,
-                        total: roundValue(row.value)
-                    });
-                    zpos.taxDetails.push(newTax);
-                }
-
-            });
-
-            // Total by number of diner and by date
-            Enumerable.from(cutleriesByPeriod).forEach(function (row) {
-                zpos.cutleries.count += row.value;
-                zpos.cutleries.byPeriod.push({
-                    start: row.period.start,
-                    end: row.period.end,
-                    count: row.value
-
-                });
-            });
-
-            // Total of credit note by date
-            Enumerable.from(creditByPeriod).forEach(function (row) {
-                zpos.credit.total = roundValue(zpos.credit.total + row.value);
-                zpos.credit.byPeriod.push({
-                    start: row.period.start,
-                    end: row.period.end,
-                    total: roundValue(row.value)
-                });
-            });
-
-            // Total of repaid cash by date
-            Enumerable.from(repaidByPeriod).forEach(function (row) {
-                zpos.repaid.total = roundValue(zpos.repaid.total + row.value);
-                zpos.repaid.byPeriod.push({
-                    start: row.period.start,
-                    end: row.period.end,
-                    total: roundValue(row.value)
-                });
-            });
-
-
-            zpos.totalET = roundValue(zpos.totalET);
-            zpos.totalIT = roundValue(zpos.totalIT);
-
-            //zpos.totalsByPeriod = roundValue(zpos.totalsByPeriod);
-            zposDefer.resolve(zpos);
-        };
-        this.getDateYPeriod = function (zpid, ypid) {
-            var matchedYp = Enumerable.from(allYperiods).firstOrDefault(function (yPeriod) {
-                return yPeriod.zPeriodId == zpid && yPeriod.yPeriodId == ypid;
-            });
-
-            if (matchedYp) {
-                return {start: matchedYp.startDate, end: matchedYp.endDate}
+            if (alias) {
+                dataRequest.Alias = alias;
             }
-        };
-
-
-        this.getZPosValuesAsync_v2 = function (ZPeriodId, YPeriodId, HardwareId) {
-            var zposDefer = $q.defer();
-
-            if ($rootScope.remoteDbZPos) {
-
-                // Il faut retourner :
-                // Les dates du Zperiod si il est renseigné
-                // Les date du Yperiod si il est renseigné
-
-                var zpid = ZPeriodId != undefined ? ZPeriodId : {};
-                var ypid = YPeriodId != undefined ? YPeriodId : {};
-                var hid = HardwareId != undefined ? HardwareId : {};
-
-
-                //var zpid = {};
-                //var ypid = {};
-                //var hid = {};
-
-                var dbStartKey = [];
-                var dbEndKey = [];
-
-                var bsk = [];
-                var bek = [];
-
-                //Genere les startkey et endkey en fonction des parametre existant
-                if (!jQuery.isEmptyObject(zpid)) {
-                    dbStartKey.push(zpid);
-                    dbEndKey.push(zpid);
-
-                    bsk.push(zpid);
-                    bek.push(zpid);
-
-                    if (!jQuery.isEmptyObject(hid)) {
-                        dbStartKey.push(hid);
-                        dbEndKey.push(hid);
-
-                        if (!jQuery.isEmptyObject(ypid)) {
-                            dbStartKey.push(ypid);
-                            dbEndKey.push(ypid);
-
-                            bsk.push(ypid);
-                            bek.push(ypid);
-
-                        } else {
-                            dbEndKey.push({}); // ypid
-
-                            bek.push({});
-
-                        }
-                    } else {
-
-                        dbEndKey.push({}); // hid
-                        dbEndKey.push({}); // ypid
-
-                        bek.push({});
-                    }
-                }
-
-                console.log('Recuperation des datas pour la composition du Z');
-
-                /**
-                 * BUG : Des fois, le remote ne repond pas assez vite, et on a une erreur timeout de pouchdb.
-                 * On est obliger de fermer et de relancer la modal pour reessayer
-                 */
-                posPeriodService.getYperiodFromZperiodAsync(zpid).then(function (yp) {
-                    allYperiods = yp;
-
-                    // Obtains all VAT
-                    $rootScope.remoteDbZPos.query("zpos/TaxByPeriod", {
-                        startkey: dbStartKey,
-                        endkey: dbEndKey.concat([{}]),
-                        reduce: true,
-                        group: true
-                    }).then(function (resTaxByPeriod) {
-                        console.log('Taxes OK');
-                        var taxByPeriod = resTaxByPeriod.rows;
-                        Enumerable.from(taxByPeriod).forEach(function (tp) {
-                            tp.period = current.getDateYPeriod(tp.key[0], tp.key[2]);
-                        });
-
-                        // Obtains all paymentModes
-                        $rootScope.remoteDbZPos.query("zpos/paymentModesByPeriod", {
-                            startkey: dbStartKey,
-                            endkey: dbEndKey.concat([{}, {}]),
-                            reduce: true,
-                            group: true
-                        }).then(function (resPM) {
-                            console.log('PaymentModes OK');
-                            var paymentModesByPeriod = resPM.rows;
-                            Enumerable.from(paymentModesByPeriod).forEach(function (pp) {
-                                pp.period = current.getDateYPeriod(pp.key[0], pp.key[2]);
-                            });
-
-                            // Obtains  thetotal repaid per date and substract from "especes"
-                            $rootScope.remoteDbZPos.query("zpos/repaidByPeriod", {
-                                startkey: dbStartKey,
-                                endkey: dbEndKey,
-                                reduce: true,
-                                group: true
-                            }).then(function (resRepaid) {
-                                console.log('Repaid OK');
-                                var repaidByPeriod = resRepaid.rows;
-
-                                Enumerable.from(repaidByPeriod).forEach(function (rp) {
-                                    rp.period = current.getDateYPeriod(rp.key[0], rp.key[2]);
-                                });
-
-
-                                // Obtains number of shoppingcart and totals
-                                $rootScope.remoteDbZPos.query("zpos/countByPeriod", {
-                                    startkey: dbStartKey,
-                                    endkey: dbEndKey,
-                                    reduce: true,
-                                    group: true
-                                }).then(function (resCount) {
-                                    console.log('Count OK');
-                                    var countByPeriod = resCount.rows;
-                                    Enumerable.from(countByPeriod).forEach(function (cp) {
-                                        cp.period = current.getDateYPeriod(cp.key[0], cp.key[2]);
-                                    });
-
-                                    // Obtains number of cutleries
-                                    $rootScope.remoteDbZPos.query("zpos/cutleriesByPeriod", {
-                                        startkey: dbStartKey,
-                                        endkey: dbEndKey,
-                                        reduce: true,
-                                        group: true
-                                    }).then(function (resCutleries) {
-                                        console.log('Couverts OK');
-                                        var cutleriesByPeriod = resCutleries.rows;
-                                        Enumerable.from(cutleriesByPeriod).forEach(function (cp) {
-                                            cp.period = current.getDateYPeriod(cp.key[0], cp.key[2]);
-                                        });
-
-                                        $rootScope.remoteDbZPos.query("zpos/creditByPeriod", {
-                                            startkey: dbStartKey,
-                                            endkey: dbEndKey,
-                                            reduce: true,
-                                            group: true
-                                        }).then(function (resCredit) {
-                                            console.log('Credit OK');
-                                            var creditByPeriod = resCredit.rows;
-                                            Enumerable.from(creditByPeriod).forEach(function (cp) {
-                                                cp.period = current.getDateYPeriod(cp.key[0], cp.key[2]);
-                                            });
-
-                                            // Obtains deliveries
-                                            $rootScope.remoteDbZPos.query("zpos/DeliveryTypeByPeriod", {
-                                                startkey: dbStartKey,
-                                                endkey: dbEndKey.concat([{}]),
-                                                reduce: true,
-                                                group: true
-                                            }).then(function (resDeliveryType) {
-                                                console.log('Delivery Type OK');
-                                                var deliveryTypeByPeriod = resDeliveryType.rows;
-                                                Enumerable.from(deliveryTypeByPeriod).forEach(function (dp) {
-                                                    dp.period = current.getDateYPeriod(dp.key[0], dp.key[2]);
-                                                });
-
-                                                // Obtains totalByEmployees
-                                                $rootScope.remoteDbZPos.query("zpos/userByPeriod", {
-                                                    startkey: dbStartKey,
-                                                    endkey: dbEndKey.concat([{}]),
-                                                    reduce: true,
-                                                    group: true
-                                                }).then(function (resUser) {
-                                                    console.log('User OK');
-                                                    var userByPeriod = resUser.rows;
-                                                    Enumerable.from(userByPeriod).forEach(function (up) {
-                                                        up.period = current.getDateYPeriod(up.key[0], up.key[2]);
-                                                    });
-                                                    // Obtains totalByEmployees
-                                                    $rootScope.remoteDbZPos.query("zpos/balanceByPeriod", {
-                                                        startkey: bsk,
-                                                        endkey: bek,
-                                                        reduce: true,
-                                                        group: true
-                                                    }).then(function (resBalance) {
-                                                        console.log('Balance OK');
-                                                        var balanceByPeriod = resBalance.rows;
-                                                        Enumerable.from(balanceByPeriod).forEach(function (bp) {
-                                                            bp.period = current.getDateYPeriod(bp.key[0], bp.key[2]);
-                                                        });
-
-
-                                                        var startDate = [];
-                                                        var endDate = [];
-
-                                                        posPeriodService.getYperiodFromZperiodAsync(zpid).then(function (yp) {
-                                                            console.log('YPeriods du Z OK');
-                                                            if (yp) {
-                                                                Enumerable.from(yp).forEach(function (yPeriod) {
-                                                                    startDate.push(yPeriod.startDate);
-                                                                    endDate.push(yPeriod.endDate);
-                                                                })
-                                                            }
-
-                                                            posPeriodService.getAllYPeriodAsync(hid).then(function (yp) {
-                                                                console.log('Tout les Y OK ', yp);
-                                                                if (yp) {
-                                                                    startDate = [];
-                                                                    endDate = [];
-                                                                    Enumerable.from(yp).forEach(function (yPeriod) {
-                                                                        startDate.push(yPeriod.startDate);
-                                                                        endDate.push(yPeriod.endDate);
-                                                                    });
-                                                                    createZPos_v2(zposDefer, startDate, endDate, taxByPeriod, paymentModesByPeriod, balanceByPeriod, repaidByPeriod, countByPeriod, cutleriesByPeriod, creditByPeriod, deliveryTypeByPeriod, userByPeriod);
-
-                                                                } else {
-                                                                    createZPos_v2(zposDefer, startDate, endDate, taxByPeriod, paymentModesByPeriod, balanceByPeriod, repaidByPeriod, countByPeriod, cutleriesByPeriod, creditByPeriod, deliveryTypeByPeriod, userByPeriod);
-
-                                                                }
-                                                            });
-                                                        });
-                                                    });
-                                                });
-                                            });
-                                        });
-                                    });
-                                });
-                            });
-                        });
-                    }, function (err) {
-                        //Reessayer ?
-                        zposDefer.reject('Le couchdb distant n\'est pas joignable');
-                    });
-                });
-
-            } else {
-                zposDefer.reject('Le couchdb distant n\'est pas joignable');
+            if (paiementMode) {
+                dataRequest.PaymentMode = paiementMode;
+            }
+            if (amount) {
+                dataRequest.Amount = amount;
             }
 
-            return zposDefer.promise;
-        };
-
-
-        /**
-         * Get Zpos values from couchDb
-         * @param dateStartObj
-         * @param dateEndObj
-         */
-        this.getZPosValuesAsync = function (dateStartObj, dateEndObj) {
-            var zposDefer = $q.defer();
-
-            if ($rootScope.remoteDbZPos) {
-
-                var dateStart = dateStartObj != undefined ? dateStartObj.toString("yyyyMMdd") : undefined;
-                var dateEnd = dateEndObj != undefined ? dateEndObj.toString("yyyyMMdd") : dateStart;
-
-                // Obtains all VAT
-                $rootScope.remoteDbZPos.query("zpos/TaxByDate", {
-                    startkey: [dateStart],
-                    endkey: [dateEnd, {}],
-                    reduce: true,
-                    group: true
-                }).then(function (resTaxByDate) {
-                    var taxByDate = resTaxByDate.rows;
-
-                    // Obtains all paymentModes
-                    $rootScope.remoteDbZPos.query("zpos/paymentModesByDate", {
-                        startkey: [dateStart],
-                        endkey: [dateEnd, {}],
-                        reduce: true,
-                        group: true
-                    }).then(function (resPM) {
-                        var paymentModesByDate = resPM.rows;
-
-                        // Obtains  thetotal repaid per date and substract from "especes"
-                        $rootScope.remoteDbZPos.query("zpos/repaidByDate", {
-                            startkey: dateStart,
-                            endkey: dateEnd,
-                            reduce: true,
-                            group: true
-                        }).then(function (resRepaid) {
-                            var repaidByDate = resRepaid.rows;
-
-                            // Obtains number of shoppingcart and totals
-                            $rootScope.remoteDbZPos.query("zpos/countByDate", {
-                                startkey: dateStart,
-                                endkey: dateEnd,
-                                reduce: true,
-                                group: true
-                            }).then(function (resCount) {
-                                var countByDate = resCount.rows;
-
-                                // Obtains number of cutleries
-                                $rootScope.remoteDbZPos.query("zpos/cutleriesByDate", {
-                                    startkey: dateStart,
-                                    endkey: dateEnd,
-                                    reduce: true,
-                                    group: true
-                                }).then(function (resCutleries) {
-                                    var cutleriesByDate = resCutleries.rows;
-
-                                    $rootScope.remoteDbZPos.query("zpos/creditByDate", {
-                                        startkey: dateStart,
-                                        endkey: dateEnd,
-                                        reduce: true,
-                                        group: true
-                                    }).then(function (resCredit) {
-                                        var creditByDate = resCredit.rows;
-
-                                        // Obtains deliveries
-                                        $rootScope.remoteDbZPos.query("zpos/DeliveryTypeByDate", {
-                                            startkey: [dateStart],
-                                            endkey: [dateEnd, {}],
-                                            reduce: true,
-                                            group: true
-                                        }).then(function (resDeliveryType) {
-                                            var deliveryTypeByDate = resDeliveryType.rows;
-
-                                            // Obtains totalByEmployees
-                                            $rootScope.remoteDbZPos.query("zpos/userByDate", {
-                                                startkey: [dateStart],
-                                                endkey: [dateEnd, {}],
-                                                reduce: true,
-                                                group: true
-                                            }).then(function (resUser) {
-                                                var userByDate = resUser.rows;
-                                                // Obtains balance update
-                                                $rootScope.remoteDbZPos.query("zpos/balanceByDate", {
-                                                    startkey: dateStart,
-                                                    endkey: dateEnd,
-                                                    reduce: true,
-                                                    group: true
-                                                }).then(function (resBalance) {
-                                                    var balanceByDate = resBalance.rows;
-                                                    createZPos(zposDefer, dateStart, dateEnd, taxByDate, paymentModesByDate, balanceByDate, repaidByDate, countByDate, cutleriesByDate, creditByDate, deliveryTypeByDate, userByDate);
-
-                                                });
-
-                                            });
-                                        });
-                                    });
-                                });
-                            });
-                        });
-                    });
-                });
-            } else {
-                zposDefer.resolve();
-            }
-
-            return zposDefer.promise;
-        };
-        this.createZPosHtml = function (zpos) {
-            console.log(zpos);
-
-            //#region Generate HTML printable
-            var htmlLines = [];
-            htmlLines.push("<center><strong>Statistiques</strong></center>");
-            htmlLines.push("<br />")
-            Enumerable.from($rootScope.IziBoxConfiguration.ShopName.split("\\r\\n")).forEach(function (part) {
-                htmlLines.push("<center>" + part + "</center>");
+            $http.post(apiURL, dataRequest).then((res) => {
+                listShoppingCartsDefer.resolve(res.data);
+            }, (err) => {
+                console.error(err);
+                listShoppingCartsDefer.reject(err);
             });
-            //Alias de caisse ou HID
-            if ($rootScope.modelPos.aliasCaisse) {
-                htmlLines.push("<center>" + $rootScope.modelPos.aliasCaisse + "</center>");
-
-            } else {
-                htmlLines.push("<center>" + hardwareId + "</center>");
-            }
-
-            htmlLines.push("<br />");
-            htmlLines.push("<center><strong>Du : " + Date.parseExact(zpos.dateStart, "yyyyMMdd").toString("dd/MM/yyyy") + (zpos.dateEnd != zpos.dateStart ? (" au " + Date.parseExact(zpos.dateEnd, "yyyyMMdd").toString("dd/MM/yyyy")) : "") + "</strong></center>");
-            htmlLines.push("<br />");
-            htmlLines.push("<center>Edité le : " + zpos.editionDate + "</center>");
-            htmlLines.push("<br />");
-            htmlLines.push("<hr />");
-
-            htmlLines.push("<p><center><strong>Détail de la caisse :</strong></center></p>");
-            htmlLines.push("<p><table>");
-
-            //payment
-            for (var idxPM = 0; idxPM < zpos.paymentModes.length; idxPM++) {
-                htmlLines.push("<tr>");
-
-                htmlLines.push("<td style='width:65%'>" + zpos.paymentModes[idxPM].type + " : </td>");
-
-                htmlLines.push("<td style='width:10%;text-align:center'>" + zpos.paymentModes[idxPM].count + "</td>");
-
-                if (zpos.paymentModes[idxPM].type.toUpperCase().indexOf("ESP") == 0) {
-                    htmlLines.push("<td style='width:25%;text-align:right'>" + roundValue((zpos.paymentModes[idxPM].total - zpos.repaid.total).toFixed(2)) + "</td>");
-                }
-                else {
-                    htmlLines.push("<td style='width:25%;text-align:right'>" + zpos.paymentModes[idxPM].total.toFixed(2) + "</td>");
-                }
-                htmlLines.push("</tr>");
-            }
-
-            htmlLines.push("</table></p>");
-            htmlLines.push("<br />");
-            htmlLines.push("<p>Cagnotte : " + roundValue(zpos.balance.total) + "</p>");
-            htmlLines.push("<br />");
-            htmlLines.push("<p>Rendu : " + -1 * zpos.repaid.total + "</p>");
-            htmlLines.push("<br />");
-            htmlLines.push("<p>Avoir émis : " + -1 * zpos.credit.total + "</p>");
-            htmlLines.push("<br />");
-            //Total payment
-            htmlLines.push("<p>Recette :</p>");
-            htmlLines.push("<p>    TTC : " + zpos.totalIT + "</p>");
-            htmlLines.push("<p>    HT  : " + zpos.totalET + "</p>");
-
-            htmlLines.push("<br />");
-
-            htmlLines.push("<p>Nb couverts : " + zpos.cutleries.count + "</p>");
-
-            htmlLines.push("<br />");
-
-            var lineForHere = Enumerable.from(zpos.deliveryValues).firstOrDefault(function (value) {
-                return value.type == DeliveryTypes.FORHERE;
-            });
-            var lineTakeOut = Enumerable.from(zpos.deliveryValues).firstOrDefault(function (value) {
-                return value.type == DeliveryTypes.TAKEOUT;
-            });
-            var lineDelivery = Enumerable.from(zpos.deliveryValues).firstOrDefault(function (value) {
-                return value.type == DeliveryTypes.DELIVERY;
-            });
-            var valueForHere = lineForHere ? lineForHere.total : 0;
-            var valueTakeOut = lineTakeOut ? lineTakeOut.total : 0;
-            var valueDelivery = lineDelivery ? lineDelivery.total : 0;
-
-            htmlLines.push("<p>Dont (TTC) :</p>");
-            htmlLines.push("<p>    Sur place  : " + valueForHere.toString() + "</p>");
-            htmlLines.push("<p>    Emporté    : " + valueTakeOut.toString() + "</p>");
-            htmlLines.push("<p>    Livré      : " + valueDelivery.toString() + "</p>");
-
-            htmlLines.push("<br />");
-
-            Enumerable.from(zpos.taxDetails).forEach(function (tax) {
-                htmlLines.push("<p>" + tax.taxCode + " : " + roundValue(String(tax.total).substring(0, 4)) + "</p>");
-            });
-
-            if (zpos.employees && zpos.employees.length > 0) {
-                htmlLines.push("<br />");
-                htmlLines.push("<p>Par employés (TTC) :</p>");
-                Enumerable.from(zpos.employees).forEach(function (employee) {
-                    htmlLines.push("<p>  " + employee.name + " : " + employee.total + "</p>");
-                });
-            }
-
-            htmlLines.push("<br />");
-            htmlLines.push("<br />");
-            htmlLines.push("<cut>");
-            htmlLines.push("</cut>");
-            //#endregion
-
-            var html = htmlLines.join("");
-
-            return html;
-        };
-
-
-        /**
-         * Format a zpos for emailing / printing
-         * @param zpos Raw zpos
-         * @param printY : bool that indicate if we print the Y or not
-         * @returns {string} The HTML formatted zpos
-         */
-        this.createZPosHtml_v2 = function (zpos, printY) {
-            console.log(zpos);
-            //#region Generate HTML printable
-            var htmlLines = [];
-            // If printY, on boucle dans la fonction autant de fois qu'il y a de Y
-            // avant d'imprimer le Z
-            if (printY) {
-                Enumerable.from(zpos.totalsByPeriod).forEach(function (y) {
-                    htmlLines.push("<center><strong>Service</strong></center>");
-                    htmlLines.push("<br />");
-                    Enumerable.from($rootScope.IziBoxConfiguration.ShopName.split("\\r\\n")).forEach(function (part) {
-                        htmlLines.push("<center>" + part + "</center>");
-                    });
-
-                    //Alias de caisse ou HID
-                    if (y.alias) {
-                        htmlLines.push("<center>" + y.alias + "</center>");
-
-                    } else {
-                        htmlLines.push("<center>" + y.hid + "</center>");
-                    }
-
-                    htmlLines.push("<br />");
-                    htmlLines.push("<center><strong> Pour la periode :</strong></center>");
-
-                    var dateStartDisp = dateFormat(y.start);
-                    if (y.end) {
-                        var dateEndDisp = dateFormat(y.end);
-                    }
-
-
-                    htmlLines.push("<center><strong>Du : " + dateStartDisp + (y.end ? (" au " + dateEndDisp) : "") + "</strong></center>");
-
-                    // Imprimer une ligne pour chaque periode, renseignant sa date
-                    //htmlLines.push("<center><strong>Du : " + Date.parseExact(zpos.dateStart, "yyyyMMdd").toString("dd/MM/yyyy") + (zpos.dateEnd != zpos.dateStart ? (" au " + Date.parseExact(zpos.dateEnd, "yyyyMMdd").toString("dd/MM/yyyy")) : "") + "</strong></center>");
-                    htmlLines.push("<br />");
-                    htmlLines.push("<center>Edité le : " + zpos.editionDate + "</center>");
-                    htmlLines.push("<br />");
-                    htmlLines.push("<hr />");
-
-                    htmlLines.push("<p><center><strong>Détail de la caisse :</strong></center></p>");
-                    htmlLines.push("<p><table>");
-
-                    //payment
-                    for (var idxPM = 0; idxPM < zpos.paymentModes.length; idxPM++) {
-                        var matchRP = Enumerable.from(zpos.repaid.byPeriod).firstOrDefault(function (a) {
-                            return a.start == y.start;
-                        });
-
-                        var matchPM = Enumerable.from(zpos.paymentModes[idxPM].byPeriod).firstOrDefault(function (a) {
-                            return a.start == y.start;
-                        });
-                        if (matchPM) {
-                            htmlLines.push("<tr>");
-
-                            htmlLines.push("<td style='width:65%'>" + zpos.paymentModes[idxPM].type + " : </td>");
-                            htmlLines.push("<td style='width:10%;text-align:center'>" + matchPM.count + "</td>");
-
-                            if (zpos.paymentModes[idxPM].type_id == 1) {
-                                htmlLines.push("<td style='width:25%;text-align:right'>" + roundValue((matchPM.total - matchRP.total).toFixed(2)) + "</td>");
-                            }
-                            else {
-                                htmlLines.push("<td style='width:25%;text-align:right'>" + matchPM.total + "</td>");
-                            }
-
-                            htmlLines.push("</tr>");
-                        }
-                    }
-
-                    htmlLines.push("</table></p>");
-
-                    var matchBL = Enumerable.from(zpos.balance.byPeriod).firstOrDefault(function (a) {
-                        return a.start == y.start;
-                    });
-                    if (matchBL) {
-                        htmlLines.push("<br />");
-                        htmlLines.push("<p>Cagnotte : " + roundValue(matchBL.total) + "</p>");
-                    }
-                    htmlLines.push("<br />");
-                    htmlLines.push("<p>Rendu : -" + matchRP.total + "</p>");
-                    htmlLines.push("<br />");
-
-                    //Utilise enumerable first or default pour match
-                    // la periode actuelle avec la periode de credit a afficher
-                    var matchCR = Enumerable.from(zpos.credit.byPeriod).firstOrDefault(function (a) {
-                        return a.start == y.start;
-                    });
-
-                    if (matchCR) {
-                        htmlLines.push("<p>Avoir émis : -" + matchCR.total + "</p>");
-                    }
-
-                    htmlLines.push("<br />");
-                    //Total payment
-                    htmlLines.push("<p>Recette :</p>");
-                    htmlLines.push("<p>    TTC : " + y.totalIT + "</p>");
-                    htmlLines.push("<p>    HT  : " + y.totalET + "</p>");
-
-                    htmlLines.push("<br />");
-
-                    var matchCTL = Enumerable.from(zpos.cutleries.byPeriod).firstOrDefault(function (a) {
-                        return a.start == y.start;
-                    });
-                    if (matchCTL) {
-
-                        htmlLines.push("<p>Nb couverts : " + matchCTL.count + "</p>");
-                    }
-
-
-                    htmlLines.push("<br />");
-                    htmlLines.push("<p>Dont (TTC) :</p>");
-
-                    var lineForHere = Enumerable.from(zpos.deliveryValues).firstOrDefault(function (value) {
-                        return value.type == DeliveryTypes.FORHERE;
-                    });
-                    var lineTakeOut = Enumerable.from(zpos.deliveryValues).firstOrDefault(function (value) {
-                        return value.type == DeliveryTypes.TAKEOUT;
-                    });
-                    var lineDelivery = Enumerable.from(zpos.deliveryValues).firstOrDefault(function (value) {
-                        return value.type == DeliveryTypes.DELIVERY;
-                    });
-
-                    if (lineForHere) {
-                        var matchForHere = Enumerable.from(lineForHere.byPeriod).firstOrDefault(function (a) {
-                            return a.start == y.start;
-                        });
-
-                        var valueForHere = matchForHere ? matchForHere.total : 0;
-                        htmlLines.push("<p>    Sur place  : " + valueForHere.toString() + "</p>");
-                    }
-
-
-                    if (lineTakeOut) {
-                        var matchTakeOut = Enumerable.from(lineTakeOut.byPeriod).firstOrDefault(function (a) {
-                            return a.start == y.start;
-                        });
-
-                        var valueTakeOut = matchTakeOut ? matchTakeOut.total : 0;
-                        htmlLines.push("<p>    Emporté    : " + valueTakeOut.toString() + "</p>");
-                    }
-
-
-                    if (lineDelivery) {
-                        var matchDelivery = Enumerable.from(lineDelivery.byPeriod).firstOrDefault(function (a) {
-                            return a.start == y.start;
-                        });
-                        var valueDelivery = matchDelivery ? matchDelivery.total : 0;
-                        htmlLines.push("<p>    Livré      : " + valueDelivery.toString() + "</p>");
-                    }
-
-
-                    htmlLines.push("<br />");
-                    Enumerable.from(zpos.taxDetails).forEach(function (tax) {
-                        var matchTax = Enumerable.from(tax.byPeriod).firstOrDefault(function (a) {
-                            return a.start == y.start;
-                        });
-                        if (matchTax) {
-                            htmlLines.push("<p>" + tax.taxCode + " : " + roundValue(String(matchTax.total).substring(0, 4)) + "</p>");
-                        }
-                    });
-
-                    if (zpos.employees && zpos.employees.length > 0) {
-                        htmlLines.push("<br />");
-                        htmlLines.push("<p>Par employés (TTC) :</p>");
-                        Enumerable.from(zpos.employees).forEach(function (employee) {
-                            var matchEmployee = Enumerable.from(employee.byPeriod).firstOrDefault(function (a) {
-                                return a.start == y.start;
-                            });
-                            if (matchEmployee) {
-                                htmlLines.push("<p>" + employee.name + " : " + matchEmployee.total + "</p>");
-                            }
-
-                        });
-                    }
-
-                    htmlLines.push("<br />");
-                    htmlLines.push("<br />");
-                    htmlLines.push("<cut>");
-                    htmlLines.push("</cut>");
-
-                });
-            }
-
-
-            htmlLines.push("<center><strong>Z de caisse</strong></center>");
-            htmlLines.push("<br />");
-            Enumerable.from($rootScope.IziBoxConfiguration.ShopName.split("\\r\\n")).forEach(function (part) {
-                htmlLines.push("<center>" + part + "</center>");
-            });
-
-            htmlLines.push("<br />");
-            htmlLines.push("<center><strong> Pour les periodes :</strong></center>");
-            Enumerable.from(zpos.totalsByPeriod).forEach(function (date) {
-                var dateStartDisp = dateFormat(date.start);
-                if (date.end) {
-                    var dateEndDisp = dateFormat(date.end);
-                }
-                htmlLines.push("<center><strong>Du : " + dateStartDisp + (date.end ? (" au " + dateEndDisp) : "") + "</strong></center>");
-            });
-            // Imprimer une ligne pour chaque periode, renseignant sa date
-            //htmlLines.push("<center><strong>Du : " + Date.parseExact(zpos.dateStart, "yyyyMMdd").toString("dd/MM/yyyy") + (zpos.dateEnd != zpos.dateStart ? (" au " + Date.parseExact(zpos.dateEnd, "yyyyMMdd").toString("dd/MM/yyyy")) : "") + "</strong></center>");
-            htmlLines.push("<br />");
-            htmlLines.push("<center>Edité le : " + zpos.editionDate + "</center>");
-            htmlLines.push("<br />");
-            htmlLines.push("<hr />");
-
-            htmlLines.push("<p><center><strong>Détail de la caisse :</strong></center></p>");
-            htmlLines.push("<p><table>");
-
-            //payment
-            for (var idxPM = 0; idxPM < zpos.paymentModes.length; idxPM++) {
-                htmlLines.push("<tr>");
-
-                htmlLines.push("<td style='width:65%'>" + zpos.paymentModes[idxPM].type + " : </td>");
-
-                htmlLines.push("<td style='width:10%;text-align:center'>" + zpos.paymentModes[idxPM].count + "</td>");
-
-                if (zpos.paymentModes[idxPM].type_id == 1) {
-                    htmlLines.push("<td style='width:25%;text-align:right'>" + roundValue((zpos.paymentModes[idxPM].total - zpos.repaid.total).toFixed(2)) + "</td>");
-                }
-                else {
-                    htmlLines.push("<td style='width:25%;text-align:right'>" + zpos.paymentModes[idxPM].total + "</td>");
-                }
-
-                htmlLines.push("</tr>");
-            }
-
-            htmlLines.push("</table></p>");
-            htmlLines.push("<br />");
-            htmlLines.push("<p>Cagnotte : " + roundValue(zpos.balance.total) + "</p>");
-            htmlLines.push("<br />");
-            htmlLines.push("<p>Rendu : -" + zpos.repaid.total + "</p>");
-            htmlLines.push("<br />");
-            htmlLines.push("<p>Avoir émis : -" + zpos.credit.total + "</p>");
-            htmlLines.push("<br />");
-            //Total payment
-            htmlLines.push("<p>Recette :</p>");
-            htmlLines.push("<p>    TTC : " + zpos.totalIT + "</p>");
-            htmlLines.push("<p>    HT  : " + zpos.totalET + "</p>");
-
-            htmlLines.push("<br />");
-
-            htmlLines.push("<p>Nb couverts : " + zpos.cutleries.count + "</p>");
-
-            htmlLines.push("<br />");
-
-            var lineForHere = Enumerable.from(zpos.deliveryValues).firstOrDefault(function (value) {
-                return value.type == DeliveryTypes.FORHERE;
-            });
-            var lineTakeOut = Enumerable.from(zpos.deliveryValues).firstOrDefault(function (value) {
-                return value.type == DeliveryTypes.TAKEOUT;
-            });
-            var lineDelivery = Enumerable.from(zpos.deliveryValues).firstOrDefault(function (value) {
-                return value.type == DeliveryTypes.DELIVERY;
-            });
-            var valueForHere = lineForHere ? lineForHere.total : 0;
-            var valueTakeOut = lineTakeOut ? lineTakeOut.total : 0;
-            var valueDelivery = lineDelivery ? lineDelivery.total : 0;
-
-            htmlLines.push("<p>Dont (TTC) :</p>");
-            htmlLines.push("<p>    Sur place  : " + valueForHere.toString() + "</p>");
-            htmlLines.push("<p>    Emporté    : " + valueTakeOut.toString() + "</p>");
-            htmlLines.push("<p>    Livré      : " + valueDelivery.toString() + "</p>");
-
-            htmlLines.push("<br />");
-
-            Enumerable.from(zpos.taxDetails).forEach(function (tax) {
-                htmlLines.push("<p>" + tax.taxCode + " : " + roundValue(String(tax.total).substring(0, 4)) + "</p>");
-            });
-
-            if (zpos.employees && zpos.employees.length > 0) {
-                htmlLines.push("<br />");
-                htmlLines.push("<p>Par employés (TTC) :</p>");
-                Enumerable.from(zpos.employees).forEach(function (employee) {
-                    htmlLines.push("<p>  " + employee.name + " : " + employee.total + "</p>");
-                });
-            }
-
-            htmlLines.push("<br />");
-            htmlLines.push("<br />");
-            htmlLines.push("<cut>");
-            htmlLines.push("</cut>");
-            //#endregion
-
-            var html = htmlLines.join("");
-            return html;
+            return listShoppingCartsDefer.promise;
         };
 
         /**
          *
-         * Print the zpos
-         * @param zpos
-         * @param type : 0 = date to date, 1 = Yperiod
-         * @param printY
+         * @param data : Data object to compose html from
+         * @param printMode : StatsPrintMode enum
+         * @param countByHid
+         * @param details : print the details or no
+         * @returns {string}
          */
+        this.composeStatsHTML = function (data, printMode, countByHid, details = false) {
 
-        this.printZPosAsync = function (zpos, type, printY = false) {
-            // type : 0 = zpos date a date
-            //        1 = zpos period
+            if (data.Rows && data.Rows.length > 0) {
 
-            var printDefer = $q.defer();
-            let html;
+                let d = angular.copy(data);
+                let htmlLines = [];
+                let parts = $rootScope.IziBoxConfiguration.ShopName.split("\\r\\n");
+                let companyInformation = settingService.getCompanyInfo();
 
-            if (type == 0) {
-                html = this.createZPosHtml(zpos);
+                if (details && printMode !== StatsPrintMode.Y) {
+                    // Si on demande les details, on crée un ticket pour chaque row
+                    d.Rows.forEach((r) => {
+                        printRow(r.PaymentModes, r.DeliveryValues, r.TaxDetails, r.PosUserStats, r.Repaid, r.Credit, r.Cutleries, r, printMode, htmlLines, true);
+                    });
+                }
+
+                // Ticket TOTAL, somme de toute la periode demandé
+                // On calcul les totaux
+                // PaymentModes
+                let pms = d.Rows.map(r => r.PaymentModes).reduce((acc, cur) => {
+                    if (acc.length === 0) {
+                        acc = angular.copy(cur);
+                    } else {
+                        // On check si acc a deja le mode de paiement
+                        acc.map(a => {
+                            cur.forEach((c) => {
+                                let existing = Enumerable.from(acc).firstOrDefault((a) => a.PaymentType === c.PaymentType);
+                                if (existing) {
+                                    if (a.PaymentType === c.PaymentType) {
+                                        a.Total += c.Total;
+                                        a.Count += c.Count;
+
+                                        a.TabData = a.Total;
+                                    }
+                                } else {
+                                    acc.push(c);
+                                }
+                            });
+                        });
+                    }
+                    return acc;
+                });
+
+                // TotalRepaid
+                let tr = d.Rows.map(r => r.Repaid).reduce((acc, cur) => acc += cur);
+
+                // TotalCredit
+                let tc = d.Rows.map(r => r.Credit).reduce((acc, cur) => acc += cur);
+
+                // TotalCutleries
+                let tct = d.Rows.map(r => r.Cutleries).reduce((acc, cur) => acc += cur);
+
+                // DeliveryValues
+                let dvs = d.Rows.map(r => r.DeliveryValues).reduce((acc, cur) => {
+                    if (acc.length === 0) {
+                        acc = angular.copy(cur);
+                    } else {
+                        acc.map(a => {
+                            cur.forEach((c) => {
+                                let existing = Enumerable.from(acc).firstOrDefault((a) => a.Type === c.Type);
+
+                                if (existing) {
+                                    if (a.Type === c.Type) {
+                                        a.TotalIT += c.TotalIT;
+                                        a.TotalET += c.TotalET;
+                                        a.Count += c.Count;
+
+                                        a.TabData += a.TotalIT;
+                                    }
+                                } else {
+                                    acc.push(c);
+                                }
+                            });
+                        });
+                    }
+                    return acc;
+                });
+
+                // TaxDetails
+                let tds = d.Rows.map(r => r.TaxDetails).reduce((acc, cur) => {
+                    if (acc.length === 0) {
+                        acc = angular.copy(cur);
+                    } else {
+                        acc.map(a => {
+                            cur.forEach((c) => {
+                                let existing = Enumerable.from(acc).firstOrDefault((a) => a.TaxRate === c.TaxRate);
+
+                                if (existing) {
+                                    if (a.TaxRate === c.TaxRate) {
+                                        a.TaxAmount += c.TaxAmount;
+                                        a.TaxAmountCustomerDisplay += c.TaxAmountCustomerDisplay;
+                                        a.TabData += a.TaxAmountCustomerDisplay;
+                                        a.PriceET += c.PriceET;
+                                        a.PriceIT += c.PriceIT;
+                                    }
+                                } else {
+                                    acc.push(c);
+                                }
+                            });
+                        });
+                    }
+                    return acc;
+                });
+
+                // PosUserStats
+                let pus = d.Rows.map(r => r.PosUserStats).reduce((acc, cur) => {
+                    if (acc.length === 0) {
+                        acc = angular.copy(cur);
+                    } else {
+                        acc.map(a => {
+                            cur.forEach((c) => {
+                                let existing = Enumerable.from(acc).firstOrDefault((a) => a.PosUserName === c.PosUserName);
+
+                                if (existing) {
+                                    if (a.PosUserName === c.PosUserName) {
+
+                                        a.ValidCount += c.ValidCount;
+                                        a.TotalIT += c.TotalIT;
+                                        a.TotalET += c.TotalET;
+                                        a.CanceledCount += c.CanceledCount;
+                                        a.CanceledAmount += c.CanceledAmount;
+                                        a.DeletedCount += c.DeletedCount;
+                                        a.DeletedAmount += c.DeletedAmount;
+                                        a.DiscountCount += c.DiscountCount;
+                                        a.DiscountTotalIT += c.DiscountTotalIT;
+                                        a.OffersCount += c.OffersCount;
+                                        a.OffersAmount += c.OffersAmount;
+                                        a.TabData += a.TotalIT;
+                                    }
+                                } else {
+                                    acc.push(c);
+                                }
+                            });
+                        });
+                    }
+                    return acc;
+                });
+
+                printRow(pms, dvs, tds, pus, tr, tc, tct, d, printMode, htmlLines, false);
+
+                function printRow(paymentModes, deliveryValues, taxDetails, posUserStats, totalRepaid, totalCredit, totalCutleries, data, mode, lines, isDetails = false) {
+                    lines.push("<br/>");
+                    let header = "";
+                    switch (mode) {
+                        case StatsPrintMode.INTERVAL:
+                            if (isDetails) {
+                                header += "<center><strong>Details de la journée du </strong></center>";
+                                header += "<center><strong>" + data.Date + "</strong></center>";
+                            } else {
+                                header += "<center><strong>Details de l'interval du</strong></center>";
+                                header += "<center><strong>" + moment.unix(data.DateStart / 1000).format("DD/MM/YYYY") + " au " + moment.unix(data.DateEnd / 1000).format("DD/MM/YYYY") + "</strong></center>";
+                            }
+                            break;
+                        case StatsPrintMode.Y:
+                            header += "<center><strong>Y du </strong></center>";
+                            header += "<center><strong>" + moment.unix(data.DateStart / 1000).format("DD/MM/YYYY HH:mm:ss") + "</strong></center>";
+                            if (data.DateEnd && data.DateEnd !== maxEndDate) {
+                                if (data.DateStart !== data.DateEnd) {
+                                    header += "<center><strong>au " + moment.unix(Math.floor(data.DateEnd / 1000)).format("DD/MM/YYYY HH:mm:ss") + "</strong></center>";
+                                }
+                            }
+                            let b = d.Rows[0].Alias ? d.Rows[0].Alias : d.Rows[0].HardwareId;
+                            header += "<p><center>" + b + "</center></p>";
+                            break;
+                        case StatsPrintMode.HID:
+                            if (isDetails) {
+                                header += "<center><strong>Y du </strong></center>";
+                                header += "<center><strong>" + moment.unix(data.Start / 1000).format("DD/MM/YYYY HH:mm:ss") + "</strong></center>";
+                                if (data.End && data.End !== maxEndDate) {
+                                    if (data.Start !== data.End) {
+                                        header += "<center><strong>au " + moment.unix(Math.floor(data.End / 1000)).format("DD/MM/YYYY HH:mm:ss") + "</strong></center>";
+                                    }
+                                } 
+                            } else {
+                                header += "<center><strong>Stats de la caisse du </strong></center>";
+                                header += "<center><strong>" + moment.unix(data.DateStart / 1000).format("DD/MM/YYYY HH:mm:ss") + "</strong></center>";
+                                if (data.End && data.End !== maxEndDate) {
+                                    if (data.Start !== data.End) {
+                                        header += "<center><strong>au " + moment.unix(Math.floor(data.DateEnd / 1000)).format("DD/MM/YYYY HH:mm:ss") + "</strong></center>";
+                                    }
+                                }
+
+                            }
+                            let a = data.Alias ? data.Alias : data.HardwareId;
+                            header += "<p><center>" + a + "</center></p>";
+                            break;
+                        case StatsPrintMode.Z:
+                            if (isDetails) {
+                                header += "<center><strong>Y du </strong></center>";
+                                header += "<center><strong>" + moment.unix(data.Start / 1000).format("DD/MM/YYYY HH:mm:ss") + "</strong></center>";
+                                if (data.End && data.End !== maxEndDate) {
+                                    if (data.Start !== data.End) {
+                                        header += "<center><strong> au " + moment.unix(Math.floor(data.End / 1000)).format("DD/MM/YYYY HH:mm:ss") + "</strong></center>";
+                                    }
+                                }
+                                let c = data.Alias ? data.Alias : data.HardwareId;
+                                header += "<p><center>" + c + "</center></p>";
+                            } else {
+
+                                header += "<center><strong>Z du </strong></center>";
+                                header += "<center><strong>" + moment.unix(data.DateStart / 1000).format("DD/MM/YYYY HH:mm:ss") + "</strong></center>";
+                                if (data.DateEnd && data.DateEnd !== maxEndDate) {
+                                    if (data.DateStart !== data.DateEnd) {
+                                        header += "<center><strong>au " + moment.unix(Math.floor(data.DateEnd / 1000)).format("DD/MM/YYYY HH:mm:ss") + "</strong></center>";
+                                    }
+                                }
+                            }
+                            break;
+                    }
+
+                    lines.push(header);
+
+                    lines.push("<br />");
+                    if (companyInformation) {
+                        lines.push("<center><strong>" + companyInformation.Company + "</strong></center>");
+                        lines.push("<center>" + companyInformation.Address + "</center>");
+                        lines.push("<center>" + companyInformation.ZipCode + ' ' + companyInformation.City + "</center>");
+                        if (companyInformation.SiretNumber) {
+                            lines.push("<center>Siret: " + companyInformation.SiretNumber + "</center>");
+                        }
+                        if (companyInformation.NafCode) {
+                            lines.push("<center>Code Naf: " + companyInformation.NafCode + "</center>");
+                        }
+                        if (companyInformation.VatNumber) {
+                            lines.push("<center>TVA intra: " + companyInformation.VatNumber + "</center>");
+                        }
+                    }
+                    for (let part of parts) {
+                        lines.push("<center>" + part + "</center>");
+                    }
+
+                    lines.push("<br />");
+
+                    lines.push("<hr />");
+
+                    lines.push("<br />");
+                    lines.push("<p>Total HT  : <strong>" + $filter('CurrencyFormat')(roundValue(data.TotalET)) + "</strong></p>");
+
+                    lines.push("<p><table>");
+                    if (taxDetails.length > 0) {
+                        lines.push("<tr>");
+                        lines.push("<th style='width:15%;' scope='col'>&nbsp;</th>");
+                        lines.push("<th style='width:27%;text-align:right;' scope='col'>TVA</th>");
+                        lines.push("<th style='width:29%;text-align:right;' scope='col'>HT</th>");
+                        lines.push("<th style='width:29%;text-align:right;' scope='col'>TTC</th>");
+                        lines.push("</tr>");
+                    }
+                    taxDetails.forEach((td) => {
+                        lines.push("<tr>");
+                        lines.push("<td style='width:15%;'>" + td.TabTitleShort + "</td>");
+                        lines.push("<td style='width:27%;text-align:right;'>" + $filter('CurrencyFormat')(roundValue(td.TaxAmountCustomerDisplay)) + "</td>");
+                        lines.push("<td style='width:29%;text-align:right;'>" + $filter('CurrencyFormat')(roundValue(td.PriceET)) + "</td>");
+                        lines.push("<td style='width:29%;text-align:right;'>" + $filter('CurrencyFormat')(roundValue(td.PriceIT)) + "</td>");
+                        lines.push("</tr>");
+                    });
+                    lines.push("</table></p>");
+
+                    lines.push("<p>Total TTC : <strong>" + $filter('CurrencyFormat')(roundValue(data.TotalIT)) + "</strong></p>");
+
+                    lines.push("<hr />");
+
+                    lines.push("<p><table>");
+
+                    paymentModes.forEach((pm => {
+                        lines.push("<tr>");
+                        lines.push("<td style='width:55%'>" + pm.Text + " : </td>");
+                        lines.push("<td style='width:10%;text-align:center'>" + pm.Count + "</td>");
+                        lines.push("<td style='width:35%;text-align:right'>" + $filter('CurrencyFormat')(roundValue(pm.Total)) + "</td>");
+                        lines.push("</tr>");
+
+                    }));
+                    lines.push("</table></p>");
+
+
+                    lines.push("<p>Avoir émis : " + $filter('CurrencyFormat')(roundValue(totalCredit)) + "</p>");
+                    lines.push("<br />");
+                    lines.push("<p>Rendu (pour info.) : " + $filter('CurrencyFormat')(roundValue(totalRepaid)) + "</p>");
+
+                    lines.push("<hr />");
+                    lines.push("<br />");
+
+                    lines.push("<p><strong>Tickets : </strong></p>");
+                    lines.push("<p>   Validés : " + $filter('CurrencyFormat')(roundValue(data.TotalIT)) + " (" + data.ValidCount + ") </p>");
+                    lines.push("<p>   Annulés : " + $filter('CurrencyFormat')(roundValue(data.CanceledAmount)) + " (" + data.CanceledCount + ") </p>");
+                    lines.push("<p>   Supprimés : " + $filter('CurrencyFormat')(roundValue(data.DeletedAmount)) + " (" + data.DeletedCount + ") </p>");
+                    lines.push("<p>   Remise : " + $filter('CurrencyFormat')(roundValue(data.DiscountTotalIT ? data.DiscountTotalIT : 0)) + " (" + (data.DiscountCount ? data.DiscountCount : 0) + ") </p>");
+                    lines.push("<p>   Offerts : " + $filter('CurrencyFormat')(roundValue(data.OffersAmount ? data.OffersAmount : 0)) + " (" + data.OffersCount + ") </p>");
+
+                    lines.push("<br />");
+                    lines.push("<p><strong>Par employés (TTC) :</strong></p>");
+                    posUserStats.forEach((employee) => {
+
+                        lines.push("<p>  " + employee.PosUserName + " : </p>");
+                        lines.push("<p>    CA validé : " + $filter('CurrencyFormat')(roundValue(employee.TotalIT)) + " (" + employee.ValidCount + ") </p>");
+                        lines.push("<p>    Annulés : " + $filter('CurrencyFormat')(roundValue(employee.CanceledAmount)) + " (" + employee.CanceledCount + ") </p>");
+                        lines.push("<p>    Supprimés : " + $filter('CurrencyFormat')(roundValue(employee.DeletedAmount)) + " (" + employee.DeletedCount + ") </p>");
+                        lines.push("<p>    Remise : " + $filter('CurrencyFormat')(roundValue(employee.DiscountTotalIT ? employee.DiscountTotalIT : 0)) + " (" + (employee.DiscountCount ? employee.DiscountCount : 0) + ") </p>");
+                        lines.push("<p>    Offerts : " + $filter('CurrencyFormat')(roundValue(employee.OffersAmount ? employee.OffersAmount : 0)) + " (" + employee.OffersCount + ") </p>");
+                    });
+
+                    lines.push("<br />");
+
+                    lines.push("<p>Nb. couverts : " + totalCutleries + "</p>");
+
+                    if (deliveryValues && deliveryValues.length > 0) {
+                        lines.push("<p>Recette par mode de conso. (TTC) :</p>");
+                        lines.push("<table>");
+
+                        deliveryValues.forEach((dv => {
+                            lines.push("<tr>");
+                            lines.push("<td style='width:65%'>" + $translate.instant(dv.TabTitle) + "</td>");
+                            lines.push("<td style='width:10%;text-align:center'>" + dv.Count + "</td>");
+                            lines.push("<td style='width:25%;text-align:right'>" + $filter('CurrencyFormat')(roundValue(dv.TotalIT)) + "</td>");
+                            lines.push("</tr>");
+                        }));
+                        lines.push("</table>");
+
+                        lines.push("<br />");
+                    }
+
+                    lines.push("<br />");
+
+                    lines.push("<br />");
+
+                    if (countByHid && (printMode === StatsPrintMode.Z || printMode === StatsPrintMode.Y) && !isDetails) {
+                        function printPosCount(groupedCount) {
+                            lines.push("<br />");
+                            lines.push('<p><strong>Comptage</strong></p>');
+                            groupedCount.sort((a, b) => b.PaymentMode.PaymentType - a.PaymentMode.PaymentType).forEach(l => {
+                                var totalknown = l.TotalKnown ? l.TotalKnown : 0;
+                                var totalCount = l.PaymentMode && l.PaymentMode.Total ? l.PaymentMode.Total : 0;
+                                var totalEcart = totalknown - totalCount;
+                                if (totalknown !== 0 || totalCount !== 0 || totalEcart !== 0) {
+                                    lines.push("<p>  " + l.PaymentMode.Text + "</p>");
+                                    lines.push("<p>    Attendu : " + $filter('CurrencyFormat')(roundValue(totalknown)) + "</p>");
+                                    lines.push("<p>    Compté : " + $filter('CurrencyFormat')(roundValue(totalCount)) + "</p>");
+                                    lines.push("<p>    Ecart : " + $filter('CurrencyFormat')(roundValue(totalEcart)) + "</p>");
+                                }
+
+                            });
+                        }
+
+                        // Affichage du comptage
+
+                        // Met a plat toutes les CashMovementLines
+                        let AllCashMovementLines = countByHid.map(x => x.CashMovementLines);
+                        // puis les regroupé par paymentType
+                        let GroupedCashMovementLines = AllCashMovementLines.reduce((acc, cur) => {
+                            if (acc.length === 0) {
+                                acc = angular.copy(cur);
+                            } else {
+                                // On check si acc a deja le mode de paiement
+                                acc.map(a => {
+                                    cur.forEach((c) => {
+                                        let existing = Enumerable.from(acc).firstOrDefault((a) => a.PaymentMode.PaymentType === c.PaymentMode.PaymentType);
+                                        if (existing) {
+                                            if (a.PaymentMode.PaymentType === c.PaymentMode.PaymentType) {
+                                                a.PaymentMode.Total += c.PaymentMode.Total;
+                                                a.Count += c.Count;
+                                                a.TotalKnown += c.TotalKnown;
+                                                a.CashDiscrepancyYs += c.CashDiscrepancyYs;
+                                            }
+                                        } else {
+                                            acc.push(c);
+                                        }
+                                    });
+                                });
+                            }
+                            return acc;
+                        });
+
+                        printPosCount(GroupedCashMovementLines);
+                    }
+
+
+                    lines.push("<br />");
+                    lines.push("<hr style='border-top: 2px dashed black' />");
+                    lines.push("<cut>");
+                    lines.push("</cut>");
+                }
+
+                return htmlLines.join("");
             }
+        };
 
-            if (type == 1) {
-                html = this.createZPosHtml_v2(zpos, printY);
+        /**
+         *
+         * Print the zpos, given the HTML
+         */
+        this.printZPosAsync = function (html) {
+            let printDefer = $q.defer();
+
+            if (html) {
+                //print
+                const printerApiUrl = "http://" + $rootScope.IziBoxConfiguration.LocalIpIziBox + ":" + $rootScope.IziBoxConfiguration.RestPort + "/printhtml";
+                console.log("PrinterApiUrl : " + printerApiUrl);
+                const htmlPrintReq = {
+                    PrinterIdx: $rootScope.PrinterConfiguration.POSPrinter,
+                    Html: html
+                };
+
+                $http.post(printerApiUrl, htmlPrintReq, { timeout: 10000 }).success(function () {
+                    printDefer.resolve(true);
+                }).error(function () {
+                    printDefer.reject("Print error");
+                });
             }
+            else {
+                printDefer.reject("Nothing to print");
+            }
+            return printDefer.promise;
+        };
 
+        this.saveZArchive = function (id, data, html) {
 
             //print
-            var printerApiUrl = "http://" + $rootScope.IziBoxConfiguration.LocalIpIziBox + ":" + $rootScope.IziBoxConfiguration.RestPort + "/printhtml";
-            console.log("PrinterApiUrl : " + printerApiUrl);
-
-            var htmlPrintReq = {
-                PrinterIdx: $rootScope.PrinterConfiguration.POSPrinter,
+            const zArchiveUrl = "http://" + $rootScope.IziBoxConfiguration.LocalIpIziBox + ":" + $rootScope.IziBoxConfiguration.RestPort + "/zpos/saveZArchive";
+            const zArchiveReq = {
+                Id: id,
+                Obj : data,
                 Html: html
             };
 
-            // Simple POST request example (passing data) :
+            $http.post(zArchiveUrl, zArchiveReq, {timeout: 10000}).then( (res) => {
 
-            $http.post(printerApiUrl, htmlPrintReq, {timeout: 10000}).success(function () {
-                printDefer.resolve(true);
-            }).error(function () {
-                printDefer.reject("Print error");
-            });
-
-            return printDefer.promise;
-
-
+            }, (err) => {
+                console.error(err);
+            })
         };
 
         /**
          * Send zpos by mail using the rest servicen
-         * @param zpos
          */
-        this.emailZPosAsync = function (zpos, isPeriod = false, printY = false) {
-            console.log(zpos);
-            var emailDefer = $q.defer();
-            if (!isPeriod) {
-                var html = this.createZPosHtml(zpos);
-            } else {
-                var html = this.createZPosHtml_v2(zpos, printY);
-            }
-
+        this.emailStatsAsync = function (html, isPeriod) {
+            let emailDefer = $q.defer();
+            let printHTML = undefined;
 
             //email
-            var emailApiUrl = "http://" + $rootScope.IziBoxConfiguration.LocalIpIziBox + ":" + $rootScope.IziBoxConfiguration.RestPort + "/emailhtml";
+            const emailApiUrl = "http://" + $rootScope.IziBoxConfiguration.LocalIpIziBox + ":" + $rootScope.IziBoxConfiguration.RestPort + "/emailhtml";
             console.log("EmailApiUrl : " + emailApiUrl);
-
             //Erreur
-            if (!isPeriod) {
-                var subject = "Z Du : " + Date.parseExact(zpos.dateStart, "yyyyMMdd").toString("dd/MM/yyyy") + (zpos.dateEnd != zpos.dateStart ? (" au " + Date.parseExact(zpos.dateEnd, "yyyyMMdd").toString("dd/MM/yyyy")) : "");
+            let subject = undefined;
 
+            if (!isPeriod) {
+                subject = "Stats Du : " + Date.parseExact(zpos.dateStart, "yyyyMMdd").toString("dd/MM/yyyy") + (zpos.dateEnd !== zpos.dateStart ? (" au " + Date.parseExact(zpos.dateEnd, "yyyyMMdd").toString("dd/MM/yyyy")) : "");
             } else {
-                var subject = "Z de periodes";
+                subject = "Z de caisse";
             }
 
-
-            //prettyZpos(html);
-
-            var htmlEmailReq = {
+            const htmlEmailReq = {
                 Subject: subject,
-                Html: html
+                Html: printHTML
             };
-
 
             $http.post(emailApiUrl, htmlEmailReq, {timeout: 10000}).success(function () {
                 emailDefer.resolve(true);
             }).error(function () {
                 emailDefer.reject("Email error");
             });
-
-
             return emailDefer.promise;
+        };
+
+        this.getStatsColumnsTitles = function (listItems) {
+            let tabColumns = [["Date"], ["Date"], ["Date"]];
+            let hIdEnabled = false;
+            let tabTaxes = [], tabConso = [], tabPayment = [];
+            let tabCount = [], tabUserStats = [];
+            for (let day of listItems) {
+                for (let item in day) {
+                    if (day.hasOwnProperty(item)) {
+                        if (Array.isArray(day[item])) {
+                            for (let subItem of day[item]) {
+                                if (subItem.TabTitle) {
+                                    if (item === "TaxDetails" && tabTaxes.indexOf(subItem.TabTitle) === -1) {
+                                        tabTaxes.push(subItem.TabTitle);
+                                    } else if (item === "DeliveryValues" && tabConso.indexOf(subItem.TabTitle) === -1) {
+                                        tabConso.push(subItem.TabTitle);
+                                    } else if (item === "PaymentModes" && tabPayment.indexOf(subItem.TabTitle) === -1) {
+                                        tabPayment.push(subItem.TabTitle);
+                                    } else if (item === "PosUserStats" && tabUserStats.indexOf(subItem.TabTitle) === -1) {
+                                        tabUserStats.push(subItem.TabTitle);
+                                    }
+                                }
+                            }
+                        } else {
+                            if (item.includes("Count") && tabCount.indexOf(item) === -1) {
+                                tabCount.push(item);
+                            }
+                            if(item === "HardwareId" && tabColumns[0].indexOf(item) === -1) {
+                                tabColumns[0].push("HardwareId");
+                                tabColumns[2].push("HardwareId");
+                                hIdEnabled = true;
+                            }
+                        }
+                    }
+                }
+            }
+            tabColumns[0] = tabColumns[0].concat(tabTaxes).concat(tabConso).concat(tabPayment);
+            tabColumns[0].push("TotalET", "TotalIT");
+            tabColumns[2] = tabColumns[2].concat(tabConso).concat(tabCount);
+            for (let tab of tabColumns) {
+                for (let i = 0; i < tab.length; i++) {
+                    tab[i] = {isUsed: false, value: tab[i]};
+                }
+            }
+            for (let i = 0; i < tabUserStats.length; i++) {
+                tabUserStats[i] = {name: tabUserStats[i], data: []};
+                tabUserStats[i].data.push({isUsed: true, value: "Date"});
+                if(hIdEnabled) {
+                    tabUserStats[i].data.push({isUsed: true, value: "HardwareId"});
+                }
+                tabUserStats[i].data.push({isUsed: true, value: "ValidCount"},
+                    { isUsed: true, value: "DeletedCount" }, { isUsed: true, value: "DeletedAmount" },
+                    { isUsed: true, value: "CanceledCount" }, { isUsed: true, value: "CanceledAmount" },
+                    { isUsed: true, value: "DiscountCount" }, { isUsed: true, value: "DiscountTotalIT" },
+                    { isUsed: true, value: "OffersCount" }, { isUsed: true, value: "OffersAmount" });
+            }
+
+            tabColumns[1] = tabUserStats;
+            tabColumns[2].push({isUsed: true, value: "Paniers moyen"}, {isUsed: true, value: "Couverts moyen"});
+
+            return tabColumns;
+        };
+
+        this.getStatsRowsByColumns = function (columns, listItems, type) {
+            let tabRows = null;
+            if (type === 1) {
+                tabRows = {name: columns.name, data: []};
+            } else {
+                tabRows = [];
+            }
+            for (let day of listItems) {
+                let row = [];
+                if (type === 1) {
+                    if (day.PosUserStats) {
+                        for (let user of day.PosUserStats) {
+                            if (user.PosUserName === columns.name) {
+                                for (let column of columns.data) {
+                                    let value = "";
+                                    if (column.value === "Date") {
+                                        if (day.Date) {
+                                            value = day.Date;
+                                        } else if(day.Start) {
+                                            value = moment.unix(day.Start / 1000).format("DD/MM HH:mm");
+                                            if (day.End && day.End !== maxEndDate) {
+                                                value += " - " + moment.unix(day.End / 1000).format("DD/MM HH:mm");
+                                            }
+                                        }
+                                    } else {
+                                        if (user[column.value]) {
+                                            if(typeof user[column.value] === "number") {
+                                                value = roundValue(user[column.value]);
+                                            } else {
+                                                value = user[column.value];
+                                            }
+                                        } else {
+                                            if(column.value === "HardwareId") {
+                                                if(day.Alias) {
+                                                    value = day.Alias;
+                                                } else {
+                                                    value = day.HardwareId;
+                                                }
+                                            }
+                                        }
+                                    }
+                                    row.push(value);
+                                }
+                            }
+                        }
+                    }
+                    tabRows.data.push(row);
+                } else {
+                    for (let column of columns) {
+                        let value = "";
+                        if (column.value === "Paniers moyen" && day.ValidCount !== 0) {
+                            if (day.TotalIT !== 0) {
+                                value = day.TotalIT / day.ValidCount;
+                            }
+                        } else if (column.value === "Couverts moyen" && day.ValidCount !== 0) {
+                            if (day.Cutleries !== 0) {
+                                value = day.Cutleries / day.ValidCount;
+                            }
+                        } else if (column.value === "Date") {
+                            column.isUsed = true;
+                            if (day.Date) {
+                                value = day.Date;
+                            } else if(day.Start) {
+                                value = moment.unix(day.Start / 1000).format("DD/MM HH:mm");
+                                if (day.End && day.End !== maxEndDate) {
+                                    value += " - " + moment.unix(day.End / 1000).format("DD/MM HH:mm");
+                                }
+                            }
+                        } else if (column.value === "HardwareId") {
+                            column.isUsed = true;
+                            if(day.Alias) {
+                                value = day.Alias;
+                            } else {
+                                value = day.HardwareId;
+                            }
+                        } else {
+                            if (day[column.value]) {
+                                column.isUsed = true;
+                                value = day[column.value];
+                            } else {
+                                for (let item in day) {
+                                    if (day.hasOwnProperty(item) && Array.isArray(day[item])) {
+                                        for (let subItem of day[item]) {
+                                            if (type === 2) {
+                                                if (item === "DeliveryValues" && column.value === subItem.TabTitle) {
+                                                    column.isUsed = true;
+                                                    value = "Nombre : " + roundValue(subItem.Count) + " / Total : " + $filter("CurrencyFormat")(roundValue(subItem.TotalIT));
+                                                }
+                                            } else {
+                                                if (subItem.TabTitle && subItem.TabTitle === column.value) {
+                                                    column.isUsed = true;
+                                                    value = subItem.TabData;
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        if (typeof value === "number") {
+                            row.push({show: true, value: roundValue(value), sort: value});
+                        } else if (column.value === "Date") {
+                            if (value.includes(" - ")) {
+                                row.push({show: true, value: value, sort: value});
+                            } else {
+                                row.push({show: true, value: value, sort: moment(value, "DD-MM-YYYY").format("x")});
+                            }
+                        } else {
+                            row.push({show: true, value: value, sort: value});
+                        }
+                    }
+                    tabRows.push(row);
+                }
+            }
+
+            //Remove empty columns / rows
+            if (type === 1) {
+                for (let i = 0; i < tabRows.data.length; i++) {
+                    if (tabRows.data[i].length === 0) {
+                        tabRows.data.splice(i, 1);
+                        i--;
+                    }
+                }
+            } else {
+                for (let i = 0; i < columns.length; i++) {
+                    if (!columns[i].isUsed) {
+                        for (let row of tabRows) {
+                            row[i].show = false;
+                        }
+                    }
+                }
+                for (let r = 0; r < tabRows.length; r++) {
+                    let removeRow = true;
+                    for (let i = 1; i < tabRows[r].length; i++) {
+                        if (tabRows[r][i].value !== "") {
+                            removeRow = false;
+                            break;
+                        }
+                    }
+                    if (removeRow) {
+                        tabRows.splice(r, 1);
+                        r--;
+                    }
+                }
+            }
+
+            return tabRows;
         };
     }]);

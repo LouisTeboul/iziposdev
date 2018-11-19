@@ -1,72 +1,7 @@
 <md-content ng-controller="MiniBasketController" ng-init="init()" id="miniBasket" class="miniBasket" layout="column"
             ng-class="{'borneIsVertical': $root.borne && $root.borneVertical}"
             flex>
-    <div layout="column" ng-if="currentShoppingCart.customerLoyalty" class="mbLoyaltyPart">
-        <div id="loyaltyRow" layout="column" class="loyaltyRow">
-            <!-- TODO :  -->
-            <div ng-if="currentShoppingCart.customerLoyalty.CustomerFirstName">
-                <strong ng-click="openClientModal()">
-                    {{currentShoppingCart.customerLoyalty.CustomerFirstName}}
-                    {{currentShoppingCart.customerLoyalty.CustomerLastName}}</strong>
-                <!-- If the user has signed the legal agreement -->
-                <img src="img/agreementTrue.png" ng-if="currentShoppingCart.customerLoyalty.HasValidLegalDocument"
-                     style="max-width: 15px;"/>
-                <img src="img/agreementFalse.png" ng-if="!currentShoppingCart.customerLoyalty.HasValidLegalDocument"
-                     style="max-width: 15px;"/>
 
-                <span class="glyphicon glyphicon-remove removeLIBorne" ng-click="removeLoyaltyInfo()"
-                      ng-if="!currentShoppingCart.ParentTicket"></span>
-            </div>
-            <div ng-if="currentShoppingCart.customerLoyalty.CustomerEmail
-                      && !currentShoppingCart.customerLoyalty.CustomerFirstName
-                      && !currentShoppingCart.customerLoyalty.CustomerLastName" ng-click="openClientModal()">
-                <strong>Email : {{currentShoppingCart.customerLoyalty.CustomerEmail}}</strong>
-                <!-- If the user has signed the legal agreement -->
-                <img src="img/agreementTrue.png" ng-if="currentShoppingCart.customerLoyalty.HasValidLegalDocument"
-                     style="max-width: 15px;"/>
-                <img src="img/agreementFalse.png" ng-if="!currentShoppingCart.customerLoyalty.HasValidLegalDocument"
-                     style="max-width: 15px;"/>
-                <span class="glyphicon glyphicon-remove removeLIBorne" ng-click="removeLoyaltyInfo()"
-                      ng-if="!currentShoppingCart.ParentTicket"></span>
-            </div>
-            <div ng-if="!currentShoppingCart.customerLoyalty.CustomerEmail" ng-click="openClientModal()">
-                <strong>
-                    <x translate>Carte sans compte</x>
-                    : {{currentShoppingCart.customerLoyalty.Barcodes[0].Barcode}} </strong>
-                <span class="glyphicon glyphicon-remove removeLIBorne" ng-click="removeLoyaltyInfo()"
-                      ng-if="!currentShoppingCart.ParentTicket"></span>
-            </div>
-
-            <div layout="column" style="height: 25px;">
-                <div ng-if="balancePassages">
-                    <strong>
-                        <x translate>Passages</x>
-                    </strong>: {{balancePassages.Value}}
-                </div>
-                <div layout="row">
-                    <div flex="50">
-                        <div layout-wrap ng-repeat="balance in currentShoppingCart.customerLoyalty.Balances ">
-                            <p style="white-space: nowrap;"><strong translate>{{balance.BalanceName}}</strong> :
-                                {{balance.Value}} {{balance.BalanceType}}</p>
-                        </div>
-                    </div>
-                    <div flex="50" style="text-align:center;">
-                        <a class="" ng-click="openCustomActionModal();"
-                           ng-if="currentShoppingCart.customerLoyalty.CustomActions && !currentShoppingCart.ParentTicket"
-                           style="cursor: pointer;">
-                            <span class="btn btn-info" ng-if="currentShoppingCart.customerLoyalty.SelectedCustomAction">
-                                {{currentShoppingCart.customerLoyalty.SelectedCustomAction.Name}}
-                            </span>
-                            <span ng-if="!currentShoppingCart.customerLoyalty.SelectedCustomAction"><span
-                                    class="glyphicon glyphicon-retweet" style="font-size: 20Px;
-                            color: green;"></span>
-                            </span>
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
     <div layout="column"
          class="mbFirstPart"
          ng-style="{'border-color' : $root.tenantColor }">
@@ -80,31 +15,42 @@
                 <div layout="row" style="height:0;display:none;">
                     <ng-barcodetextfield flex></ng-barcodetextfield>
                 </div>
-                <div layout="row" class="titleCommand" ng-if="!currentShoppingCart.ParentTicket">
-                    <div style="display:flex;align-items:center" flex>
+                <div layout="row" class="titleCommand" ng-if="!currentShoppingCart.ParentTicket"
+                     ng-style="{'margin-right': $root.borne && $root.borneVertical ? (mdMedia('min-width: 800px') ? '20px' : '5px') : '0'}">
+                    <div class="titleBasket" flex>
                         <div class="imgMiniBasket"
                              ng-class="{'vertical': $root.borne && $root.borneVertical}"
                              ng-style="{ 'background-color': $root.tenantColor }">
                             <md-icon md-svg-src="img/icons/basket.svg"></md-icon>
                         </div>
-                        <span style="white-space:normal" class="text-uppercase votreCommande"
-                              translate>Mon Panier</span>
+                        <span class="text-uppercase votreCommande"
+                              ng-style="{'font-size': ($root.borne && $root.borneVertical) || !currentShoppingCart.customerLoyalty.CustomerFirstName ? '26px' : '15px',
+                               'margin-left': $root.borne && $root.borneVertical ?
+                               (mdMedia('min-width: 800px') ? '20px' : '5px') : '10px' }" translate>Mon Panier</span>
                     </div>
                     <div flex class="text-right priceHeaderMB" ng-if="$rootScope.borne && $rootScope.borneVertical">
                         <!--<span ng-if="currentShoppingCart != undefined && currentShoppingCart.Repaid > 0">{{currentShoppingCart.Repaid | CurrencyFormat}}</span>-->
                         <span ng-if="currentShoppingCart != undefined && currentShoppingCart.Residue > 0">{{currentShoppingCart.Residue | CurrencyFormat}}</span>
                         <span ng-if="currentShoppingCart != undefined && currentShoppingCart.Credit > 0">{{currentShoppingCart.Credit | CurrencyFormat}}</span>
                     </div>
+                    <div class="fidHeaderMB" ng-if="currentShoppingCart.customerLoyalty.CustomerFirstName">
+                        <div class="catFidHeaderMB">
+                            <div class="iconCatFidMB" ng-style="{ 'background-color': $root.tenantColor }">
+                                <md-icon md-svg-src="img/icons/pot.svg"></md-icon>
+                            </div>
+                            <div class="vCatFidHMB">
+                                <span class="potTitle" ng-if="$rootScope.borne && $rootScope.borneVertical && mdMedia('min-width: 800px')" translate>Cagnotte fidélité</span>
+                                <span class="potAmount" ng-repeat="balance in currentShoppingCart.customerLoyalty.Balances">{{balance.Value | CurrencyFormat}}</span>
+                            </div>
+                        </div>
+                        <div class="catFidHeaderMB" ng-click="$event.stopPropagation();chooseRelevantOffer();">
+                            <div class="iconCatFidMB" ng-style="{ 'background-color': $root.tenantColor }">
+                                <md-icon md-svg-src="img/icons/gift.svg"></md-icon>
+                            </div>
+                            <span class="offerTitleFidBasket" ng-if="$rootScope.borne && $rootScope.borneVertical" translate>Mes offres</span>
+                        </div>
+                    </div>
                 </div>
-                <a class="btn btn-info btnOffersOnly"
-                   ng-class="{'btnOffers' : IziBoxConfiguration.UseTable}"
-                   ng-if="currentShoppingCart.customerLoyalty && currentShoppingCart.customerLoyalty.RelevantOffers && !currentShoppingCart.ParentTicket"
-                   ng-data-notification-switch
-                   ng-if-notification="{{currentShoppingCart.customerLoyalty != undefined && currentShoppingCart.customerLoyalty.RelevantOffers
-                               && currentShoppingCart.customerLoyalty.RelevantOffers.length > 0 && currentShoppingCart.customerLoyalty.RelevantOffers.length}}"
-                   ng-click="$event.stopPropagation();chooseRelevantOffer();">
-                    <x translate>Offres</x>
-                </a>
             </div>
             <md-content id="miniBasketItems" class="itemsPanel" layout="column"
                         ng-style="{'padding-top' :  $rootScope.borne && $rootScope.borneVertical ? '0' : '15px'}">
@@ -128,6 +74,10 @@
                                     </div>
                                 </div>
                                 <div class="productTools" ng-if="!currentShoppingCart.isPayed">
+                                    <md-icon aria-label="removeLine" md-svg-src="img/icons/corbeille.svg"
+                                             ng-style="{ 'color' : $root.tenantColor}"
+                                             ng-click="$event.stopPropagation();removeItem(item);"
+                                             ng-if="(item.Offer == undefined || !item.isPartSplitItem) && item.Quantity == 1"></md-icon>
                                     <md-icon aria-label="decrementQty" md-svg-src="img/icons/moins.svg"
                                              ng-style="{ 'color' : $root.tenantColor}"
                                              ng-click="$event.stopPropagation();decrementQuantity(item);"
@@ -136,18 +86,13 @@
                                              ng-style="{ 'color' : $root.tenantColor}"
                                              ng-click="$event.stopPropagation();incrementQuantity(item);"
                                              ng-if="item.Offer == undefined"></md-icon>
-                                    <md-icon aria-label="removeLine" md-svg-src="img/icons/corbeille.svg"
-                                             ng-style="{ 'color' : $root.tenantColor}"
-                                             ng-click="$event.stopPropagation();removeItem(item);"
-                                             style="width:20px;height:20px;"
-                                             ng-if="(item.Offer == undefined || !item.isPartSplitItem) && item.Quantity == 1"></md-icon>
                                 </div>
                             </div>
                         </div>
                         <div ng-repeat="groupItems in step.NormalItems track by $index" layout="column"
                              ng-click="selectLine(item)">
                             <div class="productBGroup"
-                                 ng-style="{ 'margin-top' : $rootScope.borne && $rootScope.borneVertical ? '0' : '15px'}">
+                                 ng-style="{ 'margin' : $rootScope.borne && $rootScope.borneVertical ? '2px 5px' : '15px 2px'}">
                                 <div ng-repeat="itemd in groupItems track by $index" id="{{itemd.ProductId}}"
                                      ng-class="{'productSep': $index != 0}" class="productSGroup">
                                     <div class="productCount"
@@ -162,6 +107,10 @@
                                         </div>
                                     </div>
                                     <div class="productTools" ng-if="!currentShoppingCart.isPayed">
+                                        <md-icon aria-label="removeLine" md-svg-src="img/icons/corbeille.svg"
+                                                 ng-style="{ 'color' : $root.tenantColor}"
+                                                 ng-click="$event.stopPropagation();removeItem(itemd);" class="smallPT"
+                                                 ng-if="(itemd.Offer == undefined || !itemd.isPartSplitItem) && itemd.Quantity == 1"></md-icon>
                                         <md-icon aria-label="decrementQty" md-svg-src="img/icons/moins.svg"
                                                  ng-style="{ 'color' : $root.tenantColor}"
                                                  ng-click="$event.stopPropagation();decrementQuantity(itemd);"
@@ -170,11 +119,6 @@
                                                  ng-style="{ 'color' : $root.tenantColor}"
                                                  ng-click="$event.stopPropagation();incrementQuantity(itemd);"
                                                  ng-if="itemd.Offer == undefined"></md-icon>
-                                        <md-icon aria-label="removeLine" md-svg-src="img/icons/corbeille.svg"
-                                                 ng-style="{ 'color' : $root.tenantColor}"
-                                                 style="margin-top: 2px !important"
-                                                 ng-click="$event.stopPropagation();removeItem(itemd);" class="smallPT"
-                                                 ng-if="(itemd.Offer == undefined || !itemd.isPartSplitItem) && itemd.Quantity == 1"></md-icon>
                                     </div>
                                 </div>
                             </div>
@@ -187,7 +131,7 @@
     <div id="mbValidation" ng-if="$rootScope.borne && !$rootScope.borneVertical">
         <div class="mbPaiementValidation">
             <div class="mbSecondPartH">
-                <div class="stopOrder">
+                <div class="btnMBAction">
                     <div class="bigDisplayed">
                         <a class="btnMainBorne"
                            ng-click="cancelShoppingCart()"
@@ -196,15 +140,15 @@
                         </a>
                     </div>
                 </div>
-                <div class="confirmOrder">
+                <div class="btnMBAction">
                     <div class="bigDisplayed active">
                         <a ng-click="confirmBorneOrder()"
                            ng-disabled="!(currentShoppingCart.Items.length > 0)"
                            ng-class="{ 'disabled' : !currentShoppingCart || !(currentShoppingCart.Residue == currentShoppingCart.Total || currentShoppingCart.Residue == 0)}"
                            ng-style=" { 'background-color' : $root.tenantColor, 'border-color' : $root.tenantColor }" flex>
                             <span style="white-space:normal" translate>Valider ma commande</span>
-                            <span ng-if="currentShoppingCart != undefined && currentShoppingCart.Residue > 0">{{currentShoppingCart.Residue | CurrencyFormat}}</span>
-                            <span ng-if="currentShoppingCart != undefined && currentShoppingCart.Credit > 0">{{currentShoppingCart.Credit | CurrencyFormat}}</span>
+                            <span class="priceMBD" ng-if="currentShoppingCart != undefined && currentShoppingCart.Residue > 0">{{currentShoppingCart.Residue | CurrencyFormat}}</span>
+                            <span class="priceMBD" ng-if="currentShoppingCart != undefined && currentShoppingCart.Credit > 0">{{currentShoppingCart.Credit | CurrencyFormat}}</span>
                         </a>
                     </div>
                 </div>
@@ -220,14 +164,14 @@
                 <span class="devByColor">.pro</span>
             </div>
         </div>
-        <div class="smallDisplayed">
+        <div class="smallDisplayed" ng-if="mdMedia('min-width: 800px')">
             <a class="shoppingCartAction"
                ng-click="setPMRmode()"
                style="background-color: #ddd;border-color:#ddd">
                 <md-icon md-svg-src="img/icons/pmr.svg"></md-icon>
             </a>
         </div>
-        <div class="stopOrder">
+        <div class="btnMBAction">
             <div class="bigDisplayed">
                 <a class="btnMainBorne"
                    ng-click="cancelShoppingCart()"
@@ -236,7 +180,7 @@
                 </a>
             </div>
         </div>
-        <div class="confirmOrder">
+        <div class="btnMBAction">
             <div class="bigDisplayed active">
                 <a class="shoppingCartAction"
                    ng-click="confirmBorneOrder()"

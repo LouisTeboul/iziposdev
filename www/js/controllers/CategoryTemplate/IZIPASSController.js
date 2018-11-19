@@ -12,12 +12,17 @@
 
 
 app.controller('IZIPASSController', function ($scope, $rootScope, $stateParams, $location, $state, $timeout, $mdMedia, categoryService, productService, pictureService, shoppingCartModel) {
-    var self = this;
+    const self = this;
     $scope.$mdMedia = $mdMedia;
+    $scope.reloadProducts = false;
 
-    var pouchDBChangedHandler = $rootScope.$on('pouchDBChanged', function (event, args) {
+    const pouchDBChangedHandler = $rootScope.$on('pouchDBChanged', function (event, args) {
         if (args.status == "Change" && (args.id.indexOf('Product') == 0 || args.id.indexOf('Category') == 0)) {
             $scope.subSubCategories = [];
+            // Si il y a eu un changement de produit, on reload les produits de la catégorie
+            if (args.id.indexOf('Product') == 0) {
+                $scope.reloadProducts = true;
+            }
             $scope.init();
         }
     });
@@ -35,7 +40,7 @@ app.controller('IZIPASSController', function ($scope, $rootScope, $stateParams, 
         // $scope.deliveryType = shoppingCartModel.getDeliveryType();
         $scope.useCache = false;
         // Get selected category
-        var categoryId = $stateParams.id;
+        const categoryId = $stateParams.id;
         if ($rootScope.storedCategories['' + categoryId]) {
             $scope.useCache = true;
             $timeout(() => {
@@ -43,7 +48,7 @@ app.controller('IZIPASSController', function ($scope, $rootScope, $stateParams, 
             }, 1);
             checkLoading($rootScope.storedCategories['' + categoryId]);
         } else {
-            categoryService.loadCategory(categoryId, checkLoading);
+            categoryService.loadCategory(categoryId, $scope.reloadProducts, checkLoading);
         }
     };
 
@@ -52,8 +57,8 @@ app.controller('IZIPASSController', function ($scope, $rootScope, $stateParams, 
        console.log($scope.deliveryType);
     });*/
 
-    var checkLoading = function (storage) {
-        if (storage.mainProducts === 0 && storage.subProducts === 0) {
+    const checkLoading = function (storage) {
+        if (storage && storage.mainCategory && storage.mainProductsCount === 0 && storage.subProductsCount === 0) {
             $scope.model.category = storage.mainCategory;
             $scope.model.products = storage.mainCategory.products;
             if (storage.subCategories) {
@@ -71,9 +76,9 @@ app.controller('IZIPASSController', function ($scope, $rootScope, $stateParams, 
 
     $scope.scrollTo = function (elementId) {
         console.log(elementId);
-        var updatedItemElem = document.querySelector('#c' + elementId);
+        const updatedItemElem = document.querySelector('#c' + elementId);
         if (updatedItemElem) {
-            var top = updatedItemElem.offsetTop;
+            const top = updatedItemElem.offsetTop;
             $('#allCategories').animate({
                 scrollTop: top - 175
             }, 200);
@@ -81,7 +86,7 @@ app.controller('IZIPASSController', function ($scope, $rootScope, $stateParams, 
     };
 
     $scope.addToCart = function (idProduct) {
-        var product = Enumerable.from($scope.model.products).firstOrDefault(function (p) {
+        const product = Enumerable.from($scope.model.products).firstOrDefault(function (p) {
             return p.Id === idProduct;
         });
 
@@ -93,6 +98,4 @@ app.controller('IZIPASSController', function ($scope, $rootScope, $stateParams, 
             console.log("oops, pas de product");
         }
     };
-
-
 });

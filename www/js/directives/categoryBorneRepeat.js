@@ -32,7 +32,7 @@ app.directive('categoryBorneRepeat', function ($rootScope, $compile, $filter) {
                         }
                         result += `" onclick="$('#IZIPASSController').scope().addToCart(${product.Id})" >`;
                         result += `<div class="imgProduct">
-                                       <img alt="" src='${product.DefaultPictureUrl}' class="image"/>
+                                       <img src="${product.DefaultPictureUrl}" class="image" draggable="false" alt=""/>
                                    </div>
                                    <div class="titleRow">  
                                     ${product.Name}
@@ -61,80 +61,82 @@ app.directive('categoryBorneRepeat', function ($rootScope, $compile, $filter) {
 
             let template = "";
             let borderColor = "";
-            if ($rootScope.tenantColor) {
-                borderColor = `style="border-color: ${$rootScope.tenantColor}"`
-            }
-            let allCategories = `<h1 class="cBRTitle" ${borderColor} >${scope.model.category.Name}</h1><section id="allCategories" class='layout-column flex-85'>`;
 
-            /** Main category products*/
-            let mainProducts = "<section id='cMain'>";
+            if(scope.model && scope.model.category) {
+                if ($rootScope.tenantColor) {
+                    borderColor = `style="border-color: ${$rootScope.tenantColor}"`
+                }
+                let allCategories = `<h1 class="cBRTitle" ${borderColor} >${scope.model.category.Name}</h1><section id="allCategories" class='layout-column flex-85'>`;
+                /** Main category products*/
+                let mainProducts = "<section id='cMain'>";
 
-            mainProducts += repeatProducts(scope.model.category.products);
+                mainProducts += repeatProducts(scope.model.category.products);
 
-            mainProducts += "</section>";
-            allCategories += mainProducts;
+                mainProducts += "</section>";
+                allCategories += mainProducts;
 
-            if (scope.model.subCategories) {
-                for (let subCat of scope.model.subCategories) {
-                    if (subCat.products && subCat.products.length > 0) {
-                        let subCatProducts = "";
-                        for (let cat of scope.model.subCategories) {
-                            if (cat.products && cat.products.length > 0) {
-                                if (cat.Id === subCat.Id) {
-                                    let hr = '';
-                                    if (hasDefaultProduct) {
-                                        hr = '<hr class="betweenCatsHR">';
-                                        hasDefaultProduct = false;
-                                    }
+                if (scope.model.subCategories) {
+                    for (let subCat of scope.model.subCategories) {
+                        if (subCat.products && subCat.products.length > 0) {
+                            let subCatProducts = "";
+                            for (let cat of scope.model.subCategories) {
+                                if (cat.products && cat.products.length > 0) {
+                                    if (cat.Id === subCat.Id) {
+                                        let hr = '';
+                                        if (hasDefaultProduct) {
+                                            hr = '<hr class="betweenCatsHR">';
+                                            hasDefaultProduct = false;
+                                        }
 
-                                    let textColor = '';
+                                        let textColor = '';
 
-                                    if ($rootScope.tenantColor) {
-                                        textColor = `style="color: ${$rootScope.tenantColor}"`;
-                                    }
+                                        if ($rootScope.tenantColor) {
+                                            textColor = `style="color: ${$rootScope.tenantColor}"`;
+                                        }
 
-                                    subCatProducts = hr + `<section id='c${subCat.Id}' class="sectionCat">
+                                        subCatProducts = hr + `<section id='c${subCat.Id}' class="sectionCat">
                                                     <div class="listCatsNext"></div>
                                                     <div class="listCats">
                                                     <span class="glyphicon glyphicon-star catRepeat"
                                                     onclick="$('#IZIPASSController').scope().scrollTo('Main')"></span>
                                                     <span class="catRepeat catFocused" ${textColor} >${cat.Name}</span>` + subCatProducts;
 
-                                } else {
-                                    subCatProducts += `<span class="catRepeat"
+                                    } else {
+                                        subCatProducts += `<span class="catRepeat"
                                                     onclick="$('#IZIPASSController').scope().scrollTo(${cat.Id})">${cat.Name}</span>`;
+                                    }
                                 }
                             }
+                            subCatProducts += `</div>`;
+                            subCatProducts += repeatProducts(subCat.products);
+                            subCatProducts += "</section>";
+                            allCategories += subCatProducts;
                         }
-                        subCatProducts += `</div>`;
-                        subCatProducts += repeatProducts(subCat.products);
-                        subCatProducts += "</section>";
-                        allCategories += subCatProducts;
+                    }
+                }
+                allCategories += "</section>";
+                template += allCategories;
+
+                if (!$rootScope.isPMREnabled) {
+                    if(scope.$mdMedia('min-width: 800px')) {
+                        template += `<div class="pubProductsCut" id="pubProductsCutB" style="bottom:250px"></div><div class="pubProductsCut reverse"></div>`;
+                    } else {
+                        template += `<div class="pubProductsCut" id="pubProductsCutB" style="bottom:66px"></div><div class="pubProductsCut reverse"></div>`;
+                    }
+                    if ($rootScope.bornePubImages) {
+                        template += `<div class="pubProductsList" id="pubProductsList" style="display:block;background-image: url(` + $rootScope.bornePubImages + `);"></div>`;
+                    } else {
+                        template += `<div class="pubProductsList" id="pubProductsList" style="display:block;background-image: url('img/ad.png');"></div>`;
+                    }
+                } else {
+                    template += `<div class="pubProductsCut" id="pubProductsCutB" style="bottom:0"></div><div class="pubProductsCut reverse"></div>`;
+                    if ($rootScope.bornePubImages) {
+                        template += `<div class="pubProductsList" id="pubProductsList" style="display:none;background-image: url(` + $rootScope.bornePubImages + `);"></div>`;
+                    } else {
+                        template += `<div class="pubProductsList" id="pubProductsList" style="display:none;background-image: url('img/ad.png');"></div>`;
                     }
                 }
             }
-
-
-            allCategories += "</section>";
-
-            template += allCategories;
-
-            if (!$rootScope.isPMREnabled) {
-                template += `<div class="pubProductsCut" id="pubProductsCutB" style="bottom:250px"></div><div class="pubProductsCut reverse"></div>`;
-                if($rootScope.bornePubImages) {
-                    template += `<div class="pubProductsList" id="pubProductsList" style="display:block;background-image: url(` + $rootScope.bornePubImages + `);"></div>`;
-                } else {
-                    template += `<div class="pubProductsList" id="pubProductsList" style="display:block;background-image: url('/img/ad.png');"></div>`;
-                }
-            } else {
-                template += `<div class="pubProductsCut" id="pubProductsCutB" style="bottom:0"></div><div class="pubProductsCut reverse"></div>`;
-                if($rootScope.bornePubImages) {
-                    template += `<div class="pubProductsList" id="pubProductsList" style="display:none;background-image: url(` + $rootScope.bornePubImages + `);"></div>`;
-                } else {
-                    template += `<div class="pubProductsList" id="pubProductsList" style="display:none;background-image: url('/img/ad.png');"></div>`;
-                }
-            }
-
             element.append(template);
         }
     }

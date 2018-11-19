@@ -1,5 +1,6 @@
 <md-content class="catalog" ng-controller="CatalogController" ng-init="init()" layout="column" layout-fill>
-    <div id="PMREnabled" style="flex:3" ng-if="$rootScope.borne && $rootScope.isPMREnabled">
+    <div id="PMREnabled" ng-style="{'flex': $mdMedia('min-width: 800px') ? '3' : '1'}"
+         ng-if="$rootScope.borne && $rootScope.isPMREnabled">
         <div class="pubProductsList" ng-if="$rootScope.isPMREnabled" ng-style="customStyle"></div>
     </div>
     <div layout="column" ng-if="$rootScope.borne && !$rootScope.borneVertical" style="flex:5" flex>
@@ -7,7 +8,7 @@
         <md-content layout="row" style="overflow-y: hidden;" flex>
             <md-content id="catalogViewDiv" flex ui-view layout="column">
             </md-content>
-            <md-sidenav class="md-sidenav-right md-whiteframe-z2 miniBasketSlide" style="min-width:345px"
+            <md-sidenav class="md-sidenav-right md-whiteframe-z2 miniBasketSlideV" style="min-width:345px"
                         md-is-locked-open="!$rootScope.adminMode.state && ($mdMedia('min-width: 800px') || $rootScope.showShoppingCart)">
                 <md-content id="catalogBasketDiv" class="catalogBasketDiv" ng-include="'viewsBorne/miniBasket.html'"
                             layout="column" style="height:100%" flex>
@@ -25,18 +26,17 @@
         <md-sidenav class="md-sidenav-right md-whiteframe-z2 miniBasketSlide" style="min-width:100%"
                     md-is-locked-open="!$rootScope.adminMode.state && ($mdMedia('min-width: 800px') || $rootScope.showShoppingCart)">
             <md-content id="catalogBasketDivVertical" class="catalogBasketDiv"
-                        ng-include="'viewsBorne/miniBasket.html'"
-                        layout="column"
-                        style="height:402px" flex>
+                        ng-include="'viewsBorne/miniBasket.html'" layout="column"  flex>
             </md-content>
         </md-sidenav>
     </div>
     <script type="text/ng-template" id="warning-dialog.html">
         <section class="modalCenterFS" ng-style="{'background-image': $root.borneBgModal ? 'url(' + $root.borneBgModal + ')' : 'url(\'img/fond-borne.jpg\')'}">
             <section class="groupModal">
-                <img ng-src="{{$root.borneMainLogo && $root.borneMainLogo || 'img/logo.png'}}" class="imgLogoHeader bigLogo"/>
+                <img ng-src="{{$root.borneMainLogo && $root.borneMainLogo || 'img/logo.png'}}"
+                     class="imgLogoHeader" draggable="false" alt=""/>
                 <div class="firstTitle" idle-countdown="countdown" ng-init="countdown=15">
-                    <span translate>Mise en veille dans</span>
+                    <span translate>Mise en veille dans</span><br>
                     <span>&nbsp;{{countdown}}&nbsp;</span>
                     <span translate>secondes</span>...
                 </div>

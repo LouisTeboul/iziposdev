@@ -6,12 +6,12 @@
         <img style="width:20px;height:20px;" class="btn-action-image" alt="Image" src="img/trash.png"/>
     </md-button>
     <div>
-        <img style="width:70px;height:70px" ng-src="{{$root.borneMainLogo && $root.borneMainLogo || 'img/logo.png'}}"/>
+        <img class="logoConfig" ng-src="{{$root.borneMainLogo && $root.borneMainLogo || 'img/logo.png'}}" src=""/>
         <span class="labelversion">{{Version}}</span>
     </div>
     <div>
         <h1 style="margin-top:15px" ng-if="IziBoxConfiguration == undefined">
-            <x translate>Veuillez patienter</x>
+            <span translate>Veuillez patienter</span>
             ...
         </h1>
         <h1 style="margin-top:15px" ng-if="IziBoxConfiguration != undefined" translate>Configuration</h1>
@@ -21,7 +21,7 @@
              layout-wrap>
             <div layout="column" layout-wrap>
                 <div layout="row" layout-align="start center" layout-wrap>
-                    <div class="title" style="min-width:155px">
+                    <div class="title special">
                         <span class="bold" translate>Imprimante caisse</span><span class="bold"> : </span>
                     </div>
                     <div class="value" style="min-width:250px">
@@ -35,7 +35,7 @@
                     </div>
                 </div>
                 <div layout="row" layout-align="start center" layout-wrap>
-                    <div class="title" style="min-width:155px">
+                    <div class="title special">
                         <span class="bold" translate>Nb impression</span><span class="bold"> : </span>
                     </div>
                     <div class="value" style="min-width:250px">
@@ -55,13 +55,13 @@
              layout-wrap>
             <div layout="column" layout-wrap>
                 <div layout="row" layout-align="start center" layout-wrap>
-                    <div class="title" style="min-width:155px" ng-if="borne">
+                    <div class="title special" ng-if="$root.borne">
                         <span class="bold" translate>Imprimante borne</span><span class="bold"> : </span>
                     </div>
-                    <div class="title" style="min-width:155px" ng-if="!borne">
+                    <div class="title special" ng-if="!$root.borne">
                         <span class="bold" translate>Imprimante prod.</span><span class="bold"> : </span>
                     </div>
-                    <div class="value" style="min-width:250px">
+                    <div class="value" style="min-width:250px" ng-if="!$root.borne">
                         <md-radio-group ng-model="PrinterConfiguration.ProdPrinter" layout="row">
                             <md-radio-button value="1">1</md-radio-button>
                             <md-radio-button value="2">2</md-radio-button>
@@ -72,10 +72,10 @@
                     </div>
                 </div>
                 <div layout="row" layout-align="start center" layout-wrap>
-                    <div class="title" style="min-width:155px">
+                    <div class="title special">
                         <span class="bold" translate>Nb impression</span><span class="bold"> : </span>
                     </div>
-                    <div class="value" style="min-width:250px">
+                    <div class="value special">
                         <md-radio-group ng-model="PrinterConfiguration.ProdPrinterCount" layout="row">
                             <md-radio-button value="1">1</md-radio-button>
                             <md-radio-button value="2">2</md-radio-button>
@@ -85,14 +85,15 @@
                     </div>
                 </div>
             </div>
-            <md-button ng-click="testPrinter(PrinterConfiguration.ProdPrinter)" class="btn-rose">Test</md-button>
+            <md-button ng-if="!$root.borne" ng-click="testPrinter(PrinterConfiguration.ProdPrinter)" class="btn-rose">Test</md-button>
+            <md-button ng-if="$root.borne" ng-click="testBornePrinter(PrinterConfiguration.ProdPrinter)" class="btn-rose">Test</md-button>
         </div>
 
         <div class="configRow" style="border-bottom: 1px solid #C2C2C2; padding:10px 0" layout="row"
              layout-align="center center" layout-wrap>
             <div layout="column" layout-wrap>
                 <div layout="row" layout-align="start center" layout-wrap>
-                    <div class="title" style="min-width:155px">
+                    <div class="title special">
                         <span class="bold" translate>Caisse no</span><span class="bold"> : </span>
                     </div>
                     <div class="value" style="min-width:250px">
@@ -107,32 +108,59 @@
                 </div>
             </div>
         </div>
-        <div class="configRow" style="border-bottom: 1px solid #C2C2C2; padding:10px 0" layout="row"
+        <div class="configRow special" layout="row"
              layout-align="center center" ng-if="IziBoxConfiguration.EnableBorne" layout-wrap>
             <div layout="column" layout-wrap>
-                <div layout="row" layout-align="start center" layout-wrap>
-                    <div class="title" style="min-width:155px">
+                <div layout="row" layout-align="space-between center" layout-wrap>
+                    <div class="title special">
                         <span class="bold" translate>Mode borne</span> :
                     </div>
-                    <div class="value" style="min-width:250px">
+                    <div class="value special">
                         <md-switch ng-model="$root.borne" aria-label="Enable?"></md-switch>
                     </div>
                 </div>
 
-                <div layout="row" layout-align="start center" layout-wrap ng-if="$root.borne">
-                    <div class="title" style="min-width:155px">
+                <div layout="row" layout-align="space-between center" layout-wrap ng-if="$root.borne">
+                    <div class="title special">
                         <span class="bold" translate>Borne verticale</span> :
                     </div>
-                    <div class="value" style="min-width:250px">
+                    <div class="value special">
                         <md-switch ng-model="$root.borneVertical" aria-label="Enable?"></md-switch>
                     </div>
                 </div>
 
-                <div layout="row" layout-align="start center" layout-wrap ng-if="$root.borne">
-                    <div class="title" style="min-width:155px">
+                <div layout="row" layout-align="space-between center" layout-wrap ng-if="$root.borne">
+                    <div class="title special">
+                        <span class="bold" translate>Activer paiement comptoir</span> :
+                    </div>
+                    <div class="value special">
+                        <md-switch ng-model="$root.borneAtCashier" aria-label="Enable?"></md-switch>
+                    </div>
+                </div>
+
+                <div layout="row" layout-align="space-between center" layout-wrap ng-if="$root.borne">
+                    <div class="title special">
+                        <span class="bold" translate>Activer paiement EasyTransac</span> :
+                    </div>
+                    <div class="value special">
+                        <md-switch ng-model="$root.borneEasyTransac" aria-label="Enable?"></md-switch>
+                    </div>
+                </div>
+
+                <div layout="row" layout-align="space-between center" layout-wrap ng-if="$root.borne">
+                    <div class="title special">
+                        <span class="bold" translate>Activer paiement cagnotte</span> :
+                    </div>
+                    <div class="value special">
+                        <md-switch ng-model="$root.borneBalance" aria-label="Enable?"></md-switch>
+                    </div>
+                </div>
+
+                <div layout="row" layout-align="space-between center" layout-wrap ng-if="$root.borne">
+                    <div class="title special">
                         <span class="bold" translate>Activer paiement CB</span> :
                     </div>
-                    <div class="value" style="min-width:250px">
+                    <div class="value special">
                         <md-switch ng-model="$root.borneCB" aria-label="Enable?"></md-switch>
                     </div>
                 </div>
@@ -158,17 +186,15 @@
         </div>-->
 
 
-        <div class="configRow" layout="row" layout-align="start center" layout-wrap>
+        <div class="configRow" layout="row" layout-align="start center" layout-wrap ng-if="!$root.borne">
             <div class="title" flex="35">
                 <span class="bold" translate>Preset de config.</span><span class="bold"> : </span>
             </div>
             <div class="value" layout="row" layout-align="center center" flex>
-
                 <div class="btn-group" ng-if="presetList.length > 0" uib-dropdown is-open="status.isopenPresets"
                      style="margin-right:5px">
                     <button id="preset-button" type="button" style="width:120px" class="btn btn-default"
-                            uib-dropdown-toggle
-                            ng-disabled="disabled">
+                            ng-disabled="disabled" uib-dropdown-toggle>
                         {{ selectedPresetTitle ? selectedPresetTitle : "Aucun" }}
                         <span style="margin-top:8px;float:right" class="caret"></span>
                     </button>
@@ -197,8 +223,6 @@
                     <span class="glyphicon glyphicon-refresh"></span>
                 </button>
             </div>
-
-
         </div>
 
         <div class="configRow" layout="row" layout-align="start center" layout-wrap>

@@ -1,9 +1,11 @@
-﻿app.controller('ModalPaymentModeController', function ($scope, $http, $rootScope, shoppingCartModel, $uibModalInstance, paymentMode, maxValue, $translate, $filter, $q) {
+﻿app.controller('ModalPaymentModeController', function ($scope, $http, $mdMedia, $rootScope, $translate, $filter, $q, shoppingCartModel, $uibModalInstance, paymentMode, maxValue) {
 
     const currencyFormat = $filter('CurrencyFormat');
 
+    $scope.mdMedia = $mdMedia;
     $scope.paymentMode = paymentMode;
     $scope.paymentType = PaymentType;
+    $scope.CBMerchantTicket = undefined;
     $scope.errorMessage = undefined;
     $scope.value = {};
     $scope.valueKeyboard = "";
@@ -17,7 +19,7 @@
         }
         $scope.value.pay = paymentMode.Total;
         $scope.currentShoppingCart = shoppingCartModel.getCurrentShoppingCart();
-        if(!$rootScope.borne) {
+        if (!$rootScope.borne) {
             setTimeout(function () {
                 const txtAmount = document.getElementById("txtAmount");
                 if (txtAmount) {
@@ -31,7 +33,7 @@
             }, 100);
         }
         $scope.customStyle = {
-            'flex-direction' : $rootScope.borne && $rootScope.borneVertical ? 'column' : 'row',
+            'flex-direction': $rootScope.borne && $rootScope.borneVertical ? 'column' : 'row',
             'background-image': $rootScope.borneBgModal ? 'url(' + $rootScope.borneBgModal + ')' : 'url(img/fond-borne.jpg)'
         }
     };
@@ -82,20 +84,28 @@
                 $scope.lockView = false;
                 $scope.errorMessage = undefined;
                 $scope.paymentMode.Total = totalPayment;
-                $uibModalInstance.close($scope.paymentMode);
+                const ret = {
+                    paymentMode: $scope.paymentMode,
+                    merchantTicket: $scope.CBMerchantTicket ? $scope.CBMerchantTicket : null
+                };
+                $uibModalInstance.close(ret);
 
                 setTimeout(function () {
                     $rootScope.closeKeyboard();
                 }, 500);
 
-                if($scope.paymentMode.PaymentType === PaymentType.EASYTRANSAC) {
-                    shoppingCartModel.validBorneOrder();
-                }
-
-                if(($scope.paymentMode.PaymentType === PaymentType.CB) && $rootScope.borne) {
-                    shoppingCartModel.validBorneOrder();
-
-                }
+                // if($scope.paymentMode.PaymentType === PaymentType.EASYTRANSAC) {
+                //     if($rootScope.borne) {
+                //         shoppingCartModel.validBorneOrder();
+                //     } else {
+                //         shoppingCartModel.validShoppingCart();
+                //     }
+                //
+                // }
+                //
+                // if(($scope.paymentMode.PaymentType === PaymentType.CB) && $rootScope.borne) {
+                //     shoppingCartModel.validBorneOrder();
+                // }
 
                 $scope.$evalAsync();
             }, function (errPaymentProcess) {
@@ -131,28 +141,36 @@
                 }
                 break;
             case PaymentType.CB:
-                if($rootScope.borne) {
+                if ($rootScope.borne) {
                     try {
                         const amountCts = Math.floor(maxValue * 100);
                         $scope.lockView = true;
 
-                        if(window.tpaPayment) { //MonoPlugin
+                        if (window.tpaPayment) { //MonoPlugin
                             $scope.infoMessage = "Suivez les instructions sur le TPE";
+                            $scope.paymentOver = false;
                             const tpaPromise = new Promise(function (resolve, reject) {
                                 window.tpaPayment.initPaymentAsync(amountCts, resolve, reject);
                             });
 
-                            tpaPromise.then( (ticket) => {
+                            tpaPromise.then((ret) => {
+                                const tickets = JSON.parse(ret);
+                                $scope.paymentOver = true;
+                                // On imprime le ticket client sur l'imprimante borne
                                 const printerApiUrl = "http://" + $rootScope.IziBoxConfiguration.LocalIpIziBox + ":" + $rootScope.IziBoxConfiguration.RestPort + "/printhtml";
                                 const htmlPrintReq = {
-                                    PrinterIdx: $rootScope.PrinterConfiguration.POSPrinter,
-                                    Html: ticket + "<cut></cut>"
+                                    PrinterIdx: $rootScope.PrinterConfiguration.ProdPrinter,
+                                    Html: tickets.CustomerTicket + "<cut></cut>"
                                 };
+                                // On sauvegarde la ticket marchand
+                                $scope.currentShoppingCart.CBTicket = tickets.CustomerTicket;
 
                                 $http.post(printerApiUrl, htmlPrintReq, {timeout: 10000});
                                 $scope.paymentMode.paymentProcessResult = "Success";
                                 processDefer.resolve();
                             }, (err) => {
+                                $scope.paymentOver = true;
+                                $scope.cancel();
                                 $scope.paymentMode.paymentProcessResult = "Error";
                                 processDefer.reject(err);
                             })
@@ -182,10 +200,12 @@
     };
 
     $scope.cancel = function () {
+
         $uibModalInstance.dismiss('cancel');
 
         setTimeout(function () {
             $rootScope.closeKeyboard();
         }, 500);
-    }
-});
+    };
+})
+;

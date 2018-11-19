@@ -29,7 +29,7 @@
                     if ($scope.justificationParameters.closePosParameters.yperiod) {
                         return $scope.justificationParameters.closePosParameters.yperiod.id;
                     } else {
-                        return {};
+                        return null;
                     }
                 }
 

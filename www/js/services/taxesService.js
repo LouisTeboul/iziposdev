@@ -8,7 +8,7 @@ app.service('taxesService', ['$rootScope', '$q',
         var self = this;
 
         $rootScope.$on('pouchDBChanged', function (event, args) {
-            if (args.status == "Change" && args.id.indexOf('Setting') == 0) {
+            if (args.status === "Change" && args.id.indexOf('Setting') === 0) {
                 cacheTaxProvider = undefined;
                 cacheTaxCategories = undefined;
                 cacheTaxDisplay = undefined;
@@ -22,7 +22,7 @@ app.service('taxesService', ['$rootScope', '$q',
             self.getTaxProviderAsync().then(function (results) {
                 cacheTaxProvider = results;
                 self.getTaxCategoriesAsync().then((res) => {
-                    cacheTaxCategories = res
+                    cacheTaxCategories = res;
                 });
             });
             self.getTaxDisplayTypeAsync().then((res) => {
@@ -49,6 +49,7 @@ app.service('taxesService', ['$rootScope', '$q',
 
                     // We're adding the tax amount
                     if (existingTaxDetail) {
+                        existingTaxDetail.TaxAmountCustomerDisplay += itemTaxDetail.TaxAmountCustomerDisplay;
                         existingTaxDetail.TaxAmount += itemTaxDetail.TaxAmount;
                         existingTaxDetail.PriceIT = roundValue(existingTaxDetail.PriceIT + itemTaxDetail.PriceIT);
                         existingTaxDetail.PriceET = roundValue(existingTaxDetail.PriceET + itemTaxDetail.PriceET);
@@ -252,12 +253,13 @@ app.service('taxesService', ['$rootScope', '$q',
         //#region Calculs Taxe
 
         /** Get a list of tax for a given tax system */
-        var getTaxDetailLine = function (taxCategoryId, taxCode, taxRate, taxAmount, priceIT, priceET) {
+        var getTaxDetailLine = function (taxCategoryId, taxCode, taxRate, taxAmount, priceIT, priceET, isFree) {
             var taxDetail = {
                 TaxCategoryId: taxCategoryId,
                 TaxCode: taxCode,
                 TaxRate: taxRate,
                 TaxAmount: taxAmount,
+                TaxAmountCustomerDisplay: isFree ? 0 : taxAmount,
                 PriceIT: priceIT,
                 PriceET: priceET
             };
@@ -268,22 +270,23 @@ app.service('taxesService', ['$rootScope', '$q',
         // TODO: The code below doesn't belong in this file 
         // It should be in the shoppingcartcontroller
 
-        var calculateTax = function (deliveryType, taxCategory, price, quantity, discountIT = 0, discountET = 0) {
+        var calculateTax = function (deliveryType, taxCategory, price, quantity, discountIT = 0, discountET = 0, isFree = false) {
             var priceIT = 0;
             var priceET = 0;
+            var priceITLine = 0;
+            var priceETLine = 0;
             var taxDetails = [];
-
 
             // Calculate item's tax
             switch (cacheTaxProvider) {
                 case "Tax.FixedRate":
                     //If the item is for a takeaway, we use alt TVA
-                    var taxRate = deliveryType == DeliveryTypes.FORHERE ? taxCategory.VAT : taxCategory.altVAT;
+                    var taxRate = Number(deliveryType) === DeliveryTypes.FORHERE ? taxCategory.VAT : taxCategory.altVAT;
 
                     // Calculate excluding tax price
                     if (!cacheIsPricesIncludedTax) {
-                        if (quantity != 0) {
-                            priceET = price - (discountET / quantity);
+                        if (quantity !== 0) {
+                            priceET = price - discountET / quantity;
                             priceIT = ETtoIT(priceET, taxRate);
                         } else {
                             priceET = 0;
@@ -293,8 +296,8 @@ app.service('taxesService', ['$rootScope', '$q',
 
                     // Calculate price including tax
                     else {
-                        if (quantity != 0) {
-                            priceIT = price - (discountIT / quantity);
+                        if (quantity !== 0) {
+                            priceIT = price - discountIT / quantity;
                             priceET = ITtoET(priceIT, taxRate);
                         } else {
                             priceET = 0;
@@ -302,8 +305,11 @@ app.service('taxesService', ['$rootScope', '$q',
                         }
                     }
                     // Add the result to the tax list
-                    // ATTENTION au round value
-                    var newTaxDetail = getTaxDetailLine(taxCategory.TaxCategoryId, "TVA", taxRate, roundValue(priceIT - priceET) * quantity, priceIT * quantity, priceET * quantity);
+                    priceITLine = roundValue(priceIT * quantity);
+                    priceETLine = roundValue(priceET * quantity);
+                    var taxAmountLine = roundValue(priceITLine - priceETLine);
+
+                    var newTaxDetail = getTaxDetailLine(taxCategory.TaxCategoryId, "TVA", taxRate, taxAmountLine, priceITLine, priceETLine, isFree);
                     taxDetails.push(newTaxDetail);
 
                     break;
@@ -334,9 +340,11 @@ app.service('taxesService', ['$rootScope', '$q',
                         tpsAmount = getTaxValue(priceET, taxCategory.TPSValue);
                         tvqAmount = getTaxValue(priceET, taxCategory.TVQValue);
                     }
+                    priceITLine = roundValue(priceIT * quantity);
+                    priceETLine = roundValue(priceET * quantity);
                     // Adding the amount of taxes to the tax list
-                    var newTaxDetailTPS = getTaxDetailLine(taxCategory.TaxCategoryId, "TPS", taxCategory.TPSValue, tpsAmount * quantity, priceIT * quantity, priceET * quantity);
-                    var newTaxDetailTVQ = getTaxDetailLine(taxCategory.TaxCategoryId, "TVQ", taxCategory.TVQValue, tvqAmount * quantity, priceIT * quantity, priceET * quantity);
+                    var newTaxDetailTPS = getTaxDetailLine(taxCategory.TaxCategoryId, "TPS", taxCategory.TPSValue, roundValue(tpsAmount * quantity), roundValue(priceIT * quantity), roundValue(priceET * quantity), isFree);
+                    var newTaxDetailTVQ = getTaxDetailLine(taxCategory.TaxCategoryId, "TVQ", taxCategory.TVQValue, roundValue(tvqAmount * quantity), roundValue(priceIT * quantity), roundValue(priceET * quantity), isFree);
                     taxDetails.push(newTaxDetailTPS);
                     taxDetails.push(newTaxDetailTVQ);
                     break;
@@ -344,8 +352,8 @@ app.service('taxesService', ['$rootScope', '$q',
 
             var taxValues = {
                 // Quantity calculation
-                priceIT: (priceIT * quantity),
-                priceET: (priceET * quantity),
+                priceIT: priceITLine,
+                priceET: priceETLine,
 
                 // Add tax list to the cart item
                 taxDetails: taxDetails
@@ -358,7 +366,7 @@ app.service('taxesService', ['$rootScope', '$q',
             var taxRate = 0;
             switch (cacheTaxProvider) {
                 case "Tax.FixedRate":
-                    taxRate = deliveryType == DeliveryTypes.FORHERE ? taxCategory.VAT : taxCategory.altVAT;
+                    taxRate = deliveryType === DeliveryTypes.FORHERE ? taxCategory.VAT : taxCategory.altVAT;
                     break;
 
                 case "Tax.Quebec":
@@ -390,28 +398,31 @@ app.service('taxesService', ['$rootScope', '$q',
             //cartItem.Quantity = roundValue(cartItem.Quantity );
 
 
+            var taxResult = undefined;
             // If the item is flagged as free
             if (cartItem.IsFree) {
                 priceIT = 0;
                 priceET = 0;
 
-                var taxResult = undefined;
-                /*
-                switch (deliveryType) {
-                    case 0:
-                        taxResult = calculateTax(deliveryType, cartItem.Product.TaxCategory, cartItem.Product.Price, cartItem.Quantity, cartItem.DiscountIT, cartItem.DiscountET);
-                        break;
-                    case 1:
-                        taxResult = calculateTax(deliveryType, cartItem.Product.TaxCategory, cartItem.Product.TakeawayPrice || cartItem.Product.Price, cartItem.Quantity, cartItem.DiscountIT, cartItem.DiscountET);
-                        break;
-                    case 2:
-                        taxResult = calculateTax(deliveryType, cartItem.Product.TaxCategory, cartItem.Product.DeliveryPrice || cartItem.Product.Price, cartItem.Quantity, cartItem.DiscountIT, cartItem.DiscountET);
-                        break;
-                    default:
-                        taxResult = calculateTax(deliveryType, cartItem.Product.TaxCategory, cartItem.Product.Price, cartItem.Quantity, cartItem.DiscountIT, cartItem.DiscountET);
-                        break;
-                }*/
-                taxResult = calculateTax(deliveryType, cartItem.Product.TaxCategory, cartItem.Product.Price, cartItem.Quantity, cartItem.DiscountIT, cartItem.DiscountET);
+                
+
+                // Pour prix speciaux par mode livraison
+                // switch (deliveryType) {
+                //     case 0:
+                //         taxResult = calculateTax(deliveryType, cartItem.Product.TaxCategory, cartItem.Product.Price, cartItem.Quantity, cartItem.DiscountIT, cartItem.DiscountET);
+                //         break;
+                //     case 1:
+                //         taxResult = calculateTax(deliveryType, cartItem.Product.TaxCategory, cartItem.Product.TakeawayPrice || cartItem.Product.Price, cartItem.Quantity, cartItem.DiscountIT, cartItem.DiscountET);
+                //         break;
+                //     case 2:
+                //         taxResult = calculateTax(deliveryType, cartItem.Product.TaxCategory, cartItem.Product.DeliveryPrice || cartItem.Product.Price, cartItem.Quantity, cartItem.DiscountIT, cartItem.DiscountET);
+                //         break;
+                //     default:
+                //         taxResult = calculateTax(deliveryType, cartItem.Product.TaxCategory, cartItem.Product.Price, cartItem.Quantity, cartItem.DiscountIT, cartItem.DiscountET);
+                //         break;
+                // }
+
+                taxResult = calculateTax(deliveryType, cartItem.Product.TaxCategory, cartItem.Product.Price, cartItem.Quantity, cartItem.DiscountIT, cartItem.DiscountET, true);
 
                 // Add tax list to the cart item, We have to set the normal TaxDetails
                 cartItem.TaxDetails = taxResult.taxDetails;
@@ -550,6 +561,7 @@ app.service('taxesService', ['$rootScope', '$q',
 
                                         // On ajoute le montant de la taxe
                                         if (existingTaxDetail) {
+                                            existingTaxDetail.TaxAmountCustomerDisplay = roundValue(existingTaxDetail.TaxAmountCustomerDisplay + itemTaxDetail.TaxAmountCustomerDisplay);
                                             existingTaxDetail.TaxAmount = roundValue(existingTaxDetail.TaxAmount + itemTaxDetail.TaxAmount);
                                             existingTaxDetail.PriceIT = roundValue(existingTaxDetail.PriceIT + itemTaxDetail.PriceIT);
                                             existingTaxDetail.PriceET = roundValue(existingTaxDetail.PriceET + itemTaxDetail.PriceET);
@@ -570,12 +582,12 @@ app.service('taxesService', ['$rootScope', '$q',
                             }
                             break;
                         case "Tax.Quebec":
-                            var cartItemPrice = cartItem.Product.Price;
+                            cartItemPrice = cartItem.Product.Price;
                             Enumerable.from(cartItem).forEach(function (attr) {
 
                                 cartItemPrice += attr.PriceAdjustment ? attr.PriceAdjustment : 0;
                             });
-                            var taxResult = calculateTax(deliveryType, taxToUse, cartItemPrice, cartItem.Quantity, cartItem.DiscountIT, cartItem.DiscountET);
+                            taxResult = calculateTax(deliveryType, taxToUse, cartItemPrice, cartItem.Quantity, cartItem.DiscountIT, cartItem.DiscountET);
                             // Quantity calculation
                             cartItem.PriceIT = taxResult.priceIT;
                             cartItem.PriceET = taxResult.priceET;
@@ -587,7 +599,7 @@ app.service('taxesService', ['$rootScope', '$q',
                 }
                 //Produit normal
                 if (!isDispatchedTax) {
-                    var taxResult = calculateTax(deliveryType, taxToUse, cartItemPrice, cartItem.Quantity, cartItem.DiscountIT, cartItem.DiscountET);
+                    taxResult = calculateTax(deliveryType, taxToUse, cartItemPrice, cartItem.Quantity, cartItem.DiscountIT, cartItem.DiscountET);
 
                     // Quantity calculation
                     cartItem.PriceIT = taxResult.priceIT;
@@ -637,16 +649,16 @@ app.service('taxesService', ['$rootScope', '$q',
 
                             if (cacheIsPricesIncludedTax) {
                                 //Product price représente le prix toutes taxes
-                                i.DiscountIT = i.Product.Price * i.Quantity * (discount.Value / 100);
+                                i.DiscountIT = roundValue(i.Product.Price * i.Quantity * (discount.Value / 100));
                             } else {
                                 //Product price represente le prix hors taxe. On deduit le prix toute taxes a partir du taxRate
-                                i.DiscountIT = ETtoIT(i.Product.Price, taxRate) * i.Quantity * (discount.Value / 100);
+                                i.DiscountIT = roundValue(ETtoIT(i.Product.Price, taxRate) * i.Quantity * (discount.Value / 100));
                             }
 
                         } else {
-                            i.DiscountIT = discount.Value / filteredItems.length;
+                            i.DiscountIT = roundValue(discount.Value / filteredItems.length);
                         }
-                        i.DiscountET = ITtoET(i.DiscountIT, taxRate);
+                        i.DiscountET = roundValue(ITtoET(i.DiscountIT, taxRate));
                         discount.Total += i.DiscountIT;
                     });
                 }
@@ -681,6 +693,7 @@ app.service('taxesService', ['$rootScope', '$q',
 
                         // On ajoute le montant de la taxe 
                         if (existingTaxDetail) {
+                            existingTaxDetail.TaxAmountCustomerDisplay = roundValue(existingTaxDetail.TaxAmountCustomerDisplay + itemTaxDetail.TaxAmountCustomerDisplay);
                             existingTaxDetail.TaxAmount = roundValue(existingTaxDetail.TaxAmount + itemTaxDetail.TaxAmount);
                             existingTaxDetail.PriceIT = roundValue(existingTaxDetail.PriceIT + itemTaxDetail.PriceIT);
                             existingTaxDetail.PriceET = roundValue(existingTaxDetail.PriceET + itemTaxDetail.PriceET);
@@ -704,6 +717,7 @@ app.service('taxesService', ['$rootScope', '$q',
 
                         // On ajoute le montant de la taxe
                         if (existingTaxDetail) {
+                            existingTaxDetail.TaxAmountCustomerDisplay = roundValue(existingTaxDetail.TaxAmountCustomerDisplay + shippingTaxDetail.TaxAmountCustomerDisplay);
                             existingTaxDetail.TaxAmount = roundValue(existingTaxDetail.TaxAmount + shippingTaxDetail.TaxAmount);
                             existingTaxDetail.PriceIT = roundValue(existingTaxDetail.PriceIT + shippingTaxDetail.PriceIT);
                             existingTaxDetail.PriceET = roundValue(existingTaxDetail.PriceET + shippingTaxDetail.PriceET);
@@ -729,11 +743,11 @@ app.service('taxesService', ['$rootScope', '$q',
                 }
 
                 //On calcule le rendu monnaie
-                var residue = parseFloat(totalIT.toFixed(2)) - totalPayment;
+                var residue = roundValue(totalIT - totalPayment);
                 var repaid = 0;
                 var credit = 0;
 
-                if (residue < 0) {
+                if ((residue < 0 && !shoppingCart.ParentTicket) || (residue > 0 && shoppingCart.ParentTicket)) {
 
                     //Pas de rendue monnaie sur les tickets restaurants ou avoir 
                     var hasCreditPaymentMode = Enumerable.from(shoppingCart.PaymentModes).any('p=>p.PaymentType == PaymentType.TICKETRESTAURANT || p.PaymentType == PaymentType.AVOIR');
@@ -750,12 +764,12 @@ app.service('taxesService', ['$rootScope', '$q',
                 // Formatting the ticket
 
 
-                shoppingCart.Total = parseFloat(totalIT.toFixed(2));
-                shoppingCart.TotalET = parseFloat(totalET.toFixed(2));
-                shoppingCart.TotalPayment = parseFloat(totalPayment.toFixed(2));
-                shoppingCart.Residue = parseFloat(residue.toFixed(2));
-                shoppingCart.Repaid = parseFloat(repaid.toFixed(2));
-                shoppingCart.Credit = parseFloat(credit.toFixed(2));
+                shoppingCart.Total = roundValue(totalIT);
+                shoppingCart.TotalET = roundValue(totalET);
+                shoppingCart.TotalPayment = roundValue(totalPayment);
+                shoppingCart.Residue = roundValue(residue);
+                shoppingCart.Repaid = roundValue(repaid);
+                shoppingCart.Credit = roundValue(credit);
                 shoppingCart.TaxDetails = taxDetails;
                 shoppingCart.ExcludedTax = !cacheIsPricesIncludedTax;
                 shoppingCart.Digits = ROUND_NB_DIGIT;

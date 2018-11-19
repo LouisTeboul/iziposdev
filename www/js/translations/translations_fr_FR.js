@@ -40,7 +40,21 @@
         "ADMIN.DASHBOARD.HOUR": "Heure",
         "ADMIN.ORDERS.FIELDS.CUSTOMER": "Client",
         "ADMIN.TELERIK.EDITORLOCALIZATION.CLOSE": "Fermer",
-        "ADMIN.COMMON.ALL": "Tous"
+        "ADMIN.COMMON.ALL": "Tous",
+        "FORHERE": "Sur place",
+        "TAKEOUT": "A emporter",
+        "DELIVERY": "Livré",
+        "TotalET" : "Total HT",
+        "TotalIT" : "Total TTC",
+        "ValidCount": "Nb validés",
+        "CanceledCount": "Nb annulés",
+        "CanceledAmount": "Montant annulés",
+        "DeletedCount": "Nb supprimés",
+        "DeletedAmount": "Montant supprimés",
+        "DiscountCount": "Nb remises",
+        "DiscountTotalIT": "Total remises TTC",
+        "RepaidCount": "Nb remboursés",
+        "OffersCount": "Nb offerts",
+        "OffersAmount": "Montant offerts"
     });
-
-}])
+}]);

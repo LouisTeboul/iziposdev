@@ -1,12 +1,16 @@
-﻿<section class="loading" ng-controller="LoadingController" ng-init="init()" layout="column" layout-padding layout-fill>
+﻿<section class="loading" ng-controller="LoadingController" ng-init="init()" layout="column"
+         ng-style="{'margin-top': mdMedia('min-width: 800px') ? '30px' : '0' }" layout-padding layout-fill>
     <md-content layout="column" layout-align="start center" style="align-items: center" flex>
-        <img ng-src="{{$root.borneMainLogo && $root.borneMainLogo || 'img/logo.png'}}" alt="" width="80" height="80"/>
+        <img ng-src="{{$root.borneMainLogo && $root.borneMainLogo || 'img/logo.png'}}" alt="" class="imgLogoHeader smallCatalogLogo" src=""/>
         <div ng-if="!isDemo">
-            <h1>Loading...</h1>
+            <h1 class="loadingTitle">Loading...</h1>
         </div>
         <h1 ng-if="isDemo">Les produits de démo</h1>
         <h1 ng-if="isDemo">sont en cours de chargement...</h1>
-        <div layout="row" layout-align="start center" layout-wrap class="gaugeWrap">
+        <div layout="row" layout-align="start center" class="gaugeWrap"
+             ng-style="{'width': $root.borne && $root.borneVertical ?
+              (mdMedia('min-width: 800px') ? 'auto' : '240px') :
+              (mdMedia('min-width: 800px') ? 'auto' : 'auto')}" layout-wrap>
             <div class="gaugeContainer">
                 <canvas class="gauge" id="gaugeLoading"></canvas>
                 <div class="gaugeValue" layout="column" layout-align="center center">
@@ -53,7 +57,7 @@
             <div class="loadingMessage"> {{message}}</div>
             <md-progress-linear style="width: 280px;max-width: 80%" class="md-warn" md-mode="determinate"
                                 value="{{loadingProgress}}"></md-progress-linear>
-            <md-button ng-click="skipCategoryLoading = true" ng-disabled="skipCategoryLoading" class="btn-rose"
+            <md-button ng-click="skipCategoryLoading()" ng-disabled="skip" class="btn-rose"
                        style="margin-top: 20px">
                 Passer
             </md-button>

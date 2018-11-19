@@ -82,21 +82,21 @@
         };
 
         this.getCorrectPictureId = function (listIds) {
-            let id = 0;
-            for(let i = 0; i < listIds.length; i++) {
-                if($rootScope.borne && listIds[i].ProductPictureFor === 3) {
+            let image = Enumerable.from(listIds).firstOrDefault();
+            let id = image ? image.PictureId : null;
+            let firstId = id;
+
+            for (let i = 0; i < listIds.length; i++) {
+                if ($rootScope.borne && listIds[i].ProductPictureFor === ProductPictureFor.Borne) {
                     id = listIds[i].PictureId;
                     break;
-                } else if(!$rootScope.borne && listIds[i].ProductPictureFor === 2) {
+                } else if (!$rootScope.borne && listIds[i].ProductPictureFor === ProductPictureFor.Pos) {
                     id = listIds[i].PictureId;
                     break;
-                } else if (listIds[i].ProductPictureFor === 1) {
-                    id = -1;
-                    break;
-                } else if (listIds[i].ProductPictureFor || listIds[i].ProductPictureFor === 0) {
-                    id = listIds[i].PictureId;
-                } else {
-                    id = Enumerable.from(listIds).firstOrDefault().PictureId;
+                } else if (listIds[i].ProductPictureFor === ProductPictureFor.All) {
+                    if (listIds[i].PictureId !== firstId) {
+                        id = listIds[i].PictureId;
+                    }
                 }
             }
             return id;
@@ -138,7 +138,7 @@
                                 }
                                 byteArrays[sliceIndex] = new Uint8Array(bytes);
                             }
-                            var blob = new Blob(byteArrays, { type: contentType });
+                            var blob = new Blob(byteArrays, {type: contentType});
 
                             pictureUrl = URL.createObjectURL(blob);
                         } else {
@@ -153,7 +153,8 @@
 
                     pictureUrlDefer.resolve(pictureUrl);
 
-                }, function (err) { })
+                }, function (err) {
+                })
             }
             else {
                 pictureUrlDefer.resolve(pictureUrl);

@@ -6,9 +6,9 @@
         })
 });
 
-
-app.controller('IdleScreenController', function ($scope, $rootScope, $location, $q, borneService) {
+app.controller('IdleScreenController', function ($scope, $rootScope, $location, $q, $mdMedia,borneService) {
     let current = this;
+    $scope.mdMedia = $mdMedia;
 
     $scope.init = function () {
         let el = document.querySelector(".keyboardContainer");

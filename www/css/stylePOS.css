@@ -245,6 +245,25 @@ text-field.flexbox div {
     border-color: gray !important;
 }
 
+.ticketContainer {
+    background-color: #00000026;
+    max-height: 80vh !important;
+    overflow: scroll !important;
+
+}
+
+.ticketContainer .ticketBody {
+    background-color: white;
+    margin: auto;
+    width: 320px;
+    padding: 5px;
+}
+
+.ticketContainer .ticketBody table {
+    width: 100%;
+
+}
+
 /*-----------------------END DEFAULTS---------------------*/
 
 /*-----------------------BUTTONS--------------------------*/
@@ -1473,7 +1492,7 @@ text-field.flexbox div {
 
 .attributeBox {
     height: 85px;
-    width: 90px ;
+    width: 90px;
     background: #fff !important;
     border: 1px solid #dbdada !important;
     color: #505050 !important;
@@ -1518,7 +1537,7 @@ text-field.flexbox div {
 /* ---- BIG ---- */
 .attributeBox.big {
     height: 130px;
-    width: 120px ;
+    width: 120px;
 }
 
 .attributeBox.big .imgAttribute {
@@ -1530,7 +1549,7 @@ text-field.flexbox div {
 
 .attributeBox.medium {
     height: 110px;
-    width: 100px ;
+    width: 100px;
 }
 
 .attributeBox.medium .imgAttribute {
@@ -1882,6 +1901,10 @@ text-field.flexbox div {
     }
 }
 
+.imgPosUser {
+    pointer-events: none;
+}
+
 /*-----------------END MODAL LOGIN---------------------------------------*/
 
 /*-----------------MODAL Z POS---------------------------------------*/
@@ -2216,6 +2239,10 @@ md-input-container label:not(._md-container-ignore) {
     padding: 0;
 }
 
+.numpad {
+    position: relative !important;
+}
+
 .formuleNameList {
     color: white;
 }
@@ -2275,7 +2302,7 @@ md-input-container label:not(._md-container-ignore) {
 
 .orderListTo {
     font-size: 20px;
-    margin-right:10px;
+    margin-right: 10px;
 }
 
 .btnFiltreCaisse {
@@ -2295,6 +2322,16 @@ md-input-container label:not(._md-container-ignore) {
     color: grey;
     margin: 0 -5px;
     padding: 0 5px;
+}
+
+.attributeList.none {
+    display: none;
+}
+
+.attributeList.flex {
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 /*   modalTablePlan   */

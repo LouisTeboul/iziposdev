@@ -35,13 +35,13 @@ app.config(function ($stateProvider, $urlRouterProvider, ngToastProvider, $trans
     });
 });
 
-app.run(function ($rootScope, $location, $q, $http, ipService, zposService, $translate, $uibModal) {
+app.run(function ($rootScope, $location, $q, $http, ipService, zposService, posPeriodService, posService, $translate, $uibModal) {
 
     try {
         angularLocation = $location;
 
-        $rootScope.Version = "3.0.4.08301";
-        $rootScope.adminMode = { state: false };
+        $rootScope.Version = "3.0.4.11141";
+        $rootScope.adminMode = {state: false};
         $rootScope.loading = 0;
 
         $rootScope.modelPos = {
@@ -84,7 +84,7 @@ app.run(function ($rootScope, $location, $q, $http, ipService, zposService, $tra
         }
 
         // Display configuration
-        $rootScope.RatioConfiguration = { Enabled: true };
+        $rootScope.RatioConfiguration = {Enabled: true};
 
         if (navigator.userAgent.match(/(iPhone|iPod|iPad|Android|BlackBerry|IEMobile)/)) {
             $rootScope.isBrowser = false;
@@ -96,7 +96,7 @@ app.run(function ($rootScope, $location, $q, $http, ipService, zposService, $tra
                 if (!deviceInit) {
                     deviceInit = true;
                     $rootScope.deviceReady = true;
-                    init($rootScope, $location, $q, $http, ipService, zposService, $translate, $uibModal);
+                    init($rootScope, $location, $q, $http, ipService, zposService, posService, $translate, $uibModal);
                 }
             }, false);
 
@@ -104,7 +104,7 @@ app.run(function ($rootScope, $location, $q, $http, ipService, zposService, $tra
             setTimeout(function () {
                 if (!deviceInit) {
                     deviceInit = true;
-                    init($rootScope, $location, $q, $http, ipService, zposService, $translate, $uibModal);
+                    init($rootScope, $location, $q, $http, ipService, zposService, posService, $translate, $uibModal);
                 }
             }, 5000);
 
@@ -115,19 +115,26 @@ app.run(function ($rootScope, $location, $q, $http, ipService, zposService, $tra
         } else if (navigator.userAgent.match(/(WPF)/)) {
             $rootScope.isBrowser = false;
             $rootScope.isWindowsContainer = true;
-            init($rootScope, $location, $q, $http, ipService, zposService, $translate, $uibModal);
+            init($rootScope, $location, $q, $http, ipService, zposService, posService, $translate, $uibModal);
 
             initLineDisplay($rootScope);
 
         } else {
             $rootScope.isBrowser = true;
             $rootScope.isWindowsContainer = false;
-            init($rootScope, $location, $q, $http, ipService, zposService, $translate, $uibModal); //this is the browser
+            init($rootScope, $location, $q, $http, ipService, zposService, posService, $translate, $uibModal); //this is the browser
         }
 
         if (navigator.platform == "Linux armv7l") {
             $rootScope.isOnIzibox = true;
         }
+
+        if (window.printBorne) {
+            posService.startSocketDaemon();
+        }
+
+
+
     }
     catch (exAll) {
         console.error(exAll);
@@ -207,7 +214,6 @@ var initServices = function ($rootScope, $injector) {
     }
 
 
-
     var zposService = $injector.get('zposService');
     zposService.init();
 
@@ -220,11 +226,12 @@ var initServices = function ($rootScope, $injector) {
     posPeriodService.initPeriodListener();
     posPeriodService.startPeriodDaemon();
 
+
     var taxesService = $injector.get('taxesService');
     taxesService.initTaxCache();
 };
 
-var init = function ($rootScope, $location, $q, $http, ipService, zposService, $translate, $uibModal) {
+var init = function ($rootScope, $location, $q, $http, ipService, zposService, posService, $translate, $uibModal) {
     // IziBoxConfiguration
     app.getConfigIziBoxAsync($rootScope, $q, $http, ipService, $translate, $location, $uibModal).then(function (config) {
 
@@ -234,9 +241,10 @@ var init = function ($rootScope, $location, $q, $http, ipService, zposService, $
         } else {
 
             $rootScope.IziBoxConfiguration = config;
-            if($rootScope.borne) {
-                if($rootScope.IziBoxConfiguration.StoreBorneId) {
+            if ($rootScope.borne) {
+                if ($rootScope.IziBoxConfiguration.StoreBorneId) {
                     $rootScope.IziBoxConfiguration.defaultStoreId = $rootScope.IziBoxConfiguration.StoreId;
+                    console.log("StoreId changed : " + $rootScope.IziBoxConfiguration.StoreId + " => " + $rootScope.IziBoxConfiguration.StoreBorneId);
                     $rootScope.IziBoxConfiguration.StoreId = $rootScope.IziBoxConfiguration.StoreBorneId;
                 }
             }

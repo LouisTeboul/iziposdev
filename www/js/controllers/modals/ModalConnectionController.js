@@ -1,61 +1,70 @@
-﻿app.controller('ModalConnectionController', function ($scope, $rootScope, $uibModalInstance, $uibModal, shoppingCartService, ngToast, shoppingCartModel, $timeout, $uibModalStack, $translate) {
+﻿app.controller('ModalConnectionController', function ($scope, $rootScope, $uibModalInstance, $uibModal, $mdMedia, shoppingCartService, ngToast, shoppingCartModel, $timeout, $uibModalStack, $translate) {
 
     let loyaltyChangedHandler = undefined;
     let modalConsumption = undefined;
-    let borneUsedByCustomer = undefined;
 
+    $scope.mdMedia = $mdMedia;
     $scope.DeliveryTypes = DeliveryTypes;
     $scope.connexionModal = undefined;
 
     $scope.init = function () {
-
         let el = document.querySelector(".keyboardContainer");
         el.style.display = "flex";
+        $scope.customStyle = {
+            'flex-direction' : $rootScope.borne && $rootScope.borneVertical ? 'column' : 'row',
+            'background-image': $rootScope.borneBgModal ? 'url(' + $rootScope.borneBgModal + ')' : 'url(img/fond-borne.jpg)'
+        };
 
-        if (borneUsedByCustomer) {
+        if ($rootScope.borneUsedByCustomer) {
             $timeout(function () {
-                document.querySelector("#txtBarcode").focus();
-                document.querySelector("#txtValue > span").innerHTML = "";
-            }, 500);
+                $('#txtBarcode #txtValue.textfieldBorne').trigger('click');
+                let el = document.querySelector("#txtValue .tfBorneText");
+                if(el) {
+                    el.innerHTML = "N° de carte";
+                }
+            }, 250);
         }
-        borneUsedByCustomer = false;
+        $rootScope.borneUsedByCustomer = false;
+
         loyaltyChangedHandler = $rootScope.$on('customerLoyaltyChanged', () => {
             console.log("Client connecté");
             $scope.close();
         });
 
         shoppingCartModel.updatePaymentModes();
-
-        $scope.customStyle = {
-            'flex-direction' : $rootScope.borne && $rootScope.borneVertical ? 'column' : 'row',
-            'background-image': $rootScope.borneBgModal ? 'url(' + $rootScope.borneBgModal + ')' : 'url(img/fond-borne.jpg)'
-        }
     };
 
     $scope.close = function () {
         $rootScope.closeKeyboard();
         $uibModalInstance.close();
         if (!modalConsumption) {
-            modalConsumption = $uibModal.open({
-                templateUrl: 'modals/modalConsumptionMode.html',
-                controller: 'ModalConsumptionModeController',
-                size: 'lg',
-                backdrop: 'static'
-            });
-        }
-        modalConsumption.result.then(() => {
-            if ($rootScope.isBorneOrderCanceled) {
-                $uibModal.open({
-                    templateUrl: 'modals/modalConnectionMode.html',
-                    controller: 'ModalConnectionController',
+            if(!$rootScope.isCustomerLog) {
+                modalConsumption = $uibModal.open({
+                    templateUrl: 'modals/modalConsumptionMode.html',
+                    controller: 'ModalConsumptionModeController',
                     size: 'lg',
-                    backdrop: 'static'
+                    backdrop: 'static',
+                    windowClass: 'mainModals'
                 });
-            } else {
-                shoppingCartModel.createShoppingCart();
+
+                $rootScope.isCustomerLog = true;
+
+                modalConsumption.result.then(() => {
+                    if ($rootScope.isBorneOrderCanceled) {
+                        $uibModal.open({
+                            templateUrl: 'modals/modalConnectionMode.html',
+                            controller: 'ModalConnectionController',
+                            size: 'lg',
+                            backdrop: 'static',
+                            windowClass: 'mainModals'
+                        });
+                    } else {
+                        shoppingCartModel.createShoppingCart();
+                    }
+                }, function () {
+                });
             }
-        }, function () {
-        });
+        }
     };
 
     $scope.closeConnexion = function () {
@@ -65,7 +74,8 @@
             controller: 'ModalConnectionController',
             backdrop: 'static',
             keyboard: false,
-            size: 'lg'
+            size: 'lg',
+            windowClass: 'mainModals'
         });
         $timeout(function () {
             $uibModalInstance.dismiss('cancel');
@@ -76,10 +86,11 @@
         if ($rootScope.borne) {
             const top = $uibModalStack.getTop();
             $uibModal.open({
-                templateUrl: 'modals/modalCustomerBorneVertical.html',
-                controller: 'ModalCustomerBorneController',
+                templateUrl: 'modals/modalRegisterFid.html',
+                controller: 'ModalRegisterFid',
                 backdrop: 'static',
-                size: 'lg'
+                size: 'lg',
+                windowClass: 'mainModals'
             });
             $timeout(function () {
                 if (top) {
@@ -91,13 +102,14 @@
 
     $scope.redirectToConnection = function () {
         if ($rootScope.borne) {
-            borneUsedByCustomer = true;
+            $rootScope.borneUsedByCustomer = true;
             const top = $uibModalStack.getTop();
             $scope.connexionModal = $uibModal.open({
-                templateUrl: 'modals/modalConnectionBorne.html',
+                templateUrl: 'modals/modalScanFidCard.html',
                 controller: 'ModalConnectionController',
                 backdrop: 'static',
-                size: 'lg'
+                size: 'lg',
+                windowClass: 'mainModals'
             });
             $timeout(function () {
                 if (top) {

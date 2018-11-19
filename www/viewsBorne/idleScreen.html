@@ -4,13 +4,14 @@
         'height' : $root.borne && $root.borneVertical ? 'auto' : '100%',
         'background-image': $root.borneBgIdle ? 'url(' + $root.borneBgIdle + ')' : 'url(\'img/borne-idle.jpg\')'}">
             <img ng-src="{{$root.borneMainLogo && $root.borneMainLogo || 'img/logo.png'}}" alt=""
-                 ng-style="{'margin-bottom' : $root.borne && $root.borneVertical ? '1000px' : '750px',
-                 'width': $root.borne && $root.borneVertical ? '240px' : '200px'}"/>
+                 ng-style="{'width': $root.borne && $root.borneVertical ?
+                 (mdMedia('min-width: 800px') ? '240px' : '100px')
+                 : (mdMedia('min-width: 800px') ? '200px' : '100px')}" src=""/>
         </div>
         <div class="bottomIdleScreen"
              ng-style="{ 'background-color': $root.tenantColor,
-                'width' : $root.borne && $root.borneVertical ? '100%' : '68%',
-                'height' : $root.borne && $root.borneVertical ? '289px' : '100%' }" translate>Touchez pour commander
-        </div>
+                'width' : $root.borne && $root.borneVertical ? '100%' : '69%',
+                'height' : $root.borne && $root.borneVertical ?
+                (mdMedia('min-width: 800px') ? '289px' : '100px') : '100%' }" translate>Touchez pour commander</div>
     </div>
 </section>

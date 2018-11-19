@@ -1,11 +1,11 @@
 <section class="" ng-init="init()">
 
     <div class="modal-header">
-        <h1 class="modal-title" ng-if="mode == 1" translate>Edition de la config. "{{preset.name}}"</h1>
+        <h1 class="modal-title" ng-if="mode == 1" translate>Edition de la config.</h1>
         <h1 class="modal-title" ng-if="mode == 2" translate>Creation de config</h1>
     </div>
 
-    <div ng-if="mode == 2" style="padding-top: 10px">
+    <div style="padding: 10px 0 0 10px">
         <label for="presetName"> Nom du preset : </label>
         <text-field id="presetName" ng-model="preset.name"
                     location="center-end"

@@ -77,7 +77,10 @@
         this.startIziboxDaemon = function (checkOnly) {
             if ($rootScope.IziBoxConfiguration.LocalIpIziBox && (!_daemonIziboxStarted || checkOnly)) {
                 var pingApiUrl = "http://" + $rootScope.IziBoxConfiguration.LocalIpIziBox + ":" + $rootScope.IziBoxConfiguration.RestPort + "/ping";
-                var timerRepeat = (checkOnly != undefined && checkOnly == false) ? 0 : 5000;
+                // Si check only, on repete pas
+                // Si borne, on repete toutes les 13s
+                // Si caisse, toutes les 5s
+                var timerRepeat = (checkOnly != undefined && checkOnly == false) ? 0 : $rootScope.borne ? 13000 : 5000;
                 if (!checkOnly) _daemonIziboxStarted = true;
 
                 var iziboxDaemon = function () {
@@ -85,13 +88,16 @@
                     setTimeout(function () {
                         var pingPostData = {
                             HardwareId : $rootScope.modelPos.hardwareId,
-                            Alias : $rootScope.modelPos.aliasCaisse,
+                            StoreId: $rootScope.modelPos.StoreId,
+                            Alias : $rootScope.modelPos.aliasCaisse ? $rootScope.modelPos.aliasCaisse : null,
                             YperiodId : $rootScope.currentYPeriod && $rootScope.modelPos.isPosOpen ? $rootScope.currentYPeriod.yPeriodId : null,
                             IsBorne : $rootScope.borne ? $rootScope.borne : false
 
                         };
                         //$http.get(pingApiUrl, { timeout: 1000 }).then(function (data) {
-                        $http.post(pingApiUrl, pingPostData , { timeout: 2000 }).then(function (data) {
+
+                        // Si borne, timeout en 10s, sinon 2s
+                        $http.post(pingApiUrl, pingPostData , { timeout: $rootScope.borne ? 10000 : 2000 }).then(function (data) {
                             //Ancienne version izibox
                             if (!data.data.LocalDb) {
                                 data.data.LocalDb = true;
@@ -163,6 +169,41 @@
                 };
 
                 iziboxDaemon();
+            }
+        };
+
+        this.startSocketDaemon = function() {
+
+            if (window.printBorne) { //MonoPlugin
+                const processDefer = $q.defer();
+                const printPromise = new Promise(function (resolve, reject) {
+                    window.printBorne.initPrintUSB(resolve, reject);
+                });
+
+                printPromise.then((data) => {
+                    console.log(data);
+                    processDefer.resolve();
+                }, (err) => {
+                    processDefer.reject(err);
+                });
+
+                // window.printBorne.initPrintUSB();
+            }
+        };
+
+        this.startTelecolDaemon = function() {
+            if (window.tpaPayment) {
+                const processDefer = $q.defer();
+                const initPromise = new Promise(function (resolve, reject) {
+                    window.tpaPayment.initWatchTelecollecte(resolve, reject);
+                });
+
+                initPromise.then((data) => {
+                    console.log(data);
+                    processDefer.resolve();
+                }, (err) => {
+                    processDefer.reject(err);
+                });
             }
         };
 

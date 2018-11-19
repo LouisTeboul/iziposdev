@@ -1,7 +1,8 @@
-﻿app.controller('ModalConsumptionModeController', function ($scope, $rootScope, $uibModalInstance, $uibModal, shoppingCartService, ngToast, shoppingCartModel) {
+﻿app.controller('ModalConsumptionModeController', function ($scope, $rootScope, $uibModalInstance, $uibModal, $mdMedia, shoppingCartService, ngToast, shoppingCartModel) {
 
     let deliveryTypeHandler = undefined;
 
+    $scope.mdMedia = $mdMedia;
     $scope.DeliveryTypes = DeliveryTypes;
 
     $scope.init = function () {
@@ -33,6 +34,7 @@
 
     $scope.cancelDeliveryType = function () {
         $rootScope.isBorneOrderCanceled = true;
+        $rootScope.isCustomerLog = false;
         $scope.close();
     };
 

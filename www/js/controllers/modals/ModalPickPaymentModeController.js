@@ -3,9 +3,11 @@ app.controller('ModalPickPaymentModeController', function ($scope, $rootScope, $
     $scope.init = function () {
         $scope.currentShoppingCart = shoppingCartModel.getCurrentShoppingCart();
         $scope.pmAvailable = pmAvailable.filter(paymentMode => {
-            return ((paymentMode.PaymentType === 7 && $scope.currentShoppingCart.Total >= $rootScope.IziBoxConfiguration.MinPaymentEasyTransac)
-            || paymentMode.IsBalance
-            || (paymentMode.PaymentType === 2 && $rootScope.borneCB ))
+            return (
+            (paymentMode.PaymentType === 7 && $scope.currentShoppingCart.Total >= $rootScope.IziBoxConfiguration.MinPaymentEasyTransac && (($rootScope.borne && $rootScope.borneEasyTransac) || !$rootScope.borne))
+            || paymentMode.IsBalance && (($rootScope.borne && $rootScope.borneBalance) || !$rootScope.borne)
+            || (paymentMode.PaymentType === 2 && (($rootScope.borne && $rootScope.borneCB) || !$rootScope.borne) )
+            )
         });
 
         $scope.customStyle = {

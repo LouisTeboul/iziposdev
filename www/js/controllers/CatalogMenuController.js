@@ -10,9 +10,10 @@
         })
 });
 
-app.controller('CatalogMenuController', function ($scope, $rootScope, $state, categoryService, pictureService, posPeriodService) {
+app.controller('CatalogMenuController', function ($scope, $rootScope, $state, $mdMedia, categoryService, pictureService, posPeriodService) {
     $scope.$state = $state;
     $scope.$rootScope = $rootScope;
+    $scope.mdMedia = $mdMedia;
 
     $scope.init = function () {
         initializeCategories();
@@ -33,7 +34,6 @@ app.controller('CatalogMenuController', function ($scope, $rootScope, $state, ca
             name: $state.current.name,
             id: $state.params.id
         };
-
         const catalogType = $rootScope.borne ? "catalogBorne." : "catalogPOS.";
 
         $state.go(catalogType + category.CategoryTemplate.ViewPath, {id: category.Id}).then(function () {

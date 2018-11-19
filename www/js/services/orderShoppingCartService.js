@@ -1,6 +1,7 @@
 app.service('orderShoppingCartService', ["$http", "$rootScope", "$q", "settingService", "taxesService", "shoppingCartService",
     function ($http, $rootScope, $q, settingService, taxesService, shoppingCartService) {
         var current = this;
+        let tryGetFreezed = 0;
         this.orders;
         this.ordersInProgress;
 

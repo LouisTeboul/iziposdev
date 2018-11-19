@@ -28,7 +28,7 @@ app.controller('ModalAllCashMovementsController', function ($scope, $rootScope, 
                             console.log(p);
                             p.CashMovements[0].alias = alias ? alias : p.hardwareId;
                             $scope.model.allCashMovements.push(p.CashMovements);
-                            console.log($scope.model.allCashMovements)
+                            console.log($scope.model.allCashMovements);
                         });
 
                     });

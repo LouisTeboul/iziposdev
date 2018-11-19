@@ -84,17 +84,17 @@
 
 /*-----------------------DEFAULTS-------------------------*/
 
-.modal {
+.mainModals .modal {
     overflow: hidden !important;
 }
 
-.modal-dialog {
+.mainModals .modal-dialog {
     width: 100%;
     height: 100%;
     margin: 0 !important;
 }
 
-.modal-content {
+.mainModals .modal-content {
     width: 100%;
     height: 100%;
     border-radius: 0 !important;
@@ -405,13 +405,6 @@ text-field.flexbox div {
 
 /*-----------------------END CONFIGURATION----------------*/
 
-/*-----------------------LOADING--------------------*/
-
-.loading {
-    margin-top: 30px;
-}
-
-/*-----------------------END LOADING----------------*/
 
 /*-----------------------CATALOG-------------------*/
 .catalog md-backdrop {
@@ -448,7 +441,6 @@ h2 {
     background: #fff !important;
     border: 1px solid #fff !important;
     border-radius: 4px !important;
-    padding: 5px 20px !important;
     margin: 2px !important;
     overflow: inherit !important;
     white-space: inherit !important;
@@ -463,10 +455,6 @@ h2 {
 }
 
 .productboxIZIPASS .imgProduct {
-    width: 100px;
-    height: 100px;
-    margin-top: 20px;
-    margin-bottom: 15px;
     display: flex;
     justify-content: center;
 }
@@ -482,7 +470,6 @@ h2 {
     font-family: 'DINPro', sans-serif;
     line-height: 15px;
     font-weight: bold;
-    margin: 0 -20px 5px;
     text-align: center;
     text-overflow: ellipsis;
 }
@@ -557,15 +544,8 @@ h2 {
 /*---------------------------MEDIUM--------------------------*/
 
 .productboxIZIPASS.medium {
-    width: 200px !important;
-    height: 200px !important;
     border-radius: 10px !important;
-    box-shadow: 2px 2px #E5E5E5;
-}
-
-.productboxIZIPASS.medium .titleRow {
-    font-size: 15px;
-    line-height: 13px;
+    box-shadow: 1px 1px #E5E5E5;
 }
 
 .productboxIZIPASS.medium .image {
@@ -573,27 +553,17 @@ h2 {
 }
 
 .productboxIZIPASS.medium .price {
-    font-size: 16px;
+    min-height: 9px;
 }
 
 /*---------------------------SMALL--------------------------*/
 
 .productboxIZIPASS.small {
-    width: 75px;
     height: auto;
-}
-
-.productboxIZIPASS.small .titleRow {
-    font-size: 10px;
-    line-height: 11px;
 }
 
 .productboxIZIPASS.small .image {
     height: 100%;
-}
-
-.productboxIZIPASS.small .price {
-    font-size: 10px;
 }
 
 /*-----------------END PRODUCTBOX IZIPASS------------------*/
@@ -643,14 +613,19 @@ h2 {
     font-family: 'DINPro', sans-serif;
 }
 
-.miniBasketSlide {
+.miniBasketSlideV {
     min-width: 345px;
     box-shadow: none !important;
     border-left: 1px solid #E5E5E5;
 }
 
-.miniBasketSlide:focus {
+.miniBasketSlideV:focus {
     border-left: 1px solid #E5E5E5;
+}
+
+.miniBasketSlide {
+    min-width: 345px;
+    box-shadow: none !important;
 }
 
 .miniBasket {
@@ -676,6 +651,10 @@ h2 {
     color: white;
 }
 
+.offerTitleFidBasket {
+    white-space: nowrap;
+}
+
 .titleCommand {
     text-transform: uppercase;
     color: #fff;
@@ -688,8 +667,14 @@ h2 {
     margin-right: 20px;
 }
 
+.titleBasket {
+    display: flex;
+    align-items: center;
+    max-width: 300px;
+}
+
 .votreCommande {
-    white-space: normal;
+    white-space: nowrap;
     margin-left: 20px;
     font-size: 26px;
     font-weight: normal;
@@ -699,18 +684,43 @@ h2 {
     height: 100%;
     flex: 1;
     align-items: center;
-    justify-content: flex-start;
+    justify-content: flex-end;
     display: flex;
-    font-size: 30px;
 }
 
 .fidHeaderMB {
-    height: 100%;
     flex: 1;
     align-items: center;
-    justify-content: flex-end;
-    font-size: 30px;
+    text-transform: capitalize;
     display: flex;
+    height: 100%;
+    justify-content: flex-end;
+}
+
+.catFidHeaderMB {
+    display: flex;
+    height: 100%;
+    align-items: center;
+}
+
+.catFidHeaderMB .potTitle {
+    font-weight: normal;
+}
+
+.vCatFidHMB {
+    display: flex;
+    flex-direction: column;
+}
+
+.iconCatFidMB {
+    filter: brightness(110%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.iconCatFidMB md-icon {
+    color: white;
 }
 
 .mbFirstPart {
@@ -718,21 +728,15 @@ h2 {
 }
 
 .mbSecondPart {
-    height: 100px;
     display: flex;
-    padding: 0 13px;
     align-items: center;
 }
 
-.mbSecondPart div {
-    margin: 0 13px;
-}
-
 .mbSecondPart a {
+    font-size: 18px;
     width: 100%;
     height: 100%;
     text-transform: uppercase;
-    font-size: 18px;
     font-weight: bold;
     display: flex;
     border-radius: 4px;
@@ -751,7 +755,6 @@ h2 {
     height: 26px;
     min-width: 26px;
     min-height: 26px;
-    margin-left: 15px;
     fill: #98C8CC;
 }
 
@@ -760,8 +763,6 @@ h2 {
 }
 
 .devBy {
-    width: 140px;
-    height: 50px;
     border-radius: 4px;
     background-color: #fcfcfc;
     border: 1px solid #E5E5E5;
@@ -769,11 +770,6 @@ h2 {
     display: flex;
     justify-content: center;
     align-items: center;
-    font-size: 10px;
-}
-
-.devByBig {
-    font-size: 16px;
 }
 
 .devByColor {
@@ -786,7 +782,6 @@ h2 {
 
 .smallDisplayed {
     width: 50px;
-    height: 50px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -796,7 +791,6 @@ h2 {
 
 .bigDisplayed {
     flex: 1;
-    height: 50px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -824,14 +818,8 @@ h2 {
     color: white;
 }
 
-.stopOrder {
+.btnMBAction {
     flex: 1;
-    height: 50px;
-}
-
-.confirmOrder {
-    flex: 1;
-    height: 50px;
 }
 
 /* Borne is Vertical ! */
@@ -842,19 +830,10 @@ h2 {
 
 .borneIsVertical .mbFirstPart {
     height: 300px !important;
-    border-bottom: 10px solid #98C8CC;
 }
 
 .borneIsVertical #miniBasketHeader {
     width: 100% !important;
-}
-
-.borneIsVertical .firstMenu {
-    height: 75px !important;
-}
-
-.borneIsVertical .votreCommande {
-    font-size: 30px !important;
 }
 
 .borneIsVertical #mbValidation {
@@ -894,10 +873,6 @@ h2 {
     margin: 5px 25px;
 }
 
-.imgMiniBasket {
-    height: 45px;
-}
-
 .imgMiniBasket md-icon {
     width: 40px;
     height: 40px;
@@ -906,15 +881,11 @@ h2 {
 }
 
 .vertical.imgMiniBasket {
-    width: 75px;
-    height: 75px;
     background-color: #98C8CC;
-    filter: brightness(105%);
+    filter: brightness(110%);
 }
 
 .vertical.imgMiniBasket md-icon {
-    width: 62px;
-    height: 62px;
     margin-top: 14px;
     color: white;
 }
@@ -929,23 +900,8 @@ h2 {
     color: #fff;
 }
 
-#allCategories {
-    margin-left: 50px;
-}
-
-.cBRTitle {
-    font-weight: bold;
-    color: #c9c9c9;
-    width: 150px;
-    padding-bottom: 20px;
-    margin: 50px 0 20px 50px;
-    border-bottom: 1px solid #98C8CC;
-    white-space: nowrap;
-}
-
 .caseAttribute {
     padding: 0;
-    margin: 0 50px 50px 0;
 }
 
 /* END Borne is Vertical ! */
@@ -1026,7 +982,7 @@ h2 {
 .myBasketAndPrice {
     display: flex;
     align-items: center;
-    max-width:300px;
+    max-width: 300px;
 }
 
 #miniBasketItems {
@@ -1322,11 +1278,6 @@ h2 {
     background-color: #464545 !important;
 }
 
-.catalogMenu.vertical {
-    background-color: white !important;
-    border-right: 1px solid #E5E5E5 !important;
-}
-
 #Menu .menuItems {
     overflow-y: hidden;
     overflow-x: scroll;
@@ -1338,14 +1289,14 @@ h2 {
     overflow-y: scroll !important;
     overflow-x: hidden !important;
     flex-direction: column !important;
-    padding-top: 25px;
 }
 
 .catalogMenu.vertical {
-    width: 200px !important;
     height: 100%;
     max-height: none;
     min-height: initial;
+    background-color: white !important;
+    border-right: 1px solid #E5E5E5 !important;
 }
 
 .catalogMenu .toolsContainer {
@@ -1359,9 +1310,6 @@ h2 {
 }
 
 .catalogMenu .toolsContainer .tools.vertical {
-    width: 150px;
-    min-height: 150px;
-    margin: 25px 0 0 25px;
     border-bottom: 1px solid #E5E5E5;
     border-right: 1px solid #E5E5E5;
 }
@@ -1382,21 +1330,8 @@ h2 {
 }
 
 .imgLogoHeader {
-    width: 150px;
-    height: 150px;
     fill: #98C8CC;
     margin: 0;
-}
-
-.imgLogoHeader.bigLogo {
-    width: 240px;
-    height: 240px;
-}
-
-.imgLogoHeader.smallCatalogLogo {
-    width: 69px !important;
-    height: 69px !important;
-    min-height: 69px !important;
 }
 
 .catalogMenu.vertical .logo {
@@ -1409,7 +1344,6 @@ h2 {
 }
 
 .catalogMenu.vertical .clock {
-    font-size: 18px;
     color: #646464;
 }
 
@@ -1450,11 +1384,8 @@ h2 {
 
 .catalogMenu.vertical .itemCategory {
     text-align: center;
-    width: 150px;
-    min-height: 150px;
     border-right: 1px solid #E5E5E5;
     border-bottom: 1px solid #E5E5E5;
-    margin-bottom: 25px;
     color: #E5E5E5 !important;
     display: flex;
     flex-direction: column;
@@ -1462,22 +1393,16 @@ h2 {
     align-items: center;
 }
 
-.catalogMenu .imgCategory {
-    max-height: 57px;
-    max-width: 57px;
-    margin-top: 11px;
-}
-
 .catalogMenu .linkCategory {
-    width: 70px !important;
-    height: 70px !important;
     padding: 0 !important;
     border-radius: 0;
 }
 
 .catalogMenu .titleCategory {
-    color: white;
+    margin-top: 3px;
     font-size: 12px;
+    line-height: 10px;
+    color: white;
     font-family: 'DINPro', sans-serif;
     font-weight: bold;
     display: inline-block;
@@ -1485,7 +1410,6 @@ h2 {
     word-wrap: break-word;
     text-overflow: ellipsis;
     width: 125px;
-    margin-top: 3px;
     cursor: pointer
 }
 
@@ -1493,16 +1417,8 @@ h2 {
     color: #646464 !important;
 }
 
-.catalogMenu .titleCategory.vertical {
-    width: 95px;
-    margin-bottom: 11px;
-}
-
 .scrollCatArrow {
     fill: #98C8CC;
-    width: 35px;
-    height: 20px;
-    margin: 10px auto !important;
 }
 
 .categories .itemCategory {
@@ -1534,18 +1450,121 @@ h2 {
 /*-----------------END CATALOG-----------------------------*/
 
 /*-----------------OFFER MODAL-----------------------------*/
-.offerModal .rowOffer {
-    height: 50px;
-    margin-bottom: 5px;
+
+.offerModal {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 100%;
 }
 
-.offerModal .imgOffer {
+.offerModalHeader {
+    width: 100%;
+}
+
+.offerModalTitle {
+    font-weight: bold;
+    color: #444;
+}
+
+.offerModalSecondTitle {
+    color: #cacac9;
+}
+
+.offerModalBtn {
+    height: 50px;
+    width: 150px;
+    background-color: #ddd;
+    text-transform: uppercase;
+    color: white;
+    border-radius: 5px;
+    font-size: 20px;
+}
+
+.modalBtnBig {
+    font-weight: bold;
+}
+
+.modalCommentBtn {
+    width: 100%;
+    background-color: white;
+    color: #444;
+    border: 1px solid #E5E5E5;
+}
+
+.listOffers {
+    flex: 1;
+    width: 100%;
+    overflow-y: scroll;
+}
+
+.offerDetails {
+    flex: 1;
+    margin-left: 50px;
+    justify-content: center;
+    align-items: flex-start;
+    flex-direction: column;
+    display: flex;
+}
+
+.offerTitle {
+    color: #444;
+    font-size: 20px;
+}
+
+.offerDescription {
+    color: #cacac9;
+    font-size: 12px;
+}
+
+.itemOfferList {
+    width: 100%;
+    height: 200px;
+    display: flex;
+    border-top: 1px solid #E5E5E5;
+    align-items: center;
+}
+
+.noBar {
+    border-top: 0;
+}
+
+.offerModalFooter {
+    display: flex;
     height: 50px;
 }
 
-.offerModal .dataRowOffer {
-    line-height: 50px;
-    vertical-align: middle;
+.offerImage {
+    width: 160px;
+    height: 160px;
+    background-color: #fbfbfb;
+    border-radius: 10px;
+}
+
+.centeredModals .modal {
+    overflow: hidden !important;
+    background-color: rgba(0, 0, 0, 0.26) !important;
+}
+
+.centeredModals.smallModal .modal-dialog {
+    width: 800px !important;
+    height: 800px !important;
+    margin: 150px auto 0 !important;
+}
+
+.centeredModals .modal-content {
+    width: 100%;
+    height: 100%;
+    border-radius: 26px !important;
+    border: 1px solid gray;
+}
+
+.centeredModals .modalCenterFS {
+    background-position: center !important;
+}
+
+.centeredModals .firstTitle {
+    font-size: 32px;
 }
 
 /*-----------------END OFFER MODAL-------------------------*/
@@ -2124,15 +2143,6 @@ md-input-container label:not(._md-container-ignore) {
     overflow: hidden;
 }
 
-@media (max-width: 799px) {
-
-    .categories .linkCategory {
-        width: 90px !important;
-        height: 90px !important;
-    }
-
-}
-
 .etapeSuivante {
     width: 250px !important;
     color: #fff !important;
@@ -2177,87 +2187,6 @@ md-input-container label:not(._md-container-ignore) {
     position: relative;
 }
 
-@media (min-width: 800px) {
-
-    .titleConnect {
-        font-size: 36px;
-        margin: 0 !important;
-    }
-
-    .IZIPASSTemplate .categoryContent .quickAccess {
-        flex-direction: row;
-        justify-content: center;
-    }
-
-    .subCategoriesHeading {
-        flex-wrap: wrap;
-    }
-
-    .textConnectionDialog {
-        font-size: 15px;
-    }
-}
-
-@media (max-width: 799px) {
-
-    .titleConnect {
-        font-size: 26px;
-        margin: 6px !important;
-    }
-
-    .textConnectionDialog {
-        font-size: 13px;
-    }
-
-    .IZIPASSTemplate .categoryContent .quickAccess {
-        flex-direction: column;
-        justify-content: flex-start;
-    }
-
-    .subCategoriesHeading {
-        flex-wrap: nowrap;
-    }
-}
-
-@media (min-width: 800px) {
-    .block-recap-commande {
-        border-left: 1px #e4e4e4 solid;
-    }
-
-    .configurableMenu .heading {
-        padding: 5px;
-        background: #fff;
-        position: fixed;
-        z-index: 999;
-        margin-top: -7px;
-        width: calc(100% - 373px);
-        height: 150px;
-    }
-
-    .colonneGauche {
-        padding-top: 165px !important;
-    }
-
-    .configurableMenu .heading > div {
-        width: 80%;
-        background: #fff;
-    }
-
-}
-
-@media (min-width: 800px) {
-    .configurableMenu #attributes > div {
-        padding-top: 80px;
-        margin-top: -50px;
-    }
-}
-
-@media (max-width: 799px) {
-    .configurableMenu .heading {
-        width: 100%;
-    }
-}
-
 #catalogViewDivVertical .configurableMenu .heading > div {
     width: 100% !important;
 }
@@ -2275,16 +2204,16 @@ md-input-container label:not(._md-container-ignore) {
     background: #98C8CC !important;
 }
 
+.tfBorne {
+    width: 510px;
+    margin-right: 10px;
+    min-height: 34px;
+}
+
 .fenetreDisconnection {
     padding: 15px !important;
     margin-top: 10px !important;
 
-}
-
-@media (max-width: 799px) {
-    .productboxIZIPASS {
-        padding: 5px 8px !important;
-    }
 }
 
 .imgBtnPaiement {
@@ -2395,7 +2324,6 @@ md-input-container label:not(._md-container-ignore) {
 
 .firstTitle {
     color: white;
-    font-size: 46px;
     white-space: nowrap;
     margin-top: 100px;
 }
@@ -2404,7 +2332,6 @@ md-input-container label:not(._md-container-ignore) {
     width: 75px;
     min-height: 2px;
     background-color: #98C8CC;
-    margin: 50px 0 0;
     border: 0;
 }
 
@@ -2416,9 +2343,6 @@ md-input-container label:not(._md-container-ignore) {
 }
 
 .btnModalBig {
-    height: 150px;
-    min-height: 150px;
-    margin: 50px 0 0;
     background-color: white;
     border-radius: 5px;
     box-shadow: 10px 10px 26px black;
@@ -2430,19 +2354,15 @@ md-input-container label:not(._md-container-ignore) {
 }
 
 .btnMbIcon {
-    width: 188px;
     height: 100%;
 }
 
 .btnMbIcon md-icon {
-    width: 75px;
-    height: 75px;
     color: #98C8CC;
 }
 
 .verticalBtnMbHR {
     min-width: 1px;
-    height: 85px;
     background-color: #98C8CC;
     margin: 0;
     border: 0;
@@ -2451,7 +2371,6 @@ md-input-container label:not(._md-container-ignore) {
 .btnMbText {
     height: 100%;
     flex: 1;
-    padding-left: 50px;
     display: flex;
     flex-direction: column;
     align-items: flex-start;
@@ -2462,7 +2381,6 @@ md-input-container label:not(._md-container-ignore) {
 
 .mainBtnMbText {
     color: #444;
-    font-size: 30px;
 }
 
 .altBtnMbText {
@@ -2472,16 +2390,11 @@ md-input-container label:not(._md-container-ignore) {
 
 .langSelection {
     width: 100%;
-    height: 75px;
-    margin-top: 50px;
     display: flex;
     justify-content: center;
 }
 
 .langBtn {
-    width: 75px;
-    height: 75px;
-    box-shadow: 10px 10px 26px black;
     background-color: white;
     display: flex;
     align-items: center;
@@ -2490,14 +2403,8 @@ md-input-container label:not(._md-container-ignore) {
     border-radius: 5px;
 }
 
-.langBtn md-icon {
-    width: 50px;
-    height: 26px;
-}
-
 .btnModalSmallS {
     width: 300px;
-    height: 75px;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -2506,7 +2413,6 @@ md-input-container label:not(._md-container-ignore) {
     box-shadow: 10px 10px 26px black;
     color: #444;
     font-size: 32px;
-    margin: 50px 0 0;
     text-transform: none;
 }
 
@@ -2515,13 +2421,10 @@ md-input-container label:not(._md-container-ignore) {
 }
 
 .loyaltyFormGroup {
-    width: 800px;
-    min-height: 675px;
     background-color: white;
     border-radius: 5px;
     box-shadow: 10px 10px 26px black;
     margin: 50px 0 0;
-    padding: 75px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -2529,8 +2432,6 @@ md-input-container label:not(._md-container-ignore) {
 
 .loyaltyFormGroup text-field-borne {
     width: 100%;
-    height: 65px;
-    margin-bottom: 26px;
     border-radius: 35px;
 }
 
@@ -2564,8 +2465,6 @@ md-input-container label:not(._md-container-ignore) {
 
 .groupTextfield {
     width: 100%;
-    min-height: 65px;
-    margin-bottom: 26px;
     display: flex;
     flex-direction: row;
 }
@@ -2597,6 +2496,8 @@ md-input-container label:not(._md-container-ignore) {
     display: flex;
     align-items: center;
     justify-content: center;
+    text-align: center;
+    padding: 0 5px;
 }
 
 .checkboxBorneH:focus {
@@ -2604,13 +2505,7 @@ md-input-container label:not(._md-container-ignore) {
     border: 1px solid #E5E5E5 !important;
 }
 
-.checkboxBorneH.cbM {
-    border-color: #E5E5E5;
-}
-
 .btnModalSmall {
-    width: 310px;
-    height: 75px;
     background-color: white;
     border-radius: 5px;
     border: 1px solid #E5E5E5;
@@ -2624,7 +2519,6 @@ md-input-container label:not(._md-container-ignore) {
 }
 
 .mainBtnMsText {
-    font-size: 32px;
     color: #444;
     text-transform: none;
 }
@@ -2635,12 +2529,8 @@ md-input-container label:not(._md-container-ignore) {
 }
 
 .scanImg {
-    width: 268px;
-    height: 268px;
     background: url("../img/qrcode.png") no-repeat;
     background-size: cover;
-    margin-bottom: 26px;
-    font-size: 32px;
     color: #444;
     display: flex;
     flex-direction: column;
@@ -2651,25 +2541,19 @@ md-input-container label:not(._md-container-ignore) {
 
 .scanImg span {
     font-weight: bold;
-    margin-bottom: 75px;
 }
 
 .connectTypeSep {
-    font-size: 26px;
     line-height: 26px;
-    margin-bottom: 20px;
 }
 
 .loyaltyFormGroup ng-barcodetextfield-borne {
     width: 100%;
-    height: 65px;
-    margin-bottom: 26px;
     border-radius: 35px;
 }
 
 .textFieldBorneSize {
     width: 100%;
-    height: 65px;
 }
 
 .textFieldBorneSize text-field-borne:focus {
@@ -2691,34 +2575,27 @@ md-input-container label:not(._md-container-ignore) {
     flex: 1;
     background-repeat: no-repeat;
     background-size: cover;
-    display: flex;
-    justify-content: center;
-    align-items: center;
 }
 
 .imageIdleScreen img {
-    margin: 140px auto;
     display: block;
     width: 240px;
     height: auto;
     fill: #98C8CC;
+    margin: 26% auto;
 }
 
 .bottomIdleScreen {
-    height: 289px;
-    width: 100%;
     background-color: #98C8CC;
     display: flex;
     justify-content: center;
     align-items: center;
     color: white;
-    font-size: 55px;
     text-transform: uppercase;
     text-align: center;
 }
 
 #allCategories {
-    padding-top: 20px;
     max-width: 100%;
     flex: 1;
     overflow-x: hidden;
@@ -2728,24 +2605,17 @@ md-input-container label:not(._md-container-ignore) {
 
 .imgTPE {
     display: block;
-    width: 360px;
     height: auto;
-    margin: 100px 0 0 0;
     color: white;
 }
 
 .textTPE {
-    max-width: 580px;
-    margin-top: 50px;
-    font-size: 44px;
     color: white;
     text-align: center;
 }
 
 .arrowTPE {
     width: 38px;
-    height: 40px;
-    margin-top: 75px;
     fill: #98C8CC !important;
 }
 
@@ -2754,8 +2624,6 @@ md-input-container label:not(._md-container-ignore) {
 }
 
 .listCats {
-    height: 80px;
-    margin-right: 50px;
     overflow-x: scroll;
     overflow-y: hidden;
     display: flex;
@@ -2763,18 +2631,13 @@ md-input-container label:not(._md-container-ignore) {
 }
 
 .listCatsNext {
-    width: 100px;
-    height: 80px;
     background: linear-gradient(to right, rgba(252, 252, 252, 0) 0%, rgba(252, 252, 252, 1) 100%);
     pointer-events: none;
-    right: 45px;
     position: absolute;
 }
 
 .catRepeat {
-    padding-right: 45px;
     color: #cacac9;
-    font-size: 18px;
     text-transform: uppercase;
     cursor: pointer;
     white-space: nowrap;
@@ -2787,40 +2650,33 @@ md-input-container label:not(._md-container-ignore) {
 
 .pubProductsCut {
     width: 100%;
-    height: 50px;
     background: linear-gradient(to bottom, rgba(252, 252, 252, 0) 0%, rgba(252, 252, 252, 1) 100%);
     position: absolute;
-    bottom: 250px;
     pointer-events: none;
+    z-index: 10;
 }
 
 .pubProductsCut.reverse {
     background: linear-gradient(to top, rgba(252, 252, 252, 0) 0%, rgba(252, 252, 252, 1) 100%);
-    top: 130px !important;
     bottom: initial;
 }
 
 .pubProductsCut.cat {
     height: 25px;
-    bottom: 40px;
     background: linear-gradient(to bottom, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 1) 100%);
 }
 
 .pubProductsCut.catR {
     background: linear-gradient(to top, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 1) 100%);
-    height: 25px;
-    top: 175px;
+    height: 26px;
     bottom: initial;
 }
 
 .pubProductsList {
-    height: 200px;
-    min-height: 200px;
-    width: 700px;
-    margin: 0 0 50px 50px;
     background-repeat: no-repeat;
     background-size: cover;
     display: block;
+    z-index: 20;
 }
 
 .pubProductsListHoriz {
@@ -2836,16 +2692,12 @@ md-input-container label:not(._md-container-ignore) {
 }
 
 .betweenCatsHR {
-    border: 1px solid #E5E5E5;
+    border-bottom: 1px solid #E5E5E5;
     width: 100%;
 }
 
 .productGroup {
-    width: 300px;
     height: auto;
-    max-height: 175px;
-    padding: 20px;
-    margin: 0 25px;
     display: flex;
     border: 1px solid #E5E5E5;
     border-radius: 5px;
@@ -2854,17 +2706,14 @@ md-input-container label:not(._md-container-ignore) {
 .productCount {
     width: 30px;
     color: #98C8CC;
-    font-size: 16px;
     display: flex;
     justify-content: flex-end;
-    padding-right: 5px;
 }
 
 .productInfos {
     flex: 1;
     display: flex;
     flex-direction: column;
-    font-size: 16px;
     color: #444;
     font-weight: bold;
     text-transform: capitalize;
@@ -2873,13 +2722,11 @@ md-input-container label:not(._md-container-ignore) {
 }
 
 .productDetails {
-    font-weight: normal !important;
-    color: #cacac9 !important;
-    font-size: 14px !important;
+    font-weight: normal;
+    color: #cacac9;
 }
 
 .productTools {
-    width: 68px;
     display: flex;
     flex-wrap: wrap;
     height: 100%;
@@ -2887,9 +2734,6 @@ md-input-container label:not(._md-container-ignore) {
 
 .productTools md-icon {
     color: #98C8CC;
-    width: 24px;
-    height: 24px;
-    margin: 0 5px !important;
 }
 
 .productSep {
@@ -2897,11 +2741,7 @@ md-input-container label:not(._md-container-ignore) {
 }
 
 .productBGroup {
-    width: 300px;
     height: auto;
-    max-height: 175px;
-    padding: 20px;
-    margin: 0 25px;
     display: flex;
     flex-direction: column;
     border: 1px solid #E5E5E5;
@@ -2909,32 +2749,23 @@ md-input-container label:not(._md-container-ignore) {
 }
 
 .productSGroup {
-    display: flex;
-    flex-direction: row;
     margin: 3px 0;
     padding: 10px 0;
+    display: flex;
+    flex-direction: row;
 }
 
 .productSGroup .productInfos {
-    overflow: hidden;
+    overflow: scroll;
 }
 
 .productInfos .minProduct {
-    max-height: 22px;
-}
-
-.smallPT {
-    width: 20px !important;
-    height: 20px !important;
-    margin-top: 2px !important;
+    max-height: 35px;
 }
 
 .btnStepBorne {
-    width: 700px;
-    min-height: 75px;
     background-color: #98C8CC;
     color: white;
-    font-size: 16px;
     text-transform: uppercase;
     border-radius: 5px;
     display: flex;
@@ -2943,11 +2774,8 @@ md-input-container label:not(._md-container-ignore) {
 }
 
 .orderSProduct {
-    width: 700px;
-    height: 75px;
     margin-bottom: 50px;
     color: #444;
-    font-size: 24px;
     text-transform: uppercase;
     display: flex;
     align-items: center;
@@ -2956,20 +2784,15 @@ md-input-container label:not(._md-container-ignore) {
     border-radius: 5px;
 }
 
-.orderSProduct img {
-    width: 60px;
-    max-height: 70px;
-    margin-left: 20px;
-}
-
 .orderSProduct div {
     flex: 1;
-    margin-left: 20px;
+    overflow: scroll;
+    white-space: nowrap;
 }
 
 .orderSProduct span {
     color: #98C8CC;
-    width: 100px;
+    margin-right: 5px;
 }
 
 .mainGroupOrder {
@@ -3027,30 +2850,16 @@ md-input-container label:not(._md-container-ignore) {
 }
 
 .btnSkipStep {
-    width: 700px;
-    height: 75px;
-    margin: 25px 0 50px;
     background-color: #fcfcfc !important;
     border: 1px solid #E5E5E5 !important;
     color: #c9c9c9 !important;
     display: flex;
     justify-content: center;
     align-items: center;
-    font-size: 22px;
-}
-
-.itemCatMenuList {
-    margin: 0 50px 50px 0;
-    max-width: 200px;
-    max-height: 200px;
 }
 
 .rowConfirmOrderML {
-    height: 75px;
-    width: 700px;
-    margin: 25px 0 50px 50px;
     display: flex;
-    font-size: 22px;
     text-transform: uppercase;
 }
 
@@ -3058,7 +2867,6 @@ md-input-container label:not(._md-container-ignore) {
     height: 100%;
     flex: 1;
     display: flex;
-    margin-right: 50px;
     background-color: white;
     box-shadow: 2px 2px 5px #E5E5E5;
     align-items: center;
@@ -3066,7 +2874,6 @@ md-input-container label:not(._md-container-ignore) {
 
 .totalOrderML span {
     flex: 1;
-    margin: 0 30px;
     color: #444;
 }
 
@@ -3076,15 +2883,12 @@ md-input-container label:not(._md-container-ignore) {
 }
 
 .btnConfirmMenuList {
-    width: 260px;
-    height: 75px;
     margin: 0;
     background-color: #98C8CC;
     color: white;
     display: flex;
     justify-content: center;
     align-items: center;
-    font-size: 22px;
 }
 
 #PMREnabled {
@@ -3103,15 +2907,15 @@ md-input-container label:not(._md-container-ignore) {
 }
 
 .groupModal {
-    flex: 1;
     display: flex;
     align-items: center;
     justify-content: center;
     flex-direction: column;
+    overflow-y:scroll;
 }
 
 .mbSecondPartH {
-    height: 120px;
+    height: 100px;
     display: flex;
     flex-direction: column;
 }
@@ -3121,9 +2925,13 @@ md-input-container label:not(._md-container-ignore) {
     border-radius: 0;
     display: flex;
     align-items: center;
-    justify-content: space-evenly;
+    justify-content: center;
     color: white;
     font-size: 22px;
+}
+
+.priceMBD {
+    margin-left: 15px;
 }
 
 .priceHorizMB {
@@ -3138,21 +2946,1398 @@ md-input-container label:not(._md-container-ignore) {
 }
 
 .textAndArrow {
-    max-width: 600px;
     display: flex;
     justify-content: space-evenly;
     align-items: center;
     flex-direction: column;
 }
 
+.menuHeader {
+    display: flex;
+    flex-direction: row;
+}
+
+.cBRTitle {
+    font-weight: bold;
+    color: #c9c9c9;
+    border-bottom: 1px solid #98C8CC;
+    white-space: nowrap;
+}
+
+.returnBtnWrap {
+    flex: 1;
+    display: flex;
+    color: white;
+    justify-content: flex-end;
+}
+
+.returnBtn {
+    background-color: #98C8CC;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-top-right-radius: 3px;
+    border-bottom-right-radius: 3px;
+}
+
+.leftArrow {
+    width: 0;
+    height: 0;
+}
+
+/* RESPONSIVE */
+
+/* BIG SCREENS */
 @media (min-width: 800px) {
+
+    .titleConnect {
+        font-size: 36px;
+        margin: 0 !important;
+    }
+
+    .productboxIZIPASS {
+        padding: 5px 20px;
+    }
+
+    .IZIPASSTemplate .categoryContent .quickAccess {
+        flex-direction: row;
+        justify-content: center;
+    }
+
+    .subCategoriesHeading {
+        flex-wrap: wrap;
+    }
+
+    .textConnectionDialog {
+        font-size: 15px;
+    }
+
+    .block-recap-commande {
+        border-left: 1px #e4e4e4 solid;
+    }
+
+    .configurableMenu .heading {
+        padding: 5px;
+        background: #fff;
+        position: fixed;
+        z-index: 999;
+        margin-top: -7px;
+        width: calc(100% - 373px);
+        height: 150px;
+    }
+
+    .colonneGauche {
+        padding-top: 165px !important;
+    }
+
+    .configurableMenu .heading > div {
+        width: 80%;
+        background: #fff;
+    }
+
+    .configurableMenu #attributes > div {
+        padding-top: 80px;
+        margin-top: -50px;
+    }
+
     .btnModalBig {
+        margin: 50px 0 0;
         width: 800px;
+        height: 150px;
+        min-height: 150px;
+    }
+
+    .imgLogoHeader {
+        max-width: 150px;
+    }
+
+    .imgLogoHeader.bigLogo {
+        max-width: 240px !important;
+    }
+
+    .firstTitle {
+        margin-top: 100px;
+        font-size: 46px;
+    }
+
+    .bottomIdleScreen {
+        font-size: 55px;
+    }
+
+    .smallModalHR {
+        margin: 50px 0 0;
+    }
+
+    .groupModal {
+        flex: 3;
+    }
+
+    .langBtn {
+        box-shadow: 10px 10px 26px black;
+        width: 75px;
+        height: 75px;
+    }
+
+    .langBtn md-icon {
+        width: 50px;
+        height: 26px;
+    }
+
+    .langSelection {
+        height: 75px;
+        margin-top: 50px;
+    }
+
+    .verticalBtnMbHR {
+        height: 85px;
+    }
+
+    .btnMbIcon {
+        width: 188px;
+    }
+
+    .btnMbIcon md-icon {
+        width: 75px;
+        height: 75px;
+        margin: auto;
+    }
+
+    .btnMbText {
+        padding-left: 50px;
+    }
+
+    .loyaltyFormGroup {
+        width: 800px;
+        min-height: 675px;
+        padding: 75px;
+    }
+
+    .scanImg span {
+        margin-bottom: 75px;
+    }
+
+    .scanImg {
+        width: 268px;
+        height: 268px;
+        margin-bottom: 26px;
+        font-size: 32px;
+    }
+
+    .connectTypeSep {
+        font-size: 26px;
+        margin-bottom: 20px;
+    }
+
+    .btnModalSmall {
+        width: 310px;
+        height: 75px;
+    }
+
+    .mainBtnMsText {
+        font-size: 32px;
+    }
+
+    .loyaltyFormGroup ng-barcodetextfield-borne {
+        height: 65px;
+        margin-bottom: 26px;
+    }
+
+    .textFieldBorneSize {
+        height: 65px;
+    }
+
+    .numpad {
+        height: 435px !important;
+        width: 235px !important;
+        top: 0 !important;
+        right: 0 !important;
+        position: relative !important;
+    }
+
+    .numpad .button-wrapper button {
+        width: 70px !important;
+        height: 70px !important;
+    }
+
+    .numpad .button-wrapper button img {
+        width: 30px;
+    }
+
+    .numpad .button-wrapper button.closekeyboard {
+        width: 60px !important;
+        height: 60px !important;
+        padding: 15px !important;
+    }
+
+    .loyaltyFormGroup text-field-borne {
+        height: 65px;
+        margin-bottom: 26px;
+    }
+
+    .textfieldBorne {
+        font-size: 18px;
+        padding-left: 30px;
+    }
+
+    .groupTextfield {
+        min-height: 65px;
+        margin-bottom: 26px;
+    }
+
+    .checkboxBorneH {
+        font-size: 15px;
+        margin-bottom: 26px;
+    }
+
+    .btnModalSmall.btnLeft {
+        margin: 6px 26px 6px 8px;
+        width: 310px !important;
+        height: 75px !important;
+    }
+
+    .btnModalSmall.btnRight {
+        margin: 6px 8px;
+        width: 310px !important;
+        height: 75px !important;
+    }
+
+    .mbSecondPart {
+        padding: 0 13px;
+        height: 100px;
+    }
+
+    .devBy {
+        width: 140px;
+        min-width: 140px;
+        height: 50px;
+        font-size: 10px;
+    }
+
+    .borneIsVertical .mbFirstPart {
+        border-bottom: 10px solid #98C8CC;
+    }
+
+    .devByLogo {
+        margin-left: 15px;
+    }
+
+    .mbSecondPart div {
+        margin: 0 13px;
+    }
+
+    .devByBig {
+        font-size: 16px;
+    }
+
+    .smallDisplayed {
+        height: 50px;
+        width: 50px;
+    }
+
+    .bigDisplayed {
+        height: 50px;
+        margin: 0 5px;
+    }
+
+    .btnMBAction {
+        height: 50px;
+        margin: 0 5px !important;
+    }
+
+    .mbSecondPart a {
+        font-size: 18px;
+    }
+
+    .borneIsVertical .votreCommande {
+        font-size: 30px !important;
+    }
+
+    .vertical.imgMiniBasket md-icon {
+        width: 62px;
+        height: 62px;
+    }
+
+    .borneIsVertical .firstMenu {
+        height: 75px !important;
+    }
+
+    .catalogBasketDiv {
+        height: 402px;
+    }
+
+    .imgMiniBasket {
+        height: 75px;
+    }
+
+    .catalogMenu.vertical {
+        width: 200px !important;
+    }
+
+    .scrollCatArrow {
+        fill: #98C8CC;
+        width: 35px;
+        height: 20px;
+        margin: 10px auto !important;
+    }
+
+    .catalogMenu .toolsContainer .tools.vertical {
+        width: 150px;
+        min-height: 150px;
+        margin: 25px 0 0 25px;
+    }
+
+    .imgLogoHeader.smallCatalogLogo {
+        max-width: 100px !important;
+    }
+
+    .catalogMenu.vertical .clock {
+        font-size: 18px;
+    }
+
+    .pubProductsCut.catR {
+        top: 175px;
+    }
+
+    .pubProductsCut.cat {
+        bottom: 40px;
+    }
+
+    .catalogMenu.vertical .itemCategory {
+        width: 150px;
+        min-height: 150px;
+        margin-bottom: 25px;
+    }
+
+    .catalogMenu .linkCategory {
+        width: 70px !important;
+        height: 70px !important;
+    }
+
+    .catalogMenu .imgCategory {
+        max-height: 57px;
+        max-width: 57px;
+        margin-top: 11px;
+    }
+
+    .catalogMenu .titleCategory.vertical {
+        width: 95px;
+        margin-bottom: 11px;
+    }
+
+    .catalogMenu .titleCategory {
+        margin-top: 3px;
+        font-size: 12px;
+    }
+
+    .catalogMenu.vertical .menuItems {
+        padding-top: 25px;
+    }
+
+    .vertical.imgMiniBasket {
+        width: 75px;
+    }
+
+    .pubProductsList {
+        height: 200px;
+        min-height: 200px;
+        width: 700px;
+        margin: 0 0 50px 50px;
+    }
+
+    .cBRTitle {
+        width: 150px;
+        padding-bottom: 20px;
+        margin: 50px 0 20px 50px;
+        font-size: 36px;
+    }
+
+    .pubProductsCut {
+        bottom: 250px;
+        height: 50px;
+    }
+
+    .pubProductsCut.reverse {
+        top: 130px;
+    }
+
+    #allCategories {
+        margin-left: 50px;
+        padding-top: 20px;
+    }
+
+    .caseAttribute {
+        margin: 0 50px 50px 0;
+    }
+
+    .productboxIZIPASS.small {
+        width: 75px;
+    }
+
+    .productboxIZIPASS .imgProduct {
+        width: 100px;
+        height: 100px;
+        margin-top: 20px;
+        margin-bottom: 15px;
+    }
+
+    .productboxIZIPASS.small .titleRow {
+        font-size: 10px;
+        line-height: 11px;
+        max-width: 70px;
+    }
+
+    .productboxIZIPASS .titleRow {
+        margin: 0 -20px 5px;
+    }
+
+    .productboxIZIPASS.small .price {
+        font-size: 10px;
+    }
+
+    .mainBtnMbText {
+        font-size: 30px;
+    }
+
+    .listCatsNext {
+        width: 100px;
+        height: 80px;
+        right: 45px;
+    }
+
+    .listCats {
+        height: 80px;
+        margin-right: 50px;
+    }
+
+    .catRepeat {
+        padding-right: 45px;
+        font-size: 18px;
+    }
+
+    .priceHeaderMB {
+        font-size: 30px;
+        padding-right: 15px;
+    }
+
+    .productBGroup {
+        width: 300px;
+        max-height: 175px;
+        padding: 20px;
+        margin: 0 25px;
+    }
+
+    .productGroup {
+        width: 300px;
+        max-height: 175px;
+        padding: 20px;
+        margin: 0 25px;
+    }
+
+    .productSGroup {
+        margin: 3px 0;
+        padding: 10px 0;
+    }
+
+    .productCount {
+        width: 30px;
+        padding-right: 5px;
+        line-height: 14px;
+        font-size: 16px;
+    }
+
+    .productInfos {
+        font-size: 16px;
+        line-height: 14px;
+    }
+
+    .productTools {
+        width: 68px;
+    }
+
+    .productTools md-icon {
+        width: 24px;
+        height: 24px;
+        margin: 0 5px !important;
+    }
+
+    .smallPT {
+        width: 20px !important;
+        height: 20px !important;
+        margin-top: 2px !important;
+    }
+
+    .leftArrow {
+        border-top: 15px solid transparent;
+        border-bottom: 15px solid transparent;
+        border-right: 15px solid #98C8CC;
+    }
+
+    .returnBtn {
+        width: 88px;
+        height: 30px;
+    }
+
+    .returnBtnWrap {
+        width: 100px;
+        height: 30px;
+        font-size: 12px;
+        line-height: 12px;
+        margin: 72px 50px 0 0;
+    }
+
+    .btnStepBorne {
+        width: 700px;
+        min-height: 75px;
+        font-size: 16px;
+    }
+
+    .itemCatMenuList {
+        margin: 0 50px 50px 0;
+        max-width: 200px;
+        max-height: 200px;
+    }
+
+    .productboxIZIPASS.medium {
+        width: 200px;
+        height: 200px;
+    }
+
+    .orderSProduct {
+        width: 700px;
+        height: 75px;
+        font-size: 24px;
+    }
+
+    .orderSProduct div {
+        margin: 0 0 0 20px;
+    }
+
+    .orderSProduct img {
+        width: 60px;
+        max-height: 70px;
+        margin-left: 20px;
+    }
+
+    .orderSProduct span {
+        max-width: 100px;
+    }
+
+    .rowConfirmOrderML {
+        height: 75px;
+        width: 700px;
+        margin: 25px 0 50px 50px;
+        font-size: 22px;
+    }
+
+    .totalOrderML {
+        margin-right: 50px;
+    }
+
+    .totalOrderML span {
+        margin: 0 10px;
+    }
+
+    .btnConfirmMenuList {
+        width: 260px;
+        height: 75px;
+        line-height: 26px;
+        min-height: 26px;
+        font-size: 22px;
+    }
+
+    .productboxIZIPASS.medium .price {
+        font-size: 16px;
+    }
+
+    .productboxIZIPASS.medium .titleRow {
+        font-size: 15px;
+        line-height: 15px;
+        max-width: 200px;
+    }
+
+    .productboxIZIPASS .imgProduct.configurable {
+        width: 100px;
+        min-height: 100px;
+        margin-top: 20px;
+        margin-bottom: 15px;
+    }
+
+    .productboxIZIPASS.medium.configurable {
+        width: 200px !important;
+        height: 200px !important;
+    }
+
+    .productboxIZIPASS.configurable {
+        padding: 5px 8px !important;
+    }
+
+    .itemCatMenuList.configurable {
+        margin: 0 50px 50px 0 !important;
+        max-width: 200px !important;
+        max-height: 200px !important;
+    }
+
+    .productDetails {
+        font-size: 14px;
+    }
+
+    .btnModalSmallS {
+        height: 75px;
+    }
+
+    .btnSkipStep {
+        width: 700px;
+        height: 75px;
+        margin: 25px 0 50px;
+        font-size: 22px;
+        min-height: 36px;
+        line-height: 36px;
+    }
+
+    .centeredModals.bigModal .modal-dialog {
+        width: 800px;
+        height: 1200px;
+        margin: 350px auto 0;
+    }
+
+    .centeredModals .modal-content {
+        padding: 75px;
+    }
+
+    .offerModalHeader {
+        height: 100px;
+        line-height: 26px;
+    }
+
+    .offerModalTitle {
+        font-size: 45px;
+    }
+
+    .offerModalSecondTitle {
+        font-size: 24px;
+    }
+
+    .modalCommentBtn {
+        height: 125px;
+        font-size: 40px;
+        margin: 30px 0 0 0;
+    }
+
+    .modalBtnBig {
+        width: 300px;
+        height: 75px;
+        font-size: 30px;
+    }
+
+    .iconCatFidMB {
+        min-width: 50px;
+        min-height: 50px;
+    }
+
+    .vCatFidHMB {
+        margin: 0 20px 0 15px;
+    }
+
+    .fidHeaderMB {
+        font-size: 16px;
+    }
+
+    .offerTitleFidBasket {
+        margin-left: 15px;
+    }
+
+    .iconCatFidMB md-icon {
+        width: 32px;
+        height: 32px;
+    }
+
+    .btnModalSmallS {
+        margin: 50px 0 50px;
+    }
+
+    .imgTPE {
+        width: 360px;
+        margin: 100px 0 0 0;
+    }
+
+    .textAndArrow {
+        max-width: 600px;
+    }
+
+    .textTPE {
+        max-width: 580px;
+        margin-top: 50px;
+        font-size: 44px;
+    }
+
+    .arrowTPE {
+        height: 40px;
+        margin-top: 75px;
     }
 }
 
+/* SMALL SCREENS */
 @media (max-width: 799px) {
-    .btnModalBig {
+
+    .arrowTPE {
+        height: 26px;
+        margin-top: 26px;
+    }
+
+    .textTPE {
+        max-width: 260px;
+        margin-top: 26px;
+        font-size: 14px;
+    }
+
+    .textAndArrow {
+        max-width: 260px;
+    }
+
+    .imgTPE {
+        width: 100px;
+        margin: 0;
+    }
+
+    .btnModalSmallS {
+        margin: 26px 0 26px;
+    }
+
+    .iconCatFidMB md-icon {
+        width: 15px;
+        height: 15px;
+    }
+
+    .offerTitleFidBasket {
+        margin-left: 5px;
+    }
+
+    .fidHeaderMB {
+        font-size: 10px;
+    }
+
+    .vCatFidHMB {
+        margin: 0 5px 0 5px;
+    }
+
+    .iconCatFidMB {
+        min-width: 20px;
+        min-height: 20px;
+    }
+
+    .modalBtnBig {
+        width: 130px;
+        height: 40px;
+        font-size: 20px;
+    }
+
+    .modalCommentBtn {
+        height: 50px;
+        font-size: 20px;
+        margin: 10px 0 0 0;
+    }
+
+    .offerModalSecondTitle {
+        font-size: 15px;
+    }
+
+    .offerModalTitle {
+        font-size: 26px;
+    }
+
+    .offerModalHeader {
+        height: 40px;
+        line-height: 15px;
+    }
+
+    .centeredModals .modal-content {
+        padding: 26px;
+    }
+
+    .centeredModals.bigModal .modal-dialog {
+        width: 300px;
+        height: 400px;
+        margin: 20% auto;
+    }
+
+    .btnSkipStep {
+        width: 190px;
+        height: 26px;
+        margin: 5px 0 10px;
+        font-size: 14px;
+        min-height: 26px;
+        line-height: 26px;
+    }
+
+    .btnModalSmallS {
+        height: 50px;
+    }
+
+    .productDetails {
+        font-size: 10px;
+    }
+
+    .itemCatMenuList.configurable {
+        margin: 0 15px 15px 0 !important;
+        max-width: 50px !important;
+        max-height: 50px !important;
+    }
+
+    .productboxIZIPASS.configurable {
+        padding: 2px;
+    }
+
+    .productboxIZIPASS.medium.configurable {
+        width: 55px !important;
+        height: 55px !important;
+    }
+
+    .productboxIZIPASS .imgProduct.configurable {
+        width: 30px;
+        min-height: 15px;
+        margin-top: 0;
+        margin-bottom: 0;
+    }
+
+    .productboxIZIPASS.medium .titleRow {
+        font-size: 9px;
+        line-height: 9px;
+        max-width: 55px;
+    }
+
+    .productboxIZIPASS.medium .price {
+        font-size: 8px;
+    }
+
+    .btnConfirmMenuList {
+        width: 95px;
+        height: 26px;
+        line-height: 26px;
+        min-height: 26px;
+        font-size: 10px;
+    }
+
+    .totalOrderML {
+        margin-right: 5px;
+    }
+
+    .rowConfirmOrderML {
+        height: 26px;
+        width: 190px;
+        margin: 5px 0 10px 20px;
+        font-size: 10px;
+    }
+
+    .orderSProduct span {
+        max-width: 32px;
+    }
+
+    .orderSProduct img {
+        width: 26px;
+        max-height: 26px;
+        margin-left: 10px;
+    }
+
+    .orderSProduct div {
+        margin: 0 5px 0 5px;
+    }
+
+    .orderSProduct {
+        width: 190px;
+        height: 26px;
+        font-size: 10px;
+    }
+
+    .productboxIZIPASS.medium {
+        width: 75px;
+        height: 75px;
+    }
+
+    .itemCatMenuList {
+        margin: 0 20px 10px 0;
+        max-width: 75px;
+        max-height: 75px;
+    }
+
+    .btnStepBorne {
+        width: 190px;
+        min-height: 26px;
+        font-size: 12px;
+    }
+
+    .returnBtnWrap {
+        width: 50px;
+        height: 14px;
+        font-size: 8px;
+        line-height: 10px;
+        margin: 12px 10px 0 0;
+    }
+
+    .returnBtn {
+        width: 26px;
+        height: 14px;
+    }
+
+    .leftArrow {
+        border-top: 7px solid transparent;
+        border-bottom: 7px solid transparent;
+        border-right: 6px solid #98C8CC;
+    }
+
+    .smallPT {
+        width: 13px !important;
+        height: 13px !important;
+        margin-top: 0 !important;
+    }
+
+    .productTools md-icon {
+        width: 13px;
+        height: 13px;
+        margin: 0 1px !important;
+    }
+
+    .productTools {
+        width: 30px;
+    }
+
+    .productInfos {
+        font-size: 10px;
+        line-height: 11px;
+    }
+
+    .productCount {
+        width: 16px;
+        padding-right: 2px;
+        line-height: 10px;
+        font-size: 11px;
+    }
+
+    .productSGroup {
+        margin: 0;
+        padding: 5px 0;
+    }
+
+    .productGroup {
+        width: 150px;
+        max-height: 110px;
+        padding: 5px;
+        margin: 0 5px;
+    }
+
+    .productBGroup {
+        width: 150px;
+        max-height: 110px;
+        padding: 5px;
+        margin: 0 5px;
+    }
+
+    .priceHeaderMB {
+        font-size: 12px;
+        padding-right: 5px;
+    }
+
+    .catRepeat {
+        padding-right: 20px;
+        font-size: 12px;
+    }
+
+    .listCats {
+        height: 20px;
+        margin-right: 10px;
+    }
+
+    .listCatsNext {
+        width: 50px;
+        height: 20px;
+        right: 0;
+    }
+
+    .mainBtnMbText {
+        font-size: 26px;
+    }
+
+    .productboxIZIPASS.small .price {
+        font-size: 8px;
+    }
+
+    .productboxIZIPASS .titleRow {
+        margin: 0 -10px 0;
+    }
+
+    .productboxIZIPASS.small .titleRow {
+        font-size: 8px;
+        line-height: 10px;
+        max-width: 46px;
+    }
+
+    .productboxIZIPASS .imgProduct {
+        width: 50px;
+        height: 50px;
+        margin-top: 0;
+        margin-bottom: 5px;
+    }
+
+    .productboxIZIPASS.small {
+        width: 50px;
+    }
+
+    .caseAttribute {
+        margin: 0 15px 5px 0;
+    }
+
+    #allCategories {
+        margin-left: 20px;
+        padding-top: 10px;
+    }
+
+    .pubProductsCut.reverse {
+        top: 41px;
+    }
+
+    .pubProductsCut {
+        height: 26px;
+        bottom: 65px;
+    }
+
+    .cBRTitle {
+        width: 50px;
+        padding-bottom: 5px;
+        margin: 10px 0 10px 10px;
+        font-size: 15px;
+    }
+
+    .pubProductsList {
+        height: 62px;
+        min-height: 60px;
+        width: 220px;
+        margin: 0 auto 5px;
+    }
+
+    .vertical.imgMiniBasket {
+        width: 26px;
+    }
+
+    .catalogMenu.vertical .menuItems {
+        padding-top: 10px;
+    }
+
+    .catalogMenu .titleCategory {
+        margin-top: 0;
+        font-size: 8px;
+    }
+
+    .catalogMenu .titleCategory.vertical {
+        width: 70px;
+        margin-bottom: 5px;
+    }
+
+    .catalogMenu .imgCategory {
+        max-height: 40px;
+        max-width: 40px;
+        margin-top: 0;
+    }
+
+    .catalogMenu .linkCategory {
+        width: 50px !important;
+        height: 50px !important;
+    }
+
+    .catalogMenu.vertical .itemCategory {
+        width: 75px;
+        min-height: 75px;
+        margin-bottom: 10px;
+    }
+
+    .pubProductsCut.cat {
+        bottom: 20px;
+    }
+
+    .pubProductsCut.catR {
+        top: 80px;
+    }
+
+    .catalogMenu.vertical .clock {
+        font-size: 10px;
+    }
+
+    .imgLogoHeader.smallCatalogLogo {
+        max-width: 40px !important;
+    }
+
+    .catalogMenu .toolsContainer .tools.vertical {
+        width: 75px;
+        min-height: 75px;
+        margin: 5px 0 0 5px;
+    }
+
+    .scrollCatArrow {
+        fill: #98C8CC;
+        width: 20px;
+        height: 10px;
+        margin: 5px auto !important;
+    }
+
+    .catalogMenu.vertical {
+        width: 90px !important;
+    }
+
+    .imgMiniBasket {
+        height: 50px;
+    }
+
+    .catalogBasketDiv {
+        height: 200px;
+    }
+
+    .borneIsVertical .firstMenu {
+        height: 26px !important;
+    }
+
+    .vertical.imgMiniBasket md-icon {
+        width: 26px;
+        height: 26px;
+    }
+
+    .borneIsVertical .votreCommande {
+        font-size: 12px !important;
+    }
+
+    .mbSecondPart a {
+        font-size: 12px;
+    }
+
+    .btnMBAction {
+        height: 35px;
+        margin: 0 !important;
+    }
+
+    .bigDisplayed {
+        height: 35px;
+        margin: 0;
+    }
+
+    .smallDisplayed {
+        height: 35px;
+        width: 35px;
+    }
+
+    .devByBig {
+        font-size: 9px;
+    }
+
+    .mbSecondPart div {
+        margin: 0 5px;
+    }
+
+    .devByLogo {
+        margin-left: 4px;
+    }
+
+    .borneIsVertical .mbFirstPart {
+        border-bottom: 2px solid #98C8CC;
+    }
+
+    .devBy {
+        min-width: 90px;
+        width: 90px;
+        height: 35px;
+        font-size: 7px;
+    }
+
+    .mbSecondPart {
+        padding: 0;
+        height: 50px;
+    }
+
+    .btnModalSmall.btnLeft {
+        margin: 0 10px 0 0;
+        width: 140px !important;
+        height: 40px !important;
+    }
+
+    .btnModalSmall.btnRight {
+        margin: 0;
+        width: 140px !important;
+        height: 40px !important;
+    }
+
+    .checkboxBorneH {
+        font-size: 11px;
+        margin-bottom: 10px;
+    }
+
+    .groupTextfield {
+        min-height: 40px;
+        margin-bottom: 10px;
+    }
+
+    .textfieldBorne {
+        font-size: 15px;
+        padding-left: 15px;
+    }
+
+    .loyaltyFormGroup text-field-borne {
+        height: 40px;
+        margin-bottom: 10px;
+    }
+
+    .numpad .button-wrapper button.closekeyboard {
+        width: 40px !important;
+        height: 40px !important;
+        padding: 0 !important;
+    }
+
+    .numpad .button-wrapper button img {
+        width: 26px !important;
+    }
+
+    .numpad .button-wrapper button {
+        width: 40px !important;
+        height: 40px !important;
+    }
+
+    .numpad {
+        height: 269px !important;
+        width: 140px !important;
+        top: 65px !important;
+        right: -15px !important;
+        position: absolute !important;
+    }
+
+    .textFieldBorneSize {
+        height: 40px;
+    }
+
+    .loyaltyFormGroup ng-barcodetextfield-borne {
+        height: 40px;
+        margin-bottom: 20px;
+    }
+
+    .mainBtnMsText {
+        font-size: 20px;
+    }
+
+    .btnModalSmall {
+        width: 250px;
+        height: 50px;
+    }
+
+    .connectTypeSep {
+        font-size: 20px;
+        margin-bottom: 10px;
+    }
+
+    .scanImg {
+        width: 126px;
+        height: 126px;
+        margin-bottom: 10px;
+        font-size: 20px;
+    }
+
+    .scanImg span {
+        margin-bottom: 50px;
+    }
+
+    .loyaltyFormGroup {
+        width: 300px;
+        min-height: 300px;
+        padding: 20px;
+    }
+
+    .btnMbText {
+        padding-left: 26px;
+    }
+
+    .btnMbIcon {
+        width: 69px;
+    }
+
+    .btnMbIcon md-icon, .btnMbIcon img {
+        width: 40px;
+        height: 40px;
+        margin-right: 10px;
+    }
+
+    .verticalBtnMbHR {
+        height: 50px;
+    }
+
+    .langSelection {
+        height: 50px;
+        margin-top: 20px;
+    }
+
+    .langBtn {
+        box-shadow: 0 0 5px black;
+        width: 50px;
+        height: 50px;
+    }
+
+    .langBtn md-icon {
+        width: 40px;
+        height: 26px;
+    }
+
+    .groupModal {
+        flex: 1.69;
+    }
+
+    .smallModalHR {
+        margin: 20px 0 0;
+    }
+
+    .bottomIdleScreen {
+        font-size: 22px;
+    }
+
+    .firstTitle {
+        margin-top: 20px;
+        font-size: 18px;
+    }
+
+    .imgLogoHeader {
+        max-width: 80px;
+    }
+
+    .imgLogoHeader.bigLogo {
+        max-width: 100px !important;
+    }
+
+    .categories .linkCategory {
+        width: 90px !important;
+        height: 90px !important;
+    }
+
+    .titleConnect {
+        font-size: 26px;
+        margin: 6px !important;
+    }
+
+    .textConnectionDialog {
+        font-size: 13px;
+    }
+
+    .IZIPASSTemplate .categoryContent .quickAccess {
+        flex-direction: column;
+        justify-content: flex-start;
+    }
+
+    .subCategoriesHeading {
+        flex-wrap: nowrap;
+    }
+
+    .configurableMenu .heading {
         width: 100%;
+    }
+
+    .productboxIZIPASS {
+        padding: 5px 8px;
+    }
+
+    .btnModalBig {
+        margin: 20px 0 0;
+        height: 69px;
+        min-height: 69px;
+        width: 290px;
     }
 }

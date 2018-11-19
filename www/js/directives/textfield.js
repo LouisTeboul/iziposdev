@@ -15,7 +15,7 @@ app.directive('textField', function ($timeout, $rootScope) {
             scope.currentElement = element;
             //scope.currentElement[0].className += " layout-fill";
             scope.ngModelCtrl = ngModelCtrl;
-            var unregister = scope.$watch(function () {
+            scope.$watch(function () {
                 return ngModelCtrl.$modelValue;
             }, initialize);
 
@@ -51,7 +51,7 @@ app.directive('textFieldBorne', function ($timeout, $rootScope) {
             scope.currentElement = element;
             //scope.currentElement[0].className += " layout-fill";
             scope.ngModelCtrl = ngModelCtrl;
-            var unregister = scope.$watch(function () {
+            scope.$watch(function () {
                 return ngModelCtrl.$modelValue;
             }, initialize);
 
@@ -70,29 +70,40 @@ app.directive('textFieldBorne', function ($timeout, $rootScope) {
 
 app.service('textFieldService', ['$rootScope', function ($rootScope) {
 
-        var current = this;
-        var focusedTextField = undefined;
-        this.setFocusedTextField = function (textField) {
-            if (focusedTextField != textField) {
-                if (focusedTextField) $rootScope.closeKeyboard();
-                focusedTextField = textField;
-                $rootScope.$emit("focusedTextFieldChanged", textField);
-            }
-        };
-        this.unfocusTextField = function (textField) {
-            if (focusedTextField == textField) {
-                this.setFocusedTextField(undefined);
-            }
-        };
-        this.getFocusedTextField = function () {
-            return focusedTextField;
-        };
+    let focusedTextField = undefined;
+    this.setFocusedTextField = function (textField) {
+        if (focusedTextField != textField) {
+            if (focusedTextField) $rootScope.closeKeyboard();
+            focusedTextField = textField;
+            $rootScope.$emit("focusedTextFieldChanged", textField);
+        }
+    };
+    this.unfocusTextField = function (textField) {
+        if (focusedTextField == textField) {
+            this.setFocusedTextField(undefined);
+        }
+    };
+    this.getFocusedTextField = function () {
+        return focusedTextField;
+    };
 }]);
 
 app.controller('TextFieldCtrl', function ($rootScope, $scope, textFieldService) {
 
     let tsFocus;
     let lastEvent;
+
+    $scope.init = function () {
+
+        $scope.initialized = false;
+
+        if (!$rootScope.borneEventLoaded) {
+            window.addEventListener("keypress", trapkeypress);
+            window.addEventListener("keydown", trapkeydown);
+            $rootScope.borneEventLoaded = true;
+        }
+    };
+
     const focusedTextFieldHandler = $rootScope.$on('focusedTextFieldChanged', (evt, textfield) => {
         $scope.isFocused = textfield === $scope.currentElement;
         $scope.$evalAsync();
@@ -121,12 +132,12 @@ app.controller('TextFieldCtrl', function ($rootScope, $scope, textFieldService) 
      * 
      */
     const isVisible = () => {
-
         let el = $scope.currentElement[0];
         let top = el.offsetTop;
         let left = el.offsetLeft;
         let width = el.offsetWidth;
         let height = el.offsetHeight;
+
         while (el.offsetParent) {
             el = el.offsetParent;
             top += el.offsetTop;
@@ -186,10 +197,13 @@ app.controller('TextFieldCtrl', function ($rootScope, $scope, textFieldService) 
         txtValueHandler();
         modelHandler();
         //Native Keyboard
+        /*
         if ($scope.nativekeyboard) {
-            document.removeEventListener("keypress", trapkeypress);
-            document.removeEventListener("keydown", trapkeydown);
+            window.removeEventListener("keypress", trapkeypress);
+            window.removeEventListener("keydown", trapkeydown);
+            $rootScope.eventKeyPress = false;
         }
+        */
     });
 
     $scope.focus = function ($event) {
@@ -197,35 +211,25 @@ app.controller('TextFieldCtrl', function ($rootScope, $scope, textFieldService) 
         $scope.currentElement.focus();
     };
 
-    $scope.init = function () {
-
-        $scope.initialized = false;
-        //Native keyboard
-        if ($scope.nativekeyboard && !($('#qr-canvas').length > 0)) {
-            document.addEventListener("keypress", trapkeypress);
-            document.addEventListener("keydown", trapkeydown);
-        }
-    };
-
     // This functions traps the physical keyboard interaction in
     // By default it is enabled 
     //Keypress and Keydown handle different character but we have 
-    var trapkeypress = function (e) {
+    let trapkeypress = function (e) {
 
         //How to tell if a uibModal is opened
         //https://github.com/angular-ui/bootstrap/tree/master/src/modal/docs
-        var isModal = $("body").hasClass("modal-open");
+        let isModal = $("body").hasClass("modal-open");
         if (isVisible() || isModal) {
             lastEvent = e;
             $scope.$emit(Keypad.KEY_PRESSED, String.fromCharCode(e.keyCode));
         }
     };
 
-    var trapkeydown = function (e) {
+    let trapkeydown = function (e) {
 
         //How to tell if a uibModal is opened
         //https://github.com/angular-ui/bootstrap/tree/master/src/modal/docs
-        var isModal = $("body").hasClass("modal-open");
+        let isModal = $("body").hasClass("modal-open");
         if (isVisible() || isModal) {
             if (e.keyCode === 13) { //enter
                 setTimeout(function () {
@@ -267,8 +271,8 @@ app.controller('TextFieldCtrl', function ($rootScope, $scope, textFieldService) 
                 case "CLEAR":
                     if ($scope.txtValue.toString().length > 0) {
                         $scope.txtValue = $scope.txtValue.toString().substring(0, $scope.txtValue.toString().length - 1);
+                        $scope.$evalAsync();
                     }
-                    $scope.$evalAsync();
                     break;
                 case "NEXT":
                     if ($scope.validfunction()) {
@@ -293,6 +297,7 @@ app.controller('TextFieldCtrl', function ($rootScope, $scope, textFieldService) 
                     $scope.$evalAsync();
                     break;
             }
+
         }
     });
 });

@@ -1,19 +1,18 @@
-app.controller('ModalStatsPeriodController', function ($scope, $rootScope, $uibModalInstance, $uibModal, zposService, closePosParameters, $translate) {
+app.controller('ModalStatsPeriodController', function ($scope, $rootScope, $uibModalInstance, $uibModal, $http, zposService, closePosParameters) {
 
     $scope.printY = undefined;
     $scope.closePosParameters = closePosParameters;
     console.log($scope.closePosParameters);
+    $scope.loading = true;
+    $scope.emptyData = false;
 
     $scope.zheaders = [];
     $scope.zlines = [];
     $scope.ztotal = [];
     $scope.ztotalET = [];
 
-
-    $scope.zpos = undefined;
-
     $scope.init = function () {
-        if ($scope.closePosParameters.mode && ($scope.closePosParameters.mode.idMode == 1 || $scope.closePosParameters.mode.idMode == 2 || $scope.closePosParameters.mode.idMode == 3)) {
+        if ($scope.closePosParameters.mode && ($scope.closePosParameters.mode.idMode === 1 || $scope.closePosParameters.mode.idMode === 2 || $scope.closePosParameters.mode.idMode === 3)) {
             $scope.closePosText = $scope.closePosParameters.mode.text;
             $scope.titleText = $scope.closePosParameters.mode.title;
         }
@@ -22,188 +21,76 @@ app.controller('ModalStatsPeriodController', function ($scope, $rootScope, $uibM
             $scope.closePosText = "Erreur";
         }
 
-        const yperiodId = $scope.closePosParameters.yperiod ? $scope.closePosParameters.yperiod.id : undefined;
+        const yperiodId = $scope.closePosParameters.yperiod ? $scope.closePosParameters.yperiod.id : null;
+        const hardwareId = $scope.closePosParameters.hid ? $scope.closePosParameters.hid : null;
+        const periodRequest = {
+            ZperiodId : closePosParameters.zperiod.id,
+            YperiodId : yperiodId,
+            HardwareId : hardwareId
+        };
+        const periodStatsApiUrl = "http://" + $rootScope.IziBoxConfiguration.LocalIpIziBox + ":" + $rootScope.IziBoxConfiguration.RestPort + "/zpos/getPeriodStats";
 
+        if(yperiodId) {
+            $scope.printMode = StatsPrintMode.Y;
+        } else {
+            $scope.printMode = StatsPrintMode.Z;
+        }
 
-        zposService.getZPosValuesAsync_v2($scope.closePosParameters.zperiod.id, yperiodId, $scope.closePosParameters.hid).then(function (resZpos) {
-            $scope.zpos = resZpos;
-            console.log(resZpos);
-
-            //Headers && total
-            $scope.zheaders.push("Date début");
-            $scope.zheaders.push("Date fin");
-            $scope.zheaders.push("Nb");
-            $scope.zheaders.push("Total");
-            $scope.zheaders.push($translate.instant("Couvert(s)"));
-            $scope.zheaders.push($translate.instant("Sur place"));
-            $scope.zheaders.push($translate.instant("Emporté"));
-            $scope.zheaders.push($translate.instant("Livré"));
-            $scope.zheaders.push($translate.instant("Avoirs émis"));
-
-            ////Headers TVA
-            for(let tax of resZpos.taxDetails) {
-                $scope.zheaders.push(tax.taxCode);
-            }
-
-            ////Headers Modes de paiement
-            for(let pm of resZpos.paymentModes) {
-                // Des moyens de paiement utilise des - !!! pk?
-                let pmTitle = pm.type;
-
-                if (pm.type.indexOf("-") != -1) {
-                    var tmp = pm.type.split("-");
-                    pmTitle = "";
-                    for(let t of tmp) {
-                        pmTitle = pmTitle + " " + t[0];
-                    }
-                    pmTitle = pmTitle.trim().replace(" ", "-");
+        $http.post(periodStatsApiUrl, periodRequest).then((stats) => {
+            if (stats && stats.data) {
+                $scope.stats = stats.data;
+                // Tableau
+                $scope.columns = zposService.getStatsColumnsTitles(stats.data.Rows);
+                $scope.totalITPeriod = stats.data.TotalIT;
+                $scope.totalETPeriod = stats.data.TotalET;
+                $scope.columnsCompta = $scope.columns[0];
+                $scope.rowsCompta = zposService.getStatsRowsByColumns($scope.columnsCompta, stats.data.Rows, 0);
+                $scope.columnsMetier = $scope.columns[2];
+                $scope.rowsMetier = zposService.getStatsRowsByColumns($scope.columnsMetier, stats.data.Rows, 2);
+                $scope.columnsOperat = $scope.columns[1];
+                $scope.rowsOperat = [];
+                for (let user of $scope.columnsOperat) {
+                    $scope.rowsOperat.push(zposService.getStatsRowsByColumns(user, stats.data.Rows, 1));
                 }
-                $scope.zheaders.push(pmTitle);
-            }
+                setTimeout(function () {
+                    let dataTableSettings = {
+                        "lengthMenu": [[10, 25, 50, 100, 250, -1], [10, 25, 50, 100, 250, "All"]],
+                        "pageLengtht": 10,
+                        "bPaginate": true,
+                        "bLengthChange": false,
+                        "bFilter": false,
+                        "bInfo": false,
+                        "bAutoWidth": false
+                    };
+                    if($scope.rowsCompta.length > 0 || $scope.rowsMetier.length > 0 || $scope.rowsOperat.length > 0) {
+                        $('#tableCompta').DataTable(dataTableSettings);
+                        $('#tableMetier').DataTable(dataTableSettings);
 
-            $scope.zheaders.push("Cagnotte");
-
-            //Values
-            let lineValues = [];
-            for(let line of resZpos.totalsByPeriod) {
-                let columnValues = [];
-                const dateStartDisp = dateFormat(line.start);
-                let dateEndDisp;
-                if (line.end) {
-                    dateEndDisp = dateFormat(line.end)
-                }
-
-                columnValues.push(dateStartDisp);//date
-                columnValues.push(dateEndDisp || '-');//date
-                columnValues.push(line.count);//nb
-                columnValues.push(roundValue(line.totalIT));//total
-
-                //Cutleries
-                const lineCutleries = Enumerable.from(resZpos.cutleries.byPeriod).firstOrDefault(function (value) {
-                    return value.start == line.start;
-                });
-                columnValues.push(lineCutleries ? lineCutleries.count : 0);
-
-                //Sur place
-                const lineForHere = Enumerable.from(resZpos.deliveryValues).firstOrDefault(function (value) {
-                    return value.type == DeliveryTypes.FORHERE;
-                });
-                const lineTotalForHere = lineForHere ? Enumerable.from(lineForHere.byPeriod).firstOrDefault(function (value) {
-                    return value.start == line.start;
-                }) : undefined;
-                columnValues.push(lineTotalForHere ? roundValue(lineTotalForHere.total) : 0);
-
-                //Emporté
-                const lineTakeOut = Enumerable.from(resZpos.deliveryValues).firstOrDefault(function (value) {
-                    return value.type == DeliveryTypes.TAKEOUT;
-                });
-                const lineTotalTakeOut = lineTakeOut ? Enumerable.from(lineTakeOut.byPeriod).firstOrDefault(function (value) {
-                    return value.start == line.start;
-                }) : undefined;
-                columnValues.push(lineTotalTakeOut ? roundValue(lineTotalTakeOut.total) : 0);
-
-                //Livré
-                const lineDelivery = Enumerable.from(resZpos.deliveryValues).firstOrDefault(function (value) {
-                    return value.type == DeliveryTypes.DELIVERY;
-                });
-                const lineTotalDelivery = lineDelivery ? Enumerable.from(lineDelivery.byPeriod).firstOrDefault(function (value) {
-                    return value.start == line.start;
-                }) : undefined;
-                columnValues.push(lineTotalDelivery ? roundValue(lineTotalDelivery.total) : 0);
-
-                //Avoirs émis
-                const lineCredit = Enumerable.from(resZpos.credit.byPeriod).firstOrDefault(function (value) {
-                    return value.start == line.start;
-                });
-                columnValues.push(lineCredit ? roundValue(lineCredit.total) : 0);
-
-
-                //Taxes
-                for(let tax of resZpos.taxDetails) {
-                    const lineTax = Enumerable.from(tax.byPeriod).firstOrDefault(function (value) {
-                        return value.start == line.start;
-                    });
-                    columnValues.push(lineTax ? roundValue(String(lineTax.total).substring(0, 4)) : 0);
-                }
-
-                //Rendu
-                let lineRepaid = Enumerable.from(resZpos.repaid.byPeriod).firstOrDefault(function (value) {
-                    return value.start == line.start;
-                });
-
-                //PaymentModes
-                for(let pm of resZpos.paymentModes) {
-                    if (pm.type_id == 1) {
-                        const linePM = Enumerable.from(pm.byPeriod).firstOrDefault(function (value) {
-                            return value.start == line.start;
-                        });
-                        columnValues.push(linePM ? roundValue(linePM.total - lineRepaid.total) : 0);
+                        for (let user of $scope.rowsOperat) {
+                            $('#table' + user.name).DataTable(dataTableSettings);
+                        }
+                        $scope.loading = false;
                     } else {
-                        const linePM = Enumerable.from(pm.byPeriod).firstOrDefault(function (value) {
-                            return value.start == line.start;
-                        });
-                        columnValues.push(linePM ? roundValue(linePM.total) : 0);
+                        $scope.emptyData = true;
+                        $scope.loading = false;
                     }
-                }
-
-                //Cagnotte
-                console.log(resZpos.balance.byPeriod);
-                console.log(line.start);
-                const lineBalance = Enumerable.from(resZpos.balance.byPeriod).firstOrDefault(function (value) {
-                    return value.start == line.start;
-                });
-                columnValues.push(lineBalance ? roundValue(lineBalance.total) : 0);
-
-                lineValues.push(columnValues);
+                }, 100);
             }
-
-            $scope.zlines = lineValues;
-
-            //TotalIT
-            $scope.ztotal.push("Total TTC");
-            $scope.ztotal.push("");
-            $scope.ztotal.push(resZpos.count);
-            $scope.ztotal.push(roundValue(resZpos.totalIT));
-            $scope.ztotal.push(resZpos.cutleries.count);
-
-            const lineForHere = Enumerable.from(resZpos.deliveryValues).firstOrDefault(function (value) {
-                return value.type == DeliveryTypes.FORHERE;
-            });
-            $scope.ztotal.push(lineForHere ? roundValue(lineForHere.total) : 0);
-
-            const lineTakeOut = Enumerable.from(resZpos.deliveryValues).firstOrDefault(function (value) {
-                return value.type == DeliveryTypes.TAKEOUT;
-            });
-            $scope.ztotal.push(lineTakeOut ? roundValue(lineTakeOut.total) : 0);
-
-            const lineDelivery = Enumerable.from(resZpos.deliveryValues).firstOrDefault(function (value) {
-                return value.type == DeliveryTypes.DELIVERY;
-            });
-            $scope.ztotal.push(lineDelivery ? roundValue(lineDelivery.total) : 0);
-
-            $scope.ztotal.push(roundValue(resZpos.credit.total));
-
-            while ($scope.ztotal.length < $scope.zheaders.length) {
-                $scope.ztotal.push("");
-            }
-
-            //TotalET
-            $scope.ztotalET.push($translate.instant("Total HT"));
-            $scope.ztotalET.push("");
-            $scope.ztotalET.push("");
-            $scope.ztotalET.push(roundValue(resZpos.totalET));
-            while ($scope.ztotalET.length < $scope.zheaders.length) {
-                $scope.ztotalET.push("");
+            else {
+                $scope.emptyData = true;
+                $scope.loading = false;
             }
         }, function (err) {
-            sweetAlert({title: $translate.instant(err)}, function () {
+            const message = err ? err : $translate.instant("Erreur lors de la r�cup�ration des donn�es");
+            sweetAlert({ title: message }, function () {
             });
         });
     };
 
     $scope.closePos = function () {
-        delete $rootScope.showStats;
-
+        if($rootScope.modalStatsEnabled) {
+            $rootScope.modalStatsEnabled.close();
+        }
         $uibModal.open({
             templateUrl: 'modals/modalClosePos.html',
             controller: 'ModalClosePosController',
@@ -215,7 +102,7 @@ app.controller('ModalStatsPeriodController', function ($scope, $rootScope, $uibM
 
                 },
                 modalStats: function () {
-                    return $uibModalInstance
+                    return $uibModalInstance;
                 }
             },
             backdrop: 'static'
@@ -233,10 +120,22 @@ app.controller('ModalStatsPeriodController', function ($scope, $rootScope, $uibM
     };
 
     $scope.printZPos = function () {
-        zposService.printZPosAsync($scope.zpos, 1, $scope.printY);
+        $uibModal.open({
+            templateUrl: 'modals/modalPrintStats.html',
+            controller: 'ModalPrintStatsController',
+            resolve: {
+                datas: function () {
+                    return $scope.stats;
+                },
+                printMode : function() {
+                    return $scope.printMode;
+                }
+            },
+            backdrop: 'static'
+        });
     };
 
     $scope.emailZPos = function () {
-        zposService.emailZPosAsync($scope.zpos, true, $scope.printY);
-    }
+        zposService.emailStatsAsync($scope.stats, true);
+    };
 });

@@ -1,10 +1,10 @@
-﻿var config = undefined;
-var defaultConfig = undefined;
+﻿let config = undefined;
+let defaultConfig = undefined;
 
 app.getConfigIziBoxAsync = function ($rootScope, $q, $http, ipService, $translate, $location) {
-	var configDefer = $q.defer();
+	let configDefer = $q.defer();
 
-	var defaultConfig = {
+	const defaultConfig = {
 		UrlSmartStoreApi: undefined,
 		UrlCouchDb: undefined,
 		IdxCouchDb: undefined,
@@ -26,4 +26,4 @@ app.getConfigIziBoxAsync = function ($rootScope, $q, $http, ipService, $translat
 	}, 200);
 
 	return configDefer.promise;
-}
+};

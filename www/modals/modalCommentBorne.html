@@ -1,0 +1,25 @@
+﻿<section class="offerModal" ng-init="init()" id="ModalCommentController">
+    <div class="offerModalHeader">
+        <span class="offerModalTitle" translate>Commentaire</span><br>
+        <span class="offerModalSecondTitle" translate>Personnalisez votre produit</span>
+    </div>
+    <div class="pubProductsCut reverse" ng-style="{'top': mdMedia('min-width:800px') ? '174px' : '65px'}"></div>
+    <div class="listOffers">
+        <md-button class="modalCommentBtn" ng-repeat="item in ProductComments"
+                   ng-click="item.selected ? removeComment(item) : addComment(item)"
+                   ng-style="{'background-color': item.selected ? $root.tenantColor : 'white',
+                   'color': item.selected ? 'white' : '#444'}">
+            <span class="modalCommentBtnText" translate>{{item.Name}}</span>
+        </md-button>
+    </div>
+    <div class="pubProductsCut" ng-style="{'bottom': mdMedia('min-width:800px') ? '175px' : '80px'}"></div>
+    <div class="offerModalFooter" ng-style="{'margin-top': mdMedia('min-width:800px') ? '50px' : '10px'}">
+        <md-button class="offerModalBtn modalBtnBig" ng-click="close()"
+                   ng-style="{ 'background-color' : $root.tenantColor}">
+            <span class="offerModalBtnText" translate>Valider</span>
+        </md-button>
+        <md-button class="offerModalBtn modalBtnBig" ng-click="cancel()">
+            <span class="offerModalBtnText" translate>Annuler</span>
+        </md-button>
+    </div>
+</section>

@@ -31,6 +31,10 @@
         for(let item of currentShoppingCart.Items) {
             hasDiscountedItems = item.DiscountET > 0 || item.DiscountIT > 0;
         }
+        // Check if the user has already selected payments modes
+        if (currentShoppingCart.PaymentModes && currentShoppingCart.PaymentModes.length > 0) {
+            shoppingCartModel.removeAllPayments();
+        }
 
         if (!hasDiscountedItems) {
             const totalDiscount = parseFloat($scope.result.value);

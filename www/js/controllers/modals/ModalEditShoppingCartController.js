@@ -4,19 +4,13 @@ app.controller('ModalEditShoppingCartController', function ($scope, $rootScope, 
     $scope.paymentType = PaymentType;
 
     $scope.init = function () {
-
-
-
-        zposService.getShoppingCartByIdAsync(shoppingCart.id).then(function (shoppingCart) {
-
+        zposService.getShoppingCartByIdAsync(shoppingCart.Id).then(function (shoppingCart) {
             settingService.getPaymentModesAsync().then(function (paymentSetting) {
                 let paymentModesAvailable = paymentSetting;
                 let newPaymentValues = {
                     PaymentValues: shoppingCart.PaymentModes
                 };
-
                 newPaymentValues.PaymentValues = takeAccountRepaidAndCredit(newPaymentValues.PaymentValues, shoppingCart);
-
                 for(let p of paymentModesAvailable) {
                     if (!Enumerable.from(newPaymentValues.PaymentValues).any(function (v) { return v.Value == p.Value; })) {
 
@@ -53,7 +47,6 @@ app.controller('ModalEditShoppingCartController', function ($scope, $rootScope, 
                         }
                     }
                 }
-
                 $scope.newPaymentValues = {};
                 $scope.newPaymentValues.PaymentValues = Enumerable.from(newPaymentValues.PaymentValues).orderBy('x => x.Text').toArray();
             }, function (err) {
@@ -69,7 +62,6 @@ app.controller('ModalEditShoppingCartController', function ($scope, $rootScope, 
         let repaid;
         if (shoppingCart.Repaid && shoppingCart.Repaid > 0) {
             repaid = shoppingCart.Repaid;
-
             if (repaid) {
                 // If cash for display and binding
                 let cashTypeFound = false;
@@ -86,7 +78,6 @@ app.controller('ModalEditShoppingCartController', function ($scope, $rootScope, 
         let credit;
         if (shoppingCart.Credit && shoppingCart.Credit > 0) {
             credit = shoppingCart.Credit;
-
             if (credit) {
                 // If "Ticket Resto" for display and binding
                 let creditTypeFound = false;
@@ -112,10 +103,8 @@ app.controller('ModalEditShoppingCartController', function ($scope, $rootScope, 
 
     $scope.ok = function () {
     	$rootScope.closeKeyboard();
-
         let validPaymentModes = [];
         let newTotal = 0;
-
         for(let p of $scope.newPaymentValues.PaymentValues) {
             console.log(p);
             p.Total = parseFloat(p.Total);
@@ -144,7 +133,6 @@ app.controller('ModalEditShoppingCartController', function ($scope, $rootScope, 
             console.log('Nouveau total ok!');
             console.log(validPaymentModes);
         	shoppingCart.PaymentModes = validPaymentModes;
-
         	let paymentEdit = {
         		Timestamp: shoppingCart.Timestamp,
         		PaymentModes: validPaymentModes
@@ -153,7 +141,7 @@ app.controller('ModalEditShoppingCartController', function ($scope, $rootScope, 
             try{
                 // we're getting a fresh shopping cart because the selected item from the component is altered
                 let tmpPaymentModes = shoppingCart.PaymentModes;
-                zposService.getShoppingCartByIdAsync(shoppingCart.id).then(function (shoppingCart) {
+                zposService.getShoppingCartByIdAsync(shoppingCart.Id).then(function (shoppingCart) {
                     let oldPaymentValues = takeAccountRepaidAndCredit(shoppingCart.PaymentModes, shoppingCart);
                     shoppingCart.PaymentModes = tmpPaymentModes;
                     // When we change the paymentMode, we loose the repaid and the credit value
@@ -162,18 +150,16 @@ app.controller('ModalEditShoppingCartController', function ($scope, $rootScope, 
                     shoppingCart.Credit = 0;
                     shoppingCartService.savePaymentEditAsync(shoppingCart, paymentEdit, oldPaymentValues);
                 });
-            }
-            catch(err){
+            } catch(err) {
                 ngToast.create({
-                                    className: 'danger',
-                                    content: '<span class="bold">Impossible de modifier le moyen de paiement</span>',
-                                    dismissOnTimeout: true,
-                                    timeout: 10000,
-                                    dismissOnClick: true
-                                });
+                    className: 'danger',
+                    content: '<span class="bold">Impossible de modifier le moyen de paiement</span>',
+                    dismissOnTimeout: true,
+                    timeout: 10000,
+                    dismissOnClick: true
+                });
                 console.log(err);
             }
-
         	$uibModalInstance.close();
         } else {
             //TODO : traductions

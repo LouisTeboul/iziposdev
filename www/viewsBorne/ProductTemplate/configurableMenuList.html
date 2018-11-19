@@ -1,17 +1,24 @@
 ﻿<md-content ng-controller="ConfigurableMenuListController" id="ConfigurableMenuList" ng-init="init()"
             ng-class="{'isBorneVertical': $root.borne && $root.borneVertical}" class="borneVStr">
-    <h1 class="cBRTitle"
-        ng-style="{ 'border-color' : $root.tenantColor}">Composez votre menu</h1>
+    <div class="menuHeader">
+        <h1 class="cBRTitle"
+            ng-style="{ 'border-color' : $root.tenantColor}">Composez votre menu</h1>
+        <div class="returnBtnWrap">
+            <div class="leftArrow" ng-style="{ 'border-right-color' : $root.tenantColor}"></div>
+            <div class="returnBtn" ng-style="{ 'background-color' : $root.tenantColor}"
+                 ng-click="returnToCat(product)" translate>Retour</div>
+        </div>
+    </div>
     <section id="allCategories" class="mainGroupOrder"
              ng-style="{'flex-direction' :  $rootScope.borne && $rootScope.borneVertical ? 'column' : 'row'}">
         <div class="summaryList" ng-style="{'width' :  $rootScope.borne && $rootScope.borneVertical ? '100%' : '750px',
-            'max-height' : canAddToCart && !productListOpen ? 'initial' : ($rootScope.isPMREnabled ? '200px' :
-            ($rootScope.borne && $rootScope.borneVertical ? '500px' : 'calc(100% - 50px'))}">
-            <div ng-repeat="attribute in product.ProductAttributes track by $index" ng-click="attributeNext($index)">
+            'max-height' : canAddToCart && !productListOpen ? ($mdMedia('min-width: 800px') ? 'initial' : '126px') : ($rootScope.isPMREnabled ? '200px' :
+            ($rootScope.borne && $rootScope.borneVertical ? ($mdMedia('min-width: 800px') ? '500px' : '126px') : 'calc(100% - 50px'))}">
+            <div ng-repeat="attribute in product.ProductAttributes track by $index" ng-click="attributeNext(attribute.DisplayOrder)">
                 <div class="orderSProduct" ng-repeat="v in attribute.ProductAttributeValues track by $index"
-                     ng-style="{'margin-bottom' : $root.borne && $root.borneVertical ? '50px' : '40px'}"
+                     ng-style="{'margin-bottom' : $root.borne && $root.borneVertical ? ($mdMedia('min-width: 800px') ? '50px' : '5px') : '40px'}"
                      ng-if="v.Selected">
-                    <img ng-src="{{v.DefaultPictureUrl}}"/>
+                    <img ng-src="{{v.DefaultPictureUrl}}" src=""/>
                     <div data-ng-bind-html="v.Name"></div>
                     <span ng-if="v.PriceAdjustment"
                           ng-style="{ 'color' : $root.tenantColor}">{{v.PriceAdjustment | CurrencyFormat}}</span>
@@ -19,25 +26,24 @@
                 </div>
             </div>
             <div aria-label="NavigAttr" ng-repeat="attr in product.ProductAttributes track by $index"
-                 class="btnStepBorne {{$index}}" ng-click="attributeNext($index)"
+                 class="btnStepBorne {{$index}}" ng-click="attributeNext(attr.DisplayOrder)"
                  ng-style="{'background-color' : $root.tenantColor}"
                  ng-if="attr.classDisplay == 'flex' && !canAddToCart">{{attr.Name}}
             </div>
         </div>
         <div ng-class="{ 'productCatMenuList' : $root.borne && $root.borneVertical,
             'productCatMenuListHoriz' : $root.borne && !$root.borneVertical }"
-             ng-style="{ 'padding-top' : canAddToCart || ($root.borne && !$root.borneVertical) ? '0' : '50px'}">
-            <div id="{{attribute.Name}}" ng-repeat="attribute in product.ProductAttributes track by $index"
-                 class="productsCat" style="display:{{attribute.classDisplay}};"
-                 displayorder="{{$index}}">
+             ng-style="{ 'padding-top' : canAddToCart || ($root.borne && !$root.borneVertical) ? '0' : ($mdMedia('min-width: 800px') ? '50px' : '5px')}">
+            <div id="{{attribute.Name.split(' ').join('')}}" ng-repeat="attribute in product.ProductAttributes track by $index"
+                 class="productsCat" ng-style="{'display':attribute.classDisplay}" displayorder="{{$index}}">
                 <div class="groupProductsCat">
-                    <div ng-repeat="v in attribute.ProductAttributeValues track by $index" class="itemCatMenuList"
+                    <div ng-repeat="v in attribute.ProductAttributeValues track by $index" class="itemCatMenuList configurable"
                          ng-class="{ 'disable': v.DisableBuyButton, 'active' : !v.DisableBuyButton && v.Selected == 1 }"
                          ng-if="!canAddToCart || allowShowCat">
-                        <div class="productboxIZIPASS medium"
+                        <div class="productboxIZIPASS medium configurable"
                              ng-click="v.DisableBuyButton ? null : selectAttributeValue(v.ProductAttributeId,v.Id)">
-                            <div class="imgProduct">
-                                <img alt="" ng-src="{{v.DefaultPictureUrl}}" class="image"/>
+                            <div class="imgProduct configurable">
+                                <img alt="" ng-src="{{v.DefaultPictureUrl}}" class="image" src=""/>
                             </div>
                             <div class="titleRow" ng-if="v.LinkedProduct">{{v.LinkedProduct.Name}}</div>
                             <div class="titleRow" ng-if="!v.LinkedProduct">{{v.Name}}</div>
@@ -54,7 +60,7 @@
                     Etape Suivante
                 </md-button>
                 <div class="pubProductsCut"
-                     ng-style="{ 'bottom' : attribute.Type == 3 || (attribute.Type != 3 && canAddToCart) ? '400px' : '250px'}"></div>
+                     ng-style="{ 'bottom' : attribute.Type == 3 || (attribute.Type != 3 && canAddToCart) ? '400px' : '67px'}"></div>
             </div>
         </div>
     </section>
@@ -68,7 +74,7 @@
                    ng-style="{ 'background-color' : $root.tenantColor}"
                    aria-label="AddToCart"
                    ng-click="addToCart(product)">
-            <span translate>Valider mon Menu</span>
+            <span translate>Valider ma compo'</span>
         </md-button>
     </div>
     <div ng-class="{'pubProductsList' : $root.borne && $root.borneVertical, 'pubProductsListHoriz' : $root.borne && !$root.borneVertical}"

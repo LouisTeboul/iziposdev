@@ -1,0 +1,26 @@
+<section class="" ng-init="init()">
+
+    <div class="modal-header">
+        <h1 class="modal-title" translate>Aperçu ticket</h1>
+    </div>
+
+    <div class="form-panel modal-body ticketContainer">
+        <div class="ticketBody">
+        </div>
+    </div>
+
+    <div class="modal-footer">
+        <div class="form-check" ng-show="datas.Rows.length > 1">
+            <input class="form-check-input" type="checkbox" ng-model="printDetails" style="width: 20px; height: 20px;">
+            <label class="form-check-label" translate>
+                Inclure le detail des services
+            </label>
+        </div>
+
+        <button class="btn btn-green"
+                ng-click="printZPos()" translate>Imprimer</button>
+
+        <button class="btn btn-rose" ng-click="cancel()" translate>Fermer</button>
+    </div>
+
+</section>

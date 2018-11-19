@@ -16,7 +16,6 @@
                            class="md-raised navigAction navSimple" ng-click="scrollTo(attr.Id)">{{attr.Name | Truncate:16}}
                 </md-button>
             </div>
-
         </div>
         <md-content class="attributes" id="attributes">
             <div id="a{{attribute.Id}}" ng-repeat="attribute in product.ProductAttributes track by $index">
@@ -35,7 +34,7 @@
                                        ng-click="v.DisableBuyButton ? null : selectAttributeValue(v.ProductAttributeId,v.Id)">
                                 <div layout="column" layout-fill>
                                     <div class="conteneur-images">
-                                        <img class="imgAttribute" ng-src="{{v.DefaultPictureUrl}}"/>
+                                        <img class="imgAttribute" ng-src="{{v.DefaultPictureUrl}}" src=""/>
                                     </div>
                                     <div class="attributeInfo-text">
                                         <div ng-if="v.LinkedProduct" data-ng-bind-html="v.LinkedProduct.Name"></div>
@@ -67,7 +66,7 @@
             </p>
             <div ng-repeat="attribute in product.ProductAttributes track by $index">
                 <div ng-repeat="v in attribute.ProductAttributeValues track by $index" class="blockFormuleRecap">
-                    <img ng-if="v.Selected=='1'" ng-src="{{v.DefaultPictureUrl}}" class="imgAttributeRecap"/>
+                    <img ng-if="v.Selected=='1'" ng-src="{{v.DefaultPictureUrl}}" class="imgAttributeRecap" src=""/>
                     <div ng-if="v.Selected=='1'" data-ng-bind-html="v.Name" class="nameFormuleRecap"></div>
                     <div class="PriceAdjustmentFormuleRecap" ng-if="v.Selected=='1' && v.PriceAdjustment">+
                         {{v.PriceAdjustment | CurrencyFormat}}

@@ -1,0 +1,28 @@
+﻿<section class="offerModal">
+    <div class="offerModalHeader">
+        <span class="offerModalTitle" translate>Mes offres</span><br>
+        <span class="offerModalSecondTitle" translate>Profitez des promotions du moment</span>
+    </div>
+    <div class="pubProductsCut reverse" style="top:174px !important;"></div>
+    <div class="listOffers">
+        <div class="itemOfferList" ng-repeat="offer in offers" ng-class="{'noBar': $first}" ng-if="offer.isValid">
+            <div class="offerImage">
+                <img ng-src="{{offer.OfferImageUrl}}" ng-if="offer.OfferImageUrl" class="offerImage"/>
+                <img src="img/offer.png" ng-if="!offer.OfferImageUrl" class="offerImage"/>
+            </div>
+            <div class="offerDetails">
+                <span class="offerTitle" translate>{{offer.OfferClassDescription}}</span>
+                <span class="offerDescription" ng-if="offer.DateOfValidity != undefined" translate>Offre valable jusqu'au : {{offer.DateOfValidity | date:"dd/MM/yyyy"}}</span>
+            </div>
+            <md-button class="offerModalBtn" ng-click="selectOffer(offer)" ng-style="{ 'background-color' : $root.tenantColor}">
+                <span class="offerModalBtnText" translate>Utiliser</span>
+            </md-button>
+        </div>
+    </div>
+    <div class="pubProductsCut" style="bottom: 124px;"></div>
+    <div class="offerModalFooter">
+        <md-button class="offerModalBtn" ng-click="cancel()">
+            <span class="offerModalBtnText" translate>Annuler</span>
+        </md-button>
+    </div>
+</section>

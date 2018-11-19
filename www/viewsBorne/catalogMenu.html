@@ -4,9 +4,10 @@
                 class="toolsContainer">
                 <!--ng-style="{'flex-direction' : $rootScope.borne && $rootScope.borneVertical ? 'column' : 'row'}">-->
         <div layout="column" class="tools" ng-class="{'vertical': $root.borne && $root.borneVertical}"
-             ng-style="{'margin-left' : $root.borne && root.borneVertical ? '0' : '25px'}"
+             ng-style="{'margin-left' : $root.borne && $root.borneVertical ? (mdMedia('min-width: 800px') ? '25px' : '7px') : '25px'}"
              layout-align="center center">
-            <img ng-src="{{$root.borneMainLogo && $root.borneMainLogo || 'img/logo.png'}}" class="imgLogoHeader smallCatalogLogo"/>
+            <img ng-src="{{$root.borneMainLogo && $root.borneMainLogo || 'img/logo.png'}}"
+                 class="imgLogoHeader smallCatalogLogo" draggable="false" alt="" src=""/>
             <div class="clock">
                 <horloge format="HH:mm"></horloge>
             </div>
@@ -17,7 +18,7 @@
             <div class="menuItems">
                 <div ng-repeat="category in categories track by $index" class="itemCategory" ng-click="navig(category)">
                     <md-button aria-label="{{category.Name}}" class="md-icon-button linkCategory">
-                        <img class="imgCategory" ng-src="{{category.PictureUrl}}" alt=""/>
+                        <img class="imgCategory" ng-src="{{category.PictureUrl}}" draggable="false" alt="" src=""/>
                     </md-button>
                     <div class="titleCategory"
                          ng-class="{'vertical' : $root.borne && $root.borneVertical}"

@@ -201,7 +201,7 @@
                                 <span>{{tax.TaxCode+" "+tax.TaxRate}}%</span>
                             </div>
                             <div flex>
-                                <span>{{tax.TaxAmount | CurrencyFormat}}</span>
+                                <span>{{tax.TaxAmountCustomerDisplay | CurrencyFormat}}</span>
                             </div>
                         </div>
 
@@ -596,7 +596,7 @@
                 <span style="white-space:normal"><img class="btn-action-image" alt="Image" src="img/valid.png"/></span>
             </a>
 
-            <a ng-if="PrinterConfiguration.POSPrinterCount > 0 && IziBoxConfiguration.LocalIpIziBox && !currentShoppingCart.ParentTicket && (!$root.UserPreset || $root.UserPreset.DisplayButtons.ValidAndPrint)"
+            <a ng-if="PrinterConfiguration.POSPrinterCount > 0 && IziBoxConfiguration.LocalIpIziBox && (!$root.UserPreset || $root.UserPreset.DisplayButtons.ValidAndPrint)"
                class="shoppingCartAction btn btn-success"
                ng-click="validShoppingCart()"
                ng-class="{ 'disabled' : PhoneOrderMode }"

@@ -88,7 +88,7 @@
         //Si les hashkey sont identique, on regroupe les deux items
 
 
-        var matchedItem = Enumerable.from(to.Items).firstOrDefault(function (itemOut) {
+        let matchedItem = Enumerable.from(to.Items).firstOrDefault(function (itemOut) {
             return itemOut.hashkey == itemIn.hashkey && itemOut.ProductId == itemIn.ProductId && itemOut.Step == itemIn.Step && itemOut.Product.Price == itemIn.Product.Price;
         });
 
@@ -175,9 +175,11 @@
         posService.getUpdDailyTicketAsync(hdid, -1);
 
         $scope.currentShoppingCartIn = undefined;
+        shoppingCartModel.setCurrentShoppingCartIn(undefined);
         $scope.currentShoppingCartOut = undefined;
+        shoppingCartModel.setCurrentShoppingCartOut(undefined);
 
-        $uibModalInstance.close($scope.value);
+        $uibModalInstance.dismiss();
     };
 
     const cloneShoppingCart = function (shoppingCart) {

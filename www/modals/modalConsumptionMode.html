@@ -1,8 +1,9 @@
 <section id="modalConstumptionOpen" class="modalCenterFS" ng-init="init()"
          ng-style="customStyle">
-    <section class="groupModal" style="flex:3"
+    <section class="groupModal"
              ng-style="{'justify-content' : $root.borne && $root.borneVertical ? 'flex-end' : 'center'}">
-        <img ng-src="{{$root.borneMainLogo && $root.borneMainLogo || 'img/logo.png'}}" class="imgLogoHeader" alt=""/>
+        <img ng-src="{{$root.borneMainLogo && $root.borneMainLogo || 'img/logo.png'}}"
+             class="imgLogoHeader" draggable="false" alt=""/>
         <div class="firstTitle">
             <span translate>Commander ici</span>
         </div>
@@ -13,7 +14,8 @@
     <section class="groupModal" style="flex:4"
              ng-style="{'justify-content' : $root.borne && $root.borneVertical ? 'flex-start' : 'center'}">
         <md-button class="btnModalBig" ng-click="setDeliveryType(DeliveryTypes.FORHERE)"
-                   ng-style="{'margin' : $root.borne && $root.borneVertical ? '50px 0 0' : '0'}">
+                   ng-style="{'margin' : $root.borne && $root.borneVertical ?
+                    (mdMedia('min-width: 800px') ? '50px 0 0' : '26px 0 0') : '0'}">
             <div class="btnMbIcon">
                 <md-icon md-svg-src="img/icons/sur-place.svg"
                          ng-style="{ 'color': $root.tenantColor }"></md-icon>
@@ -22,7 +24,8 @@
                 ng-style="{ 'background-color': $root.tenantColor }">
             <div class="btnMbText">
                 <span class="mainBtnMbText" translate>Sur place</span>
-                <span class="altBtnMbText"><x translate>Commandez et savourez votre repas à table</x>&nbsp;!</span>
+                <span class="altBtnMbText"
+                      ng-if="mdMedia('min-width: 800px')"><x translate>Commandez et savourez votre repas à table</x>&nbsp;!</span>
             </div>
         </md-button>
         <md-button class="btnModalBig" ng-click="setDeliveryType(DeliveryTypes.TAKEOUT)">
@@ -34,8 +37,8 @@
                 ng-style="{ 'background-color': $root.tenantColor }">
             <div class="btnMbText">
                 <span class="mainBtnMbText" translate>A emporter</span>
-                <span class="altBtnMbText"><x
-                        translate>Commandez et dégustez votre repas où vous voulez</x>&nbsp;!</span>
+                <span class="altBtnMbText"
+                      ng-if="mdMedia('min-width: 800px')"><x translate>Commandez et dégustez votre repas où vous voulez</x>&nbsp;!</span>
             </div>
         </md-button>
         <md-button class="btnModalSmallS" ng-click="cancelDeliveryType()">

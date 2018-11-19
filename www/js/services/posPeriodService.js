@@ -24,19 +24,23 @@
 
                 var periodDaemon = function () {
                     setTimeout(function () {
+
+
                         current.getYPeriodAsync($rootScope.modelPos.hardwareId, undefined, false).then(function (yp) {
                             if ($rootScope.borne && angular.equals(yp, {})) {
                                 $uibModalStack.dismissAll();
                                 $location.path("/borneClosed");
-                            } else if($rootScope.borne) {
+                            } else if ($rootScope.borne) {
                                 var currentURL = $location.path().split("/")[1];
-                                if(currentURL !== "catalogBorne" && currentURL !== "idleScreen") {
-                                    var modalInstance = $uibModal.open({
+                                if (currentURL !== "catalogBorne" && currentURL !== "idleScreen") {
+                                    $rootScope.borneEventLoaded = false;
+                                    $uibModal.open({
                                         templateUrl: 'modals/modalConnectionMode.html',
                                         controller: 'ModalConnectionController',
                                         backdrop: 'static',
-                                        keyboard :false,
-                                        size: 'lg'
+                                        keyboard: false,
+                                        size: 'lg',
+                                        windowClass: 'mainModals'
                                     });
                                     $location.path("/catalog");
                                 }
@@ -83,6 +87,30 @@
                 retDefer.resolve(res);
             }).error(function () {
                 retDefer.reject("Izibox API getzperiod error");
+            });
+
+            return retDefer.promise;
+        };
+
+        this.getPaymentValuesAsync = function (zPeriodId, yPeriodId) {
+            var retDefer = $q.defer();
+
+            var urlApi = "http://" + $rootScope.IziBoxConfiguration.LocalIpIziBox + ":" + $rootScope.IziBoxConfiguration.RestPort + "/period";
+
+            urlApi += "/getpaymentvalues";
+
+            if (zPeriodId) urlApi += "?zperiodid=" + zPeriodId;
+
+            if (zPeriodId && yPeriodId) urlApi += "&";
+
+            if (yPeriodId) urlApi += "?yperiodid=" + yPeriodId;
+
+            //urlApi += "?zperiodid=" + zPeriodId + "&yperiodid=" + yPeriodId;
+
+            $http.get(urlApi, {timeout: 5000}).success(function (res) {
+                retDefer.resolve(res);
+            }).error(function () {
+                retDefer.reject("Izibox API getPaymentValues error");
             });
 
             return retDefer.promise;
@@ -183,7 +211,7 @@
                                         if (cashPaymentModePrevious) {
                                             totalKnown = cashPaymentModePrevious.TotalKnown;
                                         }
-                                        // Crééer le motif négatif isSytem "Fin de service" du montant espèce du précédent yPeriod dans le yPeriod précédent
+                                        // Créer le motif négatif "Fin de service" du montant espèce du précédent yPeriod dans le yPeriod précédent
                                         current.emptyCashYPeriodAsync(previousYperiodButClosed, previousYperiodButClosed.YCountLines).then(function (paymentValues) {
                                             //Appel après la création de la fermeture du service précédent pour que la date du motif de l'ouverture du service soit après le motif de fermeture du service précédent
                                             current.forceOpenCashMachineAsync(currentYPeriod, totalKnown).then(function (yPeriod) {
@@ -210,8 +238,9 @@
                                                     isOpenPos: true,
                                                     previousYPeriod: previousYperiodButClosed,
                                                     zPeriodId: zPeriodId,
+                                                    zPeriod: currentZPeriod,
                                                     yPeriodId: yPeriodId
-                                                }
+                                                };
                                             }
                                         },
                                         backdrop: 'static'
@@ -247,9 +276,11 @@
                                         isOpenPos: true,
                                         previousYPeriod: previousYperiodButClosed,
                                         zPeriodId: zPeriod.id,
+                                        zPeriod: currentZPeriod,
                                         yPeriodId: currentYPeriod.id,
+                                        yPeriod: currentYPeriod,
                                         editMode: true
-                                    }
+                                    };
                                 }
                             },
                             backdrop: 'static'
@@ -374,6 +405,7 @@
                                 MovementType_Id: motif.id,
                                 zPeriodId: yPeriod.zPeriodId,
                                 yPeriodId: yPeriod.id,
+                                yPeriod: yPeriod,
                                 StoreId: $rootScope.IziBoxConfiguration.StoreId,
                                 CashMovementLines: updPaymentModesPrevious
                             };
@@ -508,15 +540,13 @@
         this.getZPaymentValuesByHidAsync = function (zPeriodId, hardwareId) {
             var paymentValuesDefer = $q.defer();
 
-            var db = $rootScope.remoteDbZPos;
-
-            db.rel.find('PaymentValues').then(function (resPaymentValues) {
+            this.getPaymentValuesAsync(zPeriodId).then(function (resPaymentValues) {
                 var zPaymentValues = {
                     zPeriodId: zPeriodId,
                     PaymentLines: []
                 };
 
-                var paymentValuesCollection = Enumerable.from(resPaymentValues.AllPaymentValues).forEach(function (pv) {
+                Enumerable.from(resPaymentValues).forEach(function (pv) {
                     if (pv.zPeriodId == zPeriodId && pv.hardwareId == hardwareId) {
                         Enumerable.from(pv.PaymentLines).forEach(function (p) {
                             var line = Enumerable.from(zPaymentValues.PaymentLines).firstOrDefault(function (l) {
@@ -539,25 +569,33 @@
                 });
 
                 // Recuperer les montants cagnottes dans la vue pour le z et le Hid
-                $rootScope.remoteDbZPos.query("zpos/balanceByzPeriodAndHid", {
-                    startkey: [zPeriodId, hardwareId],
-                    endkey: [zPeriodId, hardwareId],
-                    reduce: true,
-                    group: true
-                }).then(function (resBalance) {
-                    var balanceByPeriod = {
-                        PaymentMode: {
-                            PaymentType: PaymentType.FIDELITE,
-                            Text: "Ma Cagnotte",
-                            Total: resBalance.rows[0] ? resBalance.rows[0].value : 0,
-                            Value: "Ma Cagnotte",
-                        }
+                let urlApi = "http://" + $rootScope.IziBoxConfiguration.LocalIpIziBox + ":" + $rootScope.IziBoxConfiguration.RestPort + "/zpos/balanceByPeriod";
+                let byPeriodRequest = {
+                    zperiodId: zPeriodId,
+                    hardwareid: hardwareId
+                };
 
-                    };
-                    if (zPaymentValues) {
-                        zPaymentValues.PaymentLines.push(balanceByPeriod);
+                $http.post(urlApi, byPeriodRequest, {timeout: 5000}).then(function (resBalances) {
+
+                    if (resBalances && resBalances.balance) {
+
+                        let totalBalance = resBalances.balance;
+                        let balanceByPeriod = {
+                            PaymentMode: {
+                                PaymentType: PaymentType.FIDELITE,
+                                Text: "Ma Cagnotte",
+                                Total: totalBalance,
+                                Value: "Ma Cagnotte",
+                            }
+                        };
+
+                        if (zPaymentValues) {
+                            zPaymentValues.PaymentLines.push(balanceByPeriod);
+                        }
                     }
                     paymentValuesDefer.resolve(zPaymentValues);
+                }, function (errPV) {
+                    paymentValuesDefer.reject(errPV);
                 });
 
             }, function (errPV) {
@@ -572,7 +610,7 @@
 
             var db = $rootScope.remoteDbZPos;
 
-            db.rel.find('PaymentValues').then(function (resPaymentValues) {
+            this.getPaymentValuesAsync(zPeriodId).then(function (resPaymentValues) {
                 var zPaymentValues = {
                     zPeriodId: zPeriodId,
                     PaymentLines: []
@@ -609,7 +647,7 @@
             return paymentValuesDefer.promise;
         };
 
-        /**
+        /*
          * Get the cash in hand value
          */
         this.getYPaymentValuesAsync = function (yPeriodId, notAddLoyalty) {
@@ -617,45 +655,53 @@
 
             var db = $rootScope.remoteDbZPos;
             current.getZPeriodAsync(false).then(function (zp) {
-                db.rel.find('PaymentValues', yPeriodId).then(function (resPaymentValues) {
-                    var paymentValues = Enumerable.from(resPaymentValues.AllPaymentValues).firstOrDefault();
-                    // Recuperer les montant cagnotte dans la vue
-                    db.query("zpos/balanceByPeriod", {
-                        startkey: [zp.id, yPeriodId],
-                        endkey: [zp.id, yPeriodId],
-                        reduce: true,
-                        group: true
-                    }).then(function (resBalance) {
-                        var balanceByPeriod = {
-                            PaymentMode: {
-                                PaymentType: PaymentType.FIDELITE,
-                                Text: "Ma Cagnotte",
-                                Total: resBalance.rows[0] ? resBalance.rows[0].value : 0,
-                                Value: "Ma Cagnotte",
-                            }
+                if(zp) {
+                    current.getPaymentValuesAsync(undefined, yPeriodId).then(function (resPaymentValues) {
+                        var paymentValues = Enumerable.from(resPaymentValues).firstOrDefault();
 
+                        var urlApi = "http://" + $rootScope.IziBoxConfiguration.LocalIpIziBox + ":" + $rootScope.IziBoxConfiguration.RestPort + "/zpos/balanceByPeriod";
+                        var byPeriodRequest = {
+                            zperiodId: zp.id,
+                            hardwareId: zp.hardwareId,
+                            yperiodId: yPeriodId
                         };
-                        if (paymentValues && !notAddLoyalty) {
-                            paymentValues.PaymentLines.push(balanceByPeriod);
-                        }
-                        paymentValuesDefer.resolve(paymentValues);
-                    });
 
-                }, function (errPV) {
-                    paymentValuesDefer.reject(errPV);
-                });
+                        // Recuperer les montant cagnotte dans la vue
+                        $http.post(urlApi, byPeriodRequest, {timeout: 5000}).then(function (resBalance) {
+                            if (resBalance) {
+                                var balanceByPeriod = {
+                                    PaymentMode: {
+                                        PaymentType: PaymentType.FIDELITE,
+                                        Text: "Ma Cagnotte",
+                                        Total: resBalance.balance ? resBalance.balance : 0,
+                                        Value: "Ma Cagnotte"
+                                    }
+
+                                };
+                                if (paymentValues && !notAddLoyalty) {
+                                    paymentValues.PaymentLines.push(balanceByPeriod);
+                                }
+                            }
+                            paymentValuesDefer.resolve(paymentValues);
+                        }, function (errPV) {
+                            paymentValuesDefer.reject(errPV);
+                        });
+
+                    }, function (errPV) {
+                        paymentValuesDefer.reject(errPV);
+                    });
+                } else {
+                    paymentValuesDefer.resolve();
+                }
             }, function (errZP) {
                 paymentValuesDefer.reject(errZP);
             });
 
-
             return paymentValuesDefer.promise;
         };
 
-        /**
+        /*
          * Update the cash in hand value
-         * @param newPaymentValues New values
-         * @param oldPaymentValues Previous values
          */
         this.updatePaymentValuesAsync = function (yPeriodId, zPeriodId, hardwareId, newPaymentValues, oldPaymentValues, cashMovement) {
             var updateDefer = $q.defer();
@@ -669,6 +715,9 @@
                         hardwareId: hardwareId,
                         id: yPeriodId
                     };
+                } else {
+                    // On a trouver un paymentValues
+                    console.log(paymentValues);
                 }
 
                 paymentValues.Date = new Date().toString('dd/MM/yyyy H:mm:ss');
@@ -739,7 +788,7 @@
             return updateDefer.promise;
         };
 
-        /**
+        /*
          * Replace the cash in hand value, From Open Pos
          * @param newPaymentValues New values
          */
@@ -906,8 +955,9 @@
                                             previousYPeriod: undefined,
                                             zPeriodId: currentYPeriod.zPeriodId,
                                             yPeriodId: currentYPeriod.yPeriodId,
+                                            yPeriod: currentYPeriod,
                                             forceOpen: true
-                                        }
+                                        };
                                     }
                                 },
                                 backdrop: 'static'
@@ -979,7 +1029,7 @@
                 });
 
                 // Get the PaymentValue of the yPeriod
-                current.getYPaymentValuesAsync(currentYPeriod.yPeriodId).then(function (paymentValues) {
+                current.getYPaymentValuesAsync(currentYPeriod.id).then(function (paymentValues) {
                     if (paymentValues) {
 
                         Enumerable.from(paymentValues.PaymentLines).forEach(function (l) {

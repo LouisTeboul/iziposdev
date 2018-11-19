@@ -348,8 +348,7 @@
                                             var newProductComments = datasProducts.ProductComments.concat(resProductComments);
 
                                             datasProducts.ProductComments = newProductComments;
-                                        }
-                                        else {
+                                        } else {
                                             datasProducts.ProductComments = resProductComments;
                                         }
 
