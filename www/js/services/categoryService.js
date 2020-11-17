@@ -1,296 +1,155 @@
-﻿app.service('categoryService', ['$rootScope', '$q', 'productService', 'pictureService',
-    function ($rootScope, $q, productService, pictureService) {
+﻿app.service('categoryService', function ($rootScope, $q) {
+    const self = this;
+    const useCache = false;
 
-        let cacheCategories = {
-            categories: undefined,
-            subCategories: {}
-        };
+    let cacheCategories = {
+        categories: undefined,
+        subCategories: {}
+    };
 
-        const useCache = true;
+    $rootScope.$on('pouchDBChanged', function (event, args) {
+        if (args.status == "Change" && args.id.indexOf('Category') == 0) {
+            cacheCategories = {
+                categories: undefined,
+                subCategories: {}
+            };
+            $rootScope.storedCategories = {};
+        }
+    });
 
-        let self = this;
+    this.getCategoriesAsync = () => {
+        let categoriesDefer = $q.defer();
 
-        $rootScope.$on('pouchDBChanged', function (event, args) {
-            if (args.status == "Change" && args.id.indexOf('Category') == 0) {
-                cacheCategories = {
-                    categories: undefined,
-                    subCategories: {}
-                };
-                $rootScope.storedCategories = {};
-            }
-        });
-
-        this.getCategoriesAsync = function () {
-            self = this;
-            let categoriesDefer = $q.defer();
-
-            if ($rootScope.modelDb.databaseReady) {
-                if (useCache && cacheCategories.categories && cacheCategories.categories.length > 0) {
-                    categoriesDefer.resolve(cacheCategories.categories);
-                } else {
-                    $rootScope.dbInstance.rel.find('Category').then(function (results) {
-                        //Filter pour n'avoir que les catégories de plus haut niveau (qui n'ont pas de parent)
-                        results.Categories = results.Categories.filter(cat => cat.ParentCategoryId == 0);
-                        const categories = self.composeCategories(results);
-                        if (useCache) {
-                            cacheCategories.categories = categories;
-                        }
-
-                        categoriesDefer.resolve(categories);
-                    }, function (err) {
-                    });
-                }
+        if ($rootScope.modelDb && $rootScope.modelDb.databaseReady) {
+            if (useCache && cacheCategories.categories && cacheCategories.categories.length > 0) {
+                categoriesDefer.resolve(cacheCategories.categories);
             } else {
-                categoriesDefer.reject("Database isn't ready !");
-            }
-            return categoriesDefer.promise;
-        };
-
-        this.getSubCategoriesByParentAsync = function (parentId) {
-            self = this;
-            let subCategoriesDefer = $q.defer();
-
-            if ($rootScope.modelDb.databaseReady) {
-                if (useCache && cacheCategories.subCategories[parentId]) {
-                    subCategoriesDefer.resolve(cacheCategories.subCategories[parentId]);
-                } else {
-                    $rootScope.dbInstance.createIndex({
-                        index: {
-                            fields: ['data.ParentCategoryId', 'data.IsEnabled']
-                        }
-                    }).then(function () {
-                        $rootScope.dbInstance.find({
-                            selector:
-                                {
-                                    '_id': {$regex: 'Category_1_*'},
-                                    'data.ParentCategoryId': parseInt(parentId),
-                                    'data.IsEnabled': true
-                                },
-                            fields: ['data']
-                        }).then(function (res) {
-                            let results = {
-                                Categories: []
-                            };
-
-                            results.Categories = Enumerable.from(res.docs).select(function (doc) {
-                                return doc.data;
-                            }).toArray();
-
-                            const subCategories = self.composeCategories(results);
-
-                            if (useCache) {
-                                cacheCategories.subCategories[parentId] = subCategories;
-                            }
-
-                            subCategoriesDefer.resolve(subCategories);
-                        });
-                    }).catch(function (err) {
-
-                    });
-                }
-
-
-                //$rootScope.dbInstance.rel.find('Category').then(function (results) {
-                //    //Filter pour n'avoir que les sous catégories du parent précisé
-                //    //Qui sont enable
-                //    results.Categories = results.Categories.filter(subCat => subCat.ParentCategoryId == parentId && subCat.IsEnabled);
-                //    var subCategories = self.composeCategories(results);
-                //    subCategoriesDefer.resolve(subCategories);
-                //}, function (err) {
-                //});
-            } else {
-                subCategoriesDefer.reject("Database isn't ready !");
-            }
-
-            return subCategoriesDefer.promise;
-
-        };
-
-        this.getCategoryByIdAsync = function (idStr) {
-            self = this;
-            let categoryDefer = $q.defer();
-            const id = parseInt(idStr);
-
-            if ($rootScope.modelDb.databaseReady) {
-                if (useCache && cacheCategories.categories) {
-                    const category = Enumerable.from(cacheCategories.categories).firstOrDefault(function (x) {
-                        return x.Id == id;
-                    });
-                    categoryDefer.resolve(category);
-
-                } else {
-                    $rootScope.dbInstance.rel.find('Category', id).then(function (results) {
-                        const categories = self.composeCategories(results);
-                        const category = Enumerable.from(categories).firstOrDefault();
-                        categoryDefer.resolve(category);
-
-                    }, function (err) {
-                    });
-                }
-            } else {
-                categoryDefer.reject("Database isn't ready !");
-            }
-
-            return categoryDefer.promise;
-        };
-
-        this.composeCategories = function (values) {
-
-            let categories = [];
-
-            for (let i = 0; i < values.Categories.length; i++) {
-                let category = values.Categories[i];
-
-                let categoryTemplate = undefined;
-                let categoryPicture = undefined;
-
-                if (category.CategoryTemplateId) {
-                    categoryTemplate = Enumerable.from(values.CategoryTemplates).firstOrDefault('x=> x.Id == ' + category.CategoryTemplateId);
-                }
-
-                if (category.PictureId) {
-                    categoryPicture = Enumerable.from(values.Pictures).firstOrDefault('x=> x.Id == ' + category.PictureId);
-                }
-
-
-                category.CategoryTemplate = categoryTemplate;
-                category.Picture = categoryPicture;
-                if (category.Mapping) {
-                    const res = Enumerable.from(category.Mapping).any('x=>x.Store_Id==' + $rootScope.IziBoxConfiguration.StoreId);
-                    if (!res) {
-                        category.IsEnabled = false;
-                    }
-                }
-
-                categories.push(category);
-            }
-
-            return categories;
-        };
-
-        this.getCategoryIdsFromOfferParam = function (offerParam) {
-            let categoryIds = [];
-
-            if (offerParam && offerParam.CategoryId) {
-                for (let i = 0; i < offerParam.CategoryId.length; i++) {
-                    let categoryIdName = offerParam.CategoryId[i];
-                    const idxName = categoryIdName.indexOf("-");
-
-                    if (idxName >= 0) {
-                        const categoryId = parseInt(categoryIdName.substring(0, idxName));
-                        categoryIds.push(categoryId);
-                    }
-                }
-            }
-
-            return categoryIds;
-        };
-
-        this.loadCategory = function (categoryId, reloadProducts, callback) {
-            let storage = {};
-
-            self.getCategoryByIdAsync(categoryId).then(function (category) {
-                storage.mainCategory = category;
-                if (category && (!category.products || reloadProducts)) {
-                    // Get products for this category
-                    productService.getProductForCategoryAsync(categoryId).then(function (results) {
-                        if (results) {
-
-                            category.products = Enumerable.from(results).orderBy('x => x.ProductCategory.DisplayOrder').toArray();
-                            storage.mainProductsCount = category.products.length;
-
-                            // Pictures
-                            for (let p of category.products) {
-
-
-                                pictureService.getPictureIdsForProductAsync(p.Id).then(function (ids) {
-                                    const id = pictureService.getCorrectPictureId(ids);
-                                    pictureService.getPictureUrlAsync(id).then(function (url) {
-                                        if (!url) {
-                                            url = 'img/photo-non-disponible.png';
-                                        }
-                                        p.DefaultPictureUrl = url;
-
-                                        storage.mainProductsCount--;
-                                        callback(storage);
-                                    }, function (err) {
-                                        console.log(err);
-                                        });
-                                }, function (err) {
-                                    console.log(err);
-                                });
+                $rootScope.dbInstance.allDocs({
+                    include_docs: true,
+                    startkey: 'Category_',
+                    endkey: 'Category_\uffff'
+                }).then((result) => {
+                    var categories = result.rows.map((row) => {
+                        // Store Mapping
+                        // En mode multistore, on ne tient pas compte du StoreMapping
+                        if (row.doc.Mapping && !$rootScope.EnableMultiStore) {
+                            const res = row.doc.Mapping.find(x => x.Store_Id == $rootScope.IziBoxConfiguration.StoreId);
+                            if (!res || res && !res.Enable) {
+                                row.doc.IsEnabled = false;
                             }
                         }
-                    }, function (err) {
-                        console.log(err);
+                        return row.doc;
                     });
-                } else {
-                    setTimeout(function () {
-                        storage.mainProductsCount = 0;
-                        callback(storage);
-                    }, 1);
-                }
 
-                self.getSubCategoriesByParentAsync(categoryId).then(function (subCategories) {
-                    //Recupere toutes les sous categories du parent
-
-                    if (subCategories.length === 0) {
-                        storage.subProductsCount = 0;
-                        callback(storage);
+                    if (useCache) {
+                        cacheCategories.categories = categories;
                     }
 
-                    for (let subCat of subCategories) {
-                        if (!subCat.products) {
-                            productService.getProductForCategoryAsync(subCat.Id).then(function (results) {
-                                if (results) {
-
-                                    subCat.products = Enumerable.from(results).orderBy('x => x.ProductCategory.DisplayOrder').toArray();
-
-                                    if (storage.subProductsCount) {
-                                        storage.subProductsCount += subCat.products.length;
-                                    } else {
-                                        storage.subProductsCount = subCat.products.length;
-                                    }
-
-                                    // Pictures
-                                    for (let p of subCat.products) {
-                                        pictureService.getPictureIdsForProductAsync(p.Id).then(function (ids) {
-                                            const id = pictureService.getCorrectPictureId(ids);
-                                            pictureService.getPictureUrlAsync(id).then(function (url) {
-                                                if (!url) {
-                                                    url = 'img/photo-non-disponible.png';
-                                                }
-                                                p.DefaultPictureUrl = url;
-
-                                                storage.subProductsCount--;
-                                                callback(storage);
-                                            }, function (err) {
-                                                console.log(err);
-                                            });
-                                        }, function (err) {
-                                            console.log(err);
-                                        });
-                                    }
-                                }
-                            }, function (err) {
-                                console.log(err);
-                            });
-                        } else {
-                            storage.subProductsCount = 0;
-                            callback(storage);
-                        }
-                    }
-                    storage.subCategories = subCategories;
-                }, function (err) {
-                    console.log(err);
+                    categoriesDefer.resolve(categories);
+                }).catch((err) => {
+                    categoriesDefer.reject(err);
                 });
-            }, function (err) {
-                console.log(err);
-            });
-        };
+            }
+        } else {
+            categoriesDefer.reject("Database isn't ready !");
+        }
+        return categoriesDefer.promise;
+    };
 
-        this.getCache = function () {
-            return cacheCategories;
-        };
+    this.getCategoriesForStoreIdAsync = (storeId) => {
+        let categoriesDefer = $q.defer();
 
-    }]);
+        if ($rootScope.modelDb.databaseReady) {
+            if (useCache && cacheCategories.categories && cacheCategories.categories.length > 0) {
+                categoriesDefer.resolve(cacheCategories.categories);
+            } else {
+                $rootScope.dbInstance.allDocs({
+                    include_docs: true,
+                    startkey: 'Category_',
+                    endkey: 'Category_\uffff'
+                }).then((result) => {
+                    let categories = result.rows.map((row) => {
+                        // Store Mapping
+                        if (row.doc.Mapping) {
+                            const res = row.doc.Mapping.find(x => x.Store_Id == storeId);
+                            if (!res || res && !res.Enable) {
+                                row.doc.IsEnabled = false;
+                            }
+                        }
+                        return row.doc;
+                    });
+
+                    categoriesDefer.resolve(categories);
+                }).catch((err) => {
+                    categoriesDefer.reject(err);
+                });
+            }
+        } else {
+            categoriesDefer.reject("Database isn't ready !");
+        }
+        return categoriesDefer.promise;
+    };
+
+    this.getCategoryByIdAsync = (idStr, forFidOffer = false) => {
+        let categoryDefer = $q.defer();
+        let id = parseInt(idStr);
+
+        if ($rootScope.modelDb.databaseReady) {
+            if (useCache && cacheCategories.categories) {
+                let category = cacheCategories.categories.find(x.Id === id);
+                categoryDefer.resolve(category);
+            } else {
+                $rootScope.dbInstance.get('Category_' + padLeft(id, 16)).then((category) => {
+                    if (category.SubCategories) {
+                        category.SubCategories = category.SubCategories.filter(sc => {
+                            // Store Mapping
+                            if (sc.UsedInLoyalty && forFidOffer) {
+                                return true;
+                            } else if (sc.Mapping) {
+                                const res = sc.Mapping.find(x => x.Store_Id == $rootScope.IziBoxConfiguration.StoreId);
+                                if (!res || res && !res.Enable) {
+                                    return false;
+                                } else {
+                                    return true;
+                                }
+                            } else {
+                                return true;
+                            }
+                        });
+                    }
+
+                    categoryDefer.resolve(category);
+                }, (err) => {
+                    console.error(err);
+                    categoryDefer.reject(err);
+                });
+            }
+        } else {
+            categoryDefer.reject("Database isn't ready !");
+        }
+
+        return categoryDefer.promise;
+    };
+
+    this.getCategoryIdsFromOfferParam = (offerParam) => {
+        let categoryIds = [];
+
+        if (offerParam && offerParam.CategoryId) {
+            for (let i = 0; i < offerParam.CategoryId.length; i++) {
+                let categoryIdName = offerParam.CategoryId[i];
+                const idxName = categoryIdName.indexOf("-");
+
+                if (idxName >= 0) {
+                    const categoryId = parseInt(categoryIdName.substring(0, idxName));
+                    categoryIds.push(categoryId);
+                }
+            }
+        }
+
+        return categoryIds;
+    };
+
+    this.getCache = () => {
+        return cacheCategories;
+    };
+});

@@ -5,14 +5,15 @@
         isPercent: true
     };
 
-    $scope.init = function () {
-        setTimeout(function () {
-            const txtAmount = document.getElementById("txtAmount");
-            if (txtAmount) {
-                txtAmount.focus();
+    $scope.init = () => {
+        const loadAmount = () => {
+            if ($("#txtAmount").length) {
+                document.querySelector('#txtAmount').focus();
+            } else {
+                window.requestAnimationFrame(loadAmount);
             }
-
-        }, 100);
+        };
+        loadAmount();
     };
 
     $scope.ok = function () {

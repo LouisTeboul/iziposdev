@@ -1,15 +1,14 @@
-app.directive('tablePlanRepeat', function ($rootScope, $compile, $filter) {
+app.directive('tablePlanRepeat', function () {
     return {
         replace: true,
         restrict: 'E',
         scope: true,
-        link: function (scope, element) {
-
+        link: (scope, element) => {
             let template = `<div class="mainAllMapAreaTable">`;
             let storeMap = scope.storeMap.data;
             let firstMap, first = true;
 
-            template += `<div id="allMapsOnglet">`;
+            template += `<div id="allMapsOnglet" style="flex-wrap:wrap">`;
             for (let map of storeMap) {
                 if (first) {
                     template += `<div class="tableOnglet tableOngletFocus"
@@ -28,7 +27,7 @@ app.directive('tablePlanRepeat', function ($rootScope, $compile, $filter) {
             let firstArea;
             first = true;
             template += `<div id="allAreasOnglet">
-                            <div class="${firstMap.Name.replace(/[^a-zA-Z0-9]/g, "")}AreaOnglet" style="display:flex;flex-direction:row;">`;
+                            <div class="${firstMap.Name.replace(/[^a-zA-Z0-9]/g, "")}AreaOnglet" style="display:flex;flex-wrap:wrap">`;
             for (let area of firstMap.Areas) {
                 if (first) {
                     template += `<div class="tableOnglet tableOngletFocus"
@@ -67,5 +66,5 @@ app.directive('tablePlanRepeat', function ($rootScope, $compile, $filter) {
 
             element.append(template);
         }
-    }
+    };
 });

@@ -1,170 +1,207 @@
-﻿app.controller('ModalUnfreezeShoppingCartController', function ($scope, $rootScope, $uibModalInstance, $uibModal, $mdMedia, shoppingCartService, shoppingCartModel, $translate, orderShoppingCartService) {
-    let tryGetFreezed = 0;
-    let isClosed = false;
+﻿app.controller('ModalUnfreezeShoppingCartController', function ($scope, $rootScope, $uibModalInstance, $mdMedia, $interval, $translate, orderService, posPeriodService, productService, posService) {
 
     $scope.selectedShoppingCarts = [];
+    $scope.loading = false;
 
-    $scope.init = function () {
-        $scope.initFreezed();
-        $scope.initOrder();
-        $scope.$mdMedia = $mdMedia;
+    let pollingInterval = null;
+
+    $scope.init = () => {
+        $scope.ordersLoading = true;
+        $scope.ordersLoadingError = null;
+        $scope.initOrder(true);
+
+        pollingInterval = $interval(() => {
+            $scope.initOrder();
+        }, 15000);
+        $scope.mdMedia = $mdMedia;
+        $scope.webTabActive = $rootScope.UserPreset && $rootScope.UserPreset.DisplayWebOrders && $rootScope.UserPreset.DefaultFreezeActiveTab && $rootScope.UserPreset.DefaultFreezeActiveTab == 1 || $rootScope.IziBoxConfiguration.EnableKDS;
+        $scope.localTabActive = !$scope.webTabActive;
     };
 
-    $scope.initFreezed = function () {
-        $scope.shoppingCarts = [];
-        shoppingCartService.getFreezedShoppingCartsAsync().then(function (shoppingCarts) {
-            $scope.shoppingCarts = Enumerable.from(shoppingCarts).orderBy(function (s) {
-                if (s.TableNumber != undefined) {
-                    return s.TableNumber;
-                } else {
-                    return s.Timestamp;
-                }
-            }).toArray();
-        }, function () {
-            if (tryGetFreezed < 3) {
-                tryGetFreezed = tryGetFreezed + 1;
-                setTimeout(function () {
-                    $scope.initFreezed();
-                }, 3000);
-            }
+    $scope.initOrder = (forceUpdate = false) => {
+        orderService.refecthOrdersAsync(forceUpdate).then((orders) => {
+            $scope.orders = orders;
+            $scope.ordersLoading = false;
+        }, (err) => {
+            $scope.ordersLoading = false;
+            $scope.ordersLoadingError = err;
         });
-        $scope.$evalAsync();
+        //$scope.ordersInProgress = orderService.ordersInProgress;
     };
 
-    $scope.initOrder = function () {
-        $scope.orders = orderShoppingCartService.orders;
-        $scope.ordersInProgress = orderShoppingCartService.ordersInProgress;
-    };
-
-    const dbFreezeChangedHandler = $rootScope.$on('dbFreezeReplicate', function () {
-        $scope.initFreezed();
-    });
-
-    var orderServiceHandler = $rootScope.$on('orderShoppingCartChanged', function () {
-        $scope.initOrder();
-    });
-
-
-    $scope.$on("$destroy", function () {
-        dbFreezeChangedHandler();
-        orderServiceHandler();
-        isClosed = true;
-    });
-
-    $scope.getItemsCount = function (shoppingCart) {
+    $scope.getItemsCount = (shoppingCart) => {
         let itemCount = 0;
-
-        for(let i of shoppingCart.Items) {
+        for (let i of shoppingCart.Items) {
             itemCount = itemCount + i.Quantity;
         }
-
         return roundValue(itemCount);
     };
 
-    $scope.checkShoppingCart = function (shoppingCart, event) {
-        if (event.toElement.checked) {
-            $scope.selectedShoppingCarts.push(shoppingCart);
-        } else {
-            const index = $scope.selectedShoppingCarts.indexOf(shoppingCart);
-            if (index > -1) {
-                $scope.selectedShoppingCarts.splice(index, 1);
+    const dbFreezeChangedHandler = $rootScope.$on("dbFreezeReplicate", () => {
+        //$scope.initFreezed();
+        $scope.initOrder();
+    });
+
+    // const orderServiceHandler = $rootScope.$on('orderShoppingCartChanged', function () {
+    //     $scope.initOrder();
+    // });
+
+    $scope.$on("$destroy", () => {
+        dbFreezeChangedHandler();
+        //orderServiceHandler();
+        $interval.cancel(pollingInterval);
+    });
+
+    $scope.checkShoppingCart = (order, event) => {      
+        let canCheck = !order.isPayed && ($rootScope.IziBoxConfiguration && (!$rootScope.IziBoxConfiguration.EnableKDS || ($rootScope.IziBoxConfiguration.EnableKDS && order.ProductionStage != 'in_kitchen')))
+
+        if(canCheck) {
+            let orderChechkbox = document.querySelector("#cbuf" + order.Timestamp);
+
+            if (orderChechkbox.checked) {
+                let matchingOrder = $scope.selectedShoppingCarts.find(sc => sc.Timestamp === order.Timestamp);
+                const index = $scope.selectedShoppingCarts.indexOf(matchingOrder);
+                if (index > -1) {
+                    $scope.selectedShoppingCarts.splice(index, 1);
+                }
+                orderChechkbox.checked = false;
+            } else {
+                $scope.selectedShoppingCarts.push(order);
+                orderChechkbox.checked = true;
             }
+        }
+
+
+        event.stopPropagation();
+        event.preventDefault();
+    };
+
+    $scope.select = (shoppingCart) => {
+        if (!$scope.loading && !$rootScope.currentShoppingCart) {
+            $scope.loading = true;
+
+            //association period / shoppingCart
+            posPeriodService.getYPeriodAsync($rootScope.modelPos.hardwareId, $rootScope.PosUserId, true, false).then((periodPair) => {
+                posService.unfreezeShoppingCartAsync(shoppingCart).then((unfreezedSc) => {
+                    unfreezedSc.IsJoinedShoppingCart = false;
+                    $scope.loading = false;
+                    $uibModalInstance.close(unfreezedSc);
+                }, () => {
+                    $scope.loading = false;
+                    swal({
+                        title: $translate.instant("Erreur !"),
+                        text: $translate.instant("Le ticket n'a pas été supprimé."),
+                        icon: "error"
+                    });
+                });
+            }, (err) => {
+                $scope.loading = false;
+                $uibModalInstance.dismiss(err);
+            });
+        } else if ($rootScope.currentShoppingCart) {
+            swal({
+                text: $translate.instant("Vous avez déjà un panier en cours."),
+                icon: "error"
+            });
         }
     };
 
-    $scope.removeShoppingCart = function (shoppingCart) {
-        swal({
-                title: $translate.instant("Supprimer le ticket ?"),
-                text: "",
-                type: "warning",
-                showCancelButton: true,
-                confirmButtonColor: "#d83448",
-                confirmButtonText: $translate.instant("Oui"),
-                cancelButtonText: $translate.instant("Non"),
-                closeOnConfirm: true
-        }, function () {
-            shoppingCartService.unfreezeShoppingCartAsync(shoppingCart).then(function () {
-                $scope.initFreezed();
-            }, function () {
-                swal($translate.instant("Erreur !"), $translate.instant("Le ticket n'a pas été supprimé."), "error");
+    $scope.selectOrder = (order) => {
+        // ATTENTION
+        // On supprime le champ NormalItems si il existe
+        if (order.NormalItems) {
+            delete order.NormalItems;
+        }
+        //association period / shoppingCart
+        posPeriodService.getYPeriodAsync($rootScope.modelPos.hardwareId, $rootScope.PosUserId, true, false).then((periodPair) => {
+            orderService.loadOrderShoppingCartAsync(order).then((loadedOrder) => {
+                loadedOrder.IsJoinedShoppingCart = false;
+                $uibModalInstance.close(loadedOrder);
+            }, () => {
+                swal({
+                    title: $translate.instant("Erreur !"),
+                    text: $translate.instant("Le ticket n'a pas été supprimé."),
+                    icon: "error"
+                });
             });
+        }, (err) => {
+            $uibModalInstance.dismiss(err);
         });
     };
 
-    $scope.select = function (shoppingCart) {
-        shoppingCartService.unfreezeShoppingCartAsync(shoppingCart).then(function () {
-            shoppingCart.isJoinedShoppingCart = false;
-            $uibModalInstance.close(shoppingCart);
-        }, function () {
-            swal($translate.instant("Erreur !"), $translate.instant("Le ticket n'a pas été supprimé."), "error");
-        });
-    };
-
-    $scope.selectOrder = function (order) {
-        orderShoppingCartService.loadOrderShoppingCartAsync(order).then(function () {
-            order.isJoinedShoppingCart = false;
-            $uibModalInstance.close(order);
-        });
-    };
-
-    $scope.join = function () {
+    $scope.join = () => {
+        $scope.loading = true;
         swal({
             title: $translate.instant("Joindre les tickets sélectionnés ?"),
-            text: "",
-            type: "warning",
-            showCancelButton: true,
-            confirmButtonColor: "#d83448",
-            confirmButtonText: $translate.instant("Oui"),
-            cancelButtonText: $translate.instant("Non"),
-            closeOnConfirm: true
-        }, function () {
-            let toJoin = Enumerable.from($scope.selectedShoppingCarts).orderBy("s=>s.Timestamp").toArray();
+            buttons: [$translate.instant("Non"), $translate.instant("Oui")],
+            dangerMode: true,
+            icon: "warning"
+        }).then((confirm) => {
+            if (confirm) {
+                let toJoin = Enumerable.from($scope.selectedShoppingCarts).orderBy(s => s.Timestamp).toArray();
 
-            for(let s of $scope.selectedShoppingCarts) {
-                //ATTENTION
-                //Bricolage, a amélioré
-                //Permet que le RK compteur soit décrémenté correctement
-                //Sinon on a des pn de missing rev
-                setTimeout(function () {
-                    shoppingCartService.unfreezeShoppingCartAsync(s);
-                }, 100)
+                orderService.joinShoppingCartsAsync(toJoin).then((joined) => {
+                    orderService.getUpdDailyTicketValueAsync($rootScope.modelPos.hardwareId, 1).then((dtid) => {
+                        joined.dailyTicketId = dtid;
+                        $scope.loading = false;
+                        $rootScope.$evalAsync();
+                        $uibModalInstance.close(joined);
+                    });
+                });
+
+                // posPeriodService.getYPeriodAsync($rootScope.modelPos.hardwareId, $rootScope.PosUserId, true, false).then((periodPair) => {
+
+                //     let joinedShoppingCart = toJoin[0];
+                //     let tableNumber = toJoin[0].TableNumber;
+                //     let tableCutleries = toJoin[0].TableCutleries;
+                //     let tableId = toJoin[0].TableId;
+                //     let hasTable = toJoin.filter(x => x.TableNumber || x.TableCutleries);
+
+                //     for (let i = 1; i < toJoin.length; i++) {
+                //         let curShoppingCart = toJoin[i];
+                //         if (toJoin[i].TableCutleries) {
+                //             tableCutleries += toJoin[i].TableCutleries;
+                //         }
+                //         if (!tableId) {
+                //             tableId = toJoin[i].TableId;
+                //         }
+                //         if (!tableNumber) {
+                //             tableNumber = toJoin[i].TableNumber;
+                //         }
+                //         if (!tableCutleries) {
+                //             tableCutleries = toJoin[i].TableCutleries;
+                //         }
+                //         for (let item of curShoppingCart.Items) {
+                //             shoppingCartModel.addItemTo(joinedShoppingCart, undefined, item, item.Quantity);
+                //         }
+                //     }
+
+                //     joinedShoppingCart.TableNumber = tableNumber;
+                //     joinedShoppingCart.TableCutleries = tableCutleries;
+                //     joinedShoppingCart.TableId = tableId;
+                //     joinedShoppingCart.IsJoinedShoppingCart = hasTable.length >= 2;
+
+                //     posService.getUpdDailyTicketValueAsync($rootScope.modelPos.hardwareId, 1).then((dtid) => {
+                //         joinedShoppingCart.dailyTicketId = dtid;
+                //         orderShoppingCartService.joinShoppingCartsAsync(toJoin, joinedShoppingCart).then((joined) => {
+                //             $uibModalInstance.close(joined);
+                //         }, (err) => {
+                //             console.error("Erreur de join");
+                //         });
+                //     });
+
+                // }, (err) => {
+                //     $uibModalInstance.dismiss(err);
+                // });
+            } else {
+                $scope.loading = false;
+                $rootScope.$evalAsync();
             }
-
-            let joinedShoppingCart = toJoin[0];
-            let tableNumber = toJoin[0].TableNumber;
-            let tableCutleries = toJoin[0].TableCutleries;
-            let tableId = toJoin[0].Id;
-            let hasTable = toJoin.filter(x => x.TableNumber || x.tableCutleries);
-
-            for (let i = 1; i < toJoin.length; i++) {
-                let curShoppingCart = toJoin[i];
-                if(toJoin[i].TableCutleries) {
-                    tableCutleries += toJoin[i].TableCutleries;
-                }
-                if(!tableId) {
-                    tableId = toJoin[i].TableId;
-                }
-                if(!tableNumber) {
-                    tableNumber = toJoin[i].TableNumber;
-                }
-                if(!tableCutleries) {
-                    tableCutleries = toJoin[i].TableCutleries;
-                }
-                for(let item of curShoppingCart.Items) {
-                    shoppingCartModel.addItemTo(joinedShoppingCart, undefined, item, item.Quantity);
-                }
-            }
-
-            joinedShoppingCart.TableNumber = tableNumber;
-            joinedShoppingCart.TableCutleries = tableCutleries;
-            joinedShoppingCart.TableId = tableId;
-            joinedShoppingCart.isJoinedShoppingCart = hasTable.length >= 2;
-
-            $uibModalInstance.close(joinedShoppingCart);
         });
     };
 
-    $scope.cancel = function () {
+    $scope.cancel = () => {
+        orderService.cancelRefetch();
         $uibModalInstance.dismiss('cancel');
-    }
+    };
 });

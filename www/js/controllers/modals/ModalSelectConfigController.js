@@ -1,5 +1,5 @@
 ﻿app.controller('ModalSelectConfigController', function ($scope, $rootScope, $uibModalInstance, configs) {
-    let current = this;
+    let self = this;
     let configsArgs = configs;
 
     $scope.model = {
@@ -7,15 +7,23 @@
         selectedConfig: undefined
     };
 
-    $scope.init = function () {
+    $scope.init = () => {
         if (configsArgs && configsArgs.length > 0) {
-            for(let arg of configsArgs) {
+            for (let arg of configsArgs) {
                 $scope.model.configs.push(arg);
             }
         }
     };
 
-    $scope.ok = function () {
+    $scope.ok = () => {
         $uibModalInstance.close(JSON.parse($scope.model.selectedConfig));
+    };
+
+    /**
+     * Clear the last configuration and reload all data
+     */
+    $scope.reset = () => {
+        window.localStorage.removeItem("IziBoxConfiguration");
+        window.location.reload();
     };
 });

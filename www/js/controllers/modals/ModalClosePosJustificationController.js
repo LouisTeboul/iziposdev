@@ -1,10 +1,10 @@
 ﻿app.controller('ModalClosePosJustificationController', function ($scope, $rootScope, $uibModal, $uibModalInstance, settingService, eventService, cashMovementService, zposService, $translate, posPeriodService, justificationParameters, posUserService) {
     $scope.justificationParameters = justificationParameters;
 
-
     $scope.init = function () {
-
-
+        $scope.model = {
+            cashManagementDisable: false
+        };
     };
 
     /**
@@ -32,7 +32,6 @@
                         return null;
                     }
                 }
-
             },
         });
 
@@ -48,14 +47,13 @@
      * Open the view to manage cash
      */
     $scope.cashManagement = function (hid) {
-
         if (posUserService.isEnable('CASH')) {
-
             const createPeriodIfNeadeed = posUserService.isEnable('CLOS', true);
 
-            posPeriodService.getYPeriodAsync(hid, $rootScope.PosUserId, createPeriodIfNeadeed, false, true).then(function (yPeriod) {
+            $scope.model.cashManagementDisabled = true;
 
-                if (yPeriod && !yPeriod.endDate) {
+            posPeriodService.getYPeriodAsync(hid, $rootScope.PosUserId, false, true).then(function (periodPair) {
+                function callOpenPosModal(YPeriod, forceOpen) {
                     let modalInstance = $uibModal.open({
                         templateUrl: 'modals/modalOpenPos.html',
                         controller: 'ModalOpenPosController',
@@ -63,39 +61,71 @@
                             openPosParameters: function () {
                                 return {
                                     isOpenPos: false,
-                                    zPeriodId: yPeriod.zPeriodId,
-                                    yPeriodId: yPeriod.id
-                                }
+                                    zPeriodId: YPeriod.zPeriodId,
+                                    yPeriodId: YPeriod.id,
+                                    forceOpen: forceOpen
+                                };
                             }
                         },
                         backdrop: 'static'
                     });
                     modalInstance.result.then(function () {
+                        $scope.model.cashManagementDisabled = false;
                         const param = {
                             refresh: true
                         };
                         $uibModalInstance.close(param);
-
                     }, function () {
+                        $scope.model.cashManagementDisabled = false;
                     });
-                } else if (yPeriod && yPeriod.endDate) {
+                }
+
+                if (!periodPair.YPeriod) {
+                    if (createPeriodIfNeadeed) {
+                        // ForceOpen
+                        var openPosValues = {
+                            HardwareId: hid,
+                            PosUserId: $rootScope.PosUserId,
+                            zPeriodId: periodPair.ZPeriod ? periodPair.ZPeriod.zPeriodId : undefined,
+                            StoreId: $rootScope.IziBoxConfiguration.StoreId,
+                            CashMovementLines: []
+                        };
+
+                        posPeriodService.CreateOrUpdateYPeriodAsync(openPosValues, undefined, true).then((periodPair) => {
+                            callOpenPosModal(periodPair.YPeriod, true);
+                        }, () => {
+                            console.log("Error in force open Y");
+                            swal({ title: $translate.instant("Veuillez renseigner le fond de caisse") });
+                        });
+                    } else {
+                        $scope.model.cashManagementDisabled = false;
+                    }
+                }
+                else if (periodPair.YPeriod && !periodPair.YPeriod.endDate) {
+                    callOpenPosModal(periodPair.YPeriod, false);
+                } else if (periodPair.YPeriod && periodPair.YPeriod.endDate) {
+                    $scope.model.cashManagementDisabled = false;
                     const param = {
                         refresh: true
                     };
                     $uibModalInstance.close(param);
                 }
-            }, function () {
-                sweetAlert({title: $translate.instant("Veuillez renseigner le fond de caisse")}, function () {
-                });
+            }, () => {
+                $scope.model.cashManagementDisabled = false;
+                swal({ title: $translate.instant("Veuillez renseigner le fond de caisse") });
+            });
+        } else {
+            swal({
+                title: $translate.instant("Vous n'avez pas les droits nécessaires.")
             });
         }
     };
 
-    $scope.cancel = function () {
+    $scope.cancel = () => {
         $uibModalInstance.dismiss('cancel');
     };
 
-    $scope.ok = function () {
+    $scope.ok = () => {
         $uibModalInstance.close();
-    }
+    };
 });

@@ -1,0 +1,21 @@
+<section ng-init="init()" id="ModalPickQuantityController">
+    <div class="modal-header">
+        <h1 class="modal-title" translate>Saisissez la quantité désirée</h1>
+    </div>
+    <div class="form-panel modal-body">
+        <div layout="column" layout-align="center center">
+            <div layout-row>
+                <text-field id="txtQuantityValue" ng-model="newQuantity" type="decimal" location="end-start" validfunction="ok" style="width:50px" auto-focus></text-field>
+                <span>{{product.SaleUnit}}</span>
+            </div>
+            <div style="font-size: 1.8em; padding: 7px;">{{ newQuantity * (product.Price || product.Product.Price) | CurrencyFormat}}</div>
+            <div class="inp center" ng-show="errorMessage">
+                <span class="labelErr">{{errorMessage}}</span>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-green" ng-click="ok()">OK</button>
+        <button class="btn btn-rose" ng-click="cancel()" translate>Annuler</button>
+    </div>
+</section>

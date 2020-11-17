@@ -1,4 +1,4 @@
-﻿var PaymentType = Object.freeze({
+﻿const PaymentType = Object.freeze({
     ESPECE: 1,
     CB: 2,
     CHEQUE: 3,
@@ -8,5 +8,13 @@
     EASYTRANSAC: 7,
     RENDU: 8,
     FIDELITE: 9,
-    INTERNET: 10
+    INTERNET: 10,
+    PAYBOX: 11,
+    MONETICO: 12,
+    ENCOMPTE : 13,
+    DELIVEROO : 14,
+    UBEREATS : 15,
+    JUSTEAT: 16,
+    LYFPAY: 17,
+    CBTICKETRESTAURANT: 18
 });

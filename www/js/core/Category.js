@@ -1,4 +1,4 @@
-var Category = function (data){
+const Category = function (data){
     $.extend(this, data);
 };
 

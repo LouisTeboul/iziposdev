@@ -1,0 +1,35 @@
+﻿<section ng-init="init()">
+    <div class="modal-header">
+        <h1 class="modal-title" translate>Détail des tickets restaurants</h1>
+    </div>
+
+    <div class="modal-body">
+        <h3 style="text-align: center;margin-bottom: 20px">Veuillez scanner ou sélectionner les tickets restaurants :</h3>
+        <div class="modal-trvalues">
+            <div ng-repeat="tr in TicketsResto" ng-click="tr.selected = !tr.selected">
+                <div class="trValidateCol" ng-style="{'background-color': tr.selected ? '#99ff99' : 'white' }">
+                    <div class="trValidate">
+                        <img src="img/money/sodexo.png" alt="" ng-show="tr.Supplier == TRSupplier.SODEXO" />
+                        <img src="img/money/edenred.png" alt="" ng-show="tr.Supplier == TRSupplier.EDENRED" />
+                        <img src="img/money/groupup.png" alt="" ng-show="tr.Supplier == TRSupplier.GROUPEUP" />
+                        <img src="img/money/natixis.jpg" alt="" ng-show="tr.Supplier == TRSupplier.NATIXIS" />
+                        <img src="img/money/tr.jpg" alt="" ng-show="tr.Supplier != TRSupplier.SODEXO &&
+                                                            tr.Supplier != TRSupplier.EDENRED &&
+                                                            tr.Supplier != TRSupplier.GROUPEUP &&
+                                                            tr.Supplier != TRSupplier.NATIXIS" />
+                        <div>{{tr.value | CurrencyFormat}}</div>
+                    </div>
+                    <div class="trBarcode">{{tr.barcode}}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-footer">
+        <div style="float:left">
+            <span style="font-size:20px;font-weight:bold">Total : {{total | CurrencyFormat}}</span>
+        </div>
+        <button class="btn btn-green" ng-click="ok()">OK</button>
+        <button class="btn btn-rose" ng-click="cancel()" translate>Annuler</button>
+    </div>
+</section>

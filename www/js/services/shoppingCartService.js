@@ -1,498 +1,480 @@
-/**
- * Main module to manage the POS
- */
-app.service('shoppingCartService', ["$http", "$rootScope", "$q", "$filter", "zposService", "settingService", "$translate", "posPeriodService", "posService",
-    function ($http, $rootScope, $q, $filter, zposService, settingService, $translate, posPeriodService, posService) {
-        const current = this;
+//Main module to manage the POS
+app.service('shoppingCartService', function ($http, $rootScope, $q, $uibModal, $mdMedia, $translate, posPeriodService, deliveryService, posService, paymentService, loyaltyService, productService, printService, orderService, stockService) {
+    const self = this;
 
-        /**
-         * Get all the ticket from the shared database
-         */
-        this.getFreezedShoppingCartsAsync = function () {
-            let shoppingCartsDefer = $q.defer();
+    $rootScope.currentShoppingCartRight = null;
+    $rootScope.currentShoppingCartLeft = null;
 
-            $rootScope.dbFreeze.rel.find('ShoppingCart').then(function (resShoppingCarts) {
-                const shoppingCarts = resShoppingCarts.ShoppingCarts;
-                //Hack for remove duplicate
-                let shoppingCartsToRemove = [];
-                let shoppingCartsToReturn = [];
+    $rootScope.lastShoppingCart = null;
+    $rootScope.currentShoppingCart = null;
+    $rootScope.currentBarcode = {
+        barcodeValue: ''
+    };
 
-                for(let s of shoppingCarts) {
-                    if (shoppingCartsToRemove.indexOf(s) === -1) {
-                        let duplicateShoppingCarts = Enumerable.from(shoppingCarts).where(function (d) {
-                            return d.Timestamp === s.Timestamp;
-                        }).toArray();
+    //Save the payment modification
+    //@deprecated this must be saved in another database
+    this.savePaymentEditAsync = (shoppingCart, oldPaymentValues) => {
+        let savePaymentDefer = $q.defer();
+        shoppingCart.id = Number(shoppingCart.Timestamp);
 
-                        if (duplicateShoppingCarts.length > 1) {
-                            shoppingCartsToRemove.push.apply(shoppingCartsToRemove, duplicateShoppingCarts.slice(1));
-                        }
-                        shoppingCartsToReturn.push(duplicateShoppingCarts[0]);
-                    }
-                }
-                for(let r of shoppingCartsToRemove) {
-                    current.unfreezeShoppingCartAsync(r);
-                }
-                shoppingCartsDefer.resolve(shoppingCartsToReturn);
-            }, function (err) {
-                shoppingCartsDefer.reject(err);
-            });
+        posPeriodService.editShoppingCartPaymentModesAsync(shoppingCart, oldPaymentValues).then(() => { // Modify the payment
+            savePaymentDefer.resolve(shoppingCart.PaymentModes);
+        }, (errUpdP) => {
+            savePaymentDefer.reject(errUpdP); //update error
+        });
+        return savePaymentDefer.promise;
+    };
 
-            return shoppingCartsDefer.promise;
-        };
+    this.checkCreditUsedAsync = (credit) => {
+        let creditDefer = $q.defer();
 
-        /**
-         * Get freezed tickets by table number
-         * @param TableId the table number
-         */
-        this.getFreezedShoppingCartByTableNumberAsync = function (TableId, TableNumber) {
-            let resultDefer = $q.defer();
-            $rootScope.showLoading();
+        const creditApiUrl = $rootScope.APIBaseURL + "/checkCredit?barcode=" + credit;
 
-            if (!TableId && !TableNumber) {
-                $rootScope.hideLoading();
-                resultDefer.reject();
-            } else {
-                this.getFreezedShoppingCartsAsync().then(function (shoppingCarts) {
-                    let result = Enumerable.from(shoppingCarts).firstOrDefault(function (sc) {
-                        return TableId ? sc.TableId === TableId : sc.TableNumber === TableNumber;
-                    });
-                    if (result) {
-                        $rootScope.hideLoading();
-                        resultDefer.resolve(result);
-                    } else {
-                        $rootScope.hideLoading();
-                        resultDefer.reject();
-                    }
-                }, function () {
-                    $rootScope.hideLoading();
-                    resultDefer.reject();
-                });
+        $http.get(creditApiUrl, {
+            timeout: 10000
+        }).then((res) => {
+            creditDefer.resolve(res);
+        }, (err) => {
+            creditDefer.reject(err);
+        });
+
+        return creditDefer.promise;
+    };
+
+    this.checkTicketRestoUsedAsync = (ticketResto) => {
+        let ticketRestoDefer = $q.defer();
+
+        const creditApiUrl = $rootScope.APIBaseURL + "/checkTicketResto?barcode=" + ticketResto;
+
+        $http.get(creditApiUrl, {
+            timeout: 10000
+        }).then((res) => {
+            ticketRestoDefer.resolve(res);
+        }, (err) => {
+            ticketRestoDefer.reject(err);
+        });
+
+        return ticketRestoDefer.promise;
+    };
+
+    //#region Actions on item
+    this.getNbItems = () => {
+        let count = 0;
+        if ($rootScope.currentShoppingCart && $rootScope.currentShoppingCart.Items.length > 0) {
+            for (let i of $rootScope.currentShoppingCart.Items) {
+                count += i.Quantity;
             }
-            return resultDefer.promise;
-        };
-
-
-        /**
-         * Get freezed tickets by table number
-         * @param id shoppingCartid
-         */
-        this.getFreezedShoppingCartByIdAsync = function (id) {
-            let resultDefer = $q.defer();
-            $rootScope.showLoading();
-
-            if (id == undefined) {
-                $rootScope.hideLoading();
-                resultDefer.reject();
-            } else {
-                $rootScope.dbFreeze.rel.find('ShoppingCart', id).then(function (resShoppingCarts) {
-                    const result = Enumerable.from(resShoppingCarts.ShoppingCarts).firstOrDefault();
-                    if (result) {
-                        $rootScope.hideLoading();
-                        resultDefer.resolve(result);
-                    } else {
-                        $rootScope.hideLoading();
-                        resultDefer.reject();
-                    }
-                }, function () {
-                    $rootScope.hideLoading();
-                    resultDefer.reject();
-                });
-            }
-            return resultDefer.promise;
-        };
-
-
-        this.getFreezedShoppingCartByBarcodeAsync = function (barcode) {
-            let resultDefer = $q.defer();
-            $rootScope.showLoading();
-
-            if (barcode == undefined) {
-                $rootScope.hideLoading();
-                resultDefer.reject();
-            } else {
-                $http.post("http://" + $rootScope.IziBoxConfiguration.LocalIpIziBox + ":5984/freeze/_find", {
-                    "selector": {
-                        "data.Barcode": barcode,
-                    }
-                }).then(function (resShoppingCarts) {
-                    let result = Enumerable.from(resShoppingCarts.data.docs).firstOrDefault();
-                    if (result) {
-                        result.data.id = result.data.Timestamp;
-                        result.data.rev = result._rev;
-                        console.log(result);
-                        $rootScope.hideLoading();
-                        resultDefer.resolve(result.data);
-                    } else {
-                        $rootScope.hideLoading();
-                        resultDefer.reject();
-                    }
-                }, function () {
-                    $rootScope.hideLoading();
-                    resultDefer.reject();
-                });
-            }
-            return resultDefer.promise;
-        };
-
-        /**
-         * Count the number of matching RK products in shopping cart
-         * @param shoppingCart The shopping cart
-         * @returns {number} : the number of matching product
-         */
-        const RKComptage = function (shoppingCart) {
-            let compteur = 0;
-            for(let item of shoppingCart.Items) {
-                if (item.Product.Sku == "rkcompteur") {
-                    compteur += item.Quantity;
-                }
-            }
-            return compteur;
-        };
-
-        /**
-         * Increment counter in database
-         * @param shoppingCart The shopping cart
-         */
-        const RKIncrement = function (shoppingCart) {
-            const incr = RKComptage(shoppingCart);
-            posService.getUpdRkCounterValueAsync(shoppingCart.HardwareId, incr);
-        };
-
-        /**
-         * Decrement counter in database
-         * @param shoppingCart The shopping cart
-         * @param retry number of retry
-         */
-        const RKDecrement = function (shoppingCart, retry = 0) {
-            const decr = RKComptage(shoppingCart);
-            posService.getUpdRkCounterValueAsync(shoppingCart.HardwareId, -1 * decr);
-        };
-
-        /**
-         * Send the ticket in a database shared between POS terminal
-         * @param shoppingCart The shopping cart
-         */
-        this.freezeShoppingCartAsync = function (shoppingCart) {
-            let freezeDefer = $q.defer();
-
-            // RK : Appeller la fonction d'incrément d'enfant dans le parc
-            RKIncrement(shoppingCart);
-            shoppingCart.rev = undefined;
-            shoppingCart.id = shoppingCart.Timestamp;
-
-            $rootScope.dbFreeze.rel.save('ShoppingCart', shoppingCart).then(function () {
-                freezeDefer.resolve(true);
-            }, function (errSave) {
-                console.log("freezeShoppingCartAsync Error");
-                console.log(errSave);
-                freezeDefer.reject(errSave);
-            });
-            return freezeDefer.promise;
-        };
-
-        /** Delete a ticket in the freeze */
-        this.unfreezeShoppingCartAsync = function (shoppingCart) {
-            let unfreezeDefer = $q.defer();
-
-            // RK : Appeller la fonction de décrément d'enfant dans le parc
-            RKDecrement(shoppingCart);
-
-            $rootScope.dbFreeze.rel.del('ShoppingCart', {
-                id: shoppingCart.id,
-                rev: shoppingCart.rev
-            }).then(function () {
-                unfreezeDefer.resolve(true);
-            }, function (errDel) {
-                console.log("unfreezeShoppingCartAsync Error");
-                console.log(errDel);
-                unfreezeDefer.reject(errDel);
-            });
-            return unfreezeDefer.promise;
-        };
-
-        /**
-         * Update the payment for the shopping cart
-         */
-        this.updatePaymentShoppingCartAsync = function (shoppingCart) {
-            let saveDefer = $q.defer();
-            const innerSave = function (saveDefer, shoppingCart) {
-                try {
-                    if (!shoppingCart.Canceled) {
-                        // Update the payment mode in case of modification
-                        const updatePayments = clone(shoppingCart.PaymentModes);
-
-                        if (shoppingCart.Repaid && shoppingCart.Repaid > 0) {
-                            let cashPayment = Enumerable.from(updatePayments).firstOrDefault(function (x) {
-                                return x.PaymentType == PaymentType.ESPECE;
-                            });
-                            if (cashPayment) {
-                                cashPayment.Total = cashPayment.Total - shoppingCart.Repaid;
-                            }
-                        }
-                        posPeriodService.updatePaymentValuesAsync(shoppingCart.yPeriodId, shoppingCart.zPeriodId, shoppingCart.HardwareId, updatePayments);
-                    }
-                } catch (errPM) {
-                    console.log(errPM);
-                }
-                saveDefer.resolve({
-                    success: true,
-                    api: false
-                });
-            };
-            innerSave(saveDefer, shoppingCart);
-            return saveDefer.promise;
-        };
-
-        /**
-         * Save the payment modification
-         * @deprecated this must be saved in another database
-         * @param shoppingCart The shopping cart to modify
-         * @param paymentEdit   The payment modification
-         * @param oldPaymentValues The previous values
-         */
-        this.savePaymentEditAsync = function (shoppingCart, paymentEdit, oldPaymentValues) {
-            let savePaymentDefer = $q.defer();
-            shoppingCart.id = Number(shoppingCart.Timestamp);
-            // Enlever le mode de règlement "Cagnotte" il est déjà pris en compte dans BalanceUpdate
-            let PaymentModesWithoutLoyalty = [];
-
-            for(let p of shoppingCart.PaymentModes) {
-                if (p.PaymentType !== PaymentType.FIDELITE) {
-                    PaymentModesWithoutLoyalty.push(p);
-                }
-            }
-            shoppingCart.PaymentModes = PaymentModesWithoutLoyalty;
-            $rootScope.remoteDbZPos.rel.save('ShoppingCart', shoppingCart).then(function () { // Save the ticket
-                $rootScope.dbReplicate.rel.save('PaymentEditWithHistory', paymentEdit).then(function () { // Send the event to the BO
-                    paymentEdit.PaymentModes = shoppingCart.PaymentModes;
-                    posPeriodService.updatePaymentValuesAsync(shoppingCart.yPeriodId, shoppingCart.zPeriodId, shoppingCart.HardwareId, paymentEdit.PaymentModes, oldPaymentValues).then(function () { // Modify the payment
-                        savePaymentDefer.resolve(paymentEdit);
-                    }, function (errUpdP) {
-                        savePaymentDefer.reject(errUpdP); //update error
-                    });
-                }, function (errSave) {
-                    savePaymentDefer.reject(errSave);
-                });
-            }, function (err) {
-                savePaymentDefer.reject(err);
-            });
-            return savePaymentDefer.promise;
-        };
-
-        /**
-         *  Print The shopping cart - The credit note
-         * @param shoppingCart The shopping cart to print
-         * @param printerIdx The selected printer
-         * @param isPosTicket The ticket is
-         * @param printCount Number of print
-         * @param ignorePrintTicket
-         * @param nbNote
-         * @param printDefer : defer of the calling function
-         * @param waitingPrint : set if in the validateticket, we send if sync or async
-         */
-        this.printShoppingCartAsync = function (shoppingCart, printerIdx, isPosTicket, printCount, ignorePrintTicket, nbNote, printDefer, waitingPrint) {
-            if(!printDefer){
-                printDefer = $q.defer();
-            }
-            if (!waitingPrint) {
-                waitingPrint = $rootScope.borne;
-            }
-            shoppingCart.PosUserId = $rootScope.PosUserId;
-            shoppingCart.PosUserName = $rootScope.PosUserName;
-            shoppingCart.ShowNameOnTicket = $rootScope.PosUser === undefined ? false : $rootScope.PosUser.ShowNameOnTicket; // should be defined?
-            let shoppingCartPrinterReq = {
-                PrinterIp: $rootScope.borne && shoppingCart.ForBorne ? $rootScope.modelPos.localIp : null, // On precise l'IP seulement si on est sur la borne, et qu'on imprime un ticket borne
-                PrinterIdx: printerIdx,
-                ShoppingCart: shoppingCart,
-                IsPosTicket: isPosTicket,
-                IsNote: nbNote && nbNote > 0,
-                PrintCount: printCount,
-                IgnorePrintTicket: ignorePrintTicket,
-                PrintQRCode: !isPosTicket && $rootScope.IziBoxConfiguration.PrintProdQRCode,
-                NbNote: nbNote,
-                ReprintType: "Customer", // TODO: Implement the customer/Internal value of the reprint
-                WaitingPrint: waitingPrint
-            };
-
-            // TODO : remove the ignorePrintRequest
-            // This value was only useful in the previous versions
-            // There is no validation without print or email sending
-            if (shoppingCartPrinterReq.IgnorePrintTicket === undefined) {
-                shoppingCartPrinterReq.IgnorePrintTicket = false;
-            }
-            if ($rootScope.IziBoxConfiguration.LocalIpIziBox && printCount > 0) {
-                let printerApiUrl = "";
-
-                if (isPosTicket) {
-                    printerApiUrl = "http://" + $rootScope.IziBoxConfiguration.LocalIpIziBox + ":" + $rootScope.IziBoxConfiguration.RestPort + "/validateticket";
-                } else {
-                    // For note impression
-                    printerApiUrl = "http://" + $rootScope.IziBoxConfiguration.LocalIpIziBox + ":" + $rootScope.IziBoxConfiguration.RestPort + "/print";
-                }
-                this.printShoppingCartPOST(printerApiUrl, shoppingCartPrinterReq, printDefer); //FIXME:Décommenter pour imprimer
-            } else {
-                setTimeout(function () {
-                    printDefer.resolve(shoppingCartPrinterReq);
-                }, 100);
-            }
-
-            return printDefer.promise;
-        };
-
-        /**
-         * @param shoppingCart
-         */
-        this.reprintShoppingCartAsync = function (shoppingCart) {
-            let printDefer = $q.defer();
-            console.log(shoppingCart);
-            // TODO: Pop up de choix internal / customer dans le cas du MEV
-            const shoppingCartPrinterReq = {
-                PrinterIdx: $rootScope.PrinterConfiguration.POSPrinter,
-                ShoppingCart: shoppingCart,
-                IsPosTicket: true,
-                PrintCount: 1,
-                IgnorePrintTicket: false,
-                PrintQRCode: $rootScope.IziBoxConfiguration.PrintProdQRCode,
-                NbNote: 0,
-                IsReprint: true,
-                ReprintType: "Internal"
-            };
-            const printerApiUrl = "http://" + $rootScope.IziBoxConfiguration.LocalIpIziBox + ":" + $rootScope.IziBoxConfiguration.RestPort + "/reprint/";
-
-            $http.post(printerApiUrl, shoppingCartPrinterReq, {timeout: 10000}).success(function () {
-                printDefer.resolve(true);
-            }).error(function () {
-                printDefer.reject("Print error");
-            });
-            return printDefer.promise;
-        };
-
-        /**
-         * Print ticket for the preparation of the order
-         * @param shoppingCart The shopping cart
-         * @param step The production steps
-         * @param printDefer : defer of the calling function
-         * @param nbStep number of steps
-         */
-        this.printProdAsync = function (shoppingCart, step, printDefer, nbStep) {
-            //console.log(shoppingCart);
-            //Si le printdefer n'a pas été fournis par l'appellant
-            if(!printDefer){
-                printDefer = $q.defer();
-            }
-            shoppingCart.PosUserId = $rootScope.PosUserId;
-            shoppingCart.PosUserName = $rootScope.PosUserName;
-
-            if ($rootScope.PosUser) {
-                shoppingCart.ShowNameOnTicket = $rootScope.PosUser.ShowNameOnTicket;
-            }
-            const shoppingCartPrinterReq = {
-                ShoppingCart: shoppingCart,
-                Step: step
-            };
-
-            if ($rootScope.IziBoxConfiguration.LocalIpIziBox) {
-                const printerApiUrl = "http://" + $rootScope.IziBoxConfiguration.LocalIpIziBox + ":" + $rootScope.IziBoxConfiguration.RestPort + "/printprod";
-                console.log("PrinterApiUrl : " + printerApiUrl);
-                console.log(shoppingCartPrinterReq);
-                this.printShoppingCartPOST(printerApiUrl, shoppingCartPrinterReq, printDefer, null, nbStep);
-            } else {
-                setTimeout(function () {
-                    printDefer.resolve(shoppingCartPrinterReq);
-                }, 100);
-            }
-            return printDefer.promise;
-        };
-
-        /**
-         * Sent the print request to the izibox - It's  the real endpoint to the Rest Service
-         * If the print request don't succeed we retry it 3 times
-         * @param printerApiUrl Rest service URL used for printing
-         * @param shoppingCartPrinterReq The Shopping and its parameters for printing
-         * @param printDefer
-         * @param retry Number of retry
-         * @param nbStep number of steps
-         */
-        this.printShoppingCartPOST = function (printerApiUrl, shoppingCartPrinterReq, printDefer, retry, nbStep) {
-            console.log(printerApiUrl);
-            console.log(shoppingCartPrinterReq.ShoppingCart.Items);
-            let printers = [];
-
-            shoppingCartPrinterReq.ShoppingCart.Items.forEach( (item) => {
-                if (item.Product.StoreInfosObject && item.Product.StoreInfosObject.Printer_Id){
-                    if(!printers.includes(item.Product.StoreInfosObject.Printer_Id)) {
-                        printers.push(item.Product.StoreInfosObject.Printer_Id);
-                    }
-                }
-            });
-            
-            // Pas de Timeout si  borne ou
-            //      * si Print the Prod Ticket(toque) dans la foulé de la validation de ticket
-            //      * ou si Print the Prod Ticket(bouton bleu) dans la foulé de la validation de ticket
-            //  En effet, il ne faut pas déclancher 2 validations pour le même ticket 
-            //  car lorsque WaitingPrint, côté box l'appel est synchone, sinon il est asynchone
-            // Sinon
-            // 3s par step, plus 1s par imprimantes différente, + 1s prévu pour une potentielle imprimante print all
-
-            nbStep = nbStep ? nbStep : 1;
-            //const waitingPrint = shoppingCartPrinterReq.WaitingPrint  ? 3000 : 0;
-            const timeout = shoppingCartPrinterReq.WaitingPrint ? null : (nbStep * 3000) + (printers.length * 1000) + 1000;
-
-            $http.post(printerApiUrl, shoppingCartPrinterReq, {timeout: timeout}).then(function (obj) {
-                console.log("success post ticket", obj);
-                //Set the coucbDb Id and the timestamp that come from the box
-                if (shoppingCartPrinterReq.ShoppingCart !== undefined) {
-                    let data = obj.data;
-                    if (data.ticketId !== undefined) {
-                        //shoppingCartPrinterReq.id = obj.ticketId;
-
-                        shoppingCartPrinterReq.ShoppingCart.id = data.ticketId;
-                    }
-                    if (data.timestamp !== undefined) {
-                        shoppingCartPrinterReq.ShoppingCart.Timestamp = data.timestamp;
-                    }
-                }
-                // Lock la validation
-                $rootScope.validateLock = true;
-                printDefer.resolve(shoppingCartPrinterReq);
-            }, function (err) {
-
-                console.log("erreur", err);
-                if (err && err.error) {
-                    printDefer.reject({request: shoppingCartPrinterReq, error: err.error});
-                } else {
-                    if (!retry) retry = 1;
-                    if (retry < 2) {
-                        console.log("Retry print");
-                        if($rootScope.borne) {
-                            setTimeout(function () {
-                                current.printShoppingCartPOST(printerApiUrl, shoppingCartPrinterReq, printDefer, retry + 1);
-                            }, 5000);
-                        } else {
-                            current.printShoppingCartPOST(printerApiUrl, shoppingCartPrinterReq, printDefer, retry + 1);
-                        }
-                    } else {
-                        printDefer.reject({request: shoppingCartPrinterReq, error: "Print error"});
-                    }
-                }
-            });
-        };
-
-        /**0
-         * A basic printing test
-         * @param idx The id of the printer selected
-         * @param ip The ip of the printer. If specified, we disregard the idx later on
-         */
-        this.testPrinterAsync = function (idx, ip) {
-            let printDefer = $q.defer();
-            const printerApiUrl = "http://" + $rootScope.IziBoxConfiguration.LocalIpIziBox + ":" + $rootScope.IziBoxConfiguration.RestPort + "/testprinter";
-
-            $http.post(printerApiUrl, { idx, ip}, {timeout: 10000}).success(function () {
-                printDefer.resolve(true);
-            }).error(function () {
-                printDefer.reject("Print error");
-            });
-            return printDefer.promise;
         }
-    }
-]);
+        return count;
+    };
+
+    // Creates an empty ticket for the splitting features
+    this.createShoppingCartRight = () => {
+        const timestamp = new Date().getTime();
+        $rootScope.currentShoppingCartRight = new ShoppingCart();
+        $rootScope.currentShoppingCartRight.TableNumber = undefined;
+        $rootScope.currentShoppingCartRight.TableId = undefined;
+        $rootScope.currentShoppingCartRight.Items = [];
+        $rootScope.currentShoppingCartRight.Timestamp = timestamp;
+        $rootScope.currentShoppingCartRight.id = timestamp;
+        $rootScope.currentShoppingCartRight.AliasCaisse = $rootScope.modelPos.aliasCaisse;
+        $rootScope.currentShoppingCartRight.HardwareId = $rootScope.modelPos.hardwareId;
+        $rootScope.currentShoppingCartRight.PosUserId = $rootScope.PosUserId;
+        $rootScope.currentShoppingCartRight.PosUserName = $rootScope.PosUserName;
+        $rootScope.currentShoppingCartRight.Discounts = clone($rootScope.currentShoppingCart.Discounts);
+        $rootScope.currentShoppingCartRight.DeliveryType = $rootScope.currentDeliveryType;
+        $rootScope.currentShoppingCartRight.CurrentStep = 0;
+        $rootScope.currentShoppingCartRight.StoreId = $rootScope.IziBoxConfiguration.StoreId;
+        $rootScope.currentShoppingCartRight.CompanyInformation = $rootScope.cacheCompanyInfo;
+        $rootScope.currentShoppingCartRight.addCreditToBalance = false;
+        $rootScope.currentShoppingCartRight.PosVersion = $rootScope.Version;
+        $rootScope.currentShoppingCartRight.ExtraInfos = "";
+        $rootScope.currentShoppingCartRight.shoppingCartQueue = [];
+        $rootScope.currentShoppingCartRight.StageHistory = {};
+
+        for (let item of $rootScope.currentShoppingCartRight.Discounts) {
+            item.Total = 0;
+        }
+        //const hdid = $rootScope.modelPos.hardwareId;
+
+        //association period / shoppingCart
+        // Pb asyncronisme pour les deux promesses
+        posPeriodService.getYPeriodAsync($rootScope.modelPos.hardwareId, $rootScope.PosUserId, true, false).then((periodPair) => {
+            //Asociate periods on validate
+        }, () => {
+            if ($rootScope.modelPos.iziboxConnected) {
+                //Si l'izibox est connectée, alors on refuse la création d'un ticket sans Y/ZPeriod
+                $rootScope.clearShoppingCart();
+            }
+        });
+
+        return $rootScope.currentShoppingCartRight;
+    };
+
+    // Set the receiving ticket for the split
+    this.setCurrentShoppingCartRight = (shoppingCart) => {
+        $rootScope.currentShoppingCartRight = shoppingCart;
+    };
+
+    //Créer le ticket emetteur du split (à partir du ticket courant)
+    this.createShoppingCartLeft = () => {
+        if (!$rootScope.currentShoppingCart) {
+            const timestamp = new Date().getTime();
+            $rootScope.currentShoppingCartLeft = new ShoppingCart();
+            $rootScope.currentShoppingCartLeft.dailyTicketId = null;
+            $rootScope.currentShoppingCartLeft.TableNumber = null;
+            $rootScope.currentShoppingCartLeft.TableId = null;
+            $rootScope.currentShoppingCartLeft.Items = [];
+            $rootScope.currentShoppingCartLeft.Discounts = [];
+            $rootScope.currentShoppingCartLeft.Timestamp = timestamp;
+            $rootScope.currentShoppingCartLeft.id = timestamp;
+            $rootScope.currentShoppingCartLeft.AliasCaisse = $rootScope.modelPos.aliasCaisse;
+            $rootScope.currentShoppingCartLeft.HardwareId = $rootScope.modelPos.hardwareId;
+            $rootScope.currentShoppingCartLeft.PosUserId = $rootScope.PosUserId;
+            $rootScope.currentShoppingCartLeft.PosUserName = $rootScope.PosUserName;
+            $rootScope.currentShoppingCartLeft.DeliveryType = $rootScope.currentDeliveryType;
+            $rootScope.currentShoppingCartLeft.CurrentStep = 0;
+            $rootScope.currentShoppingCartLeft.StoreId = $rootScope.IziBoxConfiguration.StoreId;
+            $rootScope.currentShoppingCartLeft.CompanyInformation = $rootScope.cacheCompanyInfo;
+            $rootScope.currentShoppingCartLeft.addCreditToBalance = false;
+            $rootScope.currentShoppingCartLeft.PosVersion = $rootScope.Version;
+            $rootScope.currentShoppingCartLeft.ExtraInfos = "";
+            $rootScope.currentShoppingCartLeft.shoppingCartQueue = [];
+            $rootScope.currentShoppingCartLeft.StageHistory = {};
+            const hdid = $rootScope.modelPos.hardwareId;
+
+            //association period / shoppingCart
+            posPeriodService.getYPeriodAsync($rootScope.modelPos.hardwareId, $rootScope.PosUserId, true, false).then((periodPair) => {
+                //Associate periods on validate
+            }, () => {
+                if ($rootScope.modelPos.iziboxConnected) {
+                    //Si l'izibox est connectée, alors on refuse la création d'un ticket sans Y/ZPeriod
+                    $rootScope.clearShoppingCart();
+                }
+            });
+            orderService.getUpdDailyTicketValueAsync(hdid, 1).then((value) => {
+                $rootScope.currentShoppingCartLeft.dailyTicketId = value;
+            }).then(() => {
+                $rootScope.$emit("shoppingCartChanged", $rootScope.currentShoppingCartLeft);
+            });
+        } else {
+            $rootScope.currentShoppingCartLeft = clone($rootScope.currentShoppingCart);
+            const hdid = $rootScope.currentShoppingCartLeft.HardwareId;
+
+            orderService.getUpdDailyTicketValueAsync(hdid, 1).then((value) => {
+                $rootScope.currentShoppingCartLeft.dailyTicketId = value;
+            }).then(() => {
+                $rootScope.$emit("shoppingCartChanged", $rootScope.currentShoppingCartLeft);
+            });
+            let cloneItemsArray = [];
+
+            for (let item of $rootScope.currentShoppingCart.Items) {
+                if (item.Quantity > 0) {
+                    cloneItemsArray.push(clone(item));
+                }
+            }
+            $rootScope.currentShoppingCartLeft.Items = cloneItemsArray;
+        }
+        return $rootScope.currentShoppingCartLeft;
+    };
+
+    this.setCurrentShoppingCartLeft = (shoppingCart) => {
+        $rootScope.currentShoppingCartLeft = shoppingCart;
+    };
+
+    this.getCurrentShoppingCartRight = () => {
+        return $rootScope.currentShoppingCartRight;
+    };
+
+    this.getCurrentShoppingCartLeft = () => {
+        return $rootScope.currentShoppingCartLeft;
+    };
+
+    this.nextStep = () => {
+        if ($rootScope.currentShoppingCart) {
+            //Récupération de la derniere étape du ticket
+            let lastStep = Enumerable.from($rootScope.currentShoppingCart.Items).select(x => x.Step).orderByDescending().firstOrDefault();
+
+            //Si il n'y a pas d'items ou si l'étape est < à l'étape courante, on utilise l'étape courante du ticket
+            if (!lastStep || lastStep < $rootScope.currentShoppingCart.CurrentStep) {
+                lastStep = $rootScope.currentShoppingCart.CurrentStep;
+            }
+            const itemsInCurrentStep = true;
+
+            //Si la dernière étape contient des items alors on peut passer à la suivante
+            if (itemsInCurrentStep) {
+                $rootScope.currentShoppingCart.CurrentStep = lastStep + 1;
+                $rootScope.$emit("shoppingCartStepChanged", $rootScope.currentShoppingCart);
+            }
+        } else {
+            $rootScope.createShoppingCart();
+        }
+    };
+
+    this.setStep = (step) => {
+        $rootScope.currentShoppingCart.CurrentStep = step;
+        $rootScope.$emit("shoppingCartStepChanged", $rootScope.currentShoppingCart);
+    };
+
+    this.removeItemsFromStore = (store) => {
+        if ($rootScope.currentShoppingCart && $rootScope.currentShoppingCart.Items) {
+            let itemsFromStore = $rootScope.currentShoppingCart.Items.filter(i => i.StoreId == store.Id);
+            if (itemsFromStore && itemsFromStore.length > 0) {
+                for (let i of itemsFromStore) {
+                    productService.removeItem(i, true);
+                }
+
+                swal({
+                    title: "Oups!",
+                    text: "La commande du magasin " + store.Name + " a été fermée, veuillez nous en excuser. Choisissez une autre enseigne pour poursuivre votre commande",
+                    buttons: [false, false],
+                    timer: 10000
+                });
+            }
+        }
+    };
+
+    this.removeItemsByProduct = (product) => {
+        // On supprime tous les items associé au ProductId
+        if ($rootScope.currentShoppingCart && $rootScope.currentShoppingCart.Items && $rootScope.currentShoppingCart.ParentTicket) {
+
+            let matchingItems = $rootScope.currentShoppingCart.Items.filter(i => product.Id == i.Product.Id && i.Quantity > 0);
+            if (matchingItems && matchingItems.length > 0) {
+                for (let i of matchingItems) {
+                    productService.removeItem(i, true);
+                }
+
+                swal({
+                    title: "Oups!",
+                    text: "Il semble que le produit " + product.Name + " est en rupture de stock, veuillez nous en excuser.",
+                    buttons: [false, false],
+                    timer: 10000
+                });
+            }
+        }
+    };
+
+    $rootScope.$on("removeItem", (event, product) => {
+        self.removeItemsByProduct(product);
+    });
+
+    //Cancel the shopping cart - The event should be logged
+    this.cancelShoppingCartAndSend = () => {
+        productService.currentItems = [];
+        //$rootScope.PhoneOrderMode = false; // Retabli le mode de fonctionnement normal
+        $rootScope.currentDeliveryType = 0; //Reset le mode de consommation à sur place
+        if ($rootScope.currentShoppingCart) {
+            //console.log($rootScope.currentShoppingCart);
+            const hdid = $rootScope.currentShoppingCart.HardwareId;
+            //posService.getUpdDailyTicketAsync(hdid, -1);
+            $rootScope.showLoading();
+            let currentDate = new Date();
+            $rootScope.currentShoppingCart.Date = currentDate.toString('dd/MM/yyyy H:mm:ss');
+            $rootScope.currentShoppingCart.Canceled = true;
+
+            let toPrint = angular.copy($rootScope.currentShoppingCart);
+
+            //Si la sauvegarde du ticket validé est ok, on supprime éventuellement les tickets splittés.
+            $rootScope.currentShoppingCartRight = null;
+
+            if ($rootScope.currentShoppingCartLeft) {
+                $rootScope.currentShoppingCart = clone($rootScope.currentShoppingCartLeft);
+                $rootScope.currentDeliveryType = $rootScope.currentShoppingCart.DeliveryType;
+                $rootScope.currentShoppingCartLeft = null;
+                $rootScope.$emit("shoppingCartChanged", $rootScope.currentShoppingCart);
+            } else {
+                $rootScope.clearShoppingCart();
+            }
+
+            printService.printShoppingCartAsync(toPrint, $rootScope.PrinterConfiguration.POSPrinter, true, 1, true).then(() => {
+                $rootScope.hideLoading();
+                //cancelContinue();
+            }, (err) => {
+                //Sauvegarde de la requete dans PouchDb pour stockage ultérieur
+                $rootScope.hideLoading();
+                if (err.request) {
+                    err.request._id = err.request.ShoppingCart.Timestamp.toString();
+                    $rootScope.dbValidatePool.put(err.request);
+                }
+                //cancelContinue();
+            });
+        }
+    };
+
+    $rootScope.clearOrNextShoppingCart = () => {
+        // Once the ticket saved we delete the splitting ticket
+        $rootScope.currentShoppingCartRight = null;
+
+        if ($rootScope.currentShoppingCartLeft || $rootScope.currentShoppingCart && $rootScope.currentShoppingCart.shoppingCartQueue && $rootScope.currentShoppingCart.shoppingCartQueue.length > 0) {
+            if ($rootScope.currentShoppingCartLeft && $rootScope.currentShoppingCartLeft.Items && $rootScope.currentShoppingCartLeft.Items.length > 0) {
+                $rootScope.currentShoppingCart = clone($rootScope.currentShoppingCartLeft);
+                $rootScope.currentDeliveryType = $rootScope.currentShoppingCart.DeliveryType;
+                $rootScope.currentShoppingCartLeft = undefined;
+                $rootScope.$emit("shoppingCartChanged", $rootScope.currentShoppingCart);
+            } else if ($rootScope.currentShoppingCart.shoppingCartQueue.length > 0) {
+                if (!$rootScope.currentShoppingCart.splitAmountPaid) {
+                    $rootScope.currentShoppingCart.splitAmountPaid = 0;
+                }
+                const q = $rootScope.currentShoppingCart.shoppingCartQueue; //Stock la queue du ticket précédent
+                const osp = $rootScope.currentShoppingCart.origShoppingCart; // Stock le ticket original
+                let sumSplitItems = $rootScope.currentShoppingCart.Items.reduce((acc, cur) => {
+                    if (cur.isPartSplitItem) {
+                        acc += cur.PriceIT;
+                    }
+                    return acc;
+                }, 0);
+                const sap = $rootScope.currentShoppingCart.splitAmountPaid + sumSplitItems;
+                $rootScope.currentShoppingCart = clone($rootScope.currentShoppingCart.shoppingCartQueue[0]); //Affecte le shopping cart suivant de la queue
+                $rootScope.currentShoppingCart.shoppingCartQueue = q; //Raffecte la queue au nouveau current shoppingcart
+                $rootScope.currentShoppingCart.shoppingCartQueue.splice(0, 1);
+
+                $rootScope.currentShoppingCart.origShoppingCart = osp;
+                $rootScope.currentShoppingCart.splitAmountPaid = sap;
+
+                $rootScope.currentDeliveryType = $rootScope.currentShoppingCart.DeliveryType;
+                $rootScope.$emit("shoppingCartChanged", $rootScope.currentShoppingCart);
+
+                //Affecte le numéro dailyticket
+                if (!$rootScope.currentShoppingCart.dailyTicketId) {
+                    orderService.getUpdDailyTicketValueAsync($rootScope.currentShoppingCart.hardwareId, 1).then((cashRegisterTicketId) => {
+                        $rootScope.currentShoppingCart.dailyTicketId = cashRegisterTicketId;
+                    }).then(() => {
+                        $rootScope.$emit("shoppingCartChanged", $rootScope.currentShoppingCart);
+                        if ($rootScope.currentShoppingCart.shoppingCartQueue.length === 0) {
+                            $rootScope.currentShoppingCart.shoppingCartQueue = [];
+                        }
+                    }, (err) => {
+                        console.log('error getting daily ticket ', err);
+                    });
+                }
+            } else {
+                $rootScope.clearShoppingCart();
+            }
+        } else {
+            // Dans le cas de la validation d'un ticket, on ne clear pas le buffer comme ca
+            $rootScope.clearShoppingCart(false);
+        }
+    };
+
+    this.unfreezeShoppingCartById = (id) => {
+        const unfreezeDefer = $q.defer();
+        if (!$rootScope.currentShoppingCart) {
+            orderService.getFreezeAndOrderShoppingCartByIdAsync(id).then((shoppingCart) => {
+                posService.unfreezeShoppingCartAsync(shoppingCart).then((unfreezeSp) => {
+                    unfreezeSp.DontAutoLoad = false;
+
+                    unfreezeSp.Discounts = unfreezeSp.Discounts ? unfreezeSp.Discounts : [];
+                    unfreezeSp.Items = unfreezeSp.Items ? unfreezeSp.Items : [];
+                    deliveryService.upgradeCurrentShoppingCartAndDeliveryType(unfreezeSp);
+
+                    paymentService.calculateTotal();
+                    loyaltyService.calculateLoyalty();
+
+                    $rootScope.$emit("shoppingCartChanged", $rootScope.currentShoppingCart);
+                    unfreezeDefer.resolve();
+                });
+            }, () => {
+                unfreezeDefer.reject();
+                swal({
+                    title: $translate.instant("Ticket introuvable") + "..."
+                });
+            });
+        } else {
+            unfreezeDefer.reject();
+            swal({
+                title: $translate.instant("Vous avez déjà un ticket en cours") + "..."
+            });
+        }
+        return unfreezeDefer.promise;
+    };
+
+    this.unfreezeShoppingCartByBarcodeAsync = (barcode) => {
+        const unfreezeDefer = $q.defer();
+        if (!$rootScope.currentShoppingCart) {
+            orderService.getFreezedShoppingCartByBarcodeAsync(barcode).then((shoppingCart) => {
+                posService.unfreezeShoppingCartAsync(shoppingCart).then((unfreezedSc) => {
+                    unfreezedSc.Discounts = unfreezedSc.Discounts ? unfreezedSc.Discounts : [];
+                    unfreezedSc.Items = unfreezedSc.Items ? unfreezedSc.Items : [];
+                    deliveryService.upgradeCurrentShoppingCartAndDeliveryType(unfreezedSc);
+                    paymentService.calculateTotal();
+                    loyaltyService.calculateLoyalty();
+
+                    console.log("on a recup le ticket suivant : ");
+                    console.log($rootScope.currentShoppingCart);
+
+                    $rootScope.$emit("shoppingCartChanged", $rootScope.currentShoppingCart);
+                    unfreezeDefer.resolve();
+                }, (err) => {
+                    console.error(err);
+                    unfreezeDefer.reject();
+                });
+            }, () => {
+                console.log("pas de ticket dans le freeze pour le barcode ", barcode);
+                unfreezeDefer.reject();
+            });
+        } else {
+            swal({
+                title: $translate.instant("Vous avez déjà un ticket en cours") + "..."
+            });
+            unfreezeDefer.reject();
+        }
+        return unfreezeDefer.promise;
+    };
+
+    this.unfreezeShoppingCart = () => {
+        if (!$rootScope.currentShoppingCart || !$rootScope.currentShoppingCart.Items || $rootScope.currentShoppingCart.Items.length === 0) {
+            let modalInstance = $uibModal.open({
+                templateUrl: 'modals/modalUnfreezeShoppingCart.html',
+                controller: 'ModalUnfreezeShoppingCartController',
+                size: $mdMedia('min-width: 1300px') ? 'xlg' : 'max',
+                backdrop: 'static'
+            });
+
+            modalInstance.result.then((shoppingCart) => {
+                $rootScope.clearShoppingCart(false);
+                shoppingCart.Discounts = shoppingCart.Discounts ? shoppingCart.Discounts : [];
+                shoppingCart.Items = shoppingCart.Items ? shoppingCart.Items : [];
+                deliveryService.upgradeCurrentShoppingCartAndDeliveryType(shoppingCart);
+
+                paymentService.calculateTotal();
+                loyaltyService.calculateLoyalty();
+                $rootScope.$emit("shoppingCartChanged", $rootScope.currentShoppingCart);
+
+                if (shoppingCart.IsJoinedShoppingCart) {
+                    deliveryService.selectTableNumberAsync();
+                }
+            }, (err) => {
+                //console.log("shoppingCartService UnfreezeShoppingCart");
+                //console.error(err);
+            });
+        } else {
+            swal({
+                title: $translate.instant("Vous avez déjà un ticket en cours") + "..."
+            });
+        }
+    };
+
+    this.clearShoppingCartItem = () => {
+        if ($rootScope.currentShoppingCart) {
+            productService.currentPossibleMenus = [];
+            stockService.clearStockBuffer();
+
+            // clear les items
+            if ($rootScope.currentShoppingCart.Items) {
+                $rootScope.currentShoppingCart.Items.length = 0;
+            }
+            if ($rootScope.currentShoppingCart.PaymentModes) {
+                $rootScope.currentShoppingCart.PaymentModes.length = 0;
+            }
+            if ($rootScope.currentShoppingCart.TaxDetails) {
+                $rootScope.currentShoppingCart.TaxDetails.length = 0;
+            }
+
+            $rootScope.currentShoppingCartRight = undefined;
+            $rootScope.currentShoppingCartLeft = undefined;
+
+            paymentService.calculateTotal();
+            paymentService.updatePaymentModes();
+        }
+    };
+});

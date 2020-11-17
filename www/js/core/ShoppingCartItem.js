@@ -1,4 +1,4 @@
-var ShoppingCartItem = function (data) {
+const ShoppingCartItem = function (data) {
     $.extend(this, data);
 };
 

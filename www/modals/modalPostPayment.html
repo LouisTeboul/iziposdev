@@ -1,0 +1,32 @@
+<section class="modalCenterFS" ng-init="init()" ng-click="screenClick()" ng-class="{'pmr' : $root.isPMREnabled}" ng-style="customStyle">
+    <section class="groupModal" style="background-size: cover" ng-style="{'justify-content' : $root.borneVertical ? 'flex-end' : 'center',
+             'flex-direction': $root.borneVertical ? 'column' : 'row', 'flex' : $root.borneVertical ? '1' : '2'}">
+        <img ng-src="{{$root.borneMainLogo || 'img/logo.png'}}" class="imgLogoHeader bigLogo" draggable="false" alt="" src=""/>
+    </section>
+    <hr ng-class="{'smallModalHR': $root.borneVertical, 'smallModalHRH': !$root.borneVertical}" ng-style="{ 'background-color': $root.tenantColor,
+                    'width': $root.borneVertical ? (mdMedia('min-width: 800px') ? '300px' : '150px') : '2px',
+                    'height': $root.borneVertical ? '2px' : (mdMedia('min-height: 800px') ? '300px' : '150px')}" style="width: 300px;">
+    <section ng-style="{'justify-content' : $root.borneVertical ? 'flex-start' : 'center', 'flex' : $root.borneVertical ? '2' : '3', 'color' : $root.textColor}"
+             class="groupModal" style="flex-direction: column; color: white">
+        <div class="titlePostPayment" 
+        layout="column" layout-align="center center"
+        ng-style="{'margin-top': $root.borneVertical ? (mdMedia('min-width: 800px') ? '100px' : '20px') : '0'}">
+            <span translate>Merci pour votre visite, votre commande porte le numéro</span>
+            <span ng-style="{'font-size' : $root.borneVertical ? (mdMedia('min-width: 800px') ? '200px' : '50px') : (mdMedia('min-height: 800px') ? '200px' : '50px')}">
+                {{ticketID}}
+            </span>
+            <span ng-if="bipperNumber" class="bipperNo" ng-style="{'background-color': $root.tenantColor, 'color' : $root.textColor}">
+                {{itemName}} <x translate>numéro</x> {{bipperNumber}}
+            </span>
+        </div>
+        <hr class="smallModalHR" ng-style="{ 'background-color': $root.tenantColor, 'width': $root.borneVertical ? (mdMedia('min-width: 800px') ? '300px' : '150px') : '150px'}">
+
+
+
+        <div class="titlePostPayment" ng-style="{'margin-top': $root.borneVertical ? (mdMedia('min-width: 800px') ? '100px' : '20px') : '0'}">
+            <span ng-style="{'font-size' : $root.borneVertical ? (mdMedia('min-width: 800px') ? '40px' : '15px') : (mdMedia('min-height: 800px') ? '40px' : '15px')}" translate>
+                {{postPaymentText}}
+            </span>
+        </div>
+    </section>
+</section>

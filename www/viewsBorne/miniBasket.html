@@ -1,161 +1,280 @@
 <md-content ng-controller="MiniBasketController" ng-init="init()" id="miniBasket" class="miniBasket" layout="column"
-            ng-class="{'borneIsVertical': $root.borne && $root.borneVertical}"
-            flex>
-
-    <div layout="column"
-         class="mbFirstPart"
-         ng-style="{'border-color' : $root.tenantColor }">
+    ng-class="{'borneIsVertical': $root.borneVertical}" flex>
+    <div layout="column" class="mbFirstPart" ng-style="{'border-color' : $root.tenantColor }">
         <div id="miniBasketHeader" is-open="accordionStatus.ticketOpen"
-             ng-click="accordionStatus.paiementOpen=!accordionStatus.ticketOpen"
-             class="panel panel-default miniBasket"
-             style="height:100%; display:flex; flex-direction: column;">
+            ng-click="accordionStatus.paiementOpen=!accordionStatus.ticketOpen" class="panel panel-default miniBasket"
+            style="height:100%; display:flex; flex-direction: column;">
+            <div class="firstMenu" ng-style="{'background-color' : $root.tenantColor,
+                 'height': $root.borneVertical ?
+                 (mdMedia('min-width: 800px') ? '75px' : '26px') :
+                 (mdMedia('min-width: 800px') ? '45px' : '26px')}">
 
-            <div class="firstMenu"
-                 ng-style="{ 'background-color' : $root.tenantColor }">
                 <div layout="row" style="height:0;display:none;">
                     <ng-barcodetextfield flex></ng-barcodetextfield>
                 </div>
-                <div layout="row" class="titleCommand" ng-if="!currentShoppingCart.ParentTicket"
-                     ng-style="{'margin-right': $root.borne && $root.borneVertical ? (mdMedia('min-width: 800px') ? '20px' : '5px') : '0'}">
-                    <div class="titleBasket" flex>
-                        <div class="imgMiniBasket"
-                             ng-class="{'vertical': $root.borne && $root.borneVertical}"
-                             ng-style="{ 'background-color': $root.tenantColor }">
-                            <md-icon md-svg-src="img/icons/basket.svg"></md-icon>
+
+                <div layout="row" class="titleCommand" ng-style="{'color' : $root.textColor ? $root.textColor : ''}"
+                    ng-if="!currentShoppingCart.ParentTicket"
+                    ng-style="{'margin-right': $root.borneVertical ? (mdMedia('min-width: 800px') ? '20px' : '5px') : '0'}">
+                    <div class="titleBasket" style="height: 100%;"ng-style="{'color' : $root.textColor ? $root.textColor : ''}" flex>
+                        <div class="imgMiniBasket" ng-class="{'vertical': $root.borneVertical}"
+                            ng-style="{ 'background-color': $root.tenantColor}">
+                            <!--'height': $root.borneVertical ? (mdMedia('min-width: 800px') ? '50px' : '25px') : '45px'}>"-->
+                            <md-icon md-svg-src="img/icons/basket.svg" ng-style="{'height': $root.borneVertical ?
+                                                (mdMedia('min-width: 800px') ? '75px' : '26px') : '45px',
+                                                'width': $root.borneVertical ?
+                                                (mdMedia('min-width: 800px') ? '62px' : '22px') :
+                                                (mdMedia('min-height: 800px') ? '45px' : '45PX'),
+                                                 'fill' : $root.textColor ? $root.textColor : '' }">
+
+                            </md-icon>
                         </div>
-                        <span class="text-uppercase votreCommande"
-                              ng-style="{'font-size': ($root.borne && $root.borneVertical) || !currentShoppingCart.customerLoyalty.CustomerFirstName ? '26px' : '15px',
-                               'margin-left': $root.borne && $root.borneVertical ?
-                               (mdMedia('min-width: 800px') ? '20px' : '5px') : '10px' }" translate>Mon Panier</span>
+                        <div style="display:flex;flex-direction: column">
+                            <span class="text-uppercase votreCommande" ng-style="{'font-size': $root.borneVertical ?
+                                  (!currentShoppingCart.customerLoyalty.CustomerFirstName ? '26px' : '15px') :
+                                  (mdMedia('min-height: 800px') ? '18px' : '14px'),
+
+                                  'margin-left': $root.borneVertical ?
+                                  (mdMedia('min-width: 800px') ? '20px' : '5px') :
+                                  (mdMedia('min-height: 800px') ? '15px' : '15px')}" ng-if="!currentShoppingCart.customerLoyalty.CustomerFirstName ||
+                                  ($root.borneVertical ? mdMedia('min-width: 800px') : mdMedia('min-height: 800px')) || !$root.borneVertical"
+                                translate>Mon Panier</span>
+                            <span  class="text-uppercase votreCommande" ng-style="{'font-size': $root.borneVertical ?
+                              (!currentShoppingCart.customerLoyalty.CustomerFirstName ? '26px' : '15px') :
+                               (mdMedia('min-height: 800px') ? '18px' : '20px'),
+                               'margin-left': $root.borneVertical ?
+                               (mdMedia('min-width: 800px') ? '20px' : '5px') :
+                               (mdMedia('min-height: 800px') ? '10px' : '15px')}" ng-if="currentShoppingCart.customerLoyalty.CustomerFirstName &&
+                              ($root.borneVertical ? !mdMedia('min-width: 800px') : !mdMedia('min-height: 800px')) && $root.borneVertical"
+                                translate>Panier</span>
+                        </div>
                     </div>
-                    <div flex class="text-right priceHeaderMB" ng-if="$rootScope.borne && $rootScope.borneVertical">
+
+                    <div flex class="text-right priceHeaderMB" ng-if="$root.borneVertical">
                         <!--<span ng-if="currentShoppingCart != undefined && currentShoppingCart.Repaid > 0">{{currentShoppingCart.Repaid | CurrencyFormat}}</span>-->
-                        <span ng-if="currentShoppingCart != undefined && currentShoppingCart.Residue > 0">{{currentShoppingCart.Residue | CurrencyFormat}}</span>
-                        <span ng-if="currentShoppingCart != undefined && currentShoppingCart.Credit > 0">{{currentShoppingCart.Credit | CurrencyFormat}}</span>
+                        <span
+                            ng-if="currentShoppingCart && currentShoppingCart.Residue > 0">{{currentShoppingCart.Residue | CurrencyFormat}}</span>
+                        <span
+                            ng-if="currentShoppingCart && currentShoppingCart.Credit > 0">{{currentShoppingCart.Credit | CurrencyFormat}}</span>
+                        <span
+                            ng-if="currentShoppingCart && currentShoppingCart.Discounts && currentShoppingCart.Discounts.length > 0"
+                            class="discountMB">
+                            &nbsp; (Remise {{currentShoppingCart.Discounts[0].Value}}
+                            {{currentShoppingCart.Discounts[0].IsPercent ? "%" : "€"}})
+                        </span>
+
                     </div>
-                    <div class="fidHeaderMB" ng-if="currentShoppingCart.customerLoyalty.CustomerFirstName">
+
+                    <div class="fidHeaderMB" flex
+                        ng-if="currentShoppingCart.customerLoyalty && currentShoppingCart.customerLoyalty.CustomerFirstName && $root.borneVertical">
                         <div class="catFidHeaderMB">
-                            <div class="iconCatFidMB" ng-style="{ 'background-color': $root.tenantColor }">
-                                <md-icon md-svg-src="img/icons/pot.svg"></md-icon>
+                            <div class="iconCatFidMB" ng-style="{'background-color': $root.tenantColor}">
+                                <md-icon md-svg-src="img/icons/pot.svg"
+                                    ng-style="{'color' : $root.textColor ? $root.textColor : ''}"></md-icon>
                             </div>
                             <div class="vCatFidHMB">
-                                <span class="potTitle" ng-if="$rootScope.borne && $rootScope.borneVertical && mdMedia('min-width: 800px')" translate>Cagnotte fidélité</span>
-                                <span class="potAmount" ng-repeat="balance in currentShoppingCart.customerLoyalty.Balances">{{balance.Value | CurrencyFormat}}</span>
+                                <span class="potTitle" ng-if="$root.borneVertical &&
+                                ($root.borneVertical ? mdMedia('min-width: 800px') : mdMedia('min-height: 800px'))"
+                                    translate>Cagnotte fidélité</span>
+                                <span class="potAmount"
+                                    ng-repeat="balance in currentShoppingCart.customerLoyalty.Balances">{{balance.Value | CurrencyFormat}}</span>
                             </div>
                         </div>
-                        <div class="catFidHeaderMB" ng-click="$event.stopPropagation();chooseRelevantOffer();">
-                            <div class="iconCatFidMB" ng-style="{ 'background-color': $root.tenantColor }">
-                                <md-icon md-svg-src="img/icons/gift.svg"></md-icon>
+                        <div class="catFidHeaderMB" ng-click="$event.stopPropagation();chooseRelevantOffer();"
+                            ng-show="currentShoppingCart.customerLoyalty && currentShoppingCart.customerLoyalty.RelevantOffers && currentShoppingCart.customerLoyalty.RelevantOffers.length > 0">
+                            <div class="iconCatFidMB" ng-style="{'background-color': $root.tenantColor}">
+                                <md-icon md-svg-src="img/icons/gift.svg"
+                                    ng-style="{'color' : $root.textColor ? $root.textColor : ''}"></md-icon>
                             </div>
-                            <span class="offerTitleFidBasket" ng-if="$rootScope.borne && $rootScope.borneVertical" translate>Mes offres</span>
+                            <span class="offerTitleFidBasket" ng-show="$root.borneVertical" translate>Mes offres</span>
                         </div>
                     </div>
                 </div>
             </div>
-            <md-content id="miniBasketItems" class="itemsPanel" layout="column"
-                        ng-style="{'padding-top' :  $rootScope.borne && $rootScope.borneVertical ? '0' : '15px'}">
+            <div class="secondeMenu" ng-if="!$root.borneVertical && currentShoppingCart.customerLoyalty && currentShoppingCart.customerLoyalty.CustomerFirstName ">
+
+                <div class="fidHeaderMB" flex
+                    ng-if="currentShoppingCart.customerLoyalty && currentShoppingCart.customerLoyalty.CustomerFirstName ">
+                    <div class="catFidHeaderMB" style="margin-left:10px">
+                        <div class="iconCatFidMB">
+                            <md-icon md-svg-src="img/icons/pot.svg"
+                                ng-style="{'color' : $root.textColor ? $root.textColor : ''}"></md-icon>
+                        </div>
+                        <div class="vCatFidHMB">
+                            <span class="potTitle" ng-if="$root.borneVertical &&
+                        ($root.borneVertical ? mdMedia('min-width: 800px') : mdMedia('min-height: 800px'))"
+                                translate>Cagnotte fidélité</span>
+                            <span class="potAmount"
+                                ng-repeat="balance in currentShoppingCart.customerLoyalty.Balances">{{balance.Value | CurrencyFormat}}</span>
+                        </div>
+                    </div>
+                    <div class="catFidHeaderMB" ng-click="$event.stopPropagation();chooseRelevantOffer();"
+                        ng-show="currentShoppingCart.customerLoyalty && currentShoppingCart.customerLoyalty.RelevantOffers && currentShoppingCart.customerLoyalty.RelevantOffers.length > 0">
+                        <div class="iconCatFidMB">
+                            <md-icon md-svg-src="img/icons/gift.svg"
+                                ></md-icon>
+                        </div>
+                        <span class="offerTitleFidBasket" style ="font-size : 15px" translate>Mes offres</span>
+                    </div>
+                </div>
+            </div>
+            <md-content id="miniBasketItems" class="itemsPanel" layout="column" ng-style="{'padding' : $root.borneVertical ? '0 0 0 15px' :
+                        (mdMedia('min-height: 800px') ? '15px 0 0' : '5px 0 0')}">
                 <div layout="column">
                     <div ng-repeat="step in shoppingCartLines track by $index"
-                         ng-class="{'listItemVertical': $root.borne && $root.borneVertical}">
+                        class="listItemBorne">
                         <div ng-repeat="item in step.AttrItems track by $index" layout="column"
-                             ng-click="selectLine(item)"
-                             id="{{item.ProductId}}">
-                            <div class="productGroup"
-                                 ng-style="{ 'margin-bottom' : $rootScope.borne && $rootScope.borneVertical ? '0' : '15px'}">
-                                <div class="productCount"
-                                     ng-style="{ 'color' : $root.tenantColor}">
-                                    <span>{{item.Quantity}}x</span>
+                            ng-click="$event.stopPropagation();selectLine(item);editMenu(item);"
+                            id="{{item.ProductId}}">
+                            <div class="productGroup" ng-style="{'margin' : $root.borneVertical ? '5px 15px 5px 0' :
+                                 (mdMedia('min-height: 800px') ? '0 auto 15px' : '0 auto 5px'),
+                                 'width': $root.borneVertical ?
+                                 (mdMedia('min-width: 800px') ? '400px' : '150px') :
+                                 (mdMedia('min-height: 800px') ? '400px' : '100%')}">
+
+                                <div class="productCount">
+                                    {{item.Quantity}}x
                                 </div>
-                                <div class="productInfos">
-                                    <span>{{item.Product.Name}}</span>
+                                <div class="productInfos" layout="column" layout-align="start start">
+                                    <div layout="row">
+                                        <span>{{item.Product.Name}}</span>
+                                        <span ng-show="item.IsFree" style="white-space: nowrap;">&nbsp; -
+                                            OFFERT</span>
+                                    </div>
+
                                     <div ng-repeat="attr in item.Attributes"
-                                         ng-if="!IziBoxConfiguration.StepEnabled || attr.Step == step.Step"
-                                         class="productDetails">{{attr.Name}}
+                                        ng-if="!IziBoxConfiguration.StepEnabled || attr.Step == step.Step"
+                                        class="productDetails">{{attr.Name}}
+                                    </div>
+
+                                    <div ng-show="item.Comment" style="white-space: nowrap;">&nbsp; {{item.Comment}}
                                     </div>
                                 </div>
-                                <div class="productTools" ng-if="!currentShoppingCart.isPayed">
+
+
+                                <div class="productTools" layout="row" layout-align="start center"
+                                    ng-if="!currentShoppingCart.isPayed">
                                     <md-icon aria-label="removeLine" md-svg-src="img/icons/corbeille.svg"
-                                             ng-style="{ 'color' : $root.tenantColor}"
-                                             ng-click="$event.stopPropagation();removeItem(item);"
-                                             ng-if="(item.Offer == undefined || !item.isPartSplitItem) && item.Quantity == 1"></md-icon>
+                                        ng-style="{ 'color' : $root.tenantAltColor || $root.tenantColor}"
+                                        ng-click="$event.stopPropagation();removeItem(item);"
+                                        ng-if="item.Quantity == 1"></md-icon>
+
                                     <md-icon aria-label="decrementQty" md-svg-src="img/icons/moins.svg"
-                                             ng-style="{ 'color' : $root.tenantColor}"
-                                             ng-click="$event.stopPropagation();decrementQuantity(item);"
-                                             ng-if="item.Offer == undefined && item.Quantity != 1"></md-icon>
+                                        ng-style="{ 'color' : $root.tenantAltColor || $root.tenantColor}"
+                                        ng-click="$event.stopPropagation();decrementQuantity(item);"
+                                        ng-if="!item.Offer && item.Quantity > 1"></md-icon>
                                     <md-icon aria-label="incrementQty" md-svg-src="img/icons/plus.svg"
-                                             ng-style="{ 'color' : $root.tenantColor}"
-                                             ng-click="$event.stopPropagation();incrementQuantity(item);"
-                                             ng-if="item.Offer == undefined"></md-icon>
+                                        ng-if="!item.IsFree && !item.Offer"
+                                        ng-style="{ 'color' : $root.tenantAltColor || $root.tenantColor}"
+                                        ng-click="$event.stopPropagation();incrementQuantity(item);"
+                                        ng-disabled="item.Offer != undefined
+                                                            || (item.Product.OrderMaximumQuantity && item.Quantity >= item.Product.OrderMaximumQuantity)
+                                                            || (item.Product.ManageInventoryMethodId === 1 && item.Quantity >= item.Product.StockQuantity)
+                                                            || (item.Product.ManageInventoryMethodId === 1 && item.Product.StockQuantity - stockService.getBufferStockForProductId(item.Product.Id) <= 0)">
+                                    </md-icon>
                                 </div>
+
                             </div>
                         </div>
+
                         <div ng-repeat="groupItems in step.NormalItems track by $index" layout="column"
-                             ng-click="selectLine(item)">
-                            <div class="productBGroup"
-                                 ng-style="{ 'margin' : $rootScope.borne && $rootScope.borneVertical ? '2px 5px' : '15px 2px'}">
+                            ng-click="selectLine(item)">
+                            <div class="productBGroup" ng-style="{ 'margin' : $root.borneVertical ? '5px 15px 5px 0' :
+                                '7px',
+                                'width': $root.borneVertical ?
+                                 (mdMedia('min-width: 800px') ? '400px' : '150px') :
+                                  'auto'} ">
                                 <div ng-repeat="itemd in groupItems track by $index" id="{{itemd.ProductId}}"
-                                     ng-class="{'productSep': $index != 0}" class="productSGroup">
-                                    <div class="productCount"
-                                         ng-style="{ 'color' : $root.tenantColor}">
-                                        <span>{{itemd.Quantity}}x</span>
+                                    ng-class="{'productSep': $index != 0}  " layout="row" layout-align="center center"
+                                    layout-fill class="productSGroup"
+                                    ng-style="{'min-height' : $root.borneVertical ? '60px' :
+                                '50px' }"
+                                    >
+
+                                    <div class="productCount">
+                                        {{itemd.Quantity}}x
                                     </div>
-                                    <div class="productInfos">
-                                        <span ng-class="{'minProduct': groupItems.length == 3}">{{itemd.Product.Name}}</span>
-                                        <div ng-repeat="attr in itemd.Attributes"
-                                             ng-if="!IziBoxConfiguration.StepEnabled || attr.Step == step.Step"
-                                             class="productDetails">{{attr.Name}}
+
+                                    <div class="productInfos" layout="column">
+                                        <div layout="row" layout-align="start center">
+                                            <span
+                                                ng-class="{'minProduct': groupItems.length == 3}">{{itemd.Product.Name}}</span>
+
+                                            <span ng-show="itemd.IsFree" style="white-space: nowrap;">&nbsp; -
+                                                OFFERT</span>
+                                            <div ng-repeat="attr in itemd.Attributes"
+                                                ng-if="!IziBoxConfiguration.StepEnabled || attr.Step == step.Step"
+                                                class="productDetails">{{attr.Name}}
+                                            </div>
+                                        </div>
+
+                                        <div ng-show="itemd.Comment" class="productCommentMB">&nbsp;
+                                            {{itemd.Comment}}
                                         </div>
                                     </div>
+
                                     <div class="productTools" ng-if="!currentShoppingCart.isPayed">
                                         <md-icon aria-label="removeLine" md-svg-src="img/icons/corbeille.svg"
-                                                 ng-style="{ 'color' : $root.tenantColor}"
-                                                 ng-click="$event.stopPropagation();removeItem(itemd);" class="smallPT"
-                                                 ng-if="(itemd.Offer == undefined || !itemd.isPartSplitItem) && itemd.Quantity == 1"></md-icon>
+                                            ng-style="{ 'color' : $root.tenantAltColor || $root.tenantColor}"
+                                            ng-click="$event.stopPropagation();removeItem(itemd);" class="smallPT"
+                                            ng-if="!itemd.Offer && itemd.Quantity == 1">
+                                        </md-icon>
                                         <md-icon aria-label="decrementQty" md-svg-src="img/icons/moins.svg"
-                                                 ng-style="{ 'color' : $root.tenantColor}"
-                                                 ng-click="$event.stopPropagation();decrementQuantity(itemd);"
-                                                 ng-if="itemd.Offer == undefined && itemd.Quantity != 1"></md-icon>
+                                            ng-style="{ 'color' : $root.tenantAltColor || $root.tenantColor}"
+                                            ng-click="$event.stopPropagation();decrementQuantity(itemd);"
+                                            ng-if="!itemd.Offer && itemd.Quantity > 1"></md-icon>
                                         <md-icon aria-label="incrementQty" md-svg-src="img/icons/plus.svg"
-                                                 ng-style="{ 'color' : $root.tenantColor}"
-                                                 ng-click="$event.stopPropagation();incrementQuantity(itemd);"
-                                                 ng-if="itemd.Offer == undefined"></md-icon>
+                                            ng-if="!itemd.IsFree && !itemd.Offer"
+                                            ng-style="{ 'color' : $root.tenantAltColor || $root.tenantColor}"
+                                            ng-click="$event.stopPropagation();incrementQuantity(itemd);"
+                                            ng-disabled="itemd.Offer != undefined
+                                                                || (itemd.Product.ManageInventoryMethodId === 1 && itemd.Quantity + 1 > itemd.Product.StockQuantity)
+                                                                || (itemd.Product.ManageInventoryMethodId === 1 && itemd.Product.StockQuantity - stockService.getBufferStockForProductId(itemd.Product.Id) <= 0)">
+                                        </md-icon>
+
                                     </div>
+
                                 </div>
                             </div>
+
+
                         </div>
                     </div>
                 </div>
             </md-content>
         </div>
     </div>
-    <div id="mbValidation" ng-if="$rootScope.borne && !$rootScope.borneVertical">
+    <div id="mbValidation" ng-if="!$root.borneVertical">
         <div class="mbPaiementValidation">
             <div class="mbSecondPartH">
-                <div class="btnMBAction">
-                    <div class="bigDisplayed">
-                        <a class="btnMainBorne"
-                           ng-click="cancelShoppingCart()"
-                           ng-disabled="currentShoppingCart.isPayed" flex>
-                            <span style="white-space:normal" translate>Abandonner ma commande</span>
+                <div class="btnMBAction" >
+                    <div class="bigDisplayed" >
+                        <a class="btnMainBorne" ng-click="cancelShoppingCart()"
+                            ng-disabled="currentShoppingCart.isPayed" style="background-color: #ffffff;border: 1px solid #b9b9b9;" flex>
+
+                            <span  style="white-space:normal" translate>Annuler</span>
                         </a>
                     </div>
                 </div>
                 <div class="btnMBAction">
-                    <div class="bigDisplayed active">
-                        <a ng-click="confirmBorneOrder()"
-                           ng-disabled="!(currentShoppingCart.Items.length > 0)"
-                           ng-class="{ 'disabled' : !currentShoppingCart || !(currentShoppingCart.Residue == currentShoppingCart.Total || currentShoppingCart.Residue == 0)}"
-                           ng-style=" { 'background-color' : $root.tenantColor, 'border-color' : $root.tenantColor }" flex>
-                            <span style="white-space:normal" translate>Valider ma commande</span>
-                            <span class="priceMBD" ng-if="currentShoppingCart != undefined && currentShoppingCart.Residue > 0">{{currentShoppingCart.Residue | CurrencyFormat}}</span>
-                            <span class="priceMBD" ng-if="currentShoppingCart != undefined && currentShoppingCart.Credit > 0">{{currentShoppingCart.Credit | CurrencyFormat}}</span>
+                    <div class="bigDisplayed active" >
+                        <a ng-click="confirmBorneOrder()" style="padding:0 5px 0;"
+                            ng-disabled="!(currentShoppingCart.Items.length > 0)"
+                            ng-class="{ 'disabled' : !currentShoppingCart || !(currentShoppingCart.Residue == currentShoppingCart.Total || currentShoppingCart.Residue == 0)}"
+                            ng-style=" { 'background-color' : $root.tenantColor, 'border-color' : $root.tenantColor }"
+                            flex>
+                            <span style="white-space:normal;text-align:center" translate>Valider</span>
+                            <span class="priceMBD"
+                                ng-if="currentShoppingCart != undefined && currentShoppingCart.Residue > 0">{{currentShoppingCart.Residue | CurrencyFormat}}</span>
+                            <span class="priceMBD"
+                                ng-if="currentShoppingCart != undefined && currentShoppingCart.Credit > 0">{{currentShoppingCart.Credit | CurrencyFormat}}</span>
                         </a>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    <div class="mbSecondPart" ng-if="$rootScope.borne && $rootScope.borneVertical">
+    <div class="mbSecondPart" ng-if="$root.borneVertical">
         <div class="devBy">
             <md-icon class="devByLogo" md-svg-src="img/icons/logo-ip.svg"></md-icon>
             <div id="groupDevBy">
@@ -164,31 +283,32 @@
                 <span class="devByColor">.pro</span>
             </div>
         </div>
-        <div class="smallDisplayed" ng-if="mdMedia('min-width: 800px')">
-            <a class="shoppingCartAction"
-               ng-click="setPMRmode()"
-               style="background-color: #ddd;border-color:#ddd">
+        <div class="pmrToggle" ng-class="{ 'toggled' : $root.isPMREnabled }" ng-if="mdMedia('min-width: 800px')">
+            <a class="shoppingCartAction" ng-click="$root.setPMRmode()">
                 <md-icon md-svg-src="img/icons/pmr.svg"></md-icon>
             </a>
         </div>
         <div class="btnMBAction">
             <div class="bigDisplayed">
-                <a class="btnMainBorne"
-                   ng-click="cancelShoppingCart()"
-                   ng-disabled="currentShoppingCart.isPayed" flex>
+                <a class="btnMainBorne" ng-click="cancelShoppingCart()" ng-disabled="currentShoppingCart.isPayed" flex>
                     <span style="white-space:normal" translate>Abandonner ma commande</span>
                 </a>
             </div>
         </div>
         <div class="btnMBAction">
             <div class="bigDisplayed active">
-                <a class="shoppingCartAction"
-                   ng-click="confirmBorneOrder()"
-                   ng-disabled="!(currentShoppingCart.Items.length > 0)"
-                   ng-class="{ 'disabled' : !currentShoppingCart || !(currentShoppingCart.Residue == currentShoppingCart.Total || currentShoppingCart.Residue == 0)}"
-                   ng-style=" { 'background-color' : $root.tenantColor, 'border-color' : $root.tenantColor }"
-                   flex>
+                <a class="shoppingCartAction disabled" ng-click="confirmBorneOrder()"
+                    ng-class="{'disabled' : $root.borneValidationLocked || currentShoppingCart.Items.length === 0}"
+                    ng-style=" {
+                    'background-color' : $root.tenantColor ? $root.tenantColor : '',
+                    'color' : $root.textColor ? $root.textColor : '',
+                    'border-color' : $root.tenantColor ? $root.tenantColor : ''}" flex>
+
                     <span style="white-space:normal" translate>Valider ma commande</span>
+
+                    <div class="mbValidation1Cooldown" ng-show="$root.borneValidationLocked">
+                        <md-icon id="hourglass" md-svg-src="img/icons/hourglass.svg"></md-icon>
+                    </div>
                 </a>
             </div>
         </div>

@@ -1,0 +1,199 @@
+<section class="" ng-init="init()">
+    <div class="modal-header no-border" layout="row" layout-align="center center">
+        <h1 class="modal-title" translate>Configuration des imprimantes</h1>
+        <button class="btn btn-black" style="margin-left:20px; padding: 5px;" layout="row" layout-align="center center" ng-disabled="waitingForScan" ng-click="scanNetwork()">
+            <i ng-class="{ 'spin' : waitingForScan}" class="glyphicon glyphicon-refresh"></i>
+        </button>
+    </div>
+    <div class="form-panel modal-body" style="padding: 15px 0;" layout="column">
+        <div class="p-headers" layout="row" layout-align="start center" ng-show="printerConfig && printerConfig.Printers && printerConfig.Printers.length > 0">
+            <div style="max-width: 100%;flex:4" flex-gt-sm="20" class="center" translate>
+                IP imprimantes
+            </div>
+            <div style="flex:1" ng-show="!$root.borne && mdMedia('min-width: 800px')" class="center" translate>
+                Rôle(s)
+            </div>
+            <div style="flex:1" ng-show="!$root.borne" class="center">
+                Ticket
+            </div>
+            <div style="flex:1" class="center">
+                Addition
+            </div>
+            <!--<div style="flex:1" ng-show="$root.IziBoxConfiguration.EnableKDS && !$root.borne" class="center">
+                KDS
+            </div>-->
+            <div style="flex:1" ng-show="!$root.borne && mdMedia('min-width: 800px')" class="center" translate>
+                MàJ Uniquement
+            </div>
+            <div style="flex:1" ng-show="!$root.borne && mdMedia('min-width: 800px')" class="center" translate>
+                Ligne(s) d'entête
+            </div>
+            <div style="flex:1" ng-show="printerConfig.Printers.length > 1 && !$root.borne" class="center"></div>
+        </div>
+        <div class="p-lines" ng-show="printerConfig">
+            <div class="p-line" ng-repeat="printer in printerConfig.Printers" layout="row" layout-align="start center">
+                <!--IP-->
+                <div style="max-width: 100%;flex:4" layout="row" layout-align="center center">
+                    <div class="printerInfoContainer" layout="row" layout-align="space-between center">
+                        <div class="printerStatus" ng-class="{'down' : !printer.IsUp, 'up' : printer.IsUp}"></div>
+                        <div>{{printer.IPaddress}}</div>
+                        <div class="btn-rose btnTestPrinter" layout="row" layout-align="center center" ng-click="testPrinter(printer)">
+                            <img alt="Image" src="img/print.png" />
+                        </div>
+                    </div>
+                </div>
+                <!--Roles-->
+                <div style="flex:1" class="printerRoles" ng-show="!$root.borne && mdMedia('min-width: 800px')">
+                    <ui-select multiple ng-model="printer.PrinterRoles" theme="bootstrap" close-on-select="false">
+                        <ui-select-match placeholder="Aucun">
+                            <x translate>{{$item.Name}}</x>
+                        </ui-select-match>
+                        <ui-select-choices repeat="role.Id as role in printerConfig.PrinterRoles | filter:$select.search">
+                            <x translate>{{role.Name}}</x>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+                <!--Ticket-->
+                <div style="flex:1" ng-show="!$root.borne" class="center" layout="row" layout-align="center center">
+                    <md-radio-group ng-model="$root.PrinterConfiguration.POSPrinter">
+                        <md-radio-button aria-label="Ticket printer" name="ticketPrint" ng-value="printer.IPaddress" style="margin:0">
+                    </md-radio-group>
+                </div>
+                <!--Addition-->
+                <div style="flex:1" class="center" layout="row" layout-align="center center">
+                    <md-radio-group ng-model="$root.PrinterConfiguration.ProdPrinter">
+                        <md-radio-button aria-label="Prod printer" name="prodPrint" ng-value="printer.IPaddress" style="margin:0">
+                    </md-radio-group>
+                </div>
+                <!-- KDS-->
+                <!--<div style="flex:1" ng-show="!$root.borne && $root.IziBoxConfiguration.EnableKDS" class="center" layout="row" layout-align="center center">
+                    <md-radio-group ng-model="printerConfig.KdsPrinter">
+                        <md-radio-button aria-label="Ticket printer" name="kdsPrint" ng-value="printer.IPaddress" style="margin:0">
+                    </md-radio-group>
+                </div>-->
+                <!--Only update-->
+                <div style="flex:1" ng-show="!$root.borne && mdMedia('min-width: 800px')" layout="row" layout-align="center center">
+                    <md-checkbox aria-label="print only update" name="onlyUpdate" ng-model="printer.PrintOnlyUpdates" style="margin:0">
+                </div>
+                <!--Line Feed-->
+                <div style="flex:1" ng-show="!$root.borne && mdMedia('min-width: 800px')" class="center" layout="column" layout-align="center center">
+                    <div class="input-group" style="width: 100%" uib-dropdown is-open="printer.isOpenLineFeed">
+                        <button id="dropDownLineFeed" type="button" class="btn btn-default" uib-dropdown-toggle>
+                            <div class="dropDownvalue"> {{printer.LineFeed || 0 }}</div>
+                            <span style="margin-top:8px;float:right" class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu" role="menu" style="min-width:unset;" aria-labelledby="dropDownLineFeed">
+                            <li ng-repeat="nb in [0, 1, 2, 3, 4, 5] track by $index" role="menuitem" class="item">
+                                <a ng-click="setLineFeed(printer, nb)">{{nb}}</a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div style="flex:1" ng-show="printerConfig.Printers.length > 1 && !$root.borne" ng-click="removePrinter(printer)" layout="row" layout-align="center center">
+                    <md-icon md-svg-src="img/icons/cancel.svg"></md-icon>
+                </div>
+            </div>
+            <div ng-show="!$root.borne" class="p-line" layout="row" layout-align="start center">
+                <div flex="100" layout="row" layout-align="center center">
+                    <div class="printerInfoContainer" layout="row" layout-align="space-between center">
+                        <div flex="80" style="height:100%">
+                            <text-field class="addPrinterText" placeholder="Entrer adresse IP" translate-attr-placeholder="Entrer adresse IP" ng-model="newPrinterIp"
+                                        type="azerty" location="center-end" validfunction="addPrinter"></text-field>
+                        </div>
+                        <div class="btnAddPrinter" layout="row" layout-align="center center" ng-click="addPrinter()" flex="20">
+                            <span translate>+ Ajouter</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="p-line" layout="row" layout-align="start center">
+                <div class="p-line printer-error" ng-show="printerAddError" flex="100"> {{printerAddError}}</div>
+            </div>
+        </div>
+        <div class="printerConfigLine" layout="column" ng-show="printerConfig && printerConfig.Printers && printerConfig.Printers.length > 0 && !$root.borne">
+            <div layout="row" layout-align="space-around center" layout-wrap>
+                <div layout="row" layout-align="start center" style="margin:10px">
+                    <span style="padding-right:10px" translate>Nb. impression addition</span>
+                    <div class="input-group" uib-dropdown is-open="status.isOpenNbPrintProd">
+                        <button id="NbPrintProd" type="button" class="btn btn-default" uib-dropdown-toggle>
+                            <div class="dropDownvalue"> {{$root.PrinterConfiguration.ProdPrinterCount || 1 }}</div>
+                            <span style="margin-top:8px;float:right" class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu" role="menu" style="min-width:unset;" aria-labelledby="NbPrintProd">
+                            <li ng-repeat="nb in [1, 2, 3, 4] track by $index" role="menuitem" class="item">
+                                <a ng-click="setCountPrinterProd(nb)">{{nb}}</a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div layout="row" layout-align="start center" style="margin:10px">
+                    <span style="padding-right:10px" translate>Police grande taille</span>
+                    <md-checkbox aria-label="print double size" name="doublesize" ng-model="printerConfig.PrintDoubleSize" style="margin:0" />
+                </div>
+                <div layout="row" layout-align="start center" style="margin:10px">
+                    <span style="padding-right:10px" translate>Tickets d'annonce</span>
+                    <md-checkbox aria-label="enable announcement tickets" name="announcement" ng-model="printerConfig.PrintAnnounce" style="margin:0" />
+                </div>
+                <div class="printOption-button" ng-click="toggleAdditionalOptions()" style="margin:10px"> +</div>
+            </div>
+            <div layout="row" layout-align="space-around start" ng-show="showAdditionalOptions" layout-wrap>
+
+                <div layout="column" layout-align="start center" style="margin:10px">
+                    <span style="padding-right:10px">Grd. numéro de commande</span>
+                    <div layout="column">
+                        <md-checkbox aria-label="qrcode prod ticket" name="qrcode-prod" ng-model="printerConfig.PrintBigTicketIdOnProdTickets" style="margin:0">
+                            {{ "Sur les additions" | translate }}
+                        </md-checkbox>
+                        <md-checkbox aria-label="qrcode step ticket" name="qrcode-step" ng-model="printerConfig.PrintBigTicketIdOnStepTickets" style="margin:0">
+                            {{ "Sur les tickets cuisine" | translate }}
+                        </md-checkbox>
+                    </div>
+                </div>
+
+                <div layout="row" layout-align="start center" style="margin:10px">
+                    <span style="padding-right:10px" translate>Numéro de ligne</span>
+                    <md-checkbox aria-label="line number" name="line-number" ng-model="printerConfig.PrintLineNumber" style="margin:0" />
+                </div>
+                <div layout="column" layout-align="start center" style="margin:10px">
+                    <span style="padding-right:10px" translate>Impression auto</span>
+                    <md-radio-group ng-model="printerConfig.PrintProdAuto">
+                        <md-radio-button aria-label="disabled" name="disabled" ng-value="0" style="margin:0"> {{ "Aucune" | translate}}</md-radio-button>
+                        <md-radio-button aria-label="prod ticket" name="prodTicket" ng-value="1" style="margin:0"> {{ "Addition" | translate}}</md-radio-button>
+                        <md-radio-button aria-label="step ticket" name="stepTicket" ng-value="2" style="margin:0"> {{ "Ticket cuisine" | translate}}</md-radio-button>
+                    </md-radio-group>
+                </div>
+                <div layout="column" layout-align="start center" style="margin:10px">
+                    <span style="padding-right:10px" translate>Impr. QRCode</span>
+                    <div layout="column">
+                        <md-checkbox aria-label="qrcode prod ticket" name="qrcode-prod" ng-model="printerConfig.PrintQROnProdTickets" style="margin:0">
+                            {{ "Sur les additions" | translate }}
+                        </md-checkbox>
+                        <md-checkbox aria-label="qrcode step ticket" name="qrcode-step" ng-model="printerConfig.PrintQrOnStepTickets" style="margin:0">
+                            {{ "Sur les tickets cuisine" | translate }}
+                        </md-checkbox>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div ng-show="$root.borne" layout="row" layout-align="start center">
+            <div flex="30" layout="row" layout-align="center center">
+                <span class="bold" style="padding-right: 5px;" translate>Imprimante borne</span>
+                <button class="btn btn-rose" ng-click="testBornePrinter()" style="padding: 1px 6px;">
+                    <img style="width:15px;" alt="Image" src="img/print.png" />
+                </button>
+            </div>
+            <div flex="30" layout="row" layout-align="center center">
+                <span class="bold" style="padding-right: 5px;" translate>Imprimer une addition à la validation</span>
+                <md-checkbox style="margin: 0" ng-model="$root.PrinterConfiguration.PrintToPos"></md-checkbox>
+            </div>
+        </div>
+        <div layout="row" layout-align="center center" ng-show="!printerConfig || printerConfig && !printerConfig.Printers
+             || printerConfig && printerConfig.Printers && printerConfig.Printers.length == 0" translate>
+            Aucune imprimante trouvée, veuillez scanner le réseau ou ajouter une imprimante
+        </div>
+    </div>
+    <div class="modal-footer no-border" layout="row" layout-align="space-around center">
+        <button class="btn btn-green" ng-click="ok()" translate>Appliquer la configuration</button>
+        <button class="btn btn-rose" ng-click="cancel()" translate>Annuler</button>
+    </div>
+</section>

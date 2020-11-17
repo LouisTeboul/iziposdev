@@ -1,0 +1,8 @@
+<md-content class="IZIPASSTemplate" id="IZIPASSController"
+            ng-controller="StoreCategoriesController"
+            ng-init="init()">
+    <category-repeat ng-class="{'leftHanded' : $root.UserPreset.HandPreference==2,
+                    'rightHanded' : $root.UserPreset.HandPreference==1}"
+                     layout="column" layout-xs="row" layout-sm="row"
+                     class="categoryContent" ng-cloak></category-repeat>
+</md-content>

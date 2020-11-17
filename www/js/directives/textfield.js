@@ -5,31 +5,33 @@ app.directive('textField', function ($timeout, $rootScope) {
         restrict: 'E',
         scope: {
             location: '@',
+            placeholder: '@',
             type: '@',
+            nullable: '@',
             nativekeyboard: '@',
             tostring: '@',
             validfunction: '&'
         },
         link: function (scope, element, attrs, ngModelCtrl) {
 
-            scope.currentElement = element;
-            //scope.currentElement[0].className += " layout-fill";
-            scope.ngModelCtrl = ngModelCtrl;
-            scope.$watch(function () {
-                return ngModelCtrl.$modelValue;
-            }, initialize);
-
-            function initialize(value) {
-                scope.valueType = typeof (value);
+            const initialize = (value) => {
+                scope.valueType = typeof value;
                 ngModelCtrl.$setViewValue(value);
                 scope.txtValue = value;
                 scope.init = true;
                 scope.$evalAsync();
                 $rootScope.$emit("updateModel", ngModelCtrl);
                 //unregister();
-            }
+            };
+
+            scope.currentElement = element;
+            //scope.currentElement[0].className += " layout-fill";
+            scope.ngModelCtrl = ngModelCtrl;
+            scope.$watch(() => {
+                return ngModelCtrl.$modelValue;
+            }, initialize);
         }
-    }
+    };
 });
 
 app.directive('textFieldBorne', function ($timeout, $rootScope) {
@@ -40,83 +42,127 @@ app.directive('textFieldBorne', function ($timeout, $rootScope) {
         scope: {
             location: '@',
             type: '@',
+            nullable: '@',
             nativekeyboard: '@',
             tostring: '@',
             validfunction: '&',
-            fieldname: '@',
+            placeholder: '@',
             mandatory: '@'
         },
         link: function (scope, element, attrs, ngModelCtrl) {
 
-            scope.currentElement = element;
-            //scope.currentElement[0].className += " layout-fill";
-            scope.ngModelCtrl = ngModelCtrl;
-            scope.$watch(function () {
-                return ngModelCtrl.$modelValue;
-            }, initialize);
-
-            function initialize(value) {
-                scope.valueType = typeof (value);
+            const initialize = (value) => {
+                scope.valueType = typeof value;
                 ngModelCtrl.$setViewValue(value);
                 scope.txtValue = value;
                 scope.init = true;
                 scope.$evalAsync();
                 $rootScope.$emit("updateModel", ngModelCtrl);
                 //unregister();
-            }
+            };
+
+            scope.currentElement = element;
+            //scope.currentElement[0].className += " layout-fill";
+            scope.ngModelCtrl = ngModelCtrl;
+            scope.$watch(() => {
+                return ngModelCtrl.$modelValue;
+            }, initialize);
         }
-    }
+    };
 });
 
 app.service('textFieldService', ['$rootScope', function ($rootScope) {
 
-    let focusedTextField = undefined;
-    this.setFocusedTextField = function (textField) {
+    let focusedTextField = null;
+
+    this.setFocusedTextField = (textField) => {
         if (focusedTextField != textField) {
             if (focusedTextField) $rootScope.closeKeyboard();
             focusedTextField = textField;
             $rootScope.$emit("focusedTextFieldChanged", textField);
         }
     };
-    this.unfocusTextField = function (textField) {
+
+    this.unfocusTextField = (textField) => {
         if (focusedTextField == textField) {
             this.setFocusedTextField(undefined);
         }
     };
-    this.getFocusedTextField = function () {
+
+    this.getFocusedTextField = () => {
         return focusedTextField;
     };
+
 }]);
 
 app.controller('TextFieldCtrl', function ($rootScope, $scope, textFieldService) {
 
-    let tsFocus;
+    //let tsFocus;
     let lastEvent;
 
-    $scope.init = function () {
-
-        $scope.initialized = false;
-
-        if (!$rootScope.borneEventLoaded) {
-            window.addEventListener("keypress", trapkeypress);
-            window.addEventListener("keydown", trapkeydown);
-            $rootScope.borneEventLoaded = true;
-        }
-    };
+    // $scope.init = () => {
+    //
+    //     $scope.initialized = false;
+    //
+    //     // if (!$rootScope.KeyboardEventsLoaded) {
+    //     //     window.addEventListener("keypress", trapkeypress);
+    //     //     window.addEventListener("keydown", trapkeydown);
+    //     //     $rootScope.KeyboardEventsLoaded = true;
+    //     // }
+    // };
 
     const focusedTextFieldHandler = $rootScope.$on('focusedTextFieldChanged', (evt, textfield) => {
         $scope.isFocused = textfield === $scope.currentElement;
         $scope.$evalAsync();
     });
 
-    const txtValueHandler = $scope.$watch('txtValue', () => {
+    const removeMultipleDots = () => {
+        let dot = $scope.txtValue.indexOf(".", $scope.txtValue.indexOf(".") + 1);
+        if (dot !== -1) {
+            $scope.txtValue = $scope.txtValue.slice(0, dot) + $scope.txtValue.slice(dot + 1);
+            removeMultipleDots();
+        }
+    }
 
+    const removeLetters = () => {
+        let last = $scope.txtValue.substring($scope.txtValue.length - 1);
+        let regex = "0123456789."; /* /^\d+(\.\d+)*$/ */
+        let isNumber = regex.includes(last);
+        if (last && !isNumber) {
+            $scope.txtValue = $scope.txtValue.substring(0, $scope.txtValue.length - 1);
+        }
+    }
+
+    const txtValueHandler = $scope.$watch('txtValue', () => {
         let newValue;
+
         if (!$scope.tostring && (!$scope.txtValue || $scope.txtValue.toString().indexOf("-") !== 0) && ($scope.valueType === "number" || $scope.type === "numeric" || $scope.type === "decimal")) {
-            newValue = Number.parseFloat($scope.txtValue);
-            if (isNaN(newValue)) {
-                newValue = 0;
-                $scope.txtValue = 0;
+            if (Number.isNaN($scope.txtValue)) {
+                $scope.txtValue = "0";
+            } else {
+                $scope.txtValue = String($scope.txtValue).replace(",", ".");
+                removeMultipleDots();
+                removeLetters();
+            }
+            if ($scope.txtValue == "00") {
+                $scope.txtValue = "0";
+            }
+
+            if ($scope.txtValue && !$scope.txtValue.includes(".")) {
+                newValue = Number.parseFloat($scope.txtValue);
+            } else {
+                if ($scope.txtValue === "") {
+                    newValue = 0;
+                } else {
+                    newValue = $scope.txtValue;
+                }
+            }
+
+            let last = String(newValue).substring($scope.txtValue.length - 1);
+            if (last !== "." && last !== "0") {
+                newValue = Number($scope.txtValue);
+            } else if (newValue === ".") {
+                newValue = "0.";
             }
         } else {
             newValue = $scope.txtValue;
@@ -124,13 +170,15 @@ app.controller('TextFieldCtrl', function ($rootScope, $scope, textFieldService) 
                 newValue = "";
             }
         }
-        $scope.ngModelCtrl.$setViewValue(newValue);
+
+        if (Number.isNaN(newValue)) {
+            newValue = 0;
+        }
+
+        $scope.ngModelCtrl.$setViewValue(String(newValue));
     });
 
-    /*
-     * Déterminer si le champ est visible pour éviter
-     * 
-     */
+    //Déterminer si le champ est visible pour éviter
     const isVisible = () => {
         let el = $scope.currentElement[0];
         let top = el.offsetTop;
@@ -143,28 +191,27 @@ app.controller('TextFieldCtrl', function ($rootScope, $scope, textFieldService) 
             top += el.offsetTop;
             left += el.offsetLeft;
         }
-        return top < (window.pageYOffset + document.body.offsetHeight) &&
-            left < (window.pageXOffset + document.body.offsetWidth) &&
-            (top + height) > window.pageYOffset &&
-            (left + width) > window.pageXOffset;
+        return top < window.pageYOffset + document.body.offsetHeight &&
+            left < window.pageXOffset + document.body.offsetWidth &&
+            top + height > window.pageYOffset &&
+            left + width > window.pageXOffset;
     };
 
 
     //Détermine le champ actif de la page
-    const currentElementHandler = $scope.$watch('currentElement', function () {
-
+    const currentElementHandler = $scope.$watch('currentElement', () => {
         $scope.currentElement.bind("blur", (e) => {
-            if (e.timeStamp - tsFocus > 500) {
+            // if (e.timeStamp - tsFocus > 500) {
                 textFieldService.unfocusTextField($scope.currentElement);
-            } else {
-                $scope.currentElement[0].focus();
-            }
+            // } else {
+            //     $scope.currentElement[0].focus();
+            // }
         });
         $scope.currentElement.bind("focus", (e) => {
             textFieldService.setFocusedTextField($scope.currentElement);
-            tsFocus = e.timeStamp;
+            // tsFocus = e.timeStamp;
             if (!lastEvent || !lastEvent.type || lastEvent.type !== "keypress") {
-                $rootScope.closeKeyboard();
+                // $rootScope.closeKeyboard();
                 $rootScope.openKeyboard($scope.type, $scope.location, $scope);
             }
         });
@@ -174,10 +221,10 @@ app.controller('TextFieldCtrl', function ($rootScope, $scope, textFieldService) 
                 $scope.currentElement.find("#txtValue")[0].style.minHeight = currentHeight + "px";
             }
         };
-        $scope.currentElement.bind("resize", function (e) {
+        $scope.currentElement.bind("resize", (e) => {
             resizeInnerDiv();
         });
-        setTimeout(function () {
+        setTimeout(() => {
             resizeInnerDiv();
         }, 1000);
     });
@@ -189,73 +236,31 @@ app.controller('TextFieldCtrl', function ($rootScope, $scope, textFieldService) 
     });
 
     $scope.$on("$destroy", () => {
-
         $rootScope.closeKeyboard();
         focusedTextFieldHandler();
         keypressHandler();
         modifierKeyPressHandler();
         txtValueHandler();
         modelHandler();
-        //Native Keyboard
-        /*
-        if ($scope.nativekeyboard) {
-            window.removeEventListener("keypress", trapkeypress);
-            window.removeEventListener("keydown", trapkeydown);
-            $rootScope.eventKeyPress = false;
-        }
-        */
+        currentElementHandler();
+        $rootScope.KeyboardEventsLoaded = false;
     });
 
-    $scope.focus = function ($event) {
+    $scope.focus = ($event) => {
         lastEvent = $event;
         $scope.currentElement.focus();
     };
-
-    // This functions traps the physical keyboard interaction in
-    // By default it is enabled 
-    //Keypress and Keydown handle different character but we have 
-    let trapkeypress = function (e) {
-
-        //How to tell if a uibModal is opened
-        //https://github.com/angular-ui/bootstrap/tree/master/src/modal/docs
-        let isModal = $("body").hasClass("modal-open");
-        if (isVisible() || isModal) {
-            lastEvent = e;
-            $scope.$emit(Keypad.KEY_PRESSED, String.fromCharCode(e.keyCode));
-        }
-    };
-
-    let trapkeydown = function (e) {
-
-        //How to tell if a uibModal is opened
-        //https://github.com/angular-ui/bootstrap/tree/master/src/modal/docs
-        let isModal = $("body").hasClass("modal-open");
-        if (isVisible() || isModal) {
-            if (e.keyCode === 13) { //enter
-                setTimeout(function () {
-                    $scope.$emit(Keypad.MODIFIER_KEY_PRESSED, "NEXT");
-                }, 500);
-                e.preventDefault();
-                e.stopPropagation();
-            }
-            if (e.keyCode === 8) { //backspace
-                $scope.$emit(Keypad.MODIFIER_KEY_PRESSED, "CLEAR");
-                e.preventDefault();
-                e.stopPropagation();
-            }
-        }
-    };
-
-    const keypressHandler = $rootScope.$on(Keypad.KEY_PRESSED, function (event, data) {
-
-        // TODO : faire tampon avec une variable, pour eviter les perte de caractere du au delai du focus
-
+    
+    const keypressHandler = $rootScope.$on(Keypad.KEY_PRESSED, (event, data) => {
         const isQrModal = $("#txtQRCode").hasClass("modalQrOpen");
         const isModal = $("body").hasClass("modal-open");
-        if ($scope.isFocused || ($scope.nativekeyboard && isVisible() && (!isModal || isQrModal))) {
+        if ($scope.isFocused || $scope.nativekeyboard && isVisible() && (!isModal || isQrModal)) {
             if (!$scope.initialized && $scope.txtValue && $scope.txtValue.toString().length > 0) {
                 $scope.txtValue = data;
             } else {
+                if (!$scope.txtValue) {
+                    $scope.txtValue = "";
+                }
                 $scope.txtValue += data;
             }
             $scope.initialized = true;
@@ -263,8 +268,7 @@ app.controller('TextFieldCtrl', function ($rootScope, $scope, textFieldService) 
         }
     });
 
-    const modifierKeyPressHandler = $rootScope.$on(Keypad.MODIFIER_KEY_PRESSED, function (event, key, id) {
-
+    const modifierKeyPressHandler = $rootScope.$on(Keypad.MODIFIER_KEY_PRESSED, (event, key, id) => {
         if ($scope.isFocused) {
             $scope.init = false;
             switch (key) {
@@ -297,7 +301,6 @@ app.controller('TextFieldCtrl', function ($rootScope, $scope, textFieldService) 
                     $scope.$evalAsync();
                     break;
             }
-
         }
     });
 });

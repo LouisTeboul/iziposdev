@@ -1,7 +1,7 @@
 .azerty {
     position: absolute;
     max-height: 350px;
-    max-width: 748px;
+    max-width: 748px !important;
     width: 100%;
     z-index: 10000;
     background: #e4e4e4;

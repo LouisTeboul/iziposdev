@@ -1,27 +1,26 @@
-app.controller('ModalPrintStatsController', function ($scope, $rootScope, $uibModal, $uibModalInstance, zposService, datas, printMode) {
-
+app.controller('ModalPrintStatsController', function ($scope, $uibModalInstance, zposService, datas, count, printMode) {
     $scope.datas = datas;
 
-    $scope.init = function () {
+    $scope.init = () => {
         $scope.printDetails = false;
-        $scope.template = zposService.composeStatsHTML(datas, printMode, null, $scope.printDetails);
+        $scope.template = zposService.composeStatsHTML(datas, printMode, count, $scope.printDetails, true);
         document.querySelector(".ticketBody").innerHTML = $scope.template;
 
         $scope.$watch('printDetails', () => {
-            $scope.template = zposService.composeStatsHTML(datas, printMode, null, $scope.printDetails);
+            $scope.template = zposService.composeStatsHTML(datas, printMode, count, $scope.printDetails, true);
             document.querySelector(".ticketBody").innerHTML = $scope.template;
         });
     };
 
-    $scope.printZPos = function() {
+    $scope.printZPos = () => {
         zposService.printZPosAsync($scope.template, $scope.printDetails);
     };
 
-    $scope.ok = function () {
+    $scope.ok = () => {
         $uibModalInstance.close('ok');
     };
 
-    $scope.cancel = function () {
+    $scope.cancel = () => {
         $uibModalInstance.dismiss('cancel');
     };
 });

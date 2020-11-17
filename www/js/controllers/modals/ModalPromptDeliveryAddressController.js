@@ -1,14 +1,13 @@
-app.controller('ModalPromptDeliveryAddressController', function ($scope, $rootScope, $uibModalInstance, $translate, $http, $uibModal, barcodeClient) {
+app.controller('ModalPromptDeliveryAddressController', function ($scope, $rootScope, $uibModalInstance, $translate, $http, $uibModal, loyaltyService, barcodeClient) {
     $scope.selectedAddress = undefined;
     $scope.errorMessage = undefined;
     $scope.selectedAddress = undefined;
     $scope.noDelivery = true;
-    $scope.init = function () {
-        $http.get($rootScope.IziBoxConfiguration.UrlSmartStoreApi + '/RESTLoyalty/RESTLoyalty/GetAddresses?barcode=' + barcodeClient).then(function (response) {
-            //Bind les adresse a une variable du scope
-            console.log(response);
-            $scope.addresses = response.data.Addresses;
+    $scope.init = () => {
 
+        loyaltyService.getAddressesAsync(barcodeClient).then((addresses) => {
+            //Bind les adresse a une variable du scope
+            $scope.addresses = addresses;
         });
     };
 
@@ -38,7 +37,7 @@ app.controller('ModalPromptDeliveryAddressController', function ($scope, $rootSc
             backdrop: 'static'
         });
 
-        modalInstance.result.then(function (newAddress) {
+        modalInstance.result.then((newAddress) => {
 
             const formattedAddress = {
                 Address1 : newAddress.mandatory.Address1,
@@ -54,26 +53,16 @@ app.controller('ModalPromptDeliveryAddressController', function ($scope, $rootSc
                 Fax : $scope.addresses[0].FaxRequired ? $scope.addresses[0].Fax : null,
             };
 
-
-
-            $http({
-                method: 'POST',
-                url: $rootScope.IziBoxConfiguration.UrlSmartStoreApi + '/RESTLoyalty/RESTLoyalty/AddAddress?barcode=' + barcodeClient,
-                data: JSON.stringify(formattedAddress)
-            }).then(function (success) {
-                console.log(success);
-                //Recharge la liste des adresses
-                $http.get($rootScope.IziBoxConfiguration.UrlSmartStoreApi + '/RESTLoyalty/RESTLoyalty/GetAddresses?barcode=' + barcodeClient).then(function (response) {
-                    //Bind les adresse a une variable du scope
-                    console.log(response);
-                    $scope.addresses = response.data.Addresses;
+            loyaltyService.addAddressAsync(formattedAddress).then(() => {
+                // Recharge les adresses
+                loyaltyService.getAddressesAsync().then((addresses) => {
+                    $scope.addresses = addresses;
                 });
-            }, function (error) {
-                console.log(error);
-                swal($translate.instant("Impossible d'ajouter l'adresse !"));
+            }, (err) => {
+                console.error(err);                
+                swal({ title: $translate.instant("Impossible d'ajouter l'adresse !") });
             });
-
-        }, function () {
+        }, () => {
             // Cancel, ne fait rien
         });
 

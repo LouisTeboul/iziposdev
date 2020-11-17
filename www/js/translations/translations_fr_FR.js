@@ -55,6 +55,14 @@
         "DiscountTotalIT": "Total remises TTC",
         "RepaidCount": "Nb remboursés",
         "OffersCount": "Nb offerts",
-        "OffersAmount": "Montant offerts"
+        "OffersAmount": "Montant offerts",
+        "LossCount" : "Nb pertes",
+        "LossAmount" : "Tot. pertes",
+        "EmployeeMealsCount" : "Nb repas employé",
+        "EmployeeMealsAmount" : "Tot. repas employé",
+        "Cutleries" : "Nb couverts",
+        "DEFAULT" : "Impr. par defaut",
+        "ALL" : "Tous",
+        "CreditCount" : "Nb. d'avoir emis"
     });
 }]);

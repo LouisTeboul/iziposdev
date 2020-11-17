@@ -1,192 +1,68 @@
-﻿app.controller('ModalShoppingCartSplitController', function ($scope, $rootScope, $uibModalInstance, $uibModal, $mdMedia,defaultValue, shoppingCartModel, posService) {
+﻿app.controller('ModalShoppingCartSplitController', function ($scope, $rootScope, $uibModalInstance, $uibModal, $mdMedia, defaultValue, paymentService, shoppingCartService, orderService, productService, deliveryService) {
     $scope.errorMessage = undefined;
     $scope.value = defaultValue;
     $scope.result = {
         "nb": 0
     };
+    $scope.leftMDiscount = 0;
+    $scope.rightMDiscount = 0;
 
-    $scope.init = function () {
+    $scope.alreadySplit = false;
+
+    $scope.init = () => {
         $scope.mdMedia = $mdMedia;
 
-        $scope.currentShoppingCartIn = cloneShoppingCart(shoppingCartModel.getCurrentShoppingCartIn() || shoppingCartModel.createShoppingCartIn());
-        $scope.currentShoppingCartOut = cloneShoppingCart(shoppingCartModel.getCurrentShoppingCartOut() || shoppingCartModel.createShoppingCartOut());
+        $scope.currentSCRight = cloneShoppingCart(shoppingCartService.getCurrentShoppingCartRight() || shoppingCartService.createShoppingCartRight());
+        $scope.currentSCLeft = cloneShoppingCart(shoppingCartService.getCurrentShoppingCartLeft() || shoppingCartService.createShoppingCartLeft());
 
-        if(!$scope.currentShoppingCartIn.dailyTicketId){
-            posService.getUpdDailyTicketValueAsync($scope.currentShoppingCartIn.hardwareId, 1).then(function (cashRegisterTicketId) {
-                $scope.currentShoppingCartIn.dailyTicketId = cashRegisterTicketId;
-            }).then(function () {
-                $rootScope.$emit("shoppingCartChanged", $scope.currentShoppingCartIn);
+        // ATTENTION : C'est possible que ca casse de truc de commenter ce bloc
+
+        // // Init all haskeys
+        // for (let [index, item] of $scope.currentSCLeft.Items.entries()) {
+        //     item.index = index;
+        //     item.hashkey = objectHash(item);
+        // }
+
+        $scope.alreadySplit = $scope.currentSCRight.Items.length !== 0;
+
+        if (!$scope.currentSCRight.dailyTicketId && !$scope.alreadySplit) {
+            orderService.getUpdDailyTicketValueAsync($scope.currentSCRight.HardwareId, 1).then((cashRegisterTicketId) => {
+                $scope.currentSCRight.dailyTicketId = cashRegisterTicketId;
+            }).then(() => {
+                $rootScope.$emit("shoppingCartChanged", $scope.currentSCRight);
             });
         }
 
-
-        if ($scope.currentShoppingCartOut.TableNumber) {
-            $scope.currentShoppingCartIn.TableNumber = $scope.currentShoppingCartOut.TableNumber;
+        if ($scope.currentSCLeft.TableNumber || $scope.currentSCLeft.TableId) {
+            $scope.currentSCRight.TableNumber = clone($scope.currentSCLeft.TableNumber);
+            $scope.currentSCRight.TableId = clone($scope.currentSCLeft.TableId);
         }
 
-        if ($scope.currentShoppingCartOut.Discounts.length > 0) {
-            $scope.currentShoppingCartIn.Discounts = [];
-        }
-    };
-
-    $scope.sendToIn = function (item) {
-
-        if (!$scope.currentShoppingCartIn) {
-            $scope.currentShoppingCartIn = shoppingCartModel.createShoppingCartIn();
-        }
-        if (!$scope.currentShoppingCartOut) {
-            $scope.currentShoppingCartOut = shoppingCartModel.createShoppingCartOut();
-        }
-        this.tryMatch($scope.currentShoppingCartOut, $scope.currentShoppingCartIn, item);
-
-    };
-
-    $scope.splitToIn = function (item) {
-
-        let modalInstance = $uibModal.open({
-            templateUrl: 'modals/modalSplitItem.html',
-            controller: 'ModalSplitItemController',
-            backdrop: 'static',
-            resolve: {
-                defaultValue: function () {
-                    return true;
-                },
-                item: function () {
-                    return item;
+        if ($scope.currentSCLeft.Discounts.length > 0) {
+            for (let discount of $scope.currentSCLeft.Discounts) {
+                if (discount.IsPercent) {
+                    $scope.currentSCRight.Discounts = clone($scope.currentSCLeft.Discounts);
                 }
             }
-        });
-
-        modalInstance.result.then(function (result) {
-            console.log(result);
-            if (result.montant) {
-                if (result.montant <= item.PriceIT - item.DiscountIT && !result.makeParts) {
-                    shoppingCartModel.splitItemTo($scope.currentShoppingCartIn, $scope.currentShoppingCartOut, item, result.montant);
-                    shoppingCartModel.calculateTotalFor($scope.currentShoppingCartOut);
-                    shoppingCartModel.calculateTotalFor($scope.currentShoppingCartIn);
-
-                }
-                else {
-                    /* TODO : Afficher une erreur */
-                }
-
-                if (result.makeParts && result.nbPart) {
-                    shoppingCartModel.makeParts($scope.currentShoppingCartOut, item, result.nbPart);
-                    shoppingCartModel.calculateTotalFor($scope.currentShoppingCartOut);
-                    shoppingCartModel.calculateTotalFor($scope.currentShoppingCartIn);
+            for (let discount of $scope.currentSCRight.Discounts) {
+                discount.Total = 0;
+                if (!discount.IsPercent) {
+                    discount.Value = 0;
                 }
             }
-        }, function () {
-            console.log('Erreur');
-        });
-    };
-
-
-    $scope.tryMatch = function (from, to, itemIn) {
-        //on cherche a match une partie de produit split avec son parent
-        //Pour cela, on utilise les hashkey
-        //Si les hashkey sont identique, on regroupe les deux items
-
-
-        let matchedItem = Enumerable.from(to.Items).firstOrDefault(function (itemOut) {
-            return itemOut.hashkey == itemIn.hashkey && itemOut.ProductId == itemIn.ProductId && itemOut.Step == itemIn.Step && itemOut.Product.Price == itemIn.Product.Price;
-        });
-
-        if (matchedItem) {
-            let qty;
-            if (Number.isInteger(itemIn.Quantity) || itemIn.Quantity >= 1) {
-                qty = 1
-            } else {
-                qty = itemIn.Quantity;
-            }
-            matchedItem.Quantity += qty;
-            itemIn.Quantity -= qty;
-
-            /*
-
-            var ratio = qty / itemIn.Quantity;
-            matchedItem.DiscountIT += ratio * clone(itemIn.DiscountIT);
-            matchedItem.DiscountET += ratio * clone(itemIn.DiscountET);
-
-            itemIn.DiscountIT -= ratio * clone(itemIn.DiscountIT);
-            itemIn.DiscountET -= ratio * clone(itemIn.DiscountET);
-
-            */
-
-            if(itemIn.Quantity == 0){
-                //Transfer le discout en même temps que le dernier item de la ligne.
-                //Pose probleme dans le cas ou le discount ligne > prix unitaire de l'article
-
-                matchedItem.DiscountIT += itemIn.DiscountIT;
-                matchedItem.DiscountET += itemIn.DiscountET;
-
-                shoppingCartModel.removeItemFrom(from, itemIn);
-            }
-
-            console.log(matchedItem);
-            if (matchedItem.Quantity % 1 == 0) {
-                matchedItem.isPartSplitItem = false;
-            }
-        } else {
-            shoppingCartModel.addItemTo(to, from, itemIn);
         }
 
-        shoppingCartModel.calculateTotalFor(to);
-        shoppingCartModel.calculateTotalFor(from);
+        $scope.updateDiscountM();
+
+        paymentService.calculateTotalFor($scope.currentSCRight, true, false);
+        paymentService.calculateTotalFor($scope.currentSCLeft, true, false);
     };
 
-    $scope.sendToOut = function (item) {
-        if (!item.dispFraction) {
-            this.tryMatch($scope.currentShoppingCartIn, $scope.currentShoppingCartOut, item);
-        }
-    };
-
-    $scope.ok = function () {
-        if ($scope.currentShoppingCartIn.Items.length > 0) {
-            //Si le nb de couvert du ticket split est superieur au nb de couvert du ticket d'origine
-            if ($scope.result.nb == $scope.currentShoppingCartOut.TableCutleries && $scope.currentShoppingCartOut.Items.length > 0) {
-                $scope.errorMessage = "Le ticket d'origine doit être vide pour transferer tout les couverts au ticket secondaire";
-            } else {
-                if ($scope.result.nb > $scope.currentShoppingCartOut.TableCutleries) {
-                    $scope.errorMessage = "Le nombre de couvert dans le ticket secondaire doit être inferieur ou égal au ticket d'origine";
-                } else {
-                    if ($scope.currentShoppingCartOut.TableCutleries) {
-                        $scope.currentShoppingCartIn.TableCutleries = $scope.result.nb;
-                        $scope.currentShoppingCartOut.TableCutleries -= $scope.result.nb;
-                    }
-                    console.log($scope.currentShoppingCartOut, $scope.currentShoppingCartIn);
-                    shoppingCartModel.setCurrentShoppingCartIn($scope.currentShoppingCartIn);
-                    shoppingCartModel.setCurrentShoppingCartOut($scope.currentShoppingCartOut);
-                    shoppingCartModel.setCurrentShoppingCart($scope.currentShoppingCartIn);
-                    $uibModalInstance.close($scope.value);
-                }
-            }
-        } else {
-            shoppingCartModel.setCurrentShoppingCartIn(undefined);
-            shoppingCartModel.setCurrentShoppingCartOut(undefined);
-            shoppingCartModel.setCurrentShoppingCart($scope.currentShoppingCartOut);
-            $uibModalInstance.close($scope.value);
-        }
-    };
-
-    $scope.cancel = function () {
-        const hdid = $scope.currentShoppingCartOut.HardwareId;
-
-        posService.getUpdDailyTicketAsync(hdid, -1);
-
-        $scope.currentShoppingCartIn = undefined;
-        shoppingCartModel.setCurrentShoppingCartIn(undefined);
-        $scope.currentShoppingCartOut = undefined;
-        shoppingCartModel.setCurrentShoppingCartOut(undefined);
-
-        $uibModalInstance.dismiss();
-    };
-
-    const cloneShoppingCart = function (shoppingCart) {
+    const cloneShoppingCart = (shoppingCart) => {
         let ret = clone(shoppingCart);
         let cloneItemsArray = [];
 
-        for(let item of shoppingCart.Items) {
+        for (let item of shoppingCart.Items) {
             if (item.Quantity > 0) {
                 cloneItemsArray.push(clone(item));
             }
@@ -196,7 +72,7 @@
         ret.Discounts = [];
 
         if (shoppingCart.Discounts && shoppingCart.Discounts.length > 0) {
-            for(let d of shoppingCart.Discounts) {
+            for (let d of shoppingCart.Discounts) {
                 let newDiscount = clone(d);
                 newDiscount.Total = 0;
                 ret.Discounts.push(newDiscount);
@@ -204,5 +80,221 @@
         }
 
         return ret;
-    }
+    };
+
+    $scope.sendToIn = (item) => {
+        $scope.tryMatch($scope.currentSCLeft, $scope.currentSCRight, item);
+    };
+
+    $scope.sendToOut = (item) => {
+        $scope.tryMatch($scope.currentSCRight, $scope.currentSCLeft, item);
+    };
+
+    $scope.tryMatch = (scFrom, scTo, item) => {
+        //On cherche a match une partie de produit split avec son parent
+        //Pour cela, on utilise les hashkey
+        //Si les hashkey sont identique, on regroupe les deux items
+        let matchedItem = Enumerable.from(scTo.Items).firstOrDefault((itemOut) => {
+            return itemOut.hashkey === item.hashkey && itemOut.ProductId === item.ProductId && itemOut.Step === item.Step && itemOut.Product.Price === item.Product.Price;
+        });
+
+        const calculate = () => {
+            if (item.stockQuantity && item.stockQuantity !== 0) {
+                matchedItem.stockQuantity = Number.isInteger(item.stockQuantity) ? item.stockQuantity : null;
+                matchedItem.isPartSplitItem = false;
+            }
+
+            let quantity = truncator(matchedItem.Quantity + item.Quantity, 8);
+            if (quantity % 1 !== 0 && quantity % 1 < 0.0001 || quantity % 1 > 0.9999) {
+                quantity = truncator(quantity, 2);
+            }
+
+            matchedItem.Quantity = quantity;
+            matchedItem.DiscountIT = truncator(matchedItem.DiscountIT + item.DiscountIT, 2);
+            matchedItem.DiscountET = truncator(matchedItem.DiscountET + item.DiscountET, 2);
+            matchedItem.PriceIT = truncator(matchedItem.PriceIT + item.PriceIT, 2);
+            matchedItem.PriceET = truncator(matchedItem.PriceET + item.PriceET, 2);
+
+            productService.removeItemFrom({ shoppingCart: scFrom, cartItem: item, truncate: true, calculateDiscount: false, forceRemove: true });
+        }
+
+        if (item.isPartSplitItem) {
+            if (matchedItem) {
+                calculate();
+            } else {
+                scTo.Items.push(item);
+                productService.removeItemFrom({ shoppingCart: scFrom, cartItem: item, truncate: true, calculateDiscount: false, forceRemove: true });
+            }
+        } else {
+            if (matchedItem) {
+                if (item.Quantity <= 1) {
+                    calculate();
+                } else {
+                    let discountIT = truncator(item.DiscountIT / item.Quantity, 2);
+                    let discountET = truncator(item.DiscountET / item.Quantity, 2);
+                    let priceIT = truncator(item.PriceIT / item.Quantity, 2);
+                    let priceET = truncator(item.PriceET / item.Quantity, 2);
+
+                    matchedItem.DiscountIT = truncator(matchedItem.DiscountIT + discountIT, 2);
+                    matchedItem.DiscountET = truncator(matchedItem.DiscountET + discountET, 2);
+                    matchedItem.PriceIT = truncator(matchedItem.PriceIT + priceIT, 2);
+                    matchedItem.PriceET = truncator(matchedItem.PriceET + priceET, 2);
+                    matchedItem.Quantity = truncator(matchedItem.Quantity + 1, 8);
+
+                    item.DiscountIT = truncator(item.DiscountIT - discountIT, 2);
+                    item.DiscountET = truncator(item.DiscountET - discountET, 2);
+                    item.PriceIT = truncator(item.PriceIT - priceIT, 2);
+                    item.PriceET = truncator(item.PriceET - priceET, 2);
+                    item.Quantity = truncator(item.Quantity - 1, 8);
+                }
+            } else {
+                let clonedItem = clone(item);
+                if (item.Quantity <= 1) {
+                    if (item.stockQuantity && item.stockQuantity !== 0) {
+                        clonedItem.isPartSplitItem = false;
+                    }
+                    productService.removeItemFrom({ shoppingCart: scFrom, cartItem: item, truncate: true, calculateDiscount: false, forceRemove: true });
+                    scTo.Items.push(clonedItem);
+                    console.log("Push : ", clonedItem);
+                } else {
+                    clonedItem.DiscountIT = truncator(item.DiscountIT / item.Quantity, 2);
+                    clonedItem.DiscountET = truncator(item.DiscountET / item.Quantity, 2);
+                    clonedItem.PriceIT = truncator(item.PriceIT / item.Quantity, 2);
+                    clonedItem.PriceET = truncator(item.PriceET / item.Quantity, 2);
+
+                    item.DiscountIT = truncator(item.DiscountIT - clonedItem.DiscountIT, 2);
+                    item.DiscountET = truncator(item.DiscountET - clonedItem.DiscountET, 2);
+                    item.PriceIT = truncator(item.PriceIT - clonedItem.PriceIT, 2);
+                    item.PriceET = truncator(item.PriceET - clonedItem.PriceET, 2);
+                    item.Quantity = truncator(item.Quantity - 1, 8);
+
+                    clonedItem.isPartSplitItem = true;
+                    clonedItem.stockQuantity = 0;
+                    clonedItem.Quantity = 1;
+
+                    scTo.Items.push(clonedItem);
+                    console.log("Push : ", clonedItem);
+                }
+            }
+        }
+
+        $scope.updateDiscountM();
+
+        paymentService.calculateTotalFor(scTo, true, false);
+        paymentService.calculateTotalFor(scFrom, true, false);
+    };
+
+    $scope.updateDiscountM = () => {
+        let leftD = $scope.currentSCLeft.Items.reduce((acc, cur) => {
+            if (!acc) {
+                acc = cur.DiscountIT;
+            } else {
+                acc += cur.DiscountIT;
+            }
+            return acc;
+        }, 0);
+        let rightD = $scope.currentSCRight.Items.reduce((acc, cur) => {
+            if (!acc) {
+                acc = cur.DiscountIT;
+            } else {
+                acc += cur.DiscountIT;
+            }
+            return acc;
+        }, 0);
+        $scope.leftMDiscount = truncator(leftD, 2);
+        $scope.rightMDiscount = truncator(rightD, 2);
+    };
+
+    $scope.splitToIn = (item) => {
+        let modalInstance = $uibModal.open({
+            templateUrl: 'modals/modalSplitItem.html',
+            controller: 'ModalSplitItemController',
+            backdrop: 'static',
+            resolve: {
+                defaultValue: () => {
+                    return true;
+                },
+                item: () => {
+                    return item;
+                }
+            }
+        });
+
+        modalInstance.result.then((result) => {
+            result.nb = Number(result.nb);
+            console.log(result);
+            if (result.montant) {
+                if (result.nbPart) {
+                    productService.splitSCByParts($scope.currentSCLeft, item, result.nbPart);
+                } else {
+                    productService.splitSCByPrice($scope.currentSCLeft, $scope.currentSCRight, item, result.montant);
+                }
+                paymentService.calculateTotalFor($scope.currentSCLeft, true, false);
+                paymentService.calculateTotalFor($scope.currentSCRight, true, false);
+            }
+        }, () => {
+            console.log('Erreur');
+        });
+    };
+
+    $scope.ok = () => {
+        $scope.currentSCLeft.PaymentModes = [];
+        $scope.currentSCRight.PaymentModes = [];
+
+        if ($scope.result) {
+            $scope.result.nb = Number($scope.result.nb);
+        }
+
+        if ($scope.currentSCRight.Items.length > 0) {
+            if ($scope.result) {
+                //Si le nb de couvert du ticket split est superieur au nb de couvert du ticket d'origine
+                if ($scope.currentSCLeft.TableCutleries && $scope.result.nb === $scope.currentSCLeft.TableCutleries && $scope.currentSCLeft.Items.length > 0) {
+                    $scope.errorMessage = "Le ticket d'origine doit être vide pour transferer tout les couverts au ticket secondaire";
+                } else {
+                    if ($scope.result.nb > $scope.currentSCLeft.TableCutleries) {
+                        $scope.errorMessage = "Le nombre de couvert dans le ticket secondaire doit être inferieur ou égal au ticket d'origine";
+                    } else {
+                        if ($scope.currentSCLeft.TableCutleries) {
+                            $scope.currentSCRight.TableCutleries = $scope.result.nb;
+                            $scope.currentSCLeft.TableCutleries -= $scope.result.nb;
+                        }
+                        console.log($scope.currentSCLeft, $scope.currentSCRight);
+                        shoppingCartService.setCurrentShoppingCartRight($scope.currentSCRight);
+                        shoppingCartService.setCurrentShoppingCartLeft($scope.currentSCLeft);
+
+                        $scope.currentSCRight.Discounts = $scope.currentSCRight.Discounts ? $scope.currentSCRight.Discounts : [];
+                        $scope.currentSCRight.Items = $scope.currentSCRight.Items ? $scope.currentSCRight.Items : [];
+                        deliveryService.upgradeCurrentShoppingCartAndDeliveryType($scope.currentSCRight);
+
+                        $uibModalInstance.close($scope.value);
+                    }
+                }
+            } else {
+                $scope.errorMessage = "Le nombre de couverts est incorrect.";
+            }
+        } else {
+            shoppingCartService.setCurrentShoppingCartRight(null);
+            shoppingCartService.setCurrentShoppingCartLeft(null);
+
+            $scope.currentSCLeft.Discounts = $scope.currentSCLeft.Discounts ? $scope.currentSCLeft.Discounts : [];
+            $scope.currentSCLeft.Items = $scope.currentSCLeft.Items ? $scope.currentSCLeft.Items : [];
+            deliveryService.upgradeCurrentShoppingCartAndDeliveryType($scope.currentSCLeft);
+
+            $uibModalInstance.close($scope.value);
+        }
+    };
+
+    $scope.cancel = () => {
+        if (!$scope.alreadySplit) {
+            const hdid = $scope.currentSCLeft.HardwareId;
+
+            orderService.getUpdDailyTicketValueAsync(hdid, -1);
+
+            $scope.currentSCRight = undefined;
+            shoppingCartService.setCurrentShoppingCartRight(undefined);
+            $scope.currentSCLeft = undefined;
+            shoppingCartService.setCurrentShoppingCartLeft(undefined);
+        }
+        $uibModalInstance.dismiss();
+    };
 });

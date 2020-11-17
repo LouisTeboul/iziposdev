@@ -1,7 +1,7 @@
 <div ng-controller="TextFieldCtrl" ng-init="init()" id="txtValue"
-     ng-class="{'focused': isFocused == true}" class="textfieldBorne"
+     ng-class="{'focused': isFocused}" class="textfieldBorne"
      ng-click="focus($event)">
-    <span class="tfBorneTitle" ng-if="!txtValue" translate>{{fieldname}}</span>
-    <span ng-if="mandatory && txtValue == ''" ng-style="{'color' : $root.tenantColor}">&nbsp;*</span>
-    <span class="tfBorneText" ng-bind="txtValue" ng-if="txtValue"></span>
+    <span class="tfBorneTitle" ng-show="!txtValue" translate>{{placeholder}}</span>
+    <span ng-show="mandatory && txtValue == ''" ng-style="{'color' : $root.tenantAltColor || $root.tenantColor}">&nbsp;*</span>
+    <span class="tfBorneText" ng-bind="txtValue" ng-show="txtValue"></span>
 </div>

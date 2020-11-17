@@ -1,0 +1,11 @@
+<md-content class="stores" ng-controller="CatalogMenuController" ng-init="init()" layout="column" flex>
+    <div layout="row" layout-wrap layout-align="center start">
+        <div ng-repeat="store in stores track by $id(store)" ng-show="store.Id !== $root.MainStoreId"
+             ng-click="setStoreFilter(store)" class="itemStore">
+            <md-button aria-label="{{store.Name}}" class="md-icon-button linkCategory" >
+                <img class="imgStore" ng-src="{{store.LogoPictureUrl}}" alt=""/>
+            </md-button>
+            <div class="titleStore">{{store.Name}}</div>
+        </div>
+    </div>
+</md-content>

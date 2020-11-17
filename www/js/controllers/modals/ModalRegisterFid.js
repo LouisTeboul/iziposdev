@@ -2,14 +2,12 @@
  * Modal available for phone orders
  * Select an existing customer, or fully create one
  */
-app.controller('ModalRegisterFid', function ($scope, $rootScope, $q, $http, $mdMedia, $uibModalInstance, $uibModal, shoppingCartService, loyaltyService, ngToast, shoppingCartModel, $translate, $timeout) {
-
+app.controller('ModalRegisterFid', function ($scope, $rootScope, $http, $mdMedia, $uibModalInstance, $uibModal, loyaltyService, ngToast, $translate, $timeout) {
     var current = this;
     $scope.mdMedia = $mdMedia;
     $rootScope.currentPage = 1;
 
     $scope.init = function () {
-
         $scope.validDisabled = false;
         $scope.search = {};
         $scope.barcode = {};
@@ -22,20 +20,16 @@ app.controller('ModalRegisterFid', function ($scope, $rootScope, $q, $http, $mdM
         $scope.pubMail = true;
         $scope.acceptRules = false;
 
-        var settingApi = $rootScope.IziBoxConfiguration.UrlSmartStoreApi + '/RESTLoyalty/RESTLoyalty/getCustomerSettings';
-        console.log(settingApi);
+        if($rootScope.borneVertical){
+            $scope.location = "center-end"
+        }else{
+            $scope.location = "start-end"
+        }
 
-        $http.get(settingApi).success(function (settings) {
-            console.log(settings);
-            $scope.signInSettings = {
-                City: settings.CityRequired,
-                Company: settings.CompanyRequired,
-                Fax: settings.FaxRequired,
-                Phone: settings.PhoneRequired,
-                StreetAddress: settings.StreetAddressRequired,
-                StreetAddress2: settings.StreetAddressRequired2,
-                ZipPostalCode: settings.ZipPostalCodeRequired
-            };
+        loyaltyService.getSignInSettingsAsync().then((settings) => {
+            $scope.signInSettings = settings;
+        }, (err) => {
+            console.log(err);
         });
 
         $scope.newLoyalty = {};
@@ -43,13 +37,13 @@ app.controller('ModalRegisterFid', function ($scope, $rootScope, $q, $http, $mdM
             value: 'Fid'
         };
 
-        $scope.currentShoppingCart = shoppingCartModel.getCurrentShoppingCart();
         $scope.clientUrl = $rootScope.IziBoxConfiguration.UrlSmartStoreApi.replace("/api", "");
 
         $scope.customStyle = {
-            'flex-direction' : $rootScope.borne && $rootScope.borneVertical ? 'column' : 'row',
-            'background-image': $rootScope.borneBgModal ? 'url(' + $rootScope.borneBgModal + ')' : 'url(img/fond-borne.jpg)'
-        }
+            'flex-direction': $rootScope.borne && $rootScope.borneVertical && !$rootScope.isPMREnabled ? 'column' : 'row',
+            'background-image': $rootScope.borneBgModal ? 'url(' + $rootScope.borneBgModal + ')' : 'url(img/fond-borne.jpg)',
+            'background-size': 'cover'
+        };
     };
 
     $scope.pageChanged = function () {
@@ -102,7 +96,7 @@ app.controller('ModalRegisterFid', function ($scope, $rootScope, $q, $http, $mdM
                     document.querySelector("#searchBar").focus();
                 }, 100);
                 break;
-            case "ENR" :
+            case "ENR":
                 $timeout(function () {
                     document.querySelector("#email").focus();
                 }, 100);
@@ -110,6 +104,9 @@ app.controller('ModalRegisterFid', function ($scope, $rootScope, $q, $http, $mdM
         }
     };
 
+    $scope.toggleRules = function () {
+        $scope.acceptRules = !$scope.acceptRules;
+    };
 
     /**
      * Add the customer loyalty info to the current shopping cart
@@ -133,8 +130,9 @@ app.controller('ModalRegisterFid', function ($scope, $rootScope, $q, $http, $mdM
             });
 
             modalInstance.result.then(function (deliveryAddress) {
+                $rootScope.hideLoading();
                 console.log(deliveryAddress);
-                $scope.currentShoppingCart.deliveryAddress = {
+                $rootScope.currentShoppingCart.deliveryAddress = {
                     Address1: deliveryAddress.Address1,
                     ZipPostalCode: deliveryAddress.ZipPostalCode,
                     City: deliveryAddress.City,
@@ -144,40 +142,40 @@ app.controller('ModalRegisterFid', function ($scope, $rootScope, $q, $http, $mdM
                     InterCom: deliveryAddress.InterCom,
                     PhoneNumber: deliveryAddress.PhoneNumber
                 };
-
             }, function () {
-                $rootScope.hideLoading()
-
+                $rootScope.hideLoading();
             });
 
             loyaltyService.getLoyaltyObjectAsync(barcode).then(function (loyalty) {
                 if (loyalty && loyalty.CustomerId != 0) {
-                    if ($scope.currentShoppingCart == undefined) {
-                        shoppingCartModel.setDeliveryType(1);
-                        shoppingCartModel.createShoppingCart();
+                    if ($rootScope.currentShoppingCart == undefined) {
+                        $rootScope.currentDeliveryType = 1;
+                        if ($rootScope.currentShoppingCart) {
+                            $rootScope.currentShoppingCart.DeliveryType = $rootScope.currentDeliveryType;
+                        }
+                        $rootScope.$emit('deliveryTypeChanged');
+                        $rootScope.createShoppingCart();
                     }
-                    $scope.currentShoppingCart = shoppingCartModel.getCurrentShoppingCart();
-                    $scope.currentShoppingCart.Barcode = barcode;
-                    $scope.currentShoppingCart.customerLoyalty = loyalty;
+                    $rootScope.currentShoppingCart.Barcode = barcode;
+                    $rootScope.currentShoppingCart.customerLoyalty = loyalty;
 
                     $rootScope.$emit("customerLoyaltyChanged", loyalty);
-                    $rootScope.$emit("shoppingCartChanged", $scope.currentShoppingCart);
+                    $rootScope.$emit("shoppingCartChanged", $rootScope.currentShoppingCart);
                     $scope.clientSelected = true;
                     $scope.acceptRules = true;
                     $scope.validCustomer();
-                    setTimeout(function () {
+                    setTimeout(() => {
                         $rootScope.hideLoading();
                     }, 500);
                 } else {
                     $rootScope.hideLoading();
-                    sweetAlert($translate.instant("Carte de fidélité introuvable !"));
+                    swal({ title: $translate.instant("Carte de fidélité introuvable !") });
                 }
             }, function (err) {
                 $rootScope.hideLoading();
-                console.log(err);
-                sweetAlert($translate.instant("Une erreur s'est produite !"));
+                console.error(err);
+                swal({ title: $translate.instant("Une erreur s'est produite !") });
             });
-
         }
     };
 
@@ -193,9 +191,8 @@ app.controller('ModalRegisterFid', function ($scope, $rootScope, $q, $http, $mdM
 
         var reCanada = /^\(?([0-9]{3})\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})$/;
         var resultCanada = reCanada.test(strPhone);
-        return (resultCanada || resultFrance);
+        return resultCanada || resultFrance;
     };
-
 
     $scope.validZipPostCode = function (strZip) {
         var reFrance = /^[0-9]{5}$/;
@@ -203,9 +200,8 @@ app.controller('ModalRegisterFid', function ($scope, $rootScope, $q, $http, $mdM
 
         var reCanada = /[ABCEGHJKLMNPRSTVXY][0-9][ABCEGHJKLMNPRSTVWXYZ] ?[0-9][ABCEGHJKLMNPRSTVWXYZ][0-9]/;
         var resultCanada = reCanada.test(strZip);
-        return (resultCanada || resultFrance);
+        return resultCanada || resultFrance;
     };
-
 
     /**
      *  Scan the loyalty card
@@ -228,7 +224,6 @@ app.controller('ModalRegisterFid', function ($scope, $rootScope, $q, $http, $mdM
 
             modalInstance.result.then(function (value) {
                 $scope.newLoyalty.barcode.barcodeValue = value;
-
             }, function () {
             });
         }
@@ -238,7 +233,6 @@ app.controller('ModalRegisterFid', function ($scope, $rootScope, $q, $http, $mdM
         console.log("barcode Focus");
         var test = document.getElementById("txtBarcodeCustomer");
         test.focus();
-
     };
 
     $scope.changeOperation = function (strOperation) {
@@ -246,10 +240,8 @@ app.controller('ModalRegisterFid', function ($scope, $rootScope, $q, $http, $mdM
 
         //Put the focus in the barcode input for a direct scan
         if (strOperation == "registerFid") {
-            setTimeout(function () {
-                console.log("barcode customer focus");
-                document.getElementById("txtBarcodeCustomer").focus();
-            }, 0);
+            console.log("barcode customer focus");
+            document.getElementById("txtBarcodeCustomer").focus();
         }
     };
 
@@ -260,92 +252,125 @@ app.controller('ModalRegisterFid', function ($scope, $rootScope, $q, $http, $mdM
     };
 
     $scope.validCustomer = function () {
-        if($scope.acceptRules) {
+        if ($scope.acceptRules) {
             $scope.validDisabled = true;
             // No register if no customer is selected
 
-            if ($scope.clientSelected == true) {
-
-
-                $rootScope.PhoneOrderMode = true;
+            if ($scope.clientSelected) {
                 $uibModalInstance.close();
                 return;
-
-
             }
 
             //Si pas d'infos saisie pour les mails- aucune opération
-            if ($scope.newLoyalty.CustomerEmail == '' || $scope.newLoyalty.CustomerEmail == undefined) {
+            if ($scope.newLoyalty.CustomerEmail === '' || $scope.newLoyalty.CustomerEmail === undefined) {
                 $scope.validDisabled = false;
-                $scope.close();
+                swal({ title: $translate.instant("L'email est obligatoire") });
+                $rootScope.hideLoading();
                 return;
             }
             else {
                 if (!$scope.validEmail($scope.newLoyalty.CustomerEmail)) {
                     $scope.validDisabled = false;
-                    ngToast.create({
-                        className: 'danger',
-                        content: '<span class="bold">Le format de l\'email est incorrect</span>',
-                        dismissOnTimeout: true,
-                        timeout: 10000,
-                        dismissOnClick: true
-                    });
+                    swal({ title: $translate.instant("Le format de l'email est incorrect") });
+                    //ngToast.create({
+                    //    className: 'danger',
+                    //    content: '<span class="bold">Le format de l\'email est incorrect</span>',
+                    //    dismissOnTimeout: true,
+                    //    timeout: 10000,
+                    //    dismissOnClick: true
+                    //});
                     $rootScope.hideLoading();
                     return;
                 }
             }
 
-            if (!$scope.validPhone($scope.newLoyalty.CustomerPhone)) {
+            if ($scope.signInSettings.Phone && ($scope.newLoyalty.CustomerPhone === '' || $scope.newLoyalty.CustomerPhone === undefined)) {
                 $scope.validDisabled = false;
-                ngToast.create({
-                    className: 'danger',
-                    content: '<span class="bold">Le format du téléphone est incorrect</span>',
-                    dismissOnTimeout: true,
-                    timeout: 10000,
-                    dismissOnClick: true
-                });
+                swal({ title: $translate.instant("Le téléphone est obligatoire !") });
+                $rootScope.hideLoading();
+                return;
+            }
+            else if ($scope.newLoyalty.CustomerPhone !== '' && $scope.newLoyalty.CustomerPhone !== undefined && !$scope.validPhone($scope.newLoyalty.CustomerPhone)) {
+                $scope.validDisabled = false;
+                swal({ title: $translate.instant("Le format du téléphone est incorrect !") });
+
                 $rootScope.hideLoading();
                 return;
             }
 
-            if (!$scope.validZipPostCode($scope.newLoyalty.CustomerZipPostalCode)) {
+            if ($scope.signInSettings.ZipPostalCode && ($scope.newLoyalty.CustomerZipPostalCode === '' || $scope.newLoyalty.CustomerZipPostalCode === undefined)) {
                 $scope.validDisabled = false;
-                ngToast.create({
-                    className: 'danger',
-                    content: '<span class="bold">Le format du code postal est incorrect</span>',
-                    dismissOnTimeout: true,
-                    timeout: 10000,
-                    dismissOnClick: true
-                });
+                swal({ title: $translate.instant("Le code postal est obligatoire !") });
+
+                $rootScope.hideLoading();
+                return;
+            }
+            else if ($scope.newLoyalty.CustomerZipPostalCode !== '' && $scope.newLoyalty.CustomerZipPostalCode !== undefined && !$scope.validZipPostCode($scope.newLoyalty.CustomerZipPostalCode)) {
+                $scope.validDisabled = false;
+                swal({ title: $translate.instant("Le format du code postal est incorrect!") });
+
                 $rootScope.hideLoading();
                 return;
             }
 
-            // Get the current Shopping CArt
-            var curShoppingCart = shoppingCartModel.getCurrentShoppingCart();
-
-            if (curShoppingCart == undefined) {
-                shoppingCartModel.createShoppingCart();
+            if ($scope.signInSettings.City && ($scope.newLoyalty.CustomerCity === '' || $scope.newLoyalty.CustomerCity === undefined)) {
+                $scope.validDisabled = false;
+                swal({ title: $translate.instant("La ville est obligatoire !") });
+                $rootScope.hideLoading();
+                return;
             }
 
-            curShoppingCart = shoppingCartModel.getCurrentShoppingCart();
+            if ($scope.signInSettings.Company && ($scope.newLoyalty.CustomerCompany === '' || $scope.newLoyalty.CustomerCompany === undefined)) {
+                $scope.validDisabled = false;
+                swal({ title: $translate.instant("La société est obligatoire !") });
+                $rootScope.hideLoading();
+                return;
+            }
+
+            if ($scope.signInSettings.Fax && ($scope.newLoyalty.CustomerFax === '' || $scope.newLoyalty.CustomerFax === undefined)) {
+                $scope.validDisabled = false;
+                swal({ title: $translate.instant("Le fax est obligatoire !") });
+                $rootScope.hideLoading();
+                return;
+            }
+
+            if ($scope.signInSettings.StreetAddress && ($scope.newLoyalty.CustomerStreetAddress === '' || $scope.newLoyalty.CustomerStreetAddress === undefined)) {
+                $scope.validDisabled = false;
+                swal({ title: $translate.instant("L'addresse est obligatoire !") });
+                $rootScope.hideLoading();
+                return;
+            }
+
+            if ($scope.signInSettings.StreetAddress2 && ($scope.newLoyalty.CustomerStreetAddress2 === '' || $scope.newLoyalty.CustomerStreetAddress2 === undefined)) {
+                $scope.validDisabled = false;
+                swal({ title: $translate.instant("Le complément d'addresse est obligatoire !") });
+                $rootScope.hideLoading();
+                return;
+            }
+
+            if (!$rootScope.currentShoppingCart) {
+                $rootScope.createShoppingCart();
+            }
 
             try {
-                function isFormComplete() {
+                const isFormComplete = () => {
                     //Si un parametre est requiered dans signInSettings
                     //On verifie si le champs du formulaire qui lui est associé est valide
                     // Si non, la methode retourne false
                     try {
-                        Enumerable.from($scope.signInSettings).forEach(function (field) {
+                        let entries = Object.entries($scope.signInSettings);
+                        for (let [key, value] of entries) {
                             //Si le champs est requis
-                            if (field.value == true) {
+                            if (value) {
                                 //On verifie si le champs est renseigné
                                 //Validation ?
-                                if (!$scope.newLoyalty["Customer" + field.key] || $scope.newLoyalty["Customer" + field.key] == "" || $scope.newLoyalty["Customer" + field.key].length == 0) {
+                                if (!$scope.newLoyalty["Customer" + key]
+                                    || $scope.newLoyalty["Customer" + key] == ""
+                                    || $scope.newLoyalty["Customer" + key].length == 0) {
                                     throw 0;
                                 }
                             }
-                        });
+                        }
                         $scope.validDisabled = false;
                         return true;
                     }
@@ -353,8 +378,7 @@ app.controller('ModalRegisterFid', function ($scope, $rootScope, $q, $http, $mdM
                         $scope.validDisabled = false;
                         return false;
                     }
-                }
-
+                };
 
                 // Si tout les champs requis sont rempli
                 if (isFormComplete() != false) {
@@ -365,16 +389,16 @@ app.controller('ModalRegisterFid', function ($scope, $rootScope, $q, $http, $mdM
                         // On ajoute la fidélité au ticket
                         console.log('Succes');
                         $rootScope.hideLoading();
-                        setTimeout(function () {
+                        setTimeout(() => {
                             $rootScope.hideLoading();
                         }, 500);
 
                         console.log(loyalty);
 
                         $scope.validDisabled = false;
-                        curShoppingCart.customerLoyalty = loyalty;
+                        $rootScope.currentShoppingCart.customerLoyalty = loyalty;
                         $rootScope.$emit("customerLoyaltyChanged", loyalty);
-                        $rootScope.$emit("shoppingCartChanged", curShoppingCart);
+                        $rootScope.$emit("shoppingCartChanged", $rootScope.currentShoppingCart);
                         //notification
                         ngToast.create({
                             className: 'info',
@@ -385,18 +409,18 @@ app.controller('ModalRegisterFid', function ($scope, $rootScope, $q, $http, $mdM
                         });
                         $rootScope.hideLoading();
                         $scope.validDisabled = false;
-                        $rootScope.PhoneOrderMode = true;
+                        //$rootScope.PhoneOrderMode = true;
                         $uibModalInstance.close();
                     }, function (err) {
                         $rootScope.hideLoading();
                         $scope.validDisabled = false;
-                        console.log(err);
+                        console.error(err);
                     });
                 } else {
                     $scope.validDisabled = false;
                     ngToast.create({
                         className: 'danger',
-                        content: '<span class="bold">Veuillez renseigner tout les champs</span>',
+                        content: '<span class="bold">Veuillez renseigner tous les champs</span>',
                         dismissOnTimeout: true,
                         timeout: 10000,
                         dismissOnClick: true
@@ -416,6 +440,12 @@ app.controller('ModalRegisterFid', function ($scope, $rootScope, $q, $http, $mdM
                 $rootScope.hideLoading();
             }
         }
+        else {
+            $scope.validDisabled = false;
+            swal({ title: $translate.instant("Veuillez acceptez notre politique sur les données personnelles") });
+            $rootScope.hideLoading();
+            return;
+        }
     };
 
     $scope.close = function () {
@@ -423,12 +453,12 @@ app.controller('ModalRegisterFid', function ($scope, $rootScope, $q, $http, $mdM
         $uibModal.open({
             templateUrl: 'modals/modalConnectionMode.html',
             controller: 'ModalConnectionController',
-            backdrop: 'static',
-            keyboard :false,
+            backdrop: false,
+            keyboard: false,
             size: 'lg',
             windowClass: 'mainModals'
         });
-        $timeout(function(){
+        $timeout(function () {
             $uibModalInstance.dismiss('cancel');
         }, 250);
     };
@@ -437,13 +467,11 @@ app.controller('ModalRegisterFid', function ($scope, $rootScope, $q, $http, $mdM
 
     $scope.containsBalanceType = function (balanceType) {
         var ret = false;
-
-        if ($scope.currentShoppingCart && $scope.currentShoppingCart.customerLoyalty && $scope.currentShoppingCart.customerLoyalty.Balances && $scope.currentShoppingCart.customerLoyalty.Balances.length > 0) {
-            ret = Enumerable.from($scope.currentShoppingCart.customerLoyalty.Balances).any(function (balance) {
+        if ($rootScope.currentShoppingCart && $rootScope.currentShoppingCart.customerLoyalty && $rootScope.currentShoppingCart.customerLoyalty.Balances && $rootScope.currentShoppingCart.customerLoyalty.Balances.length > 0) {
+            ret = Enumerable.from($rootScope.currentShoppingCart.customerLoyalty.Balances).any(function (balance) {
                 return balance.BalanceType == balanceType;
             });
         }
-
         return ret;
     };
 
@@ -458,5 +486,4 @@ app.controller('ModalRegisterFid', function ($scope, $rootScope, $q, $http, $mdM
         }
         return balance.UseToPay ? roundValue(total) : total;
     };
-
 });

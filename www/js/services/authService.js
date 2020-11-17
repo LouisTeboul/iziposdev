@@ -2,66 +2,68 @@
  * Service used for application authentification
  * used for booking
  */
-app.service('authService', ['$rootScope', '$q','$http',
-    function ($rootScope, $q,$http) {
+app.service('authService', function ($rootScope, $http, loyaltyService) {
 
-        var token = null;
-        var logged = false;
+    const self = this;
+    let token = null;
+    $rootScope.Logged = false;
+    let logged = false;
 
-        /**
-         * Event : If we have an hardwareId we can log
-         */
-        $rootScope.$watch('PosLog.HardwareId', function () {
-            if ($rootScope.PosLog && $rootScope.PosLog.HardwareId) {
-                $http({
-                    method: 'POST',
-                    url: $rootScope.IziBoxConfiguration.UrlSmartStoreApi + 'v2/login',
-                    data: 'grant_type=password&username=HardwareId:' + $rootScope.PosLog.HardwareId + '&password='
-                }).then(function successCallback(response) {
-                    console.log(response);
-                    token = response.data;
-                    logged = true;
-                }, function errorCallback(response) {
-                    console.log(response);
-                    logged = false;
+    //Event : If we have an hardwareId we can log
+    $rootScope.$watch('PosLog.HardwareId', () => {
+        if($rootScope.PosLog && $rootScope.PosLog.HardwareId) {
+            if (typeof devOAuthToken != "undefined") {
+                token = devOAuthToken;
+                logged = true;                
+                $rootScope.Logged = true;
+
+                loyaltyService.getLoyaltyClasses().then((classes) => {
+                    $rootScope.loyaltyClasses = classes;
+                }, (err) => {
+                    console.error(err);
                 });
-            }
-        });
-
-        /**
-         * Get Authentification token
-         * @returns {*}
-         */
-        this.getToken = function (){
-            return token;
-        };
-
-        /**
-         * Is the application logged
-         * @returns {boolean}
-         */
-        this.isLogged = function () {
-            return logged;
-        };
-
-        /**
-         * Log the application
-         */
-        this.login = function () {
-            if ($rootScope.PosLog && $rootScope.PosLog.HardwareId) {                
-                $http({
-                    method: 'POST',
-                    url: $rootScope.IziBoxConfiguration.UrlSmartStoreApi + '/login',
-                    data: 'grant_type=password&username=HardwareId:' + $rootScope.PosLog.HardwareId + '&password='
-                }).then(function successCallback(response) {
-                    console.log(response);
-                    token = response.data;
-                    logged = true;
-                }, function errorCallback(response) {
-                    console.log(response);
-                    logged = false;
-                });
+            } else {
+                self.login();
             }
         }
-    }
-]);
+    });
+
+    //Get Authentification token
+    this.getToken = () => {
+        return token;
+    };
+
+    //Is the application logged
+    this.isLogged = () => {
+        return logged;
+    };
+
+    //Log the application
+    this.login = () => {
+        if ($rootScope.PosLog && $rootScope.PosLog.HardwareId) {
+            let apiUrl = $rootScope.APIBaseURL + '/GetPosToken?hardwareId=' + $rootScope.PosLog.HardwareId;
+            $http.post(apiUrl).then((response) => {
+                console.log(response);
+                token = response.data;
+                logged = true;
+                $rootScope.Logged = true;
+                loyaltyService.getLoyaltyClasses().then((classes) => {
+                    $rootScope.loyaltyClasses = classes;
+                }, (err) => {
+                    console.error(err);
+                });
+            }, (response) => {
+                console.log(response);
+                logged = false;
+                $rootScope.Logged = false;
+
+                if(!$rootScope.borne && $rootScope.IziBoxConfiguration.UseFid) {
+                    swal({
+                        title: "Erreur d'authentification !",
+                        text: "Veuillez contacter le support"
+                    });
+                }    
+            });
+        }
+    };
+});

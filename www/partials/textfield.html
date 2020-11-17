@@ -1,5 +1,6 @@
-<div ng-class="{'focused': isFocused == true}" class="textfield" layout="row" layout-align="start center"
-     ng-controller="TextFieldCtrl" ng-keypress="test($event)" tabindex="0" ng-init="init()" id="txtValue"
+<div ng-class="{'focused': isFocused}" class="textfield" layout="row" layout-align="start center"
+     ng-controller="TextFieldCtrl" tabindex="0" id="txtValue"
      ng-click="focus($event)">
-    <span ng-bind="txtValue" style="max-height: 37px;overflow: hidden;"></span>
+    <span class="tfPlaceholder" ng-show="placeholder && !txtValue" translate>{{placeholder}}</span>
+    <span ng-show="txtValue || !placeholder" ng-bind="txtValue" style="max-height: 37px; overflow: hidden;"></span>
 </div>

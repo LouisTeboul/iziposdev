@@ -1,61 +1,95 @@
 ﻿<section ng-init="init()" modal-location="left">
     <div class="modal-header">
-        <h1 class="modal-title" translate>Détails du comptage des services</h1>
+        <h1 class="modal-title center" translate>Détails du comptage des services</h1>
     </div>
-    <tabset>
-        <tab ng-repeat="yPeriod in model.yPeriodsModels ">
-            <tab-heading>
-                <x>{{printDate(yPeriod)}}</x>
-            </tab-heading>
 
-            <div class="form-panel modal-body modal-closepos">
-                <div class="row" style="border-bottom: 1px solid lightgray;margin-bottom:10px">
-                    <div style="width:30%;float:left">
-                        <div class="title" translate>Paiements</div>
-                    </div>
-                    <div style="width:15%;float:left">
-                        <div class="title centered" translate>Nb</div>
-                    </div>
-                    <div style="width:20%;float:left">
-                        <div class="title centered" translate>Montant saisi</div>
-                    </div>
-                    <div style="width:20%;float:left">
-                        <div class="title centered" translate>Montant attendu</div>
-                    </div>
-                    <div style="width:15%;float:left">
-                        <div class="title centered" translate>Ecart</div>
-                    </div>
-                </div>
 
-                <div class="row" ng-repeat="l in yPeriod.YCountLines">
-                    <div style="width:30%;float:left;">
-                        <p class="title">{{l.PaymentMode.Text}}</p>
+    <div class="form-panel modal-body modal-closepos" layout="row">
+
+        <div class="closePosNavig" flex="20">
+
+            <div class="center" style="    text-align: center;font-size: 1.1em;padding-top: 5px;"
+                 translate> Services clôturés
+            </div>
+
+            <div ng-repeat="yp in model.yPeriodsModels">
+                <div class="yPeriodContainer"
+                     layout="column" layout-align="space-between center">
+
+                    <div ng-class="{'highlighted' : yp.id === model.selectedYPeriod.id }"
+                         ng-click="selectYPeriod(yp)"
+                         class="yPeriodButton" layout="row" layout-align="center center">
+                        <div ng-show="!yp.endDate">{{dateFormat(yp.startDate)}}</div>
+                        <div ng-show="yp.endDate" style="color: #c2c2c2">{{dateFormat(yp.endDate)}}</div>
+                        <div class="status"
+                             ng-class="{'periodOpen' : !yp.endDate, 'periodHasDiscrepency' : HasDiscrepency(yp), 'periodClosedClean' : yp.endDate && !HasDiscrepency(yp)}"></div>
                     </div>
-                    <div style="width:15%;float:left;min-height:60px;">
-                        <div class="title centered">
-                            <p>{{l.Count}}</p>
-                        </div>
-                    </div>
-                    <div style="width:20%;float:left;min-height:60px;">
-                        <div class="title centered">
-                            <p class="title centered" ng-if="l.PaymentMode.PaymentType !== paymentType.FIDELITE || l.PaymentMode.PaymentType !== paymentType.INTERNET">{{l.PaymentMode.Total | CurrencyFormat}}</p>
-                        </div>
-                    </div>
-                    <div style="width:20%;float:left;min-height:60px;">
-                        <div class="title centered">
-                            <p class="title centered">{{l.TotalKnown | CurrencyFormat}}</p>
-                        </div>
-                    </div>
-                    <div style="width:15%;float:left;min-height:60px;">
-                        <div class="title centered">
-                            <p class="title centered green" ng-if="l.PaymentMode.PaymentType !== paymentType.FIDELITE || l.PaymentMode.PaymentType !== paymentType.INTERNET" ng-class="{ red : l.cashDiscrepancy !== 0}">{{l.cashDiscrepancy | CurrencyFormat}}</p>
-                        </div>
-                    </div>
-                    
+
                 </div>
             </div>
-        </tab>
-    </tabset>
+
+        </div>
+
+        <div layout="column" layout-fill>
+            <div layout="row" class="cpheader">
+                <div flex="30">
+                    <div class="title right" translate>Paiements</div>
+                </div>
+                <div flex="10">
+                    <div class="title center" translate>Nb</div>
+                </div>
+                <div flex="20">
+                    <div class="title center" translate>Montant saisi</div>
+                </div>
+                <div flex="20">
+                    <div class="title center" translate>Montant attendu</div>
+                </div>
+                <div flex>
+                    <div class="title center" translate>Ecart</div>
+                </div>
+            </div>
+
+
+            <div ng-repeat="line in model.selectedYPeriod.YCashMovementLines">
+                <div layout="row" class="cpline">
+                    <div flex="30">
+                        <div class="title right">{{line.PaymentMode.Text}}</div>
+                    </div>
+                    <div flex="10">
+                        <div class="title center cpcell noteditable">
+                            {{line.Count}}
+                        </div>
+                    </div>
+                    <div flex="20">
+                        <div class="title center">
+                            <div class="title center cpcell noteditable"
+                                 ng-if="line.PaymentMode.PaymentType !== paymentType.FIDELITE || line.PaymentMode.PaymentType !== paymentType.INTERNET">
+                                {{line.PaymentMode.Total | CurrencyFormat}}
+                            </div>
+                        </div>
+                    </div>
+                    <div flex="20">
+                        <div class="title center">
+                            <div class="title center cpcell noteditable">{{line.TotalKnown | CurrencyFormat}}</div>
+                        </div>
+                    </div>
+                    <div flex>
+                        <div class="title center">
+                            <div class="title center cpcell"
+                                 ng-class="{ 'red' : line.cashDiscrepancy !== 0, 'green' : line.cashDiscrepancy === 0}"
+                                 ng-if="line.PaymentMode.PaymentType !== paymentType.FIDELITE || line.PaymentMode.PaymentType !== paymentType.INTERNET">
+                                {{line.cashDiscrepancy | CurrencyFormat}}
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+
+        </div>
+    </div>
+
     <div class="modal-footer">
         <button class="btn btn-danger" ng-click="cancel()" translate>Fermer</button>
     </div>

@@ -1,75 +1,98 @@
 ﻿<md-toolbar class="catalogMenu" ng-controller="CatalogMenuController" ng-init="init()">
-    <md-content class="tools headerS" layout="row" layout-align="space-between stretch">
-        <div layout="column" layout-align="center center" ng-click="onDrawerMenuClick()">
-            <md-button class="md-icon-button logo iziPLogo" aria-label="drawerMenu">
-                <img class="imgLogo" src="img/fonctions.png"/>
-            </md-button>
+    <md-content class="tools headerS" layout="row" layout-align="start stretch">
+        <div layout="column" layout-align="center center" style="justify-content:flex-end;min-width:126px" ng-click="onDrawerMenuClick()">
+            <div class="logoContainer">
+                <md-button class="md-icon-button logo iziPLogo" aria-label="drawerMenu" style="height:58px">
+                    <img class="imgLogo" ng-src="{{$root.borneMainLogo || 'img/logo.png'}}" alt="" />
+                </md-button>
+                <md-icon class="gearsIcon" md-svg-src="img/icons/icn-settings.svg"></md-icon>
+            </div>
             <div class="clock">
                 <horloge format="HH:mm"></horloge>
             </div>
-            <div class="version" ng-if="$mdMedia('(min-width: 800px)')">
+            <div class="version" ng-if="mdMedia('min-width: 800px')">
                 <horloge format="dd-MM-yyyy"></horloge>
             </div>
         </div>
         <md-divider class="vertical-divider"></md-divider>
-        <md-content layout="row" layout-align="space-between stretch" ng-show="$mdMedia('(min-width: 800px)')"
-                    class="catMenu" style="background:transparent;">
-            <div ng-repeat="category in categories track by $id(category)" class="itemCategory" layout="column"
-                 layout-align="start center"
-                 ng-click="navig(category)">
-                <md-button aria-label="{{category.Name}}" class="md-icon-button linkCategory">
-                    <img class="imgCategory" ng-src="{{category.PictureUrl}}" alt=""/>
+        <!-- Si on est en mode multistore, on affiche les stores en haut, et les categories sur le coté-->
+        <md-content ng-if="$root.EnableMultiStore" layout="row" layout-align="space-between stretch"
+            ng-show="mdMedia('min-width: 800px')" class="storeMenu" style="background:transparent; padding-left: 15px">
+            <div ng-repeat="store in stores track by $index" class="itemStore" layout="column"
+                layout-align="start center" ng-class="{'disabled' : store.StoreLocalClosed}"
+                ng-show="store.Id !== $root.MainStoreId" ng-click="setStoreFilter(store)">
+                <md-button aria-label="{{store.Name}}" class="md-icon-button linkStore">
+                    <img class="imgStore" ng-src="{{store.LogoPictureUrl}}" alt="" src="" />
                 </md-button>
-                <div class="titleCategory" style="cursor:pointer;" flex>{{category.Name}}</div>
+                <div class="titleStore" ng-class="{'active-store' : $root.storeFilter.Id === store.Id }"
+                    style="cursor:pointer;" flex>{{store.Name}}</div>
+                <div class="active-store-arrow" ng-show="$root.storeFilter.Id === store.Id">
+                    <i class="glyphicon glyphicon-chevron-down" style="font-size: 9px; color: #ece09c"></i>
+                </div>
             </div>
         </md-content>
-
-        <div layout="column" layout-align="center center" ng-hide="$mdMedia('(min-width: 800px)')">
+        <md-content ng-if="!$root.EnableMultiStore" layout="row" layout-align="space-between stretch"
+            ng-show="mdMedia('min-width: 800px')" class="catMenu" style="background:transparent;">
+            <div ng-repeat="category in categories track by $id(category)" class="itemCategory" layout="column"
+                layout-align="start center" ng-click="navig(category)">
+                <md-button aria-label="{{category.Name}}" class="md-icon-button linkCategory">
+                    <img class="imgCategory" ng-src="{{category.PictureUrl}}" alt="" src="" />
+                </md-button>
+                <div class="titleCategory catCenter" style="cursor:pointer" flex>{{category.Name}}</div>
+            </div>
+        </md-content>
+        <div layout="column" layout-align="center center" ng-if="!$root.EnableMultiStore"
+            ng-hide="mdMedia('min-width: 800px')">
             <md-button class="md-icon-button logo" aria-label="categories" ng-click="goToCategories();">
-                <img class="imgLogo" src="img/categories.png"/>
+                <img class="imgLogo" src="img/categories.png" alt="" height="65" />
             </md-button>
         </div>
-
-        <div layout="column" layout-align="center center" ng-hide="$mdMedia('(min-width: 800px)')">
+        <div layout="column" layout-align="center center" ng-if="$root.EnableMultiStore"
+            ng-hide="mdMedia('min-width: 800px')">
+            <md-button class="md-icon-button logo" aria-label="categories" ng-click="goToStores();">
+                <img class="imgLogo" src="img/categories.png" alt="" height="65" />
+            </md-button>
+        </div>
+        <div layout="column" layout-align="center center" ng-hide="mdMedia('min-width: 800px')">
             <md-button class="md-icon-button logo" aria-label="categories"
-                       ng-click="$rootScope.showShoppingCart = !$rootScope.showShoppingCart">
-                <img class="imgLogo" src="img/cart-drawer.png"/>
-
-                <div class="tabNotif cNotif" ng-if="getNbItems() > 0">
-                   <span class="tabNotif-text">{{getNbItems()}}</span>
+                ng-click="$root.showShoppingCart = !$root.showShoppingCart">
+                <img class="imgLogo" src="img/cart-drawer.png" alt="" height="65" />
+                <div class="tabNotif cNotif red" ng-if="getNbItems() > 0">
+                    <span class="tabNotif-text">{{getNbItems()}}</span>
                 </div>
             </md-button>
         </div>
-        <div ng-if="!modelPos.isPosOpen && IziBoxConfiguration.UseCashMovement" class="infoCashMovement">
+        <div ng-if="!$root.modelPos.isPosOpen && IziBoxConfiguration.UseCashMovement" class="infoCashMovement">
             <span class="glyphicon glyphicon-warning-sign"></span>&nbsp;
-            <span ng-if="$mdMedia('(min-width: 800px)')" translate>Veuillez renseigner le fonds de caisse</span>
-            <span ng-if="$mdMedia('(max-width: 799px)')" translate>Attention fonds de caisse</span>
+            <span ng-if="mdMedia('min-width: 800px')" translate>Veuillez renseigner le fonds de caisse</span>
+            <span ng-if="!mdMedia('min-width: 800px')" translate>Attention fonds de caisse</span>
         </div>
-        <div layout="row" class="headerVersions" ng-if="$mdMedia('(max-width: 799px)')" class="headerPad" flex>
+        <div layout="row" class="headerVersions headerPad" ng-if="!mdMedia('min-width: 800px')" flex>
             <div class="version" layout="row">
                 <div class="version">
                     <horloge format="dd-MM-yyyy"></horloge>
                 </div>
                 <span>&nbsp;-&nbsp;{{PosUserName}}&nbsp;-&nbsp;</span>
                 <div layout="row" layout-align="end center">
-                    <span class="cashMachineName">{{CashMachineName}}</span>
+                    <span class="cashMachineName" style="word-break: normal">{{CashMachineName}}</span>
                     <span>&nbsp;-&nbsp;{{Version}}</span>
                     <span class="izibox"
-                          ng-class="{'connected':modelPos.iziboxConnected && modelPos.iziboxStatus.LocalDb && modelPos.iziboxStatus.DistantDb,
-                          'connectedwarning': modelPos.iziboxConnected && modelPos.iziboxStatus.LocalDb && !modelPos.iziboxStatus.DistantDb }"></span>
+                        ng-class="{'connected': $root.modelPos.iziboxConnected && $root.modelPos.iziboxStatus.LocalDb && $root.modelPos.iziboxStatus.DistantDb,
+                          'connectedwarning': $root.modelPos.iziboxConnected && $root.modelPos.iziboxStatus.LocalDb && !$root.modelPos.iziboxStatus.DistantDb }"></span>
                 </div>
             </div>
         </div>
-        <div layout="column" ng-if="$mdMedia('(min-width: 800px)')" class="headerNPad" flex>
+        <div layout="column" ng-if="mdMedia('min-width: 800px')" class="headerNPad" flex>
+            <!-- <md-switch ng-model="$root.IziBoxConfiguration.EnableMultiStore"></md-switch> -->
             <div class="version" layout="column">
                 <span>{{PosUserName}}</span>
                 <div layout="row" layout-align="end center">
                     <span>{{Version}}</span>
                     <span class="izibox"
-                          ng-class="{'connected':modelPos.iziboxConnected && modelPos.iziboxStatus.LocalDb && modelPos.iziboxStatus.DistantDb, 'connectedwarning': modelPos.iziboxConnected && modelPos.iziboxStatus.LocalDb && !modelPos.iziboxStatus.DistantDb }"></span>
+                        ng-class="{'connected': $root.modelPos.iziboxConnected && $root.modelPos.iziboxStatus.LocalDb && $root.modelPos.iziboxStatus.DistantDb,
+                            'connectedwarning': $root.modelPos.iziboxConnected && $root.modelPos.iziboxStatus.LocalDb && !$root.modelPos.iziboxStatus.DistantDb }"></span>
                 </div>
-                <span class="cashMachineName">{{CashMachineName}}</span>
-
+                <span class="cashMachineName" style="word-break: normal">{{CashMachineName}}</span>
             </div>
         </div>
     </md-content>

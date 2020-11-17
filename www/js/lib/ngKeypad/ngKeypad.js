@@ -26,15 +26,15 @@
          * based on attributes.
          */
         function init() {
-            $scope.$on(Key.PRESSED, handleKeyPressed);
-            $rootScope.$on(Keypad.TOGGLE_LOCKING, handleLockingToggle);
-            $rootScope.$on(Keypad.TOGGLE_OPENING, handleOpeningToggle);
-            $rootScope.$on(Keypad.OPEN, handleOpeningToggle);
-            $rootScope.$on(Keypad.CLOSE, handleOpeningToggle);
-            $element.addClass("closed");
-            $element.bind('mousedown.ngKey', keyPressed);
+                $scope.$on(Key.PRESSED, handleKeyPressed);
+                $rootScope.$on(Keypad.TOGGLE_LOCKING, handleLockingToggle);
+                $rootScope.$on(Keypad.TOGGLE_OPENING, handleOpeningToggle);
+                $rootScope.$on(Keypad.OPEN, handleOpeningToggle);
+                $rootScope.$on(Keypad.CLOSE, handleOpeningToggle);
+                $element.addClass("closed");
+                $element.bind('mousedown.ngKey', keyPressed);
 
-            initScope();
+                initScope();
         };
 
         /**
@@ -59,8 +59,8 @@
          * @param event
          * @param key
          */
-        function handleKeyPressed(event, key) {
-            if (!locked) {
+        function handleKeyPressed(event, key, keyboardType) {
+            if (!locked && keyboardType === padId) {
                 if (key.indexOf('[') === -1 && key.indexOf(']') === -1) {
                     $scope.$emit(Keypad.KEY_PRESSED, key, padId);
                 } else {

@@ -1,165 +1,173 @@
-﻿app.service('pictureService', ['$rootScope', '$q',
-    function ($rootScope, $q) {
+﻿app.service('pictureService', function ($rootScope, $q, $http) {
+    let cacheProductPictures = {};
+    let cachePictures = {};
+    let useCache = true;
+    let useBlob = true;
 
-        var cacheProductPictures = undefined;
-        var cachePictures = {};
-        var useCache = true;
-        var useBlob = true;
+    $rootScope.$on('pouchDBChanged', (event, args) => {
+        if (args.status === "Change" && (args.id.indexOf('Picture') === 0 || args.id.indexOf('ProductPicture') === 0)) {
+            cacheProductPictures = {};
+            cachePictures = {};
+        }
+    });
 
-        $rootScope.$on('pouchDBChanged', function (event, args) {
-            if (args.status == "Change" && (args.id.indexOf('Picture') == 0 || args.id.indexOf('ProductPicture') == 0)) {
-                cacheProductPictures = undefined;
-                cachePictures = {};
-            }
-        });
+    this.getPictureFileUrl = (itemId, type) => {
+        let setPictureFor = $rootScope.borne ? SetPictureFor.Borne : SetPictureFor.Pos;
+        return $rootScope.APIBaseURL + "/picturestreambyid/" + itemId + "?setPictureFor=" + setPictureFor + "&type=" + type;
+    };
 
-        /** Get a picture */
-        this.getPictureByIdAsync = function (idStr) {
-            var self = this;
-            var pictureDefer = $q.defer();
-            var id = parseInt(idStr);
+    this.deletePictureCache = () => {
+        let urlDatasApi = $rootScope.APIBaseURL + "/deletepicturecache";
+        $http.get(urlDatasApi);
+    };
 
-            if ($rootScope.modelDb.databaseReady) {
+    /* Get a picture */
+    this.getPictureByIdAsync = (idStr) => {
+        let self = this;
+        let pictureDefer = $q.defer();
+        let id = parseInt(idStr);
 
-                if (useCache && cachePictures && cachePictures[id]) {
-                    pictureDefer.resolve(cachePictures[id]);
-                } else {
-                    $rootScope.dbInstance.rel.find('Picture', id).then(function (results) {
-                        var picture = Enumerable.from(results.Pictures).firstOrDefault();
+        if ($rootScope.modelDb.databaseReady) {
+            if (useCache && cachePictures && cachePictures[id] != undefined) {
+                pictureDefer.resolve(cachePictures[id]);
+            } else {
+                var urlDatasApi = $rootScope.APIBaseURL + "/picture/" + id;
 
+                $http.get(urlDatasApi).then((picture) => {
+                    if(picture && picture.data) {
+                        if (useBlob && picture) {
+                            let blobDoc = b64toBlob(picture.data.PictureBinary, picture.data.MimeType);
+                            picture.PictureUrl = URL.createObjectURL(blobDoc);
+                        }
+    
                         if (useCache) {
                             cachePictures[id] = picture;
                         }
-
                         pictureDefer.resolve(picture);
-
-                    }, function (err) {
+                    } else {
                         pictureDefer.reject();
-                    });
-                }
-
-            } else {
-                pictureDefer.reject("Database isn't ready !");
+                    }
+                }, () => {
+                    pictureDefer.reject();
+                });
             }
-            return pictureDefer.promise;
+        } else {
+            pictureDefer.reject("Database isn't ready !");
         }
+        return pictureDefer.promise;
+    };
 
-        this.getAllPicturesAsync = function () {
-            var allPicturesDefer = $q.defer();
+    this.loadPictureForProductAsync = (idProduct) => {
+        let pictureDefer = $q.defer();
 
-            if (useCache && cacheProductPictures) {
-                allPicturesDefer.resolve(cacheProductPictures);
-            } else {
-                if ($rootScope.modelDb.databaseReady) {
-                    $rootScope.dbInstance.rel.find('ProductPicture').then(function (results) {
-                        if (useCache) {
-                            cacheProductPictures = results.ProductPictures;
-                        }
+        let id = parseInt(idProduct);
 
-                        allPicturesDefer.resolve(results.ProductPictures);
-                    }, function (err) {
-                        allPicturesDefer.reject();
-                    });
-                } else {
-                    allPicturesDefer.reject("Database isn't ready !");
+        if (cacheProductPictures && cacheProductPictures[id] !== undefined) {
+            pictureDefer.resolve(cacheProductPictures[id]);
+        } else {
+            var setPictureFor = $rootScope.borne ? SetPictureFor.Borne : SetPictureFor.Pos;
+
+            var urlDatasApi = $rootScope.APIBaseURL + "/pictureforproductid/" + id + "?setPictureFor=" + setPictureFor;
+
+            $http.get(urlDatasApi).then((picture) => {
+                picture = picture.data;
+
+                if (useBlob && picture) {
+                    if (picture.PictureUrl) {
+                        let imgDatas = parseImgBase64Datas(picture.PictureUrl);
+                        let blobDoc = b64toBlob(imgDatas.datas, imgDatas.contentType);
+                        picture.PictureUrl = URL.createObjectURL(blobDoc);
+                    }
                 }
-            }
 
-            return allPicturesDefer.promise;
-        };
+                cacheProductPictures[id] = picture;
 
-        this.getPictureIdsForProductAsync = function (idProduct) {
-            var pictureIdsDefer = $q.defer();
-            idProduct = parseInt(idProduct);
-            this.getAllPicturesAsync().then(function (productPictures) {
-                var pictureIds = Enumerable.from(productPictures).where("x => x.ProductId == " + idProduct).orderBy("x => x.DisplayOrder").toArray();
-                pictureIdsDefer.resolve(pictureIds);
-            }, function (err) {
-                pictureIdsDefer.reject();
+                pictureDefer.resolve(picture);
+            }, (err) => {
+                console.error(err);
+                pictureDefer.reject(err);
             });
+        }
 
-            return pictureIdsDefer.promise;
-        };
+        return pictureDefer.promise;
+    };
 
-        this.getCorrectPictureId = function (listIds) {
-            let image = Enumerable.from(listIds).firstOrDefault();
-            let id = image ? image.PictureId : null;
-            let firstId = id;
+    this.getCorrectPictureId = (listIds) => {
+        let image = Enumerable.from(listIds).firstOrDefault();
+        let id = image ? image.PictureId : null;
+        let firstId = angular.copy(id);
 
-            for (let i = 0; i < listIds.length; i++) {
-                if ($rootScope.borne && listIds[i].ProductPictureFor === ProductPictureFor.Borne) {
+        for (let i = 0; i < listIds.length; i++) {
+            if ($rootScope.borne && listIds[i].SetPictureFor === SetPictureFor.Borne) {
+                id = listIds[i].PictureId;
+                break;
+            } else if (!$rootScope.borne && listIds[i].SetPictureFor === SetPictureFor.Pos) {
+                id = listIds[i].PictureId;
+                break;
+            } else if (listIds[i].SetPictureFor === SetPictureFor.All) {
+                if (listIds[i].PictureId !== firstId) {
                     id = listIds[i].PictureId;
-                    break;
-                } else if (!$rootScope.borne && listIds[i].ProductPictureFor === ProductPictureFor.Pos) {
-                    id = listIds[i].PictureId;
-                    break;
-                } else if (listIds[i].ProductPictureFor === ProductPictureFor.All) {
-                    if (listIds[i].PictureId !== firstId) {
-                        id = listIds[i].PictureId;
-                    }
                 }
             }
-            return id;
-        };
+        }
+        return id;
+    };
 
-        this.getPictureUrlAsync = function (pictureId) {
-            var pictureUrlDefer = $q.defer();
+    this.getPictureUrlAsync = (pictureId) => {
+        let pictureUrlDefer = $q.defer();
 
-            var pictureUrl = undefined;
+        let pictureUrl = undefined;
 
-            useCache = true;
+        useCache = true;
 
-            if (useCache) {
-                pictureUrl = window.sessionStorage.getItem("Image" + pictureId);
-            }
+        if (useCache) {
+            pictureUrl = window.sessionStorage.getItem("Image" + pictureId);
+        }
 
-            if (!pictureUrl) {
+        if (!pictureUrl) {
+            this.getPictureByIdAsync(pictureId).then((picture) => {
+                if (picture) {
+                    let contentType = picture.data.MimeType;
+                    let base64Data = picture.data.PictureBinary;
 
-                this.getPictureByIdAsync(pictureId).then(function (picture) {
-                    if (picture) {
-                        var contentType = picture.MimeType;
-                        var base64Data = picture.PictureBinary;
+                    if (useBlob) {
+                        contentType = contentType || '';
+                        let sliceSize = 1024;
+                        let byteCharacters = atob(base64Data);
+                        let bytesLength = byteCharacters.length;
+                        let slicesCount = Math.ceil(bytesLength / sliceSize);
+                        let byteArrays = new Array(slicesCount);
 
-                        if (useBlob) {
-                            contentType = contentType || '';
-                            var sliceSize = 1024;
-                            var byteCharacters = atob(base64Data);
-                            var bytesLength = byteCharacters.length;
-                            var slicesCount = Math.ceil(bytesLength / sliceSize);
-                            var byteArrays = new Array(slicesCount);
+                        for (let sliceIndex = 0; sliceIndex < slicesCount; ++sliceIndex) {
+                            let begin = sliceIndex * sliceSize;
+                            let end = Math.min(begin + sliceSize, bytesLength);
 
-                            for (var sliceIndex = 0; sliceIndex < slicesCount; ++sliceIndex) {
-                                var begin = sliceIndex * sliceSize;
-                                var end = Math.min(begin + sliceSize, bytesLength);
-
-                                var bytes = new Array(end - begin);
-                                for (var offset = begin, i = 0; offset < end; ++i, ++offset) {
-                                    bytes[i] = byteCharacters[offset].charCodeAt(0);
-                                }
-                                byteArrays[sliceIndex] = new Uint8Array(bytes);
+                            let bytes = new Array(end - begin);
+                            for (let offset = begin, i = 0; offset < end; ++i, ++offset) {
+                                bytes[i] = byteCharacters[offset].charCodeAt(0);
                             }
-                            var blob = new Blob(byteArrays, {type: contentType});
-
-                            pictureUrl = URL.createObjectURL(blob);
-                        } else {
-                            pictureUrl = "data:" + contentType + ";base64," + base64Data;
+                            byteArrays[sliceIndex] = new Uint8Array(bytes);
                         }
+                        let blob = new Blob(byteArrays, { type: contentType });
 
-                        if (useCache) {
-                            window.sessionStorage.setItem("Image" + pictureId, pictureUrl);
-                        }
-
+                        pictureUrl = URL.createObjectURL(blob);
+                    } else {
+                        pictureUrl = "data:" + contentType + ";base64," + base64Data;
                     }
 
-                    pictureUrlDefer.resolve(pictureUrl);
+                    if (useCache) {
+                        window.sessionStorage.setItem("Image" + pictureId, pictureUrl);
+                    }
+                }
 
-                }, function (err) {
-                })
-            }
-            else {
                 pictureUrlDefer.resolve(pictureUrl);
-            }
-
-            return pictureUrlDefer.promise;
+            }, (err) => {
+            });
         }
-    }]);
+        else {
+            pictureUrlDefer.resolve(pictureUrl);
+        }
+
+        return pictureUrlDefer.promise;
+    };
+});

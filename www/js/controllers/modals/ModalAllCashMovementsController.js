@@ -23,24 +23,18 @@ app.controller('ModalAllCashMovementsController', function ($scope, $rootScope, 
             posPeriodService.getAllYPeriodAsync('*').then(function (yperiods) {
                 console.log(yperiods);
                 for(let yp of yperiods) {
-                    posPeriodService.getYPaymentValuesAsync(yp.id).then(function (p) {
-                        posService.getPosNameAsync(p.hardwareId).then(function (alias) {
-                            console.log(p);
-                            p.CashMovements[0].alias = alias ? alias : p.hardwareId;
+                    posService.getPosNameAsync(yp.hardwareId).then(function (alias) {
+                        var p = yp.PaymentValues;
+                        if (p) {
+                            p.CashMovements[0].alias = alias ? alias : yp.hardwareId;
                             $scope.model.allCashMovements.push(p.CashMovements);
-                            console.log($scope.model.allCashMovements);
-                        });
-
+                        }
                     });
                 }
             });
         } else { //not all
-            posPeriodService.getYPeriodAsync($rootScope.modelPos.hardwareId, null, false).then(function (yp) {
-                // Query couchdb et recupere tout les cash movement lines
-                posPeriodService.getYPaymentValuesAsync(yp.id).then(function (p) {
-                    console.log(p);
-                    $scope.model.allCashMovements = p.CashMovements;
-                });
+            posPeriodService.getYPeriodAsync($rootScope.modelPos.hardwareId, null, false, false).then(function (periodPair) {
+                $scope.model.allCashMovements = periodPair.YPeriod.PaymentValues.CashMovements;
             });
         }
 
@@ -49,17 +43,32 @@ app.controller('ModalAllCashMovementsController', function ($scope, $rootScope, 
     // Match l'id du mouvement avec son nom
     $scope.getMovementName = function (movementType) {
         var matchMvt = Enumerable.from($scope.model.allCashMovementsTypes).firstOrDefault(function (cmt) {
-            return cmt.Id == movementType
+            return cmt.Id === movementType;
         });
-        return matchMvt.Name;
+        if(matchMvt) {
+            return matchMvt.Name;
+        } else {
+            return null;
+        }
+        
     };
 
     // Match l'id de l'utilisateur avec son nom
     $scope.getPosUserName = function (userId) {
-        var matchPu = Enumerable.from($scope.model.allPosUsers).firstOrDefault(function (pu) {
-            return pu.Id == userId;
-        });
-        return matchPu.Name;
+        if(userId !== -1) {
+            var matchPu = Enumerable.from($scope.model.allPosUsers).firstOrDefault(function (pu) {
+                return pu.Id === userId;
+            });
+            if(matchPu) {
+                return matchPu.Name;
+            } else {
+                return null;
+            }
+            
+        } else {
+            return null;
+        }
+
     };
 
     $scope.ok = function () {
@@ -68,5 +77,5 @@ app.controller('ModalAllCashMovementsController', function ($scope, $rootScope, 
 
     $scope.cancel = function () {
         $uibModalInstance.dismiss('cancel');
-    }
+    };
 });

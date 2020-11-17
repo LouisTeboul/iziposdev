@@ -1,5 +1,4 @@
 app.controller('ModalSplitItemController', function ($scope, $rootScope, $uibModalInstance, defaultValue, item) {
-
     $scope.defaultValue = defaultValue;
     $scope.item = item;
     console.log(item);
@@ -7,80 +6,66 @@ app.controller('ModalSplitItemController', function ($scope, $rootScope, $uibMod
 
     $scope.result = {
         montant: 0,
-        part: 0,
-    };
-    $scope.init = function () {
-        $scope.setFocusMontant();
+        part: 0
     };
 
-    $scope.setMode = function (mode) {
-        switch (mode) {
-            case "PART":
-                $scope.setFocusPart();
-                break;
-            case "MONTANT":
-                $scope.setFocusMontant();
-                break;
-            default :
-                break;
-        }
+    $scope.init = () => {
+        $scope.setFocusPart();
     };
 
-
-    $scope.setFocusMontant = function () {
-        console.log("focus montant");
-
-        setTimeout(function () {
-            if (document.querySelector('#splitAmount')) {
+    $scope.setFocusMontant = () => {
+        const loadSplit = () => {
+            if ($("#splitAmount").length) {
                 document.querySelector('#splitAmount').focus();
-                $rootScope.openKeyboard('decimal', "end-start");
+            } else {
+                window.requestAnimationFrame(loadSplit);
             }
-        }, 100);
+        };
+        loadSplit();
     };
 
-    $scope.setFocusPart = function () {
-        console.log("focus part");
-
-        setTimeout(function () {
-            if (document.querySelector('#splitPart')) {
+    $scope.setFocusPart = () => {
+        const loadSplit = () => {
+            if ($("#splitPart").length) {
                 document.querySelector('#splitPart').focus();
-                $rootScope.openKeyboard('numeric', "end-start");
+            } else {
+                window.requestAnimationFrame(loadSplit);
             }
-        }, 100);
+        };
+        loadSplit();
     };
 
-    $scope.cancel = function () {
+    $scope.cancel = () => {
         $rootScope.closeKeyboard();
         $uibModalInstance.dismiss('cancel');
     };
 
-
-    $scope.okMontant = function () {
-        console.log("montant", $scope.result.montant);
+    $scope.okMontant = () => {
         $rootScope.closeKeyboard();
+        $scope.result.montant = Number($scope.result.montant);
         if ($scope.result.montant > 0) {
-            if ($scope.result > $scope.item.PriceIT) {
-                $scope.errorMessageMontant = "Le prix renseigné est supérieur au prix de l'article"
-            } else {
+            if ($scope.result.montant < $scope.item.PriceIT) {
                 $uibModalInstance.close({
                     montant: $scope.result.montant
                 });
+            } else {
+                $scope.errorMessageMontant = "Le prix renseigné doit être inférieur au prix de l'article.";
             }
-
+        } else {
+            $scope.errorMessagePart = "Veuillez insérer un prix positif.";
         }
-
     };
 
-    $scope.okPart = function () {
-        console.log("part", $scope.result.part);
+    $scope.okPart = () => {
         $rootScope.closeKeyboard();
-        if ($scope.result.part > 0) {
-
+        $scope.result.part = Number($scope.result.part);
+        if (Number.isInteger($scope.result.part) && $scope.result.part > 1 && $scope.result.part < 100) {
             $uibModalInstance.close({
                 nbPart: $scope.result.part,
-                montant: $scope.item.PriceIT / $scope.result.part,
-                makeParts: true,
+                montant: $scope.item.PriceIT / $scope.result.part
             });
+        } else {
+            $scope.errorMessagePart = "Veuillez insérer un nombre entier supérieur à 1 et inférieur à 100.";
         }
     };
 });

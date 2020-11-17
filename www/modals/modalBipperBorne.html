@@ -1,0 +1,40 @@
+<section id="modalBipperBorneCard" class="modalCenterFS" ng-class="{'pmr' : $root.isPMREnabled}" ng-init="init()"
+    ng-click="refocus()" ng-style="customStyle">
+    <section class="groupModal" ng-style="{'justify-content' : $root.borneVertical ? 'flex-end' : 'center',
+             'flex' : $root.borneVertical ? '2' : '3'}">
+        <img ng-src="{{$root.borneMainLogo || 'img/logo.png'}}" class="imgLogoHeader bigLogo" draggable="false" alt=""
+            src="" />
+        <div class="firstTitle" ng-style="{'color' : $root.textColor ? $root.textColor : ''}">
+            <span translate>Finalisez votre commande</span>
+        </div>
+    </section>
+    <hr ng-class="{'smallModalHR': $root.borneVertical,
+                        'smallModalHRH': !$root.borneVertical}" ng-style="{ 'background-color' : $root.tenantColor}">
+    <section class="groupModal" style="flex:4"
+        ng-style="{'justify-content' : $root.borneVertical ? 'flex-start' : 'center'}">
+        <div class="loyaltyFormGroup" layout="column" layout-align="space-between center" ng-style="{'margin' : $root.borneVertical ? (mdMedia('min-width: 800px') ? '50px 0 0' : '26px 0 0') : '0',
+             'max-height': $root.borneVertical ?
+             (mdMedia('min-width: 800px') ? '675px' : '300px') :
+             (mdMedia('min-height: 800px') ? '675px' : '460px'),
+             'padding': $root.borneVertical ?
+             (mdMedia('min-width: 800px') ? '75' : '20px 10px') :
+             (mdMedia('min-height: 800px') ? '75' : '10px')}">
+            <div class="scanImg" ng-style="{'width': $root.borneVertical ?
+            (mdMedia('min-width: 800px') ? '268px' : '103px') :
+            (mdMedia('min-width: 800px') ? '268px' : '103px'),
+            'min-height': $root.borneVertical ?
+            (mdMedia('min-width: 800px') ? '268px' : '103px') :
+            (mdMedia('min-width: 800px') ? '268px' : '103px')}">
+                <x translate>Scannez</x>
+                <span translate>votre {{itemName}}</span>
+            </div>
+            <span class="connectTypeSep" translate>ou</span>
+            <ng-barcodetextfield-borne></ng-barcodetextfield-borne>
+            <div class="groupBtn">
+                <md-button class="btnModalSmall" ng-click="cancel()">
+                    <span class="mainBtnMsText" translate>Annuler</span>
+                </md-button>
+            </div>
+        </div>
+    </section>
+</section>

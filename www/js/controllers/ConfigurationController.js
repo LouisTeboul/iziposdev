@@ -1,341 +1,491 @@
 ﻿app.config(function ($stateProvider) {
-    $stateProvider
-        .state('configuration', {
-            url: '/',
-            templateUrl: 'views/configuration.html'
-        })
-        .state('restart', {
-            url: '/restart',
-            templateUrl: 'views/configuration.html'
-        })
+    $stateProvider.state('configuration', {
+        url: '/',
+        templateUrl: 'views/configuration.html'
+    }).state('restart', {
+        url: '/restart',
+        templateUrl: 'views/configuration.html'
+    });
 });
 
-app.controller('ConfigurationController', function ($scope, $rootScope, $location, $http, $uibModal, shoppingCartService, posLogService, posService, ipService) {
-    var current = this;
-    var userPresetIndex = 1;
-    //var portraitRatioHandler = undefined;
-    //var lanscapeRatioHandler = undefined;
+app.controller('ConfigurationController', function ($scope, $rootScope, $location, $http, $mdMedia, $uibModal, $translate, posLogService, ipService, pictureService) {
+    let self = this;
+    let userPresetIndex = 1;
+    let borneModeHandler = undefined;
+    let iziboxConfigurationHandler = undefined;
+    let searchIziBoxProgressHandler = undefined;
+    let userPresetCount = 1;
 
-    $scope.searchIziBoxProgression = {total: 0, step: 0, percent: 0, find: 0};
+    $scope.$translate = $translate;
+    $scope.searchIziBoxProgression = {
+        total: 0,
+        step: 0,
+        percent: 0,
+        find: 0
+    };
 
-    $rootScope.$on('searchIziBoxProgress', function (event, args) {
+    borneModeHandler = $rootScope.$watch('borne', () => {
+        if ($rootScope.IziBoxConfiguration) {
+            $rootScope.IziBoxConfiguration.defaultStoreId = $rootScope.IziBoxConfiguration.StoreId;
+            if ($rootScope.borne) {
+                if ($rootScope.IziBoxConfiguration.StoreBorneId) {
+                    console.log("StoreId changed : " + $rootScope.IziBoxConfiguration.StoreId + " => " + $rootScope.IziBoxConfiguration.StoreBorneId);
+                    $rootScope.IziBoxConfiguration.StoreId = $rootScope.IziBoxConfiguration.StoreBorneId;
+                }
+            } else {
+                console.log("StoreId changed : " + $rootScope.IziBoxConfiguration.StoreId + " => " + $rootScope.IziBoxConfiguration.defaultStoreId);
+                $rootScope.IziBoxConfiguration.StoreId = $rootScope.IziBoxConfiguration.defaultStoreId;
+            }
+        }
+    });
+
+    iziboxConfigurationHandler = $rootScope.$watch('IziBoxConfiguration', () => {
+        if ($rootScope.IziBoxConfiguration) {
+            initPrinterConfig();
+            initPreset();
+        }
+    });
+
+    searchIziBoxProgressHandler = $rootScope.$on('searchIziBoxProgress', (event, args) => {
         $scope.searchIziBoxProgression.total = args.total;
         $scope.searchIziBoxProgression.step = args.step + 1;
         $scope.searchIziBoxProgression.find = args.find;
+
         if (args.total > 0) {
             $scope.searchIziBoxProgression.percent = (args.step * 100) / args.total;
         }
-
-        $scope.gauge.set(args.step + 1);
+        if ($scope.gauge) {
+            $scope.gauge.set(args.step + 1);
+        }
     });
 
-    $scope.init = function () {
+    $scope.$on("$destroy", () => {
+        borneModeHandler();
+        iziboxConfigurationHandler();
+        searchIziBoxProgressHandler();
+    });
 
+    $scope.init = () => {
+        // Default TenantColor
         $rootScope.tenantColor = "#98C8CC";
 
-        if(window.localStorage.getItem("IsBorneDefault") ) {
+        if (window.localStorage.getItem("IsBorneDefault")) {
             $rootScope.borne = window.localStorage.getItem("IsBorneDefault") === "true";
         }
-        if(window.localStorage.getItem("IsBorneAtCashierDefault") ) {
-            $rootScope.borneAtCashier = window.localStorage.getItem("IsBorneAtCashierDefault") === "true";
-        }
-        if(window.localStorage.getItem("IsBorneEasyTransacDefault") ) {
-            $rootScope.borneEasyTransac = window.localStorage.getItem("IsBorneEasyTransacDefault") === "true";
-        }
-        if(window.localStorage.getItem("IsBorneBalanceDefault") ) {
-            $rootScope.borneBalance = window.localStorage.getItem("IsBorneBalanceDefault") === "true";
-        }
-        if(window.localStorage.getItem("IsBorneCBDefault") ) {
-            $rootScope.borneCB = window.localStorage.getItem("IsBorneCBDefault") === "true";
-        }
-        if(window.localStorage.getItem("IsBorneVerticalDefault") ) {
+        if (window.localStorage.getItem("IsBorneVerticalDefault")) {
             $rootScope.borneVertical = window.localStorage.getItem("IsBorneVerticalDefault") === "true";
         }
+        if (window.localStorage.getItem("AnimProductDefault")) {
+            $rootScope.animProduct = window.localStorage.getItem("AnimProductDefault") === "true";
+        }
+        if (window.localStorage.getItem("BorneFidDefault")) {
+            $rootScope.borneFid = window.localStorage.getItem("BorneFidDefault") === "true";
+        }
+        if (window.localStorage.getItem("ProductRecapDefault")) {
+            $rootScope.productRecap = window.localStorage.getItem("ProductRecapDefault") === "true";
+        }
 
-        $rootScope.$watch('borne', function () {
-            if($rootScope.IziBoxConfiguration) {
-                $rootScope.IziBoxConfiguration.defaultStoreId = $rootScope.IziBoxConfiguration.StoreId;
-                if($rootScope.borne) {
-                    if($rootScope.IziBoxConfiguration.StoreBorneId) {
-                        console.log("StoreId changed : " + $rootScope.IziBoxConfiguration.StoreId + " => " + $rootScope.IziBoxConfiguration.StoreBorneId);
-                        $rootScope.IziBoxConfiguration.StoreId = $rootScope.IziBoxConfiguration.StoreBorneId;
-                    }
-                } else {
-                    console.log("StoreId changed : " + $rootScope.IziBoxConfiguration.StoreId + " => " + $rootScope.IziBoxConfiguration.defaultStoreId);
-                    $rootScope.IziBoxConfiguration.StoreId = $rootScope.IziBoxConfiguration.defaultStoreId;
-                }
+        if (window.localStorage.getItem("IsBorneAtCashierDefault")) {
+            $rootScope.borneAtCashier = window.localStorage.getItem("IsBorneAtCashierDefault") === "true";
+        }
+        if (window.localStorage.getItem("IsBorneEasyTransacDefault")) {
+            $rootScope.borneEasyTransac = window.localStorage.getItem("IsBorneEasyTransacDefault") === "true";
+        }
+        if (window.localStorage.getItem("IsBorneBalanceDefault")) {
+            $rootScope.borneBalance = window.localStorage.getItem("IsBorneBalanceDefault") === "true";
+        }
+        if (window.localStorage.getItem("IsBorneConsignorDefault")) {
+            $rootScope.borneConsignor = window.localStorage.getItem("IsBorneConsignorDefault") === "true";
+        }
+        if (window.localStorage.getItem("IsBorneCBDefault")) {
+            $rootScope.borneCB = window.localStorage.getItem("IsBorneCBDefault") === "true";
+        }
+        if (window.localStorage.getItem("IsBorneEspeceDefault")) {
+            $rootScope.borneEspece = window.localStorage.getItem("IsBorneEspeceDefault") === "true";
+        }
+
+        if (window.localStorage.getItem("IsBorneForHereDefault")) {
+            $rootScope.borneForHere = window.localStorage.getItem("IsBorneForHereDefault") === "true";
+
+            if (window.localStorage.getItem("IsBorneForHereCollectionDefault")) {
+                $rootScope.borneForHereCollection = window.localStorage.getItem("IsBorneForHereCollectionDefault") === "true";
+            } else {
+                $rootScope.borneForHereCollection = false
             }
-        });
+        } else {
+            $rootScope.borneForHere = true
+        }
+
+        if (window.localStorage.getItem("IsBorneTakeawayDefault")) {
+            $rootScope.borneTakeaway = window.localStorage.getItem("IsBorneTakeawayDefault") === "true";
+
+            if (window.localStorage.getItem("IsBorneTakeawayCollectionDefault")) {
+                $rootScope.borneTakeawayCollection = window.localStorage.getItem("IsBorneTakeawayCollectionDefault") === "true";
+            } else {
+                $rootScope.borneTakeawayCollection = false
+            }
+        } else {
+            $rootScope.borneTakeaway = true;
+        }
+
+        if (window.localStorage.getItem("PrinterConfig")) {
+            $rootScope.printerConfig = JSON.parse(window.localStorage.getItem("PrinterConfig"));
+        } else {
+            $rootScope.printerConfig = {};
+        }
+        /*if (window.localStorage.getItem("IsBorneCBTRDefault")) {
+            $rootScope.borneCBTR = window.localStorage.getItem("IsBorneCBTRDefault") === "true";
+        }*/
+
+        // Moyens de paiement
+        if(!$rootScope.borne && window.localStorage.getItem("PaymentTypesConfig")) {
+
+            $rootScope.paymentTypesConfig = JSON.parse(window.localStorage.getItem("PaymentTypesConfig"));
+        } else {
+            $rootScope.paymentTypesConfig = {
+                [PaymentType.ESPECE] : true,
+                [PaymentType.CB] : true,
+                [PaymentType.CHEQUE] : true,
+                [PaymentType.TICKETRESTAURANT] : true,
+                [PaymentType.AVOIR] : true,
+                [PaymentType.ENCOMPTE] : true,
+                [PaymentType.LYFPAY] : true,
+                [PaymentType.CBTICKETRESTAURANT] : true,
+            }
+        }
 
         $rootScope.isPMREnabled = false;
         $rootScope.isCustomerLog = false;
         $scope.Model = {};
         $scope.presetList = [];
         $scope.selectedPresetTitle = "";
-
-        $rootScope.modelPos.posNumber = window.localStorage.getItem("PosNumber");
-        if (!$rootScope.modelPos.posNumber) $rootScope.modelPos.posNumber = 1;
-
-        //Recupere tout les presets sauvegardé dans le localstorage
-        while (window.localStorage.getItem("Userpreset" + userPresetIndex)) {
-            var preset = JSON.parse(window.localStorage.getItem("Userpreset" + userPresetIndex));
-            $scope.presetList.push(preset);
-            userPresetIndex++
+        if(window.glory) {
+            $scope.enableGlory = true;
+        } else {
+            $scope.enableGlory = false;
+            $rootScope.borneEspece = false;
         }
-        $scope.selectedPresetID = window.localStorage.getItem('selectedPresetID');
-        if (!$scope.selectedPresetID) $scope.selectedPresetID = 0;
+        
+        $rootScope.modelPos.posNumber = window.localStorage.getItem("PosNumber");
 
-        // Recupere le titre correspondant à l'id du preset
-        var tmp = Enumerable.from($scope.presetList).firstOrDefault(function (preset) {
-            return preset.id === $scope.selectedPresetID;
+        if (!$rootScope.modelPos.posNumber) {
+            $rootScope.modelPos.posNumber = 1;
+        }
+
+        posLogService.getHardwareIdAsync().then((result) => {
+            $rootScope.modelPos.hardwareId = result;
+        });
+        ipService.getLocalIpAsync().then((ip) => {
+            $rootScope.modelPos.localIp = ip.local;
         });
 
-        if (tmp && tmp != 0) {
-            $scope.currentPreset = tmp;
-            // console.log($scope.currentPreset);
-            $scope.selectedPresetTitle = tmp.value.name;
-        }
+        $scope.closable = $rootScope.isWindowsContainer;
+        setTimeout(initGauge, 100);
+    };
 
+    $scope.editPaymentTypesConfig = () => {
+        let modalInstance = $uibModal.open({
+            templateUrl: 'modals/modalPaymentTypesConfig.html',
+            controller: 'ModalPaymentTypesConfigController',
+            backdrop: 'static'
+        });
+
+        modalInstance.result.then((value) => {
+
+        })
+    };
+
+    const initPrinterConfig = () => {
+        // Local settings, stored in cache
         $rootScope.PrinterConfiguration = {};
         $rootScope.PrinterConfiguration.POSPrinter = window.localStorage.getItem("POSPrinter");
         $rootScope.PrinterConfiguration.ProdPrinter = window.localStorage.getItem("ProdPrinter");
 
-        var posPrinterCountValue = window.localStorage.getItem("POSPrinterCount");
-        var prodPrinterCountValue = window.localStorage.getItem("ProdPrinterCount");
+        let printToPosString = window.localStorage.getItem("PrintToPos");
+        $rootScope.PrinterConfiguration.PrintToPos = printToPosString && getStringBoolValue(printToPosString);
 
-        $rootScope.PrinterConfiguration.POSPrinterCount = posPrinterCountValue ? parseInt(posPrinterCountValue) : 1;
+        let prodPrinterCountValue = window.localStorage.getItem("ProdPrinterCount");
         $rootScope.PrinterConfiguration.ProdPrinterCount = prodPrinterCountValue ? parseInt(prodPrinterCountValue) : 1;
 
-        if (!$rootScope.PrinterConfiguration.POSPrinter) $rootScope.PrinterConfiguration.POSPrinter = 1;
-        if (!$rootScope.PrinterConfiguration.ProdPrinter) $rootScope.PrinterConfiguration.ProdPrinter = 1;
-
-        posLogService.getHardwareIdAsync().then(function (result) {
-
-            $rootScope.modelPos.hardwareId = result;
-
-        });
-        ipService.getLocalIpAsync().then(function (ip) {
-            $rootScope.modelPos.localIp = ip.local;
-        });
-
-
-        // For developpement
-        if ($location.$$path == "/restart") {
-            $scope.validConfig();
+        if (!$rootScope.PrinterConfiguration.POSPrinter) {
+            $rootScope.PrinterConfiguration.POSPrinter = 1;
+        }
+        if (!$rootScope.PrinterConfiguration.ProdPrinter) {
+            $rootScope.PrinterConfiguration.ProdPrinter = 1;
         }
 
-        $scope.closable = $rootScope.isWindowsContainer;
+        // Global settings, stored in IziBox
+        let configApiUrl = $rootScope.APIBaseURL + "/getprinterconfig/";
 
-        setTimeout(initGauge, 100);
-    };
+        $http.get(configApiUrl, {
+            timeout: 10000
+        }).then((ret) => {
+            if (ret.data && ret.data.Printers && ret.data.Printers.length > 0) {
+                $rootScope.printerConfig = ret.data;
+                $rootScope.printerConfig.Printers.map(p => p.IsUp = true);
+                let checkApiUrl = $rootScope.APIBaseURL + "/checkprinterconfig/";
 
-    var initGauge = function () {
+                $http.get(checkApiUrl).then((ret) => {
+                    // console.log(ret);
+                    if (ret.data) {
+                        const printersStatus = ret.data;
 
-        var opts = {
-            angle: 0.5, // The span of the gauge arc
-            lineWidth: 0.03, // The line thickness
-            radiusScale: 1, // Relative radius
-            limitMax: true,     // If false, max value increases automatically if value > maxValue
-            limitMin: false,     // If true, the min value of the gauge will be fixed
-            colorStart: '#2ebbd0',   // Colors
-            colorStop: '#2ebbd0',    // just experiment with them
-            strokeColor: '#EEEEEE',  // to see which ones work best for you
-            generateGradient: false,
-            highDpiSupport: true,     // High resolution support
-        };
-
-        var target = document.getElementById('gaugeIzibox'); // your canvas element
-        var gauge = new Donut(target).setOptions(opts); // create sexy gauge!
-        gauge.maxValue = 254; // set max gauge value
-        gauge.setMinValue(1);  // Prefer setter over gauge.minValue = 0
-        gauge.animationSpeed = 20; // set animation speed (32 is default value)
-        gauge.set(1); // set actual value
-
-        $scope.gauge = gauge;
-    };
-
-    /**
-     * Empty the data cache
-     * Works
-     * */
-    $scope.emptyCache = function () {
-        // Checking if all tickets have already been synchronised with the izibox
-        var adapter = !!window.sqlitePlugin ? 'cordova-sqlite' : 'websql';
-        var dbReplicate = new PouchDB('izipos_replicate', { adapter: adapter});
-
-        var deleteCache = function () {
-            swal({
-                    title: "Attention",
-                    text: "Supprimer le cache de l'application ?",
-                    type: "warning",
-                    showCancelButton: true,
-                    confirmButtonColor: "#d83448",
-                    confirmButtonText: "Oui",
-                    cancelButtonText: "Non",
-                    closeOnConfirm: true
-                },
-                function () {
-                    if ($scope.closable) {
-                        emptyCache.clear();
-                        $scope.reset();
-                    } else {
-                        try {
-                            // FIXME: Windows cache is not always available
-                            if(window.cache) {
-                                window.cache.clear(function () {
-                                    $scope.reset();
-                                });
-                            } else if($rootScope.deviceReady && window.CacheClear) {
-                                window.CacheClear( () => {
-                                    $scope.reset();
+                        if (printersStatus.some(p => !p.IsUp)) {
+                            // Set tout les printer a up
+                            let downPrinters = printersStatus.filter(p => !p.IsUp).map(p => p.Device);
+                            let downIps = downPrinters.map(p => p.IPaddress).join(', ');
+                            if (!$rootScope.borne) {
+                                swal({
+                                    title: "Les imprimantes aux adresses suivantes n'ont pas répondu : " + downIps
                                 });
                             }
 
-                        } catch (err) {
-                            console.log(err);
+                            downPrinters.forEach((dp) => {
+                                $rootScope.printerConfig.Printers.find(p => p.IPaddress == dp.IPaddress).IsUp = false;
+                            });
                         }
                     }
+                }, (err) => {
+                    console.error(err);
                 });
-        };
-
-        // Synchronize the documents
-        dbReplicate.allDocs({
-            include_docs: false,
-            attachments: false
-        }).then(function (result) {
-            var docToSynchronize = Enumerable.from(result.rows).any(function (item) {
-                return item.id.indexOf("PosLog_") === -1;
-            });
-
-            $rootScope.dbValidatePool.allDocs({
-                include_docs: false,
-                attachments: false
-            }).then(function (resPool) {
-                docToSynchronize += resPool.rows.length;
-
-                if (docToSynchronize) {
-                    swal({
-                        title: "Attention",
-                        text: "Il reste des documents à synchroniser, vous ne pouvez pas supprimer le cache.",
-                        type: "warning",
-                        showCancelButton: false,
-                        confirmButtonColor: "#d83448",
-                        confirmButtonText: "Ok",
-                        closeOnConfirm: true
-                    });
-                } else {
-                    deleteCache();
-                }
-
-            }).catch(function () {
-                deleteCache();
-            });
-
-        }).catch(function (err) {
-            deleteCache();
+            }
+        }, (err) => {
+            console.error(err);
         });
-
-
     };
 
-    $scope.fetchUserPresets = function () {
-        // Reset les sectionné
+    const initPreset = () => {
+        //Recupere tout les presets sauvegardé dans le localstorage
+        while (window.localStorage.getItem("Userpreset" + userPresetIndex)) {
+            let preset = JSON.parse(window.localStorage.getItem("Userpreset" + userPresetIndex));
+            $scope.presetList.push(preset);
+            userPresetIndex++;
+        }
+        $scope.selectedPresetID = window.localStorage.getItem('selectedPresetID');
+        if (!$scope.selectedPresetID) {
+            $scope.selectedPresetID = 0;
+        }
+
+        // Recupere le titre correspondant à l'id du preset
+        let tmp = Enumerable.from($scope.presetList).firstOrDefault((preset) => {
+            return preset.id === $scope.selectedPresetID;
+        });
+
+        if (tmp && tmp !== 0) {
+            tmp = clearPreset(tmp);
+            $scope.currentPreset = tmp;
+            //console.log($scope.currentPreset);
+            $scope.selectedPresetTitle = tmp.value.name;
+        }
+    };
+
+    const clearPreset = (preset) => {
+        // Supprime les champs incompatible avec le IziBoxSetup de la config courante
+        if (!preset.value.settings.DisplayWebOrders) {
+            delete preset.value.settings.DisplayWebOrders;
+        }
+        if ($rootScope.IziBoxConfiguration) {
+            if (!$rootScope.IziBoxConfiguration.PhoneOrderEnable) {
+                delete preset.value.settings.PhoneOrder;
+            }
+            if ($rootScope.IziBoxConfiguration.EnableKDS) {
+                delete preset.value.settings.DisplayWebOrders;
+                delete preset.value.settings.DefaultFreezeActiveTab;
+            } else {
+                delete preset.value.settings.AutoLoadReadyOrders;
+                delete preset.value.settings.PrintProdMode;
+            }
+        }
+        return preset;
+    };
+
+    const initGauge = () => {
+        let opts = {
+            angle: 0.5, // The span of the gauge arc
+            lineWidth: 0.03, // The line thickness
+            radiusScale: 1, // Relative radius
+            limitMax: true, // If false, max value increases automatically if value > maxValue
+            limitMin: false, // If true, the min value of the gauge will be fixed
+            colorStart: '#2ebbd0', // Colors
+            colorStop: '#2ebbd0', // just experiment with them
+            strokeColor: '#EEEEEE', // to see which ones work best for you
+            generateGradient: false,
+            highDpiSupport: true // High resolution support
+        };
+        let target = document.querySelector('#gaugeIzibox'); // your canvas element
+        if (target) {
+            let gauge = new Donut(target).setOptions(opts); // create sexy gauge!
+            gauge.maxValue = 254; // set max gauge value
+            gauge.setMinValue(1); // Prefer setter over gauge.minValue = 0
+            gauge.animationSpeed = 20; // set animation speed (32 is default value)
+            gauge.set(1); // set actual value
+
+            $scope.gauge = gauge;
+        }
+    };
+
+    //Empty the data cache
+    $scope.emptyCache = () => {
+        // Checking if all tickets have already been synchronised with the izibox
+        let adapter = !!window.sqlitePlugin ? 'cordova-sqlite' : 'idb';
+        let dbValidatePool = new PouchDB('izipos_validatepool', {
+            adapter: adapter
+        });
+
+        const deleteCache = () => {
+            swal({
+                title: "Attention",
+                text: "Supprimer le cache de l'application ?",
+                buttons: [$translate.instant("Non"), $translate.instant("Oui")],
+                dangerMode: true
+            }).then((confirm) => {
+                if (confirm) {
+                    if ($scope.closable) {
+                        $scope.reset();
+                        emptyCache.clear();
+                    } else {
+                        try {
+                            // Windows cache is not always available
+                            if (window.cache) {
+                                window.cache.clear(() => {
+                                    $scope.reset();
+                                });
+                            } else if ($rootScope.deviceReady && window.CacheClear) {
+                                window.CacheClear(() => {
+                                    $scope.reset();
+                                });
+                            }
+                        } catch (err) {
+                            console.error(err);
+                        }
+                    }
+                }
+            });
+        };
+
+        dbValidatePool.allDocs({
+            include_docs: false,
+            attachments: false
+        }).then((resPool) => {
+            if (resPool.rows.length) {
+                swal({
+                    title: "Attention",
+                    text: "Il reste des documents à synchroniser, vous ne pouvez pas supprimer le cache.",
+                    buttons: [false, "Ok"],
+                    dangerMode: true
+                });
+            } else {
+                deleteCache();
+            }
+        }).catch(() => {
+            deleteCache();
+        });
+    };
+
+    $scope.fetchUserPresets = () => {
+        //Reset les sectionné
         $scope.selectedPresetID = 0;
         $scope.selectedPresetTitle = "";
         $scope.currentPreset = undefined;
-        var presetApiUrl = "http://" + $rootScope.IziBoxConfiguration.LocalIpIziBox + ":" + $rootScope.IziBoxConfiguration.RestPort + "/GetUserPreset";
+        let presetApiUrl = $rootScope.APIBaseURL + "/GetUserPreset";
         console.log('Fetch...');
-        // Appelle l'API de la box
-        $http.get(presetApiUrl, {timeout: 10000}).then(function (presets) {
-            // L'api nous retourne le JSON contenant tout les preset
-            console.log(presets.data);
 
+        //Appelle l'API de la box
+        $http.get(presetApiUrl, {
+            timeout: 10000
+        }).then((presets) => {
+            //L'api nous retourne le JSON contenant tout les preset
+            console.log(presets.data);
             //Reset existing preset si on reçoit des nouveaux
             $scope.presetList = [];
             userPresetIndex = 1;
-            // Clean le local storage
+            //Clean le local storage
             window.localStorage.removeItem("selectedPresetID");
 
-            var i = 1;
-            while (window.localStorage.getItem("Userpreset" + i)) {
-                window.localStorage.removeItem("Userpreset" + i);
-                i++
+            userPresetCount = 1;
+
+            while (window.localStorage.getItem("Userpreset" + userPresetCount)) {
+                window.localStorage.removeItem("Userpreset" + userPresetCount);
+                userPresetCount++;
             }
 
             if (presets.data) {
-                // On boucle dedans,
-                Enumerable.from(presets.data.Result).forEach(function (p) {
-                    var presetData = {
+                //On boucle dedans,
+                Enumerable.from(presets.data.Result).forEach((p) => {
+                    let presetData = {
                         value: p.value,
                         id: p.key
                     };
-                    // on stock le tout dans le localstorage
-                    localStorage.setItem("Userpreset" + userPresetIndex, JSON.stringify(presetData));
-                    // et on met a jour la liste
+                    //On stock le tout dans le localstorage
+                    window.localStorage.setItem("Userpreset" + userPresetIndex, JSON.stringify(presetData));
+                    //Et on met a jour la liste
                     $scope.presetList.push(presetData);
-                    userPresetIndex++
+                    userPresetIndex++;
                 });
             }
-
-        }, function (err) {
-            console.log(err);
+        }, (err) => {
+            console.error(err);
         });
     };
 
-    $scope.editUserPreset = function () {
-        var modalInstance = $uibModal.open({
+    $scope.editUserPreset = () => {
+        let modalInstance = $uibModal.open({
             templateUrl: 'modals/modalEditPreset.html',
             controller: 'ModalEditPresetController',
             resolve: {
-                selectedPreset: function () {
+                selectedPreset: () => {
                     return $scope.currentPreset;
                 },
-                mode: function () {
+                mode: () => {
                     return 'edit';
-                },
+                }
             },
             backdrop: 'static'
         });
 
-        modalInstance.result.then(function (value) {
-            // Vide le localstorage
-            while (window.localStorage.getItem("Userpreset" + i)) {
-                window.localStorage.removeItem("Userpreset" + i);
-                i++
+        modalInstance.result.then((value) => {
+            //Vide le localstorage
+            while (window.localStorage.getItem("Userpreset" + userPresetCount)) {
+                window.localStorage.removeItem("Userpreset" + userPresetCount);
+                userPresetCount++;
             }
 
-            var match = Enumerable.from($scope.presetList).firstOrDefault(function (preset) {
+            let match = Enumerable.from($scope.presetList).firstOrDefault((preset) => {
                 console.log(preset.id);
-                return preset.id === value.id
+                return preset.id === value.id;
             });
 
-            // Update la liste des preset
+            //Update la liste des preset
             match.value = value.value;
-            console.log($scope.presetList);
-            for (var i = 1; i <= $scope.presetList.length; i++) {
-                console.log($scope.presetList[i - 1]);
+
+            for (let i = 1; i <= $scope.presetList.length; i++) {
                 window.localStorage.setItem("Userpreset" + i, JSON.stringify($scope.presetList[i - 1]));
             }
-            // Update le user preset
-            $scope.currentPreset.value = value.value;
 
-            // Post la nouvelle config a la box
-            var presetApiUrl = "http://" + $rootScope.IziBoxConfiguration.LocalIpIziBox + ":" + $rootScope.IziBoxConfiguration.RestPort + "/UpdateUserPreset";
-            var presetPostData = {
+            //Update le user preset
+            $scope.selectUserPreset(value);
+            //$scope.currentPreset.value = value.value;
+
+            //Post la nouvelle config a la box
+            let presetApiUrl = $rootScope.APIBaseURL + "/UpdateUserPreset";
+            let presetPostData = {
                 Id: $scope.currentPreset.id,
                 Value: $scope.currentPreset.value
             };
 
-            $http.post(presetApiUrl, presetPostData, {timeout: 1000}).then( () => {
-                $scope.fetchUserPresets();
+            $http.post(presetApiUrl, presetPostData, {
+                timeout: 1000
+            }).then(() => {
+                //$scope.fetchUserPresets();
             });
-
-        }, function () {
+        }, (err) => {
+            console.error(err);
         });
     };
 
-    $scope.createUserPreset = function () {
-        var newPreset = {
+
+    $scope.createUserPreset = () => {
+        let newPreset = {
             id: Math.random().toString(36).substr(2, 10),
             value: {
                 settings: {
@@ -343,7 +493,7 @@ app.controller('ConfigurationController', function ($scope, $rootScope, $locatio
                     DisplayButtons: {
                         PrintProd: true,
                         Valid: true,
-                        ValidAndPrint: true,
+                        ValidAndPrint: true
                     },
                     DisplayDelivery: true,
                     DisplayFid: true,
@@ -352,264 +502,323 @@ app.controller('ConfigurationController', function ($scope, $rootScope, $locatio
                 }
             }
         };
-
-        var modalInstance = $uibModal.open({
+        let modalInstance = $uibModal.open({
             templateUrl: 'modals/modalEditPreset.html',
             controller: 'ModalEditPresetController',
             resolve: {
-                selectedPreset: function () {
+                selectedPreset: () => {
                     return newPreset;
                 },
-                mode: function () {
+                mode: () => {
                     return 'create';
-                },
+                }
             },
             backdrop: 'static'
         });
 
-        modalInstance.result.then(function (value) {
+        modalInstance.result.then((value) => {
             // Vide le localstorage
-
+            let i = 1;
             while (window.localStorage.getItem("Userpreset" + i)) {
                 window.localStorage.removeItem("Userpreset" + i);
-                i++
+                i++;
             }
-
             $scope.presetList.push(value);
 
             console.log($scope.presetList);
-            for (var i = 1; i <= $scope.presetList.length; i++) {
-                console.log($scope.presetList[i - 1]);
-                window.localStorage.setItem("Userpreset" + i, JSON.stringify($scope.presetList[i - 1]));
+            for (let j = 1; j <= $scope.presetList.length; j++) {
+                window.localStorage.setItem("Userpreset" + j, JSON.stringify($scope.presetList[j - 1]));
             }
 
+            // Update le user preset
+            $scope.selectUserPreset(value);
+
             // Post la nouvelle config a la box
-            var presetApiUrl = "http://" + $rootScope.IziBoxConfiguration.LocalIpIziBox + ":" + $rootScope.IziBoxConfiguration.RestPort + "/UpdateUserPreset";
-            var presetPostData = {
+            let presetApiUrl = $rootScope.APIBaseURL + "/UpdateUserPreset";
+            let presetPostData = {
                 Id: value.id,
                 Value: value.value
             };
 
-            $http.post(presetApiUrl, presetPostData, {timeout: 1000});
-        }, function () {
+            $http.post(presetApiUrl, presetPostData, {
+                timeout: 1000
+            });
+        }, (err) => {
+            console.log(err);
         });
     };
 
-    $scope.selectUserPreset = function (preset) {
-        console.log(preset);
+    $scope.selectUserPreset = (preset) => {
+        preset = clearPreset(preset);
         $scope.selectedPresetID = preset.id;
         $scope.selectedPresetTitle = preset.value.name;
-
         $scope.currentPreset = preset;
     };
 
-    $scope.deleteUserPreset = function (preset) {
+    $scope.deleteUserPreset = (preset) => {
+        console.log(preset);
         /** TODO :  demander confirmation + afficher un toast*/
-            // Supprime le preset dans la box
-        var presetApiUrl = "http://" + $rootScope.IziBoxConfiguration.LocalIpIziBox + ":" + $rootScope.IziBoxConfiguration.RestPort + "/DeleteUserPreset";
-        var presetPostData = {
-            Id: preset.id
-        };
-        $http.post(presetApiUrl, presetPostData, {timeout: 5000}).then(() => {
-            // Fetch la nouvelle liste
-            $scope.fetchUserPresets();
+        // Supprime le preset dans la box
+        swal({
+            title: "Supprimer ce preset ?",
+            text: 'Confirmez la suppression du preset "' + preset.value.name + '"',
+            buttons: [$translate.instant("Non"), $translate.instant("Oui")]
+        }).then((confirm) => {
+            if (confirm) {
+                let presetApiUrl = $rootScope.APIBaseURL + "/DeleteUserPreset";
+                let presetPostData = {
+                    Id: preset.id
+                };
+
+                $http.post(presetApiUrl, presetPostData, {
+                    timeout: 5000
+                }).then(() => {
+                    // Fetch la nouvelle liste
+                    $scope.fetchUserPresets();
+                });
+            }
         });
     };
 
-    /**
-     * Cancel the izibox search
-     */
-    $scope.stopIziboxSearch = function () {
+    //Cancel the izibox search
+    $scope.stopIziboxSearch = () => {
         $rootScope.ignoreSearchIzibox = true;
     };
 
-
-    /**
-     * Clear the last configuration and reload all data
-     */
-    $scope.reset = function () {
+    //Clear the last configuration and reload all data
+    $scope.reset = () => {
         window.localStorage.removeItem("IziBoxConfiguration");
         window.location.reload();
     };
 
-    /**
-     * Exit the application - only appears and works on windows system
-     */
-    $scope.exit = function () {
+    //Exit the application - only appears and works on windows system
+    $scope.exit = () => {
         if ($rootScope.isWindowsContainer) {
             try {
                 wpfCloseApp.shutdownApp();
             } catch (err) {
+                console.log(err);
             }
         }
     };
 
-    /**
-     * Set the printer who will be used for 'client' printing
-     */
-    $scope.setPOSPrinter = function (idx) {
-        $rootScope.PrinterConfiguration.POSPrinter = idx;
-    };
-
-    /**
-     * Set the printer who will be used for 'kitchen' printing
-     */
-    $scope.setProdPrinter = function (idx) {
-        $rootScope.PrinterConfiguration.ProdPrinter = idx;
-    };
-
-    /**
-     * A simple print test
-     * Print  the printer id
-     * @param idx The printers id
-     */
-
-    $scope.testPrinter = function (idx) {
-
-        shoppingCartService.testPrinterAsync(idx).then(function (res) {
-            sweetAlert("Printer ok !");
-        }, function (err) {
-            sweetAlert("Printer error !");
+    $scope.deletePictureCache = () => {
+        swal({
+            title: $translate.instant("Supprimer le cache d'images sur l'izibox ?"),
+            buttons: [$translate.instant("Non"), $translate.instant("Oui")]
+        }).then((confirm) => {
+            if (confirm) {
+                pictureService.deletePictureCache();
+            }
         });
     };
 
-    $scope.testBornePrinter = function (idx) {
-        if($rootScope.borne) {
-            shoppingCartService.testPrinterAsync(idx, $rootScope.modelPos.localIp).then(function (res) {
-                sweetAlert("Printer ok !");
-            }, function (err) {
-                sweetAlert("Printer error !");
+    $scope.openPrintConfig = () => {
+        const modalInstance = $uibModal.open({
+            templateUrl: 'modals/modalPrinterConfig.html',
+            controller: 'ModalPrinterConfigController',
+            size: $mdMedia('min-width: 1300px') ? 'xlg' : 'max',
+            resolve: {
+                currentConfig: () => {
+                    return $rootScope.printerConfig;
+                }
+            },
+            backdrop: 'static'
+        });
+
+        modalInstance.result.then((newConfig) => {
+            console.log(newConfig);
+            let configApiUrl = $rootScope.APIBaseURL + "/updateprinterconfig/";
+
+            $http.post(configApiUrl, newConfig, {
+                timeout: 10000
+            }).then((ret) => {
+                console.log(ret.data.Result);
+                $rootScope.printerConfig = newConfig;
+
+                //  Set printer pos, prod et les count
+                window.localStorage.setItem("PrinterConfig", JSON.stringify($rootScope.printerConfig));
+
+                if ($rootScope.PrinterConfiguration.POSPrinter !== undefined) {
+                    window.localStorage.setItem("POSPrinter", $rootScope.PrinterConfiguration.POSPrinter);
+                }
+                if ($rootScope.PrinterConfiguration.ProdPrinter !== undefined) {
+                    window.localStorage.setItem("ProdPrinter", $rootScope.PrinterConfiguration.ProdPrinter);
+                }
+                if ($rootScope.PrinterConfiguration.ProdPrinterCount !== undefined) {
+                    window.localStorage.setItem("ProdPrinterCount", $rootScope.PrinterConfiguration.ProdPrinterCount);
+                }
+                if ($rootScope.PrinterConfiguration.PrintToPos !== undefined) {
+                    window.localStorage.setItem("PrintToPos", $rootScope.PrinterConfiguration.PrintToPos);
+                }
+            }, (err) => {
+                console.error(err);
             });
-        }
+        }, (err) => {
+            console.log(err);
+        });
     };
 
-
-    /**
-     * Store the user preferences
-     */
-    $scope.validConfig = function () {
+    //Store the user preferences
+    $scope.validConfig = () => {
         //$scope.updateLandscapeRatio();
         //$scope.updatePortraitRatio();
+
         if ($scope.currentPreset) {
             $rootScope.UserPreset = $scope.currentPreset.value.settings;
         }
+
+        window.localStorage.setItem("PosNumber", $rootScope.modelPos.posNumber);
+
         window.localStorage.setItem("IsBorneDefault", $rootScope.borne ? $rootScope.borne.toString() : false);
 
-        window.localStorage.setItem("IsBorneAtCashierDefault", $rootScope.borneAtCashier ? $rootScope.borneAtCashier.toString() : false);
-        window.localStorage.setItem("IsBorneEasyTransacDefault", $rootScope.borneEasyTransac ? $rootScope.borneEasyTransac.toString() : false);
-        window.localStorage.setItem("IsBorneBalanceDefault", $rootScope.borneBalance ? $rootScope.borneBalance.toString() : false);
-        window.localStorage.setItem("IsBorneCBDefault", $rootScope.borneCB ? $rootScope.borneCB.toString() : false);
+        window.localStorage.setItem("PaymentTypesConfig",  JSON.stringify($rootScope.paymentTypesConfig));
 
-        window.localStorage.setItem("IsBorneVerticalDefault", $rootScope.borneVertical ? $rootScope.borneVertical.toString() : false);
-        window.localStorage.setItem("PosNumber", $rootScope.modelPos.posNumber);
-        window.localStorage.setItem("POSPrinter", $rootScope.PrinterConfiguration.POSPrinter);
-        window.localStorage.setItem("ProdPrinter", $rootScope.PrinterConfiguration.ProdPrinter);
-        window.localStorage.setItem("POSPrinterCount", $rootScope.PrinterConfiguration.POSPrinterCount);
-        window.localStorage.setItem("ProdPrinterCount", $rootScope.PrinterConfiguration.ProdPrinterCount);
-        //window.localStorage.setItem("LandscapeRatio", $rootScope.RatioConfiguration.LandscapeRatio / 100);
-        //window.localStorage.setItem("PortraitRatio", $rootScope.RatioConfiguration.PortraitRatio / 100);
-        if ($scope.selectedPresetID) {
-            window.localStorage.setItem("selectedPresetID", $scope.selectedPresetID);
+        // Flags lié à la borne
+        if ($rootScope.borne) {
+            window.localStorage.setItem("IsBorneVerticalDefault", $rootScope.borneVertical ? $rootScope.borneVertical.toString() : false);
+
+            window.localStorage.setItem("AnimProductDefault", $rootScope.animProduct ? $rootScope.animProduct.toString() : false);
+            window.localStorage.setItem("ProductRecapDefault", $rootScope.productRecap ? $rootScope.productRecap.toString() : false);
+            window.localStorage.setItem("BorneFidDefault", $rootScope.borneFid ? $rootScope.borneFid.toString() : false);
+
+            window.localStorage.setItem("IsBorneAtCashierDefault", $rootScope.borneAtCashier ? $rootScope.borneAtCashier.toString() : false);
+            window.localStorage.setItem("IsBorneEasyTransacDefault", $rootScope.borneEasyTransac ? $rootScope.borneEasyTransac.toString() : false);
+            window.localStorage.setItem("IsBorneBalanceDefault", $rootScope.borneBalance ? $rootScope.borneBalance.toString() : false);
+            window.localStorage.setItem("IsBorneConsignorDefault", $rootScope.borneConsignor ? $rootScope.borneConsignor.toString() : false);
+            window.localStorage.setItem("IsBorneCBDefault", $rootScope.borneCB ? $rootScope.borneCB.toString() : false);
+            window.localStorage.setItem("IsBorneEspeceDefault", $rootScope.borneEspece ? $rootScope.borneEspece.toString() : false);
+
+            window.localStorage.setItem("IsBorneForHereDefault", $rootScope.borneForHere ? $rootScope.borneForHere.toString() : false);
+
+            window.localStorage.setItem("IsBorneForHereCollectionDefault", $rootScope.borneForHere && $rootScope.borneForHereCollection ? $rootScope.borneForHereCollection.toString() : false);
+
+            if (!$rootScope.borneForHere) {
+                $rootScope.borneForHereCollection = false;
+            }
+
+            window.localStorage.setItem("IsBorneTakeawayDefault", $rootScope.borneTakeaway ? $rootScope.borneTakeaway.toString() : false);
+
+            window.localStorage.setItem("IsBorneTakeawayCollectionDefault", $rootScope.borneTakeaway && $rootScope.borneTakeawayCollection ? $rootScope.borneTakeawayCollection.toString() : false);
+
+            if (!$rootScope.borneTakeaway) {
+                $rootScope.borneTakeawayCollection = false;
+            }
+
+            // En mode borne, on n'utilise pas les preset
+            delete $rootScope.UserPreset;
+        } else {
+            // Flag lié à la caisse
+            if ($scope.selectedPresetID) {
+                window.localStorage.setItem("selectedPresetID", $scope.selectedPresetID);
+            }
+
+            $rootScope.paymentTypesConfig = {
+                [PaymentType.ESPECE] : true,
+                [PaymentType.CB] : true,
+                [PaymentType.CHEQUE] : true,
+                [PaymentType.TICKETRESTAURANT] : true,
+                [PaymentType.AVOIR] : true,
+                [PaymentType.ENCOMPTE] : true,
+                [PaymentType.LYFPAY] : true,
+                [PaymentType.CBTICKETRESTAURANT] : true,
+            }
         }
 
         $location.path("/loading");
     };
 
-    /**
-     * Retrieve a configuration with a barcode - The barcode contains the address of a data index
-     * @param value
-     * @returns {string}
-     */
-    var decryptBarcode = function (value) {
-        var plain = "";
+    //Retrieve a configuration with a barcode - The barcode contains the address of a data index
+    const decryptBarcode = (value) => {
+        let plain = "";
 
         try {
             plain = Aes.Ctr.decrypt(value, "IziPassIziPos", 256);
         } catch (err) {
-            console.log(err);
+            console.error(err);
         }
 
         return plain;
     };
 
-    $scope.configIndex = function () {
+    $scope.configIndex = () => {
         swal({
-                title: "Attention",
-                text: "Si vous continuez, l'application ne fonctionnera plus avec l'izibox.\r\nEtes-vous sûr ?",
-                type: "warning",
-                showCancelButton: true,
-                confirmButtonColor: "#d83448",
-                confirmButtonText: "Oui",
-                cancelButtonText: "Non",
-                closeOnConfirm: true
-            },
-            function () {
-                var barcode = undefined;
+            title: "Attention",
+            text: "Si vous continuez, l'application ne fonctionnera plus avec l'izibox.\r\nEtes-vous sûr ?",
+            buttons: [$translate.instant("Non"), $translate.instant("Oui")]
+        }).then((confirm) => {
+            if (confirm) {
+                let barcode = undefined;
 
                 try {
                     cordova.plugins.barcodeScanner.scan(
-                        function (result) {
+                        (result) => {
                             barcode = decryptBarcode(result.text);
-                            current.updateConfig(barcode);
+                            self.updateConfig(barcode);
                         },
-                        function (error) {
-
+                        (error) => {
+                            console.log(error);
                         }
                     );
                 } catch (err) {
-                    var modalInstance = $uibModal.open({
+                    let modalInstance = $uibModal.open({
                         templateUrl: 'modals/modalConfigReader.html',
                         controller: 'ModalBarcodeReaderController',
                         backdrop: 'static'
                     });
 
-                    modalInstance.result.then(function (value) {
+                    modalInstance.result.then((value) => {
                         barcode = decryptBarcode(value);
-                        current.updateConfig(barcode);
-
-                    }, function () {
+                        self.updateConfig(barcode);
+                    }, (err) => {
+                        console.log(err);
                     });
                 }
-            });
+            }
+        });
     };
 
-    this.updateConfig = function (index) {
+    this.updateConfig = (index) => {
         // TODO: The setup could be elsewhere - remove this address
-        var configApiUrl = "http://izitools.cloudapp.net:5984/iziboxsetup/" + index;
+        let configApiUrl = "http://iot.izipass.cloud:5984/iziboxsetup/" + index;
 
-        $http.get(configApiUrl, {timeout: 10000}).success(function (data, status, headers, config) {
+        $http.get(configApiUrl, {
+            timeout: 10000
+        }).success((data, status, headers, config) => {
             $rootScope.IziBoxConfiguration = data;
-
+            if (data) {
+                $rootScope.APIBaseURL = "http://" + $rootScope.IziBoxConfiguration.LocalIpIziBox + ":" + $rootScope.IziBoxConfiguration.RestPort;
+            }
             if ($rootScope.borne) {
                 $rootScope.IziBoxConfiguration.LoginRequired = false;
-                if($rootScope.IziBoxConfiguration.StoreBorneId) {
+                if ($rootScope.IziBoxConfiguration.StoreBorneId) {
                     $rootScope.IziBoxConfiguration.defaultStoreId = $rootScope.IziBoxConfiguration.StoreId;
                     console.log("StoreId changed : " + $rootScope.IziBoxConfiguration.StoreId + " => " + $rootScope.IziBoxConfiguration.StoreBorneId);
                     $rootScope.IziBoxConfiguration.StoreId = $rootScope.IziBoxConfiguration.StoreBorneId;
                 }
             }
+
             data.WithoutIzibox = true;
             data.UseProdPrinter = false;
             data.POSPrinterCount = 0;
 
-            for (var prop in data) {
+            for (let prop in data) {
                 if (data[prop] == "true") {
                     data[prop] = true;
                 }
-
                 if (data[prop] == "false") {
                     data[prop] = false;
                 }
             }
 
             window.localStorage.setItem("IziBoxConfiguration", JSON.stringify(data));
-
             data.deleteCouchDb = true;
-
             $scope.init();
-        }).error(function (data, status, headers, config) {
-            sweetAlert("Index introuvable !");
+        }).error((data, status, headers, config) => {
+            swal({
+                title: "Index introuvable !"
+            });
             $scope.init();
         });
-    }
+    };
 });

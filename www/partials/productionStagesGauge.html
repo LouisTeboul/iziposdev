@@ -1,0 +1,41 @@
+<div class="production-gauge-container" >
+
+    <div class="gauge-bar-container">
+        <div class="gauge-bar"
+             ng-class="{ 'zero' : !order.ProductionStage,
+                         'twenty-five' : order.ProductionStage == 'in_kitchen',
+                         'fifty': order.ProductionStage == 'ready_for_collection',
+                         'seventy-five': order.ProductionStage == 'ready_for_collection'}">
+        </div>
+    </div>
+
+    <div class="gauge-buttons-container">
+
+        <div class="button-container left" ng-click="setProductionStage('in_kitchen', $event)">
+
+            <div style="height: 30px"><span ng-show="!order.ProductionStage">{{elapsed.untouched}}</span></div>
+            <div class="gauge-button" ng-class="{'glyphicon glyphicon-ok done' : order.ProductionStage }" ></div>
+            <div class="gauge-label" translate>Lancé</div>
+        </div>
+
+
+        <div class="button-container center" ng-click="setProductionStage('ready_for_collection', $event)">
+
+            <div style="height: 30px"><span ng-show="order.ProductionStage === 'in_kitchen'">{{elapsed.in_kitchen}}</span></div>
+            <div class="gauge-button" ng-class="{'glyphicon glyphicon-ok done' : order.ProductionStage === 'ready_for_collection' }"></div>
+            <div class="gauge-label" translate>Prêt</div>
+        </div>
+
+
+        <div class="button-container right" ng-click="setProductionStage('collected', $event)">
+
+            <div style="height: 30px"><span ng-show="order.ProductionStage === 'ready_for_collection'">{{elapsed.ready}}</span></div>
+            <div class="gauge-button"></div>
+            <div class="gauge-label" translate>Retiré</div>
+        </div>
+
+    </div>
+
+
+
+</div>

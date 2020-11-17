@@ -1,18 +1,19 @@
-app.controller('ModalEditShoppingCartController', function ($scope, $rootScope, $uibModal, $uibModalInstance,ngToast, settingService,shoppingCartService, zposService, shoppingCart) {
+app.controller('ModalEditShoppingCartController', function ($scope, $rootScope, $uibModalInstance, $translate, ngToast, settingService, shoppingCartService, zposService, shoppingCart) {
 
     $scope.shoppingCart = shoppingCart;
     $scope.paymentType = PaymentType;
+    $scope.loading = false;
 
-    $scope.init = function () {
-        zposService.getShoppingCartByIdAsync(shoppingCart.Id).then(function (shoppingCart) {
-            settingService.getPaymentModesAsync().then(function (paymentSetting) {
-                let paymentModesAvailable = paymentSetting;
+    $scope.init = () => {
+        zposService.getShoppingCartByIdAsync(shoppingCart.Timestamp).then((shoppingCart) => {
+            settingService.getPaymentModesAsync().then((paymentSetting) => {
+                let paymentModes = paymentSetting;
                 let newPaymentValues = {
                     PaymentValues: shoppingCart.PaymentModes
                 };
                 newPaymentValues.PaymentValues = takeAccountRepaidAndCredit(newPaymentValues.PaymentValues, shoppingCart);
-                for(let p of paymentModesAvailable) {
-                    if (!Enumerable.from(newPaymentValues.PaymentValues).any(function (v) { return v.Value == p.Value; })) {
+                for (let p of paymentModes) {
+                    if (!p.Disabled && !newPaymentValues.PaymentValues.find(n => n.Value === p.Value && n.PaymentType === p.PaymentType)) {
 
                         const addPaymentMode = {
                             PaymentType: p.PaymentType,
@@ -25,47 +26,28 @@ app.controller('ModalEditShoppingCartController', function ($scope, $rootScope, 
                     }
                 }
 
-                // Ajouter le montant de cagnotte utiliser
-                let balanceUpdateValue;
-                if (shoppingCart.BalanceUpdate && shoppingCart.BalanceUpdate.UpdateValue > 0) {
-                    if (shoppingCart.customerLoyalty) {
-                        for(let balance of shoppingCart.customerLoyalty.Balances) {
-                            if (balance.Id == shoppingCart.BalanceUpdate.Id) {
-                                if (!Enumerable.from(newPaymentValues.PaymentValues).any(function (v) { return v.Value == balance.BalanceName; })) {
-                                    balanceUpdateValue = shoppingCart.BalanceUpdate.UpdateValue;
-                                    // PaymentType = 9 : FIDELITE
-                                    const addPaymentModeFid = {
-                                        PaymentType: PaymentType.FIDELITE,
-                                        Value: "Ma Cagnotte",
-                                        Text: balance.BalanceName,
-                                        Total: balanceUpdateValue,
-                                        IsBalance: true
-                                    };
-                                    newPaymentValues.PaymentValues.push(addPaymentModeFid);
-                                }
-                            }
-                        }
-                    }
-                }
                 $scope.newPaymentValues = {};
                 $scope.newPaymentValues.PaymentValues = Enumerable.from(newPaymentValues.PaymentValues).orderBy('x => x.Text').toArray();
-            }, function (err) {
-                console.log(err);
+            }, (err) => {
+                console.error(err);
             });
-        }, function (err) {
-            console.log(err);
+        }, (err) => {
+            console.error(err);
         });
     };
 
-    function takeAccountRepaidAndCredit(paymentValues, shoppingCart) {
+    const takeAccountRepaidAndCredit = (paymentValues, shoppingCart) => {
         // Enlever le rendu monnaie du montant "Espèce"
+        if(!paymentValues) {
+            paymentValues = [];
+        }
         let repaid;
         if (shoppingCart.Repaid && shoppingCart.Repaid > 0) {
             repaid = shoppingCart.Repaid;
             if (repaid) {
                 // If cash for display and binding
                 let cashTypeFound = false;
-                for(let p of paymentValues) {
+                for (let p of paymentValues) {
                     if (p.PaymentType == PaymentType.ESPECE && !cashTypeFound) {
                         p.Total = p.Total - repaid;
                         cashTypeFound = false;
@@ -81,7 +63,7 @@ app.controller('ModalEditShoppingCartController', function ($scope, $rootScope, 
             if (credit) {
                 // If "Ticket Resto" for display and binding
                 let creditTypeFound = false;
-                for(let p of paymentValues) {
+                for (let p of paymentValues) {
                     if (p.PaymentType == PaymentType.TICKETRESTAURANT && !creditTypeFound) {
                         p.Total = p.Total - credit;
                         creditTypeFound = true;
@@ -89,7 +71,7 @@ app.controller('ModalEditShoppingCartController', function ($scope, $rootScope, 
                 }
                 if (!creditTypeFound) {
                     // Si Avoir for display and binding
-                    for(let p of paymentValues) {
+                    for (let p of paymentValues) {
                         if (p.PaymentType == PaymentType.AVOIR && !creditTypeFound) {
                             p.Total = p.Total - credit;
                             creditTypeFound = true;
@@ -101,56 +83,38 @@ app.controller('ModalEditShoppingCartController', function ($scope, $rootScope, 
         return paymentValues;
     }
 
-    $scope.ok = function () {
-    	$rootScope.closeKeyboard();
+    $scope.ok = () => {
+        $scope.loading = true;
+        $rootScope.closeKeyboard();
         let validPaymentModes = [];
-        let newTotal = 0;
-        for(let p of $scope.newPaymentValues.PaymentValues) {
-            console.log(p);
+        //let newTotal = 0;
+        for (let p of $scope.newPaymentValues.PaymentValues) {
             p.Total = parseFloat(p.Total);
-            newTotal = roundValue(p.Total + newTotal);
+            //newTotal = roundValue(p.Total + newTotal);
 
             if (isNaN(p.Total)) {
                 p.Total = 0;
                 validPaymentModes.push(p);
-            }
-
-            if (p.Total > 0) {
+            } else {
                 validPaymentModes.push(p);
             }
         }
 
-        let totalPayment = shoppingCart.TotalPayment;
-        if (shoppingCart.Repaid && shoppingCart.Repaid > 0) {
-            totalPayment -= parseFloat(shoppingCart.Repaid);
-        }
-        if (shoppingCart.Credit && shoppingCart.Credit > 0) {
-            totalPayment -= parseFloat(shoppingCart.Credit);
-        }
+        let totalPayment = shoppingCart.Total;
+        //if (shoppingCart.Repaid && shoppingCart.Repaid > 0) {
+        //    totalPayment -= parseFloat(shoppingCart.Repaid);
+        //}
+        //if (shoppingCart.Credit && shoppingCart.Credit > 0) {
+        //    totalPayment -= parseFloat(shoppingCart.Credit);
+        //}
 
         // le total des moyens de paiement doit être égal au total avant modification
-        if (newTotal == totalPayment) {
+        if ($scope.newPVTotal() == totalPayment) {
             console.log('Nouveau total ok!');
             console.log(validPaymentModes);
-        	shoppingCart.PaymentModes = validPaymentModes;
-        	let paymentEdit = {
-        		Timestamp: shoppingCart.Timestamp,
-        		PaymentModes: validPaymentModes
-        	};
+            shoppingCart.PaymentModes = validPaymentModes;
 
-            try{
-                // we're getting a fresh shopping cart because the selected item from the component is altered
-                let tmpPaymentModes = shoppingCart.PaymentModes;
-                zposService.getShoppingCartByIdAsync(shoppingCart.Id).then(function (shoppingCart) {
-                    let oldPaymentValues = takeAccountRepaidAndCredit(shoppingCart.PaymentModes, shoppingCart);
-                    shoppingCart.PaymentModes = tmpPaymentModes;
-                    // When we change the paymentMode, we loose the repaid and the credit value
-                    shoppingCart.TotalPayment = shoppingCart.TotalPayment - shoppingCart.Repaid - shoppingCart.Credit;
-                    shoppingCart.Repaid = 0;
-                    shoppingCart.Credit = 0;
-                    shoppingCartService.savePaymentEditAsync(shoppingCart, paymentEdit, oldPaymentValues);
-                });
-            } catch(err) {
+            const displayError = (err) => {
                 ngToast.create({
                     className: 'danger',
                     content: '<span class="bold">Impossible de modifier le moyen de paiement</span>',
@@ -158,17 +122,54 @@ app.controller('ModalEditShoppingCartController', function ($scope, $rootScope, 
                     timeout: 10000,
                     dismissOnClick: true
                 });
-                console.log(err);
+                console.error(err);
+                $scope.loading = false;
+                $uibModalInstance.close();
             }
-        	$uibModalInstance.close();
+
+            try {
+                // we're getting a fresh shopping cart because the selected item from the component is altered
+                let tmpPaymentModes = shoppingCart.PaymentModes;
+                zposService.getShoppingCartByIdAsync(shoppingCart.Id).then((shoppingCart) => {
+                    let oldPaymentValues = takeAccountRepaidAndCredit(shoppingCart.PaymentModes, shoppingCart);
+                    shoppingCart.PaymentModes = tmpPaymentModes;
+                    // When we change the paymentMode, we loose the repaid and the credit value
+                    shoppingCart.Repaid = 0;
+                    shoppingCart.Credit = 0;
+                    shoppingCartService.savePaymentEditAsync(shoppingCart, oldPaymentValues).then(() => {
+                        $scope.loading = false;
+                        $uibModalInstance.close();
+                    }, (err) => {
+                        displayError(err);
+                    });
+                });
+            } catch (err) {
+                displayError(err);
+            }
         } else {
-            //TODO : traductions
-        	swal({ title: "Attention", text: "Le total des moyens de réglements saisi ne correspond pas au total encaissé.", type: "warning", showCancelButton: false, confirmButtonColor: "#d83448", confirmButtonText: "Ok", closeOnConfirm: true });
+            swal({
+                title: "Attention",
+                text: "Le total des moyens de réglements saisi ne correspond pas au total encaissé.",
+                buttons: [false, $translate.instant("Ok")],
+                dangerMode: true
+            });
+            $scope.loading = false;
         }
     };
 
-    $scope.cancel = function () {
-    	$rootScope.closeKeyboard();
+    $scope.newPVTotal = () => {
+        if($scope.newPaymentValues && $scope.newPaymentValues.PaymentValues) {
+            return $scope.newPaymentValues.PaymentValues.map(pv => Number(pv.Total)).reduce((a, b) => a + b, 0)
+        }
+        return 0;
+    };
+
+    $scope.closeK = () => {
+        $rootScope.closeKeyboard();
+    };
+
+    $scope.cancel = () => {
+        $rootScope.closeKeyboard();
         $uibModalInstance.dismiss('cancel');
     }
 });

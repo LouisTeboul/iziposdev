@@ -1,0 +1,28 @@
+<div ng-controller="CategorySelectController" ng-init="init()" layout="column" layout-align="start center" class="catMenu side" layout-fill>
+    <div ng-repeat="category in categories track by $id(category)" class="itemCategory" layout="column"
+         layout-align="start center"
+         ng-show="isCategoryVisible(category)"
+         ng-click="navig(category)">
+        <div class="category-button" >
+            <!-- On affiche l'alias si il existe, sinon le nom-->
+            <div  layout="column" layout-align="space-around center" style="padding: 5%" layout-fill>
+                <md-button aria-label="{{category.Alias || category.Name}}" ng-if="category.PictureUrl" class="md-icon-button linkCategory">
+                    <img class="imgCategory" ng-src="{{category.PictureUrl}}" alt="" src=""/>
+                </md-button>
+                <div class="titleCategory">{{category.Name}}</div>
+            </div>
+
+            <div ng-show="$state.params.id == category.Id" class="active-category-arrow" layout="row" layout-align="center center">
+                <i class="glyphicon glyphicon-chevron-right" style="font-size: 9px; margin-bottom: 5px; margin-left: 12px;"></i>
+            </div>
+        </div>
+
+        <div ng-show="category.SubCategories && category.SubCategories.length > 0 && $state.params.id == category.Id" class="subcat-container"
+             layout="column" layout-align="start stretch">
+
+            <div ng-repeat="subcat in category.SubCategories" class="subcat-button">
+                <div ng-click="scrollTo(subcat.Id)">{{subcat.Name}}</div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,73 +1,68 @@
-﻿app.controller('AppController', function ($scope, $rootScope, $rootElement,$mdMedia, textFieldService) {
-	$scope.currentKeyboardType;
-	$scope.$mdMedia = $mdMedia;
+﻿app.controller('AppController', function ($scope, $rootScope, $mdMedia, $q) {
+    $scope.currentKeyboardType;
+    $scope.mdMedia = $mdMedia;
 
-    $scope.init = function () {
-	};
+    $scope.init = () => {};
 
-	// Useful for the size options
-	$(window).resize(function () {
-		updateMeta();
-	});
+    // Useful for the size options
+    $(window).resize(() => {
+        updateMeta();
+    });
 
-	$rootScope.$watch('RatioConfiguration.LandscapeRatio', function () { updateMeta(); });
-	$rootScope.$watch('RatioConfiguration.PortraitRatio', function () { updateMeta(); });
+    $rootScope.$watch('RatioConfiguration.LandscapeRatio', () => {
+        updateMeta();
+    });
+    $rootScope.$watch('RatioConfiguration.PortraitRatio', () => {
+        updateMeta();
+    });
 
-    /**
-	 * Update HTML meta for zooming
-     */
-	var updateMeta = function () {
-		//if ($rootScope.RatioConfiguration) {
-		//	var body = $("body")[0];
+    //Update HTML meta for zooming
+    const updateMeta = () => {
+        //if ($rootScope.RatioConfiguration) {
+        //	let body = $("body")[0];
 
-		//	if ($(window).width() < $(window).height()) {
-		//		if ($rootScope.RatioConfiguration.PortraitRatio < 10) $rootScope.RatioConfiguration.PortraitRatio = 100;
-		//		body.style.zoom = $rootScope.RatioConfiguration.PortraitRatio+"%";
-		//	} else {
-		//		if ($rootScope.RatioConfiguration.LandscapeRatio < 10) $rootScope.RatioConfiguration.LandscapeRatio = 100;
-		//		body.style.zoom = $rootScope.RatioConfiguration.LandscapeRatio+"%";
-		//	}
-		//}
-	};
+        //	if ($(window).width() < $(window).height()) {
+        //		if ($rootScope.RatioConfiguration.PortraitRatio < 10) $rootScope.RatioConfiguration.PortraitRatio = 100;
+        //		body.style.zoom = $rootScope.RatioConfiguration.PortraitRatio+"%";
+        //	} else {
+        //		if ($rootScope.RatioConfiguration.LandscapeRatio < 10) $rootScope.RatioConfiguration.LandscapeRatio = 100;
+        //		body.style.zoom = $rootScope.RatioConfiguration.LandscapeRatio+"%";
+        //	}
+        //}
+    };
 
-	$scope.keyboardLocation = "center-center";
+    $scope.keyboardLocation = "center-center";
 
-    /**
-	 * Is the keyboard opened
-     * @param type
-     * @returns {boolean}
-     */
-	$rootScope.isKeyboardOpen = function (type) {
-		var elems = $("#keyboard-" + type);
+    //Is the keyboard opened
+    $rootScope.isKeyboardOpen = (type) => {
+        let elems = $("#keyboard-" + type);
 
-		return elems.length > 0 && !elems.hasClass("closed");
-	};
+        return elems.length > 0 && !elems.hasClass("closed");
+    };
 
-    /**
-	 * Open the keyboard
-     * @param type
-     * @param alignment
-     */
-	$rootScope.openKeyboard = function (type, alignment) {
-        if (!$mdMedia('(min-width: 800px)')) {
-			alignment = "center-end";
-		}
+    //Open the keyboard
+    $rootScope.openKeyboard = (type, alignment) => {
+        if (type !== "none") {
+            if (!$mdMedia('min-width: 800px')) {
+                alignment = "center-end";
+            }
 
-		$scope.keyboardLocation = alignment || "center-center";
-		$scope.currentKeyboardType = type;
+            $scope.keyboardLocation = alignment || "center-center";
+            $scope.currentKeyboardType = type;
 
-		// TODO: Hack for first show
-		setTimeout(function () {
-			$scope.$emit(Keypad.OPEN, "keyboard-" + type);
-		}, 0);
-		setTimeout(function () {
-			$scope.$emit(Keypad.OPEN, "keyboard-" + type);
-		}, 100);
-	};
+            $rootScope.closeKeyboard().then(() => {
+                $scope.$emit(Keypad.OPEN, "keyboard-" + type);
+            });
+        }
+    };
 
-	$rootScope.closeKeyboard = function () {		
-		$scope.$emit(Keypad.CLOSE, "keyboard-decimal");
-		$scope.$emit(Keypad.CLOSE, "keyboard-numeric");
-		$scope.$emit(Keypad.CLOSE, "keyboard-azerty");
-	}
+    $rootScope.closeKeyboard = () => {
+        let closeKbDefer = $q.defer();
+        $scope.$emit(Keypad.CLOSE, "keyboard-decimal");
+        $scope.$emit(Keypad.CLOSE, "keyboard-numeric");
+        $scope.$emit(Keypad.CLOSE, "keyboard-azerty");
+        closeKbDefer.resolve();
+
+        return closeKbDefer.promise;
+    };
 });

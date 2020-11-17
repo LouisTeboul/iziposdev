@@ -1,15 +1,14 @@
-app.directive('tableRepeat', function ($rootScope, $compile, $filter) {
+app.directive('tableRepeat', function () {
     return {
         replace: true,
         restrict: 'E',
         scope: true,
-        link: function (scope, element) {
-
+        link: (scope, element) => {
             let template = `<div class="mainAllMapAreaTable">`;
             let storeMap = scope.storeMap.data;
             let firstMap, first = true;
 
-            template += `<div id="allMapsOnglet">`;
+            template += `<div id="allMapsOnglet" style="flex-wrap:wrap">`;
             for (let map of storeMap) {
                 if (first) {
                     template += `<div class="tableOnglet tableOngletFocus"
@@ -28,8 +27,7 @@ app.directive('tableRepeat', function ($rootScope, $compile, $filter) {
             let firstArea;
             first = true;
             template += `<div id="allAreasOnglet">
-                            <div class="${firstMap.Name.replace(/[^a-zA-Z0-9]/g, "")}AreaOnglet"
-                            style="display:flex;flex-direction:row;">`;
+                            <div class="${firstMap.Name.replace(/[^a-zA-Z0-9]/g, "")}AreaOnglet" style="display:flex;flex-wrap:wrap">`;
             for (let area of firstMap.Areas) {
                 if (first) {
                     template += `<div class="tableOnglet tableOngletFocus"
@@ -65,8 +63,8 @@ app.directive('tableRepeat', function ($rootScope, $compile, $filter) {
                 template += `</div>`;
             }
             template += `</div><hr style="margin:0;">`;
-            firstArea.Objects.sort(function (a, b) {
-                return a["TableNumber"] - b["TableNumber"]
+            firstArea.Objects.sort((a, b) => {
+                return a["TableNumber"] - b["TableNumber"];
             });
             template += `<div id="allGroupsTable"><div class="groupTableList"
                         id="${firstMap.Name.replace(/[^a-zA-Z0-9]/g, "") + firstArea.Name.replace(/[^a-zA-Z0-9]/g, "")}"><div class="groupTableList" id="tablePlanList">`;
@@ -75,15 +73,18 @@ app.directive('tableRepeat', function ($rootScope, $compile, $filter) {
                                 id="table${table.Id + firstMap.Name.replace(/[^a-zA-Z0-9]/g, "") + firstArea.Name.replace(/[^a-zA-Z0-9]/g, "")}"
                                 onclick="$('#modalTablePlan').scope().selectTableById('${firstMap.Name}','${firstArea.Name}',${table.Id})">
                                 <div class="tableTitle">${table.TableNumber}</div>
-                                <div class="tableImg"><img src="img/icons/table-w.svg" alt=""/></div>
+                                <div class="tableImg">
+                                    <img src="img/icons/table-w.svg" alt=""/>
+                                </div>
                                 <div class="tableInfo"
                                 id="table${table.Id + firstMap.Name.replace(/[^a-zA-Z0-9]/g, "") + firstArea.Name.replace(/[^a-zA-Z0-9]/g, "")}Info">
                                 <img src="img/icons/cutleries-w.svg" alt="" height="15" width="24"/>`;
-                if (table.inUseCutleries) {
-                    template += `<div class="tableState">${table.inUseCutleries} / ${table.Cutleries}</div></div></div>`;
-                } else {
-                    template += `<div class="tableState">${table.Cutleries}</div></div></div>`;
-                }
+
+                template += `<div class="tableState">`;
+
+                template += `${table.Cutleries}`;
+
+                template += `</div></div></div>`;
             }
             template += `</div></div>`;
             for (let map of storeMap) {
@@ -92,8 +93,8 @@ app.directive('tableRepeat', function ($rootScope, $compile, $filter) {
                         template += `<div class="groupTableList"
                                         id="${map.Name.replace(/[^a-zA-Z0-9]/g, "") + area.Name.replace(/[^a-zA-Z0-9]/g, "")}" style="display:none;">
                                         <div class="groupTableList" id="tablePlanList">`;
-                        area.Objects.sort(function (a, b) {
-                            return a["TableNumber"] - b["TableNumber"]
+                        area.Objects.sort((a, b) => {
+                            return a["TableNumber"] - b["TableNumber"];
                         });
                         for (let table of area.Objects) {
                             template += `<div class="tableMain"
@@ -104,11 +105,8 @@ app.directive('tableRepeat', function ($rootScope, $compile, $filter) {
                                 <div class="tableInfo"
                                 id="table${table.Id + map.Name.replace(/[^a-zA-Z0-9]/g, "") + area.Name.replace(/[^a-zA-Z0-9]/g, "")}Info">
                                 <img src="img/icons/cutleries-w.svg" alt="" height="15" width="24"/>`;
-                            if (table.inUseCutleries) {
-                                template += `<div class="tableState">${table.inUseCutleries} / ${table.Cutleries}</div></div></div>`;
-                            } else {
-                                template += `<div class="tableState">${table.Cutleries}</div></div></div>`;
-                            }
+
+                            template += `<div class="tableState">${table.Cutleries}</div></div></div>`;
                         }
                         template += `</div></div>`;
                     }
@@ -118,5 +116,5 @@ app.directive('tableRepeat', function ($rootScope, $compile, $filter) {
 
             element.append(template);
         }
-    }
+    };
 });

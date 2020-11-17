@@ -1,24 +1,27 @@
-﻿app.controller('ModalConsumptionModeController', function ($scope, $rootScope, $uibModalInstance, $uibModal, $mdMedia, shoppingCartService, ngToast, shoppingCartModel) {
-
+﻿app.controller('ModalConsumptionModeController', function ($scope, $rootScope, $uibModalInstance, $mdMedia, paymentService) {
     let deliveryTypeHandler = undefined;
 
     $scope.mdMedia = $mdMedia;
-    $scope.DeliveryTypes = DeliveryTypes;
+    $scope.DeliveryType = DeliveryType;
 
-    $scope.init = function () {
+    $scope.init = () => {
+        $scope.deliveryType = $rootScope.currentDeliveryType;
 
-        $scope.deliveryType = shoppingCartModel.getDeliveryType();
-
-        deliveryTypeHandler = $scope.$watch('deliveryType', function () {
-            shoppingCartModel.setDeliveryType($scope.deliveryType);
+        deliveryTypeHandler = $scope.$watch('deliveryType', () => {
+            $rootScope.currentDeliveryType = $scope.deliveryType;
+            if ($rootScope.currentShoppingCart) {
+                $rootScope.currentShoppingCart.DeliveryType = $rootScope.currentDeliveryType;
+            }
+            $rootScope.$emit('deliveryTypeChanged');
         });
 
-        shoppingCartModel.updatePaymentModes();
+        paymentService.updatePaymentModes();
 
         $scope.customStyle = {
-            'flex-direction' : $rootScope.borne && $rootScope.borneVertical ? 'column' : 'row',
-            'background-image': $rootScope.borneBgModal ? 'url(' + $rootScope.borneBgModal + ')' : 'url(img/fond-borne.jpg)'
-        }
+            'flex-direction': $rootScope.borne && $rootScope.borneVertical ? 'column' : 'row',
+            'background-image': $rootScope.borneBgModal ? 'url(' + $rootScope.borneBgModal + ')' : 'url(img/fond-borne.jpg)',
+            'background-size': 'cover'
+        };
     };
 
     $scope.$on("$destroy", function () {
@@ -26,6 +29,7 @@
     });
 
     $scope.setDeliveryType = function (value) {
+        delete $rootScope.storeFilter;
         $rootScope.isBorneOrderCanceled = false;
         $scope.deliveryType = value;
         $scope.$evalAsync();
@@ -39,6 +43,7 @@
     };
 
     $scope.close = function () {
+        $rootScope.createShoppingCart();
         $uibModalInstance.close();
     };
 

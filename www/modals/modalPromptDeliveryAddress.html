@@ -8,14 +8,13 @@
         <!-- ng-repeat="ad in addresses" -->
         <md-content layout-padding style="max-height:400px">
             <div ng-click="setNoDelivery()"
-                 ng-style="{ 'background-color' : (noDelivery) ? 'rgba(171, 242, 150, 0.42)' : 'transparent' }">
+                ng-style="{ 'background-color' : (noDelivery) ? 'rgba(171, 242, 150, 0.42)' : 'transparent' }">
                 <h4 style="margin-top: 0" translate> Passage sur place </h4>
-                <hr/>
+                <hr />
             </div>
 
-            <div ng-click="selectDeliveryAddress(ad)"
-                 ng-repeat="ad in addresses"
-                 ng-style="{ 'background-color' : (selectedAddress.$$hashKey == ad.$$hashKey) ? 'rgba(171, 242, 150, 0.42)' : 'transparent' }">
+            <div ng-click="selectDeliveryAddress(ad)" ng-if="ad.Address1" ng-repeat="ad in addresses"
+                ng-style="{ 'background-color' : (selectedAddress.$$hashKey == ad.$$hashKey) ? 'rgba(171, 242, 150, 0.42)' : 'transparent' }">
                 <h4 style="margin-top: 0"> {{ad.Address1}}</h4>
                 <h4>{{ad.ZipPostalCode}}, {{ad.City}}</h4>
                 <h4 style="margin-bottom: 0" layout="column">
@@ -52,7 +51,7 @@
                         </div>
                     </small>
                 </h4>
-                <hr/>
+                <hr />
             </div>
         </md-content>
 

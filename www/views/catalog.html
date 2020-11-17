@@ -1,23 +1,31 @@
 ﻿<md-content class="catalog" ng-controller="CatalogController" ng-init="init()" layout="column" layout-fill>
+
     <div id="catalogMenuDiv" ng-include="'views/catalogMenu.html'"></div>
+
     <md-sidenav class="md-sidenav-left md-whiteframe-z2 drawerMenu" md-component-id="drawerMenuDiv" id="drawerMenuDiv"
                 ng-include="'views/catalogDrawerMenu.html'">
     </md-sidenav>
     <md-content layout="row" style="overflow-y: hidden" flex>
-        <md-content id="catalogViewDiv" flex ui-view layout="column">
+        <md-content flex layout="row">
+            <md-content ng-if="$root.EnableMultiStore && $root.storeFilter && !$root.storeFilter.SmallMenuEnabled" class="categorySelect" ng-include="'views/categorySelect.html'"></md-content>
+            <md-content id="catalogViewDiv" flex ui-view layout="column" flex>
+            </md-content>
+            <!--<md-button class="md-fab md-fab-bottom-right md-warn refreshRepository" ng-if="repositoryLoaderService.hasChanges" ng-click="reload()">
+                <md-icon md-svg-src="img/icons/refresh.svg"></md-icon>
+            </md-button>-->
         </md-content>
 
-        <!-- ng-if="$mdMedia('min-width: 800px')" -->
+        <!-- ng-if="mdMedia('min-width: 800px')" -->
         <md-sidenav class="miniBasketPOS md-whiteframe-z2 md-sidenav-right" md-is-locked-open="$root.showShoppingCart">
             <md-content class="catalogBasketDiv" ng-include="'views/miniBasket.html'" layout="column" flex>
             </md-content>
         </md-sidenav>
         <!--
-		<md-content class="miniBasketPAD" ng-if="$mdMedia('max-width: 799px')">
-			<md-content class="catalogBasketDiv" ng-include="'views/miniBasketPAD.html'" layout="column" flex>
-			</md-content>
-		</md-content>
-		-->
+        <md-content class="miniBasketPAD" ng-if="!mdMedia('min-width: 800px')">
+            <md-content class="catalogBasketDiv" ng-include="'views/miniBasketPAD.html'" layout="column" flex>
+            </md-content>
+        </md-content>
+        -->
     </md-content>
 
     <script type="text/ng-template" id="warning-dialog.html">

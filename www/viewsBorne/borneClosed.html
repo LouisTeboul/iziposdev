@@ -1,9 +1,10 @@
 <section ng-init="init()" ng-controller="BorneClosedController" class="modalCenterFS" ng-style="customStyle">
     <section class="groupModal">
-        <img ng-src="{{$root.borneMainLogo && $root.borneMainLogo || 'img/logo.png'}}"
-             class="imgLogoHeader" draggable="false" alt="" src=""/>
-        <div class="firstTitle">
+        <img ng-src="{{$root.borneMainLogo || 'img/logo.png'}}"
+             class="imgLogoHeader bigLogo" draggable="false" alt="" src="" />
+        <div class="firstTitle" ng-style="{'color' : $root.textColor ? $root.textColor : ''}">
             <span translate>La borne est actuellement fermée !</span>
         </div>
     </section>
+    <ng-barcodetextfield style="display:none" flex></ng-barcodetextfield>
 </section>

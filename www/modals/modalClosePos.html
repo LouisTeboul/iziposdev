@@ -1,169 +1,326 @@
-﻿<section ng-init="init()">
+﻿<section ng-init="init()" id="ModalClosePosController" layout="column" layout-align="space-between stretch" style="height: 100%">
+    <div class="modal-loader" ng-show="loading"></div>
     <div class="modal-header">
-        <h1 class="modal-title" translate>{{closePosParameters.mode.text}}</h1>
+        <h1 class="modal-title center" translate>{{closePosParameters.mode.text}}</h1>
     </div>
-    <tabset>
-        <tab ng-repeat="hidMdl in model.hardwareIdModels ">
-            <tab-heading>
-                {{hidMdl.alias ? hidMdl.alias : hidMdl.hid}}
-            </tab-heading>
+    <div layout="column" flex="grow" style="overflow-y: auto">
 
-            <div class="form-panel modal-body modal-closepos">
-                <div class="row" style="border-bottom: 1px solid lightgray;margin-bottom:10px">
-                    <div style="width:30%;float:left;">
-                        <div class="title" translate>Paiements</div>
+        <div ng-repeat="hidMdl in model.hardwareIdModels"
+             class="hidMdl"
+             ng-show="(closePosParameters.mode.idMode !== 3 && closePosParameters.hid === hidMdl.hid) || model.selectedPos === hidMdl.hid">
+            <div class="form-panel modal-body modal-closepos" layout="row">
+
+                <div class="closePosNavig" flex="20">
+                    <div ng-click="displayAllPosRecap()"
+                         ng-show="closePosParameters.mode.idMode === 3"
+                         class="yPeriodButton center" ng-class="{'highlighted' : !model.selectedPos}">
+                        Recap. toutes caisses
                     </div>
-                    <div style="width:10%;float:left;">
-                        <div class="title centered" translate>Nb</div>
-                    </div>
-                    <div style="width:20%;float:left;">
-                        <div class="title centered" translate>Montant</div>
+                    <div ng-repeat="hidMdl in model.hardwareIdModels" ng-show="closePosParameters.hid === hidMdl.hid || model.selectedPos === hidMdl.hid || closePosParameters.mode.idMode === 3">
+                        <div ng-click="displayPosDetail(hidMdl)"
+                             class="yPeriodButton" ng-class="{'highlighted' : model.selectedPos == hidMdl.hid}"
+                             layout="column">
+
+                            <div layout="row" layout-align="center center">
+                                <div class="cashMachineName center" style="word-break: normal" flex="100"> {{hidMdl.alias ? hidMdl.alias :
+                                    hidMdl.hid}}
+                                </div>
+                                <div class="posStatus"
+                                     ng-class="{'posOpenClean' : getPosStatus(hidMdl.hid) == PosStatus.OPENCLEAN,
+                                    'posOpenDirty' : getPosStatus(hidMdl.hid) == PosStatus.OPENDIRTY,
+                                    'posClosedClean' : getPosStatus(hidMdl.hid) == PosStatus.CLOSEDCLEAN,
+                                    'posClosedDirty' : getPosStatus(hidMdl.hid) == PosStatus.CLOSEDDIRTY }"></div>
+                            </div>
+                        </div>
+
+                        <div class="posActionButtonContainer" ng-show="model.selectedPos === hidMdl.hid">
+                            <button class="btn btn-success wideBtn" ng-click="correctTickets(hidMdl.hid)" translate>
+                                Correction des tickets
+                            </button>
+                            <button class="btn btn-success wideBtn" ng-disabled="model.cashManagementDisabled"
+                                    ng-click="cashManagement(hidMdl.hid)" translate>
+                                Gestion des espèces
+                            </button>
+                            <button class="btn btn-green wideBtn"
+                                    ng-click="openZ()" translate>
+                                Afficher les stats
+                            </button>
+                        </div>
                     </div>
 
-                    <div ng-if="closePosParameters.mode.idMode == 3">
-                        <div style="width:10%;float:left;">
-                            <div class="title centered" translate>Attendu</div>
-                        </div>
-                        <div style="width:20%;float:left;">
-                            <div class="titlereduce centered" translate>Comptage service(s)</div>
-                        </div>
-                        <div style="width:10%;float:left;">
-                            <div class="titlereduce centered" translate>Ecart</div>
-                        </div>
-                    </div>
-                    <div ng-if="closePosParameters.mode.idMode != 3">
-                        <div style="width:40%;float:left;">
-                            <div class="title centered" translate>Attendu</div>
-                        </div>
-                    </div>
                 </div>
-                <div class="row" ng-if="closePosParameters.mode.idMode == 3 && hidMdl.nbY !== 1">
-                    <div style="width:70%;float:left;">&nbsp;</div>
-                    <div style="width:20%;float:left;" class="centered">
-                        <button class="btn btn-info" ng-click="detailsServices(hidMdl.hid)" translate>Détails</button>
-                    </div>
-                    <div style="width:10%;float:left;">&nbsp;</div>
-                </div>
-                <div class="row" ng-repeat="p in hidMdl.CashMovementLines">
-                    <div style="width:30%;float:left;">
-                        <div class="title" translate>{{p.PaymentMode.Text}}</div>
-                    </div>
-                    <div style="width:10%;float:left;min-height:60px;">
-                        <div class="title centered">
-                            <!--<input ng-if="p.PaymentMode.PaymentType != 1" type="tel" id="txtNb" ng-model="p.Count" style="line-height: 29px; vertical-align: middle; width: 60%;font-size: 18px; text-align:center" ng-keypress="$event.stopPropagation();" />-->
-                            <p ng-model="p.Count"
-                               ng-if="p.PaymentMode.PaymentType === paymentType.FIDELITE || p.PaymentMode.PaymentType === paymentType.INTERNET">
-                                {{p.Count}}</p>
-                            <text-field
-                                    ng-if="p.PaymentMode.PaymentType !== paymentType.ESPECE && p.PaymentMode.PaymentType !== paymentType.FIDELITE && p.PaymentMode.PaymentType !== paymentType.INTERNET"
-                                    id="txtNb" ng-model="p.Count" location="end-start" type="numeric" validfunction="ok"
-                                    style="line-height: 29px; vertical-align: middle; width: 60%;font-size: 18px; text-align:center"></text-field>
+
+                <div layout-fill>
+                    <!--Header-->
+                    <div layout="row" class="cpheader">
+                        <div style="flex:1">
+                            <div class="title right" translate>Paiements</div>
+                        </div>
+
+                        <div ng-if="hidMdl.hasYPeriodOpen" style="flex:1">
+                            <div class="title center" translate>Nb</div>
+                        </div>
+
+                        <div ng-if="hidMdl.hasYPeriodOpen" style="flex:1">
+                            <div class="title center" translate>Montant</div>
+                        </div>
+
+                        <div ng-if="closePosParameters.mode.idMode == 3" style="flex:1">
+                            <div class="title center" translate>Attendu</div>
+                        </div>
+
+                        <div ng-if="closePosParameters.mode.idMode == 3 && hidMdl.hasYPeriodOpen" style="flex:1">
+                            <div class="titlereduce center" translate>Service à fermer</div>
+                        </div>
+                        
+                        <div ng-if="closePosParameters.mode.idMode == 3 && hidMdl.hasYPeriodOpen" style="flex:1">
+                            <div class="titlereduce center" translate>Service(s) fermé(s) compté(s)</div>
+                        </div>
+
+                        <div ng-if="closePosParameters.mode.idMode == 3 && !hidMdl.hasYPeriodOpen" style="flex:1">
+                            <div class="titlereduce center" translate>Service(s) fermé(s) compté(s)</div>
+                        </div>
+
+                        <div ng-if="closePosParameters.mode.idMode == 3" style="flex:1">
+                            <div class="titlereduce center" translate>Ecart service(s) compté(s)</div>
+                        </div>
+
+                        <div ng-if="closePosParameters.mode.idMode != 3" style="flex:1">
+                            <div class="title center" translate>Attendu</div>
                         </div>
                     </div>
-                    <div style="width:20%;float:left;">
-                        <div class="title centered" layout="row">
-                            <!--<input ng-style="p.PaymentMode.PaymentType == 1 && {'width':'60%'} || {'width':'80%'}" type="tel" id="txtAmount" ng-model="p.PaymentMode.Total" style="line-height: 29px; vertical-align: middle; width: 60%;font-size: 18px; text-align:center" ng-keypress="$event.stopPropagation();" />-->
-                            <p ng-model="p.PaymentMode.Total"
-                               ng-if="p.PaymentMode.PaymentType === paymentType.FIDELITE || p.PaymentMode.PaymentType === paymentType.INTERNET">
-                                {{p.PaymentMode.Total | CurrencyFormat}}</p>
-                            <text-field
-                                    ng-if="p.PaymentMode.PaymentType !== paymentType.FIDELITE && p.PaymentMode.PaymentType !== paymentType.INTERNET"
-                                    ng-style="p.PaymentMode.PaymentType === paymentType.ESPECE && {'width':'60%'} || {'width':'80%'}"
-                                    id="txtAmount" ng-model="p.PaymentMode.Total" location="end-start" type="decimal"
-                                    validfunction="ok"
-                                    style="line-height: 29px; vertical-align: middle; width: 60%;font-size: 18px; text-align:center"></text-field>
-                            <a ng-if="p.PaymentMode.PaymentType === paymentType.ESPECE" class="btn btn-xs btn-default"
-                               style="padding:5px" ng-click="$event.stopPropagation();editCashValues(p)">
-                                <img class="itemAction" src="img/coins.png"/>
-                            </a>
+
+                    <div layout="row" class="cpline" ng-repeat="p in hidMdl.CashMovementLines">
+                        <div style="flex:1">
+                            <div class="title right" translate>{{p.PaymentMode.Text}}</div>
                         </div>
-                    </div>
-                    <div ng-if="closePosParameters.mode.idMode == 3">
-                        <div style="width:10%;float:left;min-height:60px;">
-                            <div class="title centered" ng-model="p.TotalKnown"
-                                 ng-show="p.PaymentMode.PaymentType !== paymentType.FIDELITE && p.PaymentMode.PaymentType !== paymentType.INTERNET">
+                        <div ng-if="hidMdl.hasYPeriodOpen" style="min-height: 1px;flex:1">
+                            <div class="title center"
+                                 ng-show="p.PaymentMode.PaymentType !== paymentType.ESPECE
+                                      && p.PaymentMode.PaymentType !== paymentType.FIDELITE
+                                      && p.PaymentMode.PaymentType !== paymentType.INTERNET
+                                      && p.PaymentMode.PaymentType !== paymentType.ENCOMPTE">
+
+                                <text-field class="tfrounded closepostf" id="{{'txtNb' + p.PaymentMode.Text}}" ng-model="p.Count"
+                                            location="start-start" type="numeric" nullable="true" validfunction="closeK"></text-field>
+                            </div>
+
+                            <div class="title center"
+                                 ng-show="p.PaymentMode.PaymentType === paymentType.FIDELITE
+                                      || p.PaymentMode.PaymentType === paymentType.INTERNET
+                                      || p.PaymentMode.PaymentType === paymentType.ENCOMPTE">
+                                <div class="center cpcell noteditable" style="margin : 0">
+                                    {{p.Count || 0}}
+                                </div>
+
+                            </div>
+                        </div>
+                        <div ng-if="hidMdl.hasYPeriodOpen" style="flex:1">
+                            <div class="title center"
+                                 ng-show="p.PaymentMode.PaymentType !== paymentType.FIDELITE
+                                      && p.PaymentMode.PaymentType !== paymentType.INTERNET
+                                      && p.PaymentMode.PaymentType !== paymentType.ENCOMPTE"
+                                 layout="row" style="position:relative">
+                                <text-field class="tfrounded closepostf" id="{{'txtAmount' + p.PaymentMode.Text}}" ng-model="p.PaymentMode.Total"
+                                            location="start-start" type="decimal" nullable="true" validfunction="closeK"></text-field>
+                                <a ng-if="p.PaymentMode.PaymentType === paymentType.ESPECE"
+                                   class="btn btn-xs btn-default coinButton big"
+                                   style="position:absolute; top:0; right: 0"
+                                   ng-click="$event.stopPropagation();editCashValues(p)">
+                                    <img class="itemAction " src="img/coins.png" />
+                                </a>
+                                <a ng-if="p.PaymentMode.PaymentType === paymentType.TICKETRESTAURANT && PaymentValues.TicketsResto"
+                                   class="btn btn-xs btn-default coinButton big"
+                                   style="position:absolute; top:0; right: 0"
+                                   ng-click="$event.stopPropagation();editTRValues(p, hidMdl.alias ? hidMdl.alias : hidMdl.hid, closePosParameters.mode.idMode)">
+                                    <md-icon class="itemAction" md-svg-src="img/icons/ticket.svg"></md-icon>
+                                </a>
+                            </div>
+
+                            <div class="title center cpcell noteditable" style="margin: 0 10px 0 0"
+                                 ng-show="p.PaymentMode.PaymentType === paymentType.FIDELITE
+                                      || p.PaymentMode.PaymentType === paymentType.INTERNET
+                                      || p.PaymentMode.PaymentType === paymentType.ENCOMPTE">
                                 {{p.TotalKnown | CurrencyFormat}}
                             </div>
                         </div>
-                        <div style="width:20%;float:left;min-height:60px;">
-                            <div class="title centered"
+                        <div ng-if="closePosParameters.mode.idMode == 3" style="flex:1">
+                            <div class="title center cpcell noteditable" ng-model="p.TotalKnown"
+                                 ng-show="p.PaymentMode.PaymentType !== paymentType.FIDELITE
+                                      && p.PaymentMode.PaymentType !== paymentType.INTERNET
+                                      && p.PaymentMode.PaymentType !== paymentType.ENCOMPTE">
+                                {{p.TotalKnown | CurrencyFormat}}
+                            </div>
+                        </div>
+                        <div ng-if="closePosParameters.mode.idMode == 3 && hidMdl.hasYPeriodOpen" style="flex:1">
+                            <div class="title center cpcell noteditable"
+                                 ng-if="p.PaymentMode.PaymentType !== paymentType.FIDELITE
+                                    && p.PaymentMode.PaymentType !== paymentType.INTERNET
+                                    && p.PaymentMode.PaymentType !== paymentType.ENCOMPTE">
+                                {{p.CurrentYPeriodTotalKnown | CurrencyFormat}}
+                            </div>
+                        </div>
+                        <div ng-if="closePosParameters.mode.idMode == 3 && hidMdl.hasYPeriodOpen" style="flex:1">
+                            <div class="title center cpcell noteditable"
+                                 ng-show="p.PaymentMode.PaymentType !== paymentType.ESPECE "
+                                 ng-if="p.PaymentMode.PaymentType !== paymentType.FIDELITE
+                                    && p.PaymentMode.PaymentType !== paymentType.INTERNET
+                                    && p.PaymentMode.PaymentType !== paymentType.ENCOMPTE">
+                                {{p.TotalYs | CurrencyFormat}}
+                            </div>
+                        </div>
+                        <div ng-if="closePosParameters.mode.idMode == 3 && !hidMdl.hasYPeriodOpen" style="flex:1">
+                            <div class="title center cpcell noteditable"
+                                 ng-if="p.PaymentMode.PaymentType !== paymentType.FIDELITE
+                                && p.PaymentMode.PaymentType !== paymentType.INTERNET
+                                && p.PaymentMode.PaymentType !== paymentType.ENCOMPTE">
+                                {{p.TotalYs | CurrencyFormat}}
+                            </div>
+                        </div>
+                        <div ng-if="closePosParameters.mode.idMode == 3" style="flex:1" layout-fill>
+                            <div class="title center cpcell "
+                                 ng-class="{ 'red' : p.CashDiscrepancyYs !== 0, 'green' : p.CashDiscrepancyYs == 0}"
+                                 ng-show="p.PaymentMode.PaymentType !== paymentType.ESPECE || ( p.PaymentMode.PaymentType === paymentType.ESPECE && !hidMdl.hasYPeriodOpen)"
+                                 ng-if="p.PaymentMode.PaymentType !== paymentType.FIDELITE
+                                    && p.PaymentMode.PaymentType !== paymentType.INTERNET
+                                    && p.PaymentMode.PaymentType !== paymentType.ENCOMPTE">
+                                {{p.CashDiscrepancyYs | CurrencyFormat}}
+                            </div>
+                        </div>
+                        <div ng-if="closePosParameters.mode.idMode !== 3" style="flex:1">
+                            <div class="title center cpcell noteditable" ng-model="p.TotalKnown"
+                                 ng-show="p.PaymentMode.PaymentType !== paymentType.FIDELITE
+                                      && p.PaymentMode.PaymentType !== paymentType.INTERNET
+                                      && p.PaymentMode.PaymentType !== paymentType.ENCOMPTE">
+                                {{p.TotalKnown | CurrencyFormat}}
+                            </div>
+                        </div>
+                    </div>
+                    <div layout="row"
+                         ng-if="closePosParameters.mode.idMode == 3 && (hidMdl.nbY && hidMdl.nbY > 1 || hidMdl.hasYPeriodOpen) ">
+                        <div ng-if="hidMdl.hasYPeriodOpen" flex="60">&nbsp;</div>
+                        <div ng-if="hidMdl.hasYPeriodOpen" class="center" flex="10">
+                            <button class="btn btn-info" ng-click="closeServices(hidMdl.yPeriodStillOpen)"
+                                    translate>Fermer
+                            </button>
+                        </div>
+                        <div class="center"
+                             ng-if="hidMdl.hasYPeriodOpen && hidMdl.nbY && hidMdl.nbY > 1" flex="10">
+                            <button class="btn btn-info" ng-click="detailsServices(hidMdl.hid)" translate>Détails
+                            </button>
+                        </div>
+                        <div ng-if="hidMdl.hasYPeriodOpen" flex="10">&nbsp;</div>
+                        <div ng-if="!hidMdl.hasYPeriodOpen && hidMdl.nbY && hidMdl.nbY > 1" flex="60">&nbsp;</div>
+                        <div class="center"
+                             ng-if="!hidMdl.hasYPeriodOpen && hidMdl.nbY && hidMdl.nbY > 1" flex="20">
+                            <button class="btn btn-info" ng-click="detailsServices(hidMdl.hid)" translate>Détails
+                            </button>
+                        </div>
+                        <div ng-if="!hidMdl.hasYPeriodOpen && hidMdl.nbY !== 1" flex="10">&nbsp;</div>
+
+                    </div>
+
+                </div>
+
+                <!-- Comprend pas celui la -->
+                <!--<div ng-if="closePosParameters.mode.idMode == 3" flex="35">-->
+                <!--<div class="title center" ng-model="p.TotalKnown"-->
+                <!--ng-show="p.PaymentMode.PaymentType !== paymentType.FIDELITE && p.PaymentMode.PaymentType !== paymentType.INTERNET">-->
+                <!--{{p.TotalKnown | CurrencyFormat}}-->
+                <!--</div>-->
+                <!--</div>-->
+
+            </div>
+        </div>
+        <!--<tab ng-if="closePosParameters.mode.idMode == 3 && model.hardwareIdModels.length > 1">-->
+
+        <!-- Fermeture de journée -->
+        <div ng-show="closePosParameters.mode.idMode == 3 && !model.selectedPos" class="hidMdl">
+            <div class="form-panel modal-body modal-closepos" layout="row">
+                <div class="closePosNavig" flex="20">
+                    <div class="yPeriodButton center" ng-class="{'highlighted' : !model.selectedPos}"
+                         ng-click="displayAllPosRecap()"> Recap. toutes caisses
+                    </div>
+                    <div class="posActionButtonContainer">
+                        <button class="btn btn-green wideBtn"
+                                ng-click="openZ()" translate>
+                            Afficher les stats
+                        </button>
+                    </div>
+                    <div ng-repeat="hidMdl in model.hardwareIdModels "
+                         ng-click="displayPosDetail(hidMdl)"
+                         class="yPeriodButton" ng-class="{'highlighted' : model.selectedPos == hidMdl.hid}" layout="row"
+                         layout-align="center center">
+                        <div class="cashMachineName center" style="word-break: normal" flex="100"> {{hidMdl.alias ? hidMdl.alias : hidMdl.hid}}</div>
+                        <div class="posStatus"
+                             ng-class="{'posOpenClean' : getPosStatus(hidMdl.hid) == PosStatus.OPENCLEAN,
+                                    'posOpenDirty' : getPosStatus(hidMdl.hid) == PosStatus.OPENDIRTY,
+                                    'posClosedClean' : getPosStatus(hidMdl.hid) == PosStatus.CLOSEDCLEAN,
+                                    'posClosedDirty' : getPosStatus(hidMdl.hid) == PosStatus.CLOSEDDIRTY }"></div>
+                    </div>
+                </div>
+                <div layout="column" layout-fill>
+                    <div layout="row" class="cpheader">
+                        <div style="flex:1">
+                            <div class="title right" translate>Paiements</div>
+                        </div>
+                        <div style="flex:1">
+                            <div class="title center" translate>Attendu</div>
+                        </div>
+                        <div ng-if="model.zRecapGlobal.hasYPeriodOpen" style="flex:1">
+                            <div class="titlereduce center" translate>Service(s) à fermer</div>
+                        </div>
+                        <div ng-if="model.zRecapGlobal.hasYPeriodOpen" style="flex:1">
+                            <div class="titlereduce center" translate>Service(s) fermé(s) compté(s)</div>
+                        </div>
+                        <div ng-if="!model.zRecapGlobal.hasYPeriodOpen" style="flex:2">
+                            <div class="titlereduce center" translate>Service(s) fermé(s) compté(s)</div>
+                        </div>
+                        <div style="flex:2">
+                            <div class="titlereduce center" translate>Ecart service(s) compté(s)</div>
+                        </div>
+                    </div>
+                    <div layout="row" class="cpline" ng-repeat="p in model.zRecapGlobal.CashMovementLinesGlobal">
+                        <div style="flex:1">
+                            <div class="title right">{{p.PaymentMode.Text}}</div>
+                        </div>
+                        <div style="flex:1">
+                            <div class="title center cpcell noteditable">{{p.PaymentMode.Total | CurrencyFormat}}</div>
+                        </div>
+                        <div ng-if="model.zRecapGlobal.hasYPeriodOpen" style="flex:1">
+                            <div class="title center cpcell noteditable">
+                                {{p.CurrentYPeriodTotalKnown | CurrencyFormat}}
+                            </div>
+                        </div>
+                        <div ng-if="model.zRecapGlobal.hasYPeriodOpen" style="flex:1">
+                            <div class="title center cpcell noteditable"
+                                 ng-show="p.PaymentMode.PaymentType !== paymentType.ESPECE ">
+                                {{p.TotalYs | CurrencyFormat}}
+                            </div>
+                        </div>
+                        <div ng-if="!model.zRecapGlobal.hasYPeriodOpen" style="flex:2">
+                            <div class="title center cpcell noteditable"
                                  ng-if="p.PaymentMode.PaymentType !== paymentType.FIDELITE && p.PaymentMode.PaymentType !== paymentType.INTERNET">
                                 {{p.TotalYs | CurrencyFormat}}
                             </div>
                         </div>
-                        <div style="width:10%;float:left;">
-                            <div class="title centered green" ng-class="{ red : p.CashDiscrepancyYs !== 0}"
+                        <div  style="flex:2">
+                            <div class="title center cpcell"
+                                 ng-class="{ 'red' : p.CashDiscrepancyYs !== 0, 'green' : p.CashDiscrepancyYs === 0 }"
+                                 ng-show="p.PaymentMode.PaymentType !== paymentType.ESPECE || ( p.PaymentMode.PaymentType === paymentType.ESPECE && !model.zRecapGlobal.hasYPeriodOpen)"
                                  ng-if="p.PaymentMode.PaymentType !== paymentType.FIDELITE && p.PaymentMode.PaymentType !== paymentType.INTERNET">
                                 {{p.CashDiscrepancyYs | CurrencyFormat}}
                             </div>
                         </div>
                     </div>
-                    <div ng-if="closePosParameters.mode.idMode !== 3">
-                        <div style="width:35%;float:left;">
-                            <div class="title centered" ng-model="p.TotalKnown"
-                                 ng-show="p.PaymentMode.PaymentType !== paymentType.FIDELITE && p.PaymentMode.PaymentType !== paymentType.INTERNET">
-                                {{p.TotalKnown | CurrencyFormat}}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <button class="btn btn-success" ng-click="correctTickets(hidMdl.hid)" translate>Correction des tickets
-                </button>
-                <button class="btn btn-success" ng-click="cashManagement(hidMdl.hid)" translate>Gestion des espèces
-                </button>
-            </div>
-        </tab>
-        <!--<tab ng-if="closePosParameters.mode.idMode == 3 && model.hardwareIdModels.length > 1">-->
-        <tab ng-if="closePosParameters.mode.idMode == 3">
-            <tab-heading>
-                <x translate>Récapitulatif toutes caisses</x>
-            </tab-heading>
-            <div class="form-panel modal-body modal-closepos">
-                <div class="row" style="border-bottom: 1px solid lightgray;margin-bottom:10px">
-                    <div style="width:30%;float:left;">
-                        <div class="title" translate>Paiements</div>
-                    </div>
-                    <div style="width:25%;float:left;">
-                        <div class="title centered" translate>Attendu</div>
-                    </div>
-                    <div style="width:25%;float:left;">
-                        <div class="titlereduce centered" translate>Comptage service(s)</div>
-                    </div>
-                    <div style="width:20%;float:left;">
-                        <div class="titlereduce centered" translate>Ecart</div>
-                    </div>
-                </div>
-                <div class="row" ng-repeat="p in model.zRecap">
-                    <div style="width:30%;float:left;">
-                        <div class="title">{{p.PaymentMode.Text}}</div>
-                    </div>
-                    <div style="width:25%;float:left;min-height:60px;">
-                        <div class="title centered">{{p.PaymentMode.Total | CurrencyFormat}}</div>
-                    </div>
-                    <div style="width:25%;float:left;min-height:60px;">
-                        <div class="title centered">{{p.TotalYs | CurrencyFormat}}</div>
-                    </div>
-                    <div style="width:20%;float:left;">
-                        <div class="title centered green" ng-class="{ red : p.CashDiscrepancyYs !== 0}">
-                            {{p.CashDiscrepancyYs | CurrencyFormat}}
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </tab>
-    </tabset>
-    <div class="modal-footer">
-        <div class="form-check hidden"
-             ng-if="closePosParameters.mode.idMode === 1 || closePosParameters.mode.idMode === 2">
-            <label class="form-check-label">
-                <input class="form-check-input" type="checkbox" ng-model="model.emptyCash">Vider le fond de caisse
-            </label>
-        </div>
 
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-footer">
         <button class="btn btn-info" ng-click="openDrawer()" translate>Ouvrir le tiroir</button>
-        <button class="btn btn-green"
-                ng-click="openZ()" translate>Afficher le Z
-        </button>
 
         <!--
         <button class="btn" ng-class="$root.validateLock ? 'btn-warning' : 'btn-success'" ng-if="model.showCloseButton" ng-click="ok()"
@@ -171,7 +328,8 @@
         </button>
         -->
         <button class="btn btn-success" ng-if="model.showCloseButton" ng-click="ok()"
-                translate> {{ closePosParameters.mode.text }}
+                translate>
+            {{ closePosParameters.mode.text }}
         </button>
 
         <button class="btn btn-danger" ng-click="cancel()" translate>Annuler</button>

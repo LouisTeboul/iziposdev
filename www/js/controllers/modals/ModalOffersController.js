@@ -1,4 +1,6 @@
-﻿app.controller('ModalOffersController', function ($scope, $rootScope, $uibModalInstance, offers, relevantOffers) {
+﻿app.controller('ModalOffersController', function ($scope, $rootScope, $uibModalInstance, $mdMedia, offers, relevantOffers) {
+
+    $scope.mdMedia = $mdMedia;
     $scope.offers = Enumerable.from(offers).orderByDescending("o => o.OfferObjectId").toArray();
     $scope.relevantOffers = Enumerable.from(relevantOffers).orderByDescending("o => o.OfferObjectId").toArray();
 
@@ -8,5 +10,5 @@
 
     $scope.cancel = function () {
         $uibModalInstance.dismiss('cancel');
-    }
+    };
 });

@@ -6,20 +6,20 @@
     <center>
         <div class="switch-toggle switch-3 switch-candy" >
 
-            <input id="forhere" name="state-d" type="radio"
-                   ng-checked="deliveryType == DeliveryTypes.FORHERE"
-                   ng-click="setDeliveryType(DeliveryTypes.FORHERE);">
-            <label for="forhere" translate>Sur place</label>
+            <input id="fh" name="state-d" type="radio"
+                   ng-checked="deliveryType == DeliveryType.FORHERE"
+                   ng-click="setDeliveryType(DeliveryType.FORHERE);">
+            <label for="fh" translate>Sur place</label>
 
-            <input id="takeout" name="state-d" type="radio"
-                   ng-checked="deliveryType == DeliveryTypes.TAKEOUT"
-                   ng-click="setDeliveryType(DeliveryTypes.TAKEOUT);">
-            <label for="takeout" translate>Emporté</label>
+            <input id="to" name="state-d" type="radio"
+                   ng-checked="deliveryType == DeliveryType.TAKEOUT"
+                   ng-click="setDeliveryType(DeliveryType.TAKEOUT);">
+            <label for="to" translate>Emporté</label>
 
-            <input id="delivery" name="state-d" type="radio"
-                   ng-checked="deliveryType == DeliveryTypes.DELIVERY"
-                   ng-click="setDeliveryType(DeliveryTypes.DELIVERY);">
-            <label for="delivery" translate>Livré</label>
+            <input id="dl" name="state-d" type="radio"
+                   ng-checked="deliveryType == DeliveryType.DELIVERY"
+                   ng-click="setDeliveryType(DeliveryType.DELIVERY);">
+            <label for="dl" translate>Livré</label>
             <a></a>
         </div>
     </center>

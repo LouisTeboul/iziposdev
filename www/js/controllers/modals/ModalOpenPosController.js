@@ -1,7 +1,10 @@
-app.controller('ModalOpenPosController', function ($scope, $rootScope, $uibModal, $http, $uibModalInstance, settingService, eventService, cashMovementService, posPeriodService, posUserService, $translate, openPosParameters) {
+app.controller('ModalOpenPosController', function ($scope, $rootScope, $uibModal, $http, $uibModalInstance, settingService, cashMovementService, posPeriodService, posService, posUserService, $translate, openPosParameters) {
     $scope.openPosParameters = openPosParameters;
 
-    $scope.init = function () {
+    $scope.init = () => {
+        posService.getPosNameAsync($scope.openPosParameters.hardwareId).then((alias) => {
+            $scope.alias = alias;
+        });
 
         $scope.model = {
             motif: null,
@@ -11,11 +14,10 @@ app.controller('ModalOpenPosController', function ($scope, $rootScope, $uibModal
             validateDisabled: false
         };
 
-        cashMovementService.getMovementTypesAsync($scope.openPosParameters).then(function (motifs) {
-
+        cashMovementService.getMovementTypesAsync($scope.openPosParameters).then((motifs) => {
             $scope.motifs = motifs;
 
-            if ($scope.motifs.length == 0) {
+            if ($scope.motifs.length === 0) {
                 if ($scope.openPosParameters.isOpenPos) {
                     if ($scope.openPosParameters.previousYPeriod) {
                         $scope.model.message = "Vous devez d&eacute;finir un mouvement de caisse de type ouverture de service dans le BO, merci";
@@ -32,14 +34,74 @@ app.controller('ModalOpenPosController', function ($scope, $rootScope, $uibModal
             }
         });
 
+        if (window.glory && $rootScope.UserPreset && $rootScope.UserPreset.EnableGlory) {
+            $scope.loading = true;
+            const gloryPromise = new Promise((resolve, reject) => {
+                window.glory.getInventory(resolve, reject);
+            });
+            gloryPromise.then((res) => {
+                let inventory = JSON.parse(res);
+                $scope.loading = false;
 
-        if ($scope.openPosParameters.previousYPeriod && !$scope.openPosParameters.previousYPeriod.emptyCash && !$scope.openPosParameters.editMode) {
+                let total = 0;
+                for (let type of inventory.Values) {
+                    total += type.Denomination * type.Value;
+                }
+                $scope.model.total = total; // TODO : Check both values
+                $scope.model.totalKnown = total;
+            }, (err) => {
+                loadTotal();
+                $scope.loading = false;
+            });
+        } else {
+            loadTotal();
+        }
+
+        settingService.getPaymentModesAsync().then((paymentSetting) => {
+            let paymentModes = paymentSetting;
+
+            let cashPaymentMode = Enumerable.from(paymentModes).firstOrDefault((x) => {
+                return x.PaymentType === PaymentType.ESPECE;
+            });
+
+            $scope.openPosValues = {
+                HardwareId: $scope.openPosParameters.hardwareId ? $scope.openPosParameters.hardwareId : $rootScope.modelPos.hardwareId,
+                PosUserId: $rootScope.PosUserId,
+                MovementType_Id: 0,
+                zPeriodId: $scope.openPosParameters.zPeriodId,
+                yPeriodId: $scope.openPosParameters.yPeriodId,
+                StoreId: $rootScope.IziBoxConfiguration.StoreId,
+                CashMovementLines: []
+            };
+
+            if (cashPaymentMode) {
+                const addPaymentMode = {
+                    PaymentType: cashPaymentMode.PaymentType,
+                    Value: cashPaymentMode.Value,
+                    Text: cashPaymentMode.Text,
+                    Total: 0,
+                    IsBalance: cashPaymentMode.IsBalance
+                };
+
+                const lineOpenPos = {
+                    PaymentMode: addPaymentMode
+                };
+
+                $scope.openPosValues.CashMovementLines.push(lineOpenPos);
+            }
+        }, (err) => {
+            console.error(err);
+        });
+    };
+
+    const loadTotal = () => {
+        if ($scope.openPosParameters.previousYPeriod) {
             let total = 0;
             let totalKnown = 0;
-            // Get the amout "cash" count in the previous yPeriod
-            for(let l of $scope.openPosParameters.previousYPeriod.YCountLines) {
+            // Get the amount "cash" count in the previous yPeriod
+            for (let l of $scope.openPosParameters.previousYPeriod.YCashMovementLines) {
                 // Cash only
-                if (l.PaymentMode && l.PaymentMode.PaymentType == PaymentType.ESPECE) {
+                if (l.PaymentMode && l.PaymentMode.PaymentType === PaymentType.ESPECE) {
                     total = roundValue(total + l.PaymentMode.Total);
                     totalKnown = roundValue(totalKnown + l.TotalKnown);
                 }
@@ -48,13 +110,15 @@ app.controller('ModalOpenPosController', function ($scope, $rootScope, $uibModal
             $scope.model.totalKnown = totalKnown;
         }
         else {
-            posPeriodService.getYPaymentValuesAsync($scope.openPosParameters.yPeriodId).then(function (paymentValues) {
+            posPeriodService.getYPaymentValuesAsync($scope.openPosParameters.yPeriodId).then((paymentValues) => {
                 if (paymentValues) {
                     let total = 0;
-                    for(let l of paymentValues.PaymentLines) {
-                        // Cash only
-                        if (l.PaymentMode && l.PaymentMode.PaymentType == PaymentType.ESPECE) {
-                            total = roundValue(total + l.PaymentMode.Total);
+                    if (paymentValues.PaymentLines) {
+                        for (let l of paymentValues.PaymentLines) {
+                            // Cash only
+                            if (l.PaymentMode && l.PaymentMode.PaymentType === PaymentType.ESPECE) {
+                                total = roundValue(total + l.PaymentMode.Total);
+                            }
                         }
                     }
                     $scope.model.total = total;
@@ -62,201 +126,89 @@ app.controller('ModalOpenPosController', function ($scope, $rootScope, $uibModal
                 }
             });
         }
-
-        settingService.getPaymentModesAsync().then(function (paymentSetting) {
-
-            let paymentModesAvailable = paymentSetting;
-
-            let cashPaymentMode = Enumerable.from(paymentModesAvailable).firstOrDefault(function (x) {
-                return x.PaymentType == PaymentType.ESPECE;
-            });
-
-            const dateOpen = new Date().toString('dd/MM/yyyy H:mm:ss'); //TODO: bug formatage
-
-            $scope.openPosValues = {
-                HardwareId: $rootScope.PosLog.HardwareId,
-                PosUserId: $rootScope.PosUserId,
-                Date: dateOpen,
-                MovementType_Id: 0,
-                zPeriodId: $scope.openPosParameters.zPeriodId,
-                yPeriodId: $scope.openPosParameters.yPeriodId,
-                StoreId: $rootScope.IziBoxConfiguration.StoreId,
-                CashMovementLines: []
-            };
-
-            const addPaymentMode = {
-                PaymentType: cashPaymentMode.PaymentType,
-                Value: cashPaymentMode.Value,
-                Text: cashPaymentMode.Text,
-                Total: 0,
-                IsBalance: cashPaymentMode.IsBalance
-            };
-
-            const lineOpenPos = {
-                PaymentMode: addPaymentMode
-            };
-
-            $scope.openPosValues.CashMovementLines.push(lineOpenPos);
-
-        }, function (err) {
-            console.log(err);
-        });
     };
 
-    $scope.selectMotif = function (motif) {
+    $scope.selectMotif = (motif) => {
         $scope.model.motif = motif;
     };
 
-    $scope.editCashValues = function () {
+    $scope.editCashValues = () => {
         let modalInstance = $uibModal.open({
             templateUrl: 'modals/modalCashValues.html',
             controller: 'ModalCashValuesController',
             size: 'lg',
-            backdrop: 'static'
+            backdrop: 'static',
+            resolve: {
+                moneyInventory: () => {
+                    return null;
+                },
+                allowEdit: () => {
+                    return true;
+                },
+                returnListBC: () => {
+                    return false;
+                },
+                isGlory: () => {
+                    return false;
+                }
+            }
         });
 
-        modalInstance.result.then(function (total) {
+        modalInstance.result.then((total) => {
             $scope.openPosValues.CashMovementLines[0].PaymentMode.Total = roundValue(parseFloat(total)).toFixed(2);
-        }, function () {
+        }, () => {
+            console.error("Error cash values modal");
         });
     };
 
-    $scope.openRecap = function () {
+    $scope.openRecap = () => {
         $uibModal.open({
             templateUrl: 'modals/modalAllCashMovements.html',
             controller: 'ModalAllCashMovementsController',
             size: 'lg',
-            backdrop: 'static',
-
+            backdrop: 'static'
         });
     };
 
-    $scope.ok = function () {
+    $scope.ok = () => {
         if (!$rootScope.modelPos.iziboxConnected) {
-            sweetAlert({ title: $translate.instant("La izibox n'est pas accessible") }, function () {
-            });
+            swal({ title: $translate.instant("La izibox n'est pas accessible") });
         }
         else {
-            if (!$scope.openPosParameters.editMode) {
-                if ($scope.model.motif && $scope.model.motif != null) {
-                    $scope.model.validateDisabled = true;
-                    $scope.openPosValues.MovementType_Id = $scope.model.motif.Id;
+            if ($scope.model.motif && $scope.model.motif != null) {
+                $scope.model.validateDisabled = true;
+                $scope.openPosValues.MovementType_Id = $scope.model.motif.Id;
 
-                    if ($scope.openPosParameters.previousYPeriod && !$scope.openPosParameters.previousYPeriod.emptyCash) {
-                        let previousYperiodButClosed = $scope.openPosParameters.previousYPeriod;
-                        if (previousYperiodButClosed) {
-
-                            // Créer le motif négatif isSytem "Fin de service" du montant espèce du précédent yPeriod dans le yPeriod précédent
-                            posPeriodService.emptyCashYPeriodAsync(previousYperiodButClosed, previousYperiodButClosed.YCountLines).then(function () {
-                                //Appel aprés la création de la fermeture du service précédent pour que la date du motif de l'ouverture du service soit aprés le motif de fermeture du service pr�c�dent
-                                $scope.openPosValues.CashMovementLines[0].PaymentMode.Total = $scope.model.totalKnown;
-
-                                openCashMachine();
-                            });
-                        }
+                posPeriodService.CreateOrUpdateYPeriodAsync($scope.openPosValues, $scope.model.motif, false).then((periodPair) => {
+                    $uibModalInstance.close(periodPair);
+                }, (err) => {
+                    $scope.model.validateDisabled = false;
+                    if (err) {
+                        swal({ title: $translate.instant("La izibox n'est pas accessible") });
                     }
-                    else {
-                        openCashMachine();
-                    }
-                }
-                else {
-                    sweetAlert({ title: $translate.instant("Veuillez renseigner le motif") }, function () {
-                    });
-                }
+                });
             }
             else {
-                sweetAlert({ title: $translate.instant("Impossible de modifier le fonds de caisse, periode en cours, utilisez le menu gestion des especes") }, function () {
-                });
+                swal({ title: $translate.instant("Veuillez renseigner le motif") });
             }
         }
     };
 
-    $scope.openDrawer = function () {
+    $scope.openDrawer = () => {
         /**
          * TODO: Log this event
          */
         if (posUserService.isEnable('ODRAW')) {
-            let configApiUrl = "http://" + $rootScope.IziBoxConfiguration.LocalIpIziBox + ":" + $rootScope.IziBoxConfiguration.RestPort + "/open/" + $rootScope.PrinterConfiguration.POSPrinter;
-            $http.get(configApiUrl, {timeout: 10000});
+            let configApiUrl = $rootScope.APIBaseURL + "/open/" + $rootScope.PrinterConfiguration.POSPrinter;
+            $http.get(configApiUrl, { timeout: 10000 });
+        } else {
+            swal({
+                title: $translate.instant("Vous n'avez pas les droits n�cessaires.")
+            });
         }
     };
 
-    $scope.cancel = function () {
+    $scope.cancel = () => {
         $uibModalInstance.dismiss('cancel');
     };
-
-    const openCashMachine = function () {
-        $scope.openPosValues.Date = new Date().toString('dd/MM/yyyy H:mm:ss');
-
-        let updPaymentModes = [];
-
-        let newPaymentMode = clone($scope.openPosValues.CashMovementLines[0].PaymentMode);
-
-        newPaymentMode.Total = roundValue(parseFloat(newPaymentMode.Total).toFixed(2));
-
-        if (!$scope.model.motif.CashIn && !$scope.model.motif.IsCashFunds) {
-            newPaymentMode.Total = newPaymentMode.Total * (-1);
-        }
-
-        updPaymentModes.push(newPaymentMode);
-
-        // Pour stoker l'historique des mouvements
-        let cashMovement = {
-            CashMovementLines: updPaymentModes,
-            Date: $scope.openPosValues.Date,
-            MovementType_Id: $scope.openPosValues.MovementType_Id,
-            PosUserId: $scope.openPosValues.PosUserId
-        };
-
-        // Si fond de caisse
-        if ($scope.model.motif.IsCashFunds) {
-
-            posPeriodService.replacePaymentValuesAsync($scope.openPosParameters.yPeriodId, $scope.openPosParameters.zPeriodId, $rootScope.PosLog.HardwareId, updPaymentModes, cashMovement).then(function () {
-                $scope.model.validateDisabled = false;
-                // Send to BO
-                cashMovementService.saveMovementAsync($scope.openPosValues);
-                $uibModalInstance.close();
-            }, function (err) {
-                $scope.model.validateDisabled = false;
-                if(err) {
-                    sweetAlert({ title: $translate.instant("La izibox n'est pas accessible") }, function () {
-                    });
-                }
-            });
-        }
-        // Si ouverture de service ( plusieurs Y pour un même HID sur un Z)
-        else {
-
-            posPeriodService.updatePaymentValuesAsync($scope.openPosParameters.yPeriodId, $scope.openPosParameters.zPeriodId, $rootScope.PosLog.HardwareId, updPaymentModes, undefined, cashMovement).then(function () {
-                $scope.model.validateDisabled = false;
-                // Send to BO
-                cashMovementService.saveMovementAsync($scope.openPosValues);
-                $uibModalInstance.close();
-            }, function (err) {
-                $scope.model.validateDisabled = false;
-                const message = err ? err : $translate.instant("La izibox n'est pas accessible");
-                sweetAlert({ title: message }, function () {
-                });
-            });
-
-        }
-
-        // Logging the event
-        if ($scope.model.motif.IsCashFunds) {
-            let event = {
-                Code: 170,
-                Description: "Ouverture de caisse",
-                OperatorCode: $rootScope.PosUserId,
-                Type: "Fonds de caisse",
-                TerminalCode: $rootScope.PosLog.HardwareId,
-                Informations: []
-            };
-
-            for(let pm of updPaymentModes) {
-                event.Informations.push(pm.Text + ":" + pm.Total);
-            }
-
-            eventService.sendEvent(event);
-        }
-    }
 });

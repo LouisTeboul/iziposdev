@@ -1,21 +1,35 @@
-<section id="modalScanFidCard" class="modalCenterFS" ng-init="init()" ng-style="customStyle">
+<section id="modalScanFidCard" class="modalCenterFS"
+         ng-class="{'pmr' : $root.isPMREnabled}"
+         ng-init="init()" 
+         ng-style="customStyle">
     <section class="groupModal"
-             ng-style="{'justify-content' : $root.borne && $root.borneVertical ? 'flex-end' : 'center'}">
-        <img ng-src="{{$root.borneMainLogo && $root.borneMainLogo || 'img/logo.png'}}"
-             class="imgLogoHeader" draggable="false" alt="" src=""/>
-        <div class="firstTitle">
+             ng-style="{'justify-content' : $root.borneVertical ? 'flex-end' : 'center',
+             'flex' : $root.borneVertical ? '2' : '3'}">
+        <img ng-src="{{$root.borneMainLogo || 'img/logo.png'}}"
+             class="imgLogoHeader bigLogo"  draggable="false" alt="" src=""/>
+        <div class="firstTitle" ng-style="{'color' : $root.textColor ? $root.textColor : ''}">
             <span translate>Mon compte fidélité</span>
         </div>
     </section>
-    <hr ng-class="{'smallModalHR': $root.borne && $root.borneVertical,
-                        'smallModalHRH': $root.borne && !$root.borneVertical}"
+    <hr ng-class="{'smallModalHR': $root.borneVertical,
+                        'smallModalHRH': !$root.borneVertical}"
         ng-style="{ 'background-color' : $root.tenantColor}">
     <section class="groupModal" style="flex:4"
-             ng-style="{'justify-content' : $root.borne && $root.borneVertical ? 'flex-start' : 'center'}">
+             ng-style="{'justify-content' : $root.borneVertical ? 'flex-start' : 'center'}">
         <div class="loyaltyFormGroup"
-             ng-style="{'margin' : $root.borne && $root.borneVertical ? (mdMedia('min-width: 800px') ? '50px 0 0' : '26px 0 0') : '0',
-             'max-height': mdMedia('min-width: 800px') ? '675px' : '300px' }">
-            <div class="scanImg" ng-style="{'width': mdMedia('min-width: 800px') ? '268px' : '103px'}">
+             ng-style="{'margin' : $root.borneVertical ? (mdMedia('min-width: 800px') ? '50px 0 0' : '26px 0 0') : '0',
+             'max-height': $root.borneVertical ?
+             (mdMedia('min-width: 800px') ? '675px' : '300px') :
+             (mdMedia('min-height: 800px') ? '675px' : '460px'),
+             'padding': $root.borneVertical ?
+             (mdMedia('min-width: 800px') ? '75' : '20px 10px') :
+             (mdMedia('min-height: 800px') ? '75' : '10px')}">
+            <div class="scanImg" ng-style="{'width': $root.borneVertical ?
+            (mdMedia('min-width: 800px') ? '268px' : '103px') :
+            (mdMedia('min-width: 800px') ? '268px' : '103px'),
+            'min-height': $root.borneVertical ?
+            (mdMedia('min-width: 800px') ? '268px' : '103px') :
+            (mdMedia('min-width: 800px') ? '268px' : '103px')}">
                 <x translate>Scannez</x>
                 <span translate>votre carte</span>
             </div>

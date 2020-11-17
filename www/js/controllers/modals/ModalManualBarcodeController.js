@@ -1,16 +1,7 @@
 ﻿app.controller('ModalManualBarcodeController', function ($scope, $rootScope, $uibModalInstance) {
-
     $scope.barcode = "";
 
-    $scope.init = function () {
-        setTimeout(function () {
-            const txtBarcode = document.getElementById("txtBarcode");
-            if (txtBarcode) {
-                txtBarcode.focus();
-            }
-
-        }, 250);
-
+    $scope.init = () => {
     };
 
     $scope.ok = function () {
@@ -22,5 +13,5 @@
         $rootScope.closeKeyboard();
 
         $uibModalInstance.dismiss('cancel');
-    }
+    };
 });

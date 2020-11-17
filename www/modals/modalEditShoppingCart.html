@@ -1,37 +1,45 @@
 ﻿<section ng-init="init()">
-	<div class="modal-header">
-		<h1 class="modal-title" translate>Modification des paiements</h1>
-	</div>
-
-	<div class="form-panel modal-body modal-editShoppingCart">
-		<div class="row" style="border-bottom: 1px solid lightgray;">
-			<div style="width:65%;float:left">
-				<div class="title" translate>Paiements</div>
-			</div>
-			<div style="width:35%;float:left">
-				<div class="title centered" translate>Montant</div>
-			</div>
-		</div>
-
-		<div class="row" ng-repeat="p in newPaymentValues.PaymentValues">
-			<div style="width:65%;float:left">
-				<div class="title">{{p.Text}}</div>
-			</div>
-			<div style="width:35%;float:left">
-				<div class="title centered">
-					<!--<input type="tel" id="txtAmount" ng-model="p.Total" style="line-height: 29px; vertical-align: middle; width: 60%;font-size: 18px; text-align:center" ng-keypress="$event.stopPropagation();" />-->
-					<text-field ng-if="!p.IsBalance && p.PaymentType !== paymentType.INTERNET" ng-model="p.Total" location="end-start" type="decimal" validfunction="ok" style="line-height: 29px; vertical-align: middle; width: 60%;font-size: 18px;"></text-field>
-                    <input ng-if="p.IsBalance || p.PaymentType === paymentType.INTERNET" ng-model="p.Total" readonly style="line-height: 29px; vertical-align: middle; width: 60%;font-size: 18px;"/>
-				</div>
-			</div>
-		</div>
-
-	</div>
-
-	<div class="modal-footer">
-		<span style="float:left;font-size:20px;">Total des paiements :&nbsp;{{shoppingCart.TotalPayment - shoppingCart.Repaid - shoppingCart.Credit}}</span>
-		<button class="btn btn-green" ng-click="ok()">OK</button>
-		<button class="btn btn-rose" ng-click="cancel()" translate>Annuler</button>
-	</div>
-
+    <div class="modal-header">
+        <h1 class="modal-title" translate>Modification des paiements</h1>
+    </div>
+    <div class="modal-loader gloryOverList" ng-show="loading"></div>
+    <div class="form-panel modal-body modal-editShoppingCart">
+        <div layout="row" layout-align="space-between center" style="border-bottom: 1px solid lightgray;">
+            <div style="width:33%;float:left">
+                <div class="title" translate>Paiements</div>
+            </div>
+            <div style="width:33%;float:left">
+                <div class="title centered" translate>Actuel</div>
+            </div>
+            <div style="width:33%;float:left">
+                <div class="title centered" translate>Nouveau</div>
+            </div>
+        </div>
+        <div layout="row" layout-align="space-between center" style="padding:10px" ng-repeat="p in newPaymentValues.PaymentValues track by $index">
+            <div style="width:33%">
+                <div class="title">{{p.Text}}</div>
+            </div>
+            <div readonly style="width:33%; text-align: center; font-size: 18px;"> {{::p.Total}}</div>
+            <!--<input type="tel" id="txtAmount" ng-model="p.Total" style="line-height: 29px; vertical-align: middle; width: 60%;font-size: 18px; text-align:center" ng-keypress="$event.stopPropagation();" />-->
+            <div layout="row" layout-align="center center" ng-if="!p.IsBalance && p.PaymentType !== paymentType.INTERNET"
+                 style="line-height: 29px; vertical-align: middle; width: 33%;font-size: 18px;">
+                <text-field ng-model="p.Total" location="end-start" type="decimal" validfunction="closeK" style="width:33%"></text-field>
+            </div>
+            <div layout="row" layout-align="center center" ng-if="p.IsBalance || p.PaymentType === paymentType.INTERNET"
+                 style="line-height: 29px; vertical-align: middle; width: 33%;font-size: 18px;">
+                <input ng-model="p.Total" style="width:33%" readonly />
+            </div>
+        </div>
+        <hr />
+        <div layout="row" layout-align="space-between center">
+            <div style="width: 33%; font-size: 18px;">Totaux :</div>
+            <div style="width: 33%; font-size: 18px; text-align: center">{{shoppingCart.Total}}</div>
+            <div style="width: 33%; font-size: 18px; text-align: center">{{ newPVTotal() }}</div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <!--<span style="float:left;font-size:20px;">Total des paiements :&nbsp;{{shoppingCart.Total - shoppingCart.Repaid - shoppingCart.Credit}}</span>-->
+        <button class="btn btn-green" ng-click="ok()" ng-disabled="newPVTotal() !== shoppingCart.Total">OK</button>
+        <button class="btn btn-rose" ng-click="cancel()" translate>Annuler</button>
+    </div>
 </section>

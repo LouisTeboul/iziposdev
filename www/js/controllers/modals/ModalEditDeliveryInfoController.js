@@ -1,132 +1,179 @@
-app.controller('ModalEditDeliveryInfoController', function ($scope, $rootScope, $uibModalInstance, $uibModal, $http, shoppingCartModel, existing) {
-
-    console.log(existing);
+app.controller('ModalEditDeliveryInfoController', function ($scope, $rootScope, $uibModalInstance, $uibModal, pictureService, deliveryService, existing, fromButton) {
+    $scope.DeliveryType = DeliveryType;
+    $scope.fromButton = fromButton;
+    $scope.existing = existing;
     $scope.result = {
-        timeGoalMode : "In",
-        timeGoal : null,
-        customerLoyalty : null,
-        deliveryAddress : null,
-        extraInfos : null,
+        timeGoalMode: "In",
+        timeGoal: null,
+        customerLoyalty: null,
+        deliveryPartner: null,
+        deliveryAddress: null,
+        extraInfos: null
     };
 
-    $scope.init = function(){
-        console.log(existing);
+    $scope.init = () => {
+        $scope.selectedPartnerId = 0;
+
+        deliveryService.getDeliveryPartnersAsync().then((res) => {
+            $scope.deliveryPartners = res;
+
+            // $scope.deliveryPartners.push({
+            //         Id : 0,
+            //         Name : "In house",
+            //         IsVisible : true,
+            //         PictureURL : "img/delivery-scooter.png"
+            // });
+
+            for (let partner of $scope.deliveryPartners) {
+                if (partner.PictureId && !partner.PictureURL) {
+                    pictureService.getPictureByIdAsync(partner.PictureId).then((resPicture) => {
+                        if (resPicture.PictureUrl) {
+                            partner.PictureURL = resPicture.PictureUrl;
+                        }
+                    }, (err) => {
+                        console.error(err);
+                    });
+                }
+            }
+        });
+
         // Init timeGoal
-        if(existing.timeGoal){
-            existing.timeGoal = Date.parseExact(existing.timeGoal, "dd/MM/yyyy HH:mm:ss");
+        if (existing.timeGoal) {
+            existing.timeGoal = Date.parseExact(existing.timeGoal, "dd/MM/yyyy HH:mm");
 
             console.log(existing.timeGoal.getMinutes());
             const timeDiff = existing.timeGoal.getTime() - new Date().getTime();
-            const diffMinutes = Math.ceil(timeDiff / ( 1000 * 60 ));
+            const diffMinutes = Math.ceil(timeDiff / (1000 * 60));
 
             const dispHeures = Math.trunc(diffMinutes / 60);
             const dispMinutes = diffMinutes - dispHeures * 60;
-            $scope.modelTime ={
-                In : {
-                    hours : dispHeures > 0 ? dispHeures : 0,
-                    minutes : dispMinutes > 0 ? dispMinutes : 0,
+            $scope.modelTime = {
+                In: {
+                    hours: dispHeures > 0 ? dispHeures : 0,
+                    minutes: dispMinutes > 0 ? dispMinutes : 0,
                 },
-                For : {
-                    hours : existing.timeGoal.getHours(),
-                    minutes : existing.timeGoal.getMinutes(),
+                For: {
+                    hours: existing.timeGoal.getHours(),
+                    minutes: existing.timeGoal.getMinutes(),
                 },
 
-                date : new Date()
+                date: new Date()
             }
         } else {
             const d = new Date();
             let dispMinutes;
             let dispHeures = d.getHours();
 
-
-            if(d.getMinutes() + 15 < 60){
+            if (d.getMinutes() + 15 < 60) {
                 dispMinutes = d.getMinutes() + 15;
             } else {
                 dispMinutes = d.getMinutes() + 15 - 60;
                 dispHeures += 1
-
             }
             $scope.modelTime = {
-                In : {
-                    hours : 0,
-                    minutes : 15,
+                In: {
+                    hours: 0,
+                    minutes: 15,
                 },
-                For : {
-                    hours : dispHeures,
-                    minutes : dispMinutes,
+                For: {
+                    hours: dispHeures,
+                    minutes: dispMinutes,
                 },
 
-                date : new Date()
+                date: new Date()
             };
         }
 
         // Init loyalty
-        if(existing.customer){
+        if (existing.customer) {
             $scope.result.customerLoyalty = existing.customer;
         }
 
+        // Init delivery partners
+        if (existing.deliveryPartner) {
+            $scope.result.deliveryPartner = existing.deliveryPartner;
+        }
+
         // Init delivery address
-        if(existing.deliveryAddress){
+        if (existing.deliveryAddress) {
             $scope.result.deliveryAddress = existing.deliveryAddress;
         }
 
         // Init commentaire
-        if(existing.commentaire){
+        if (existing.commentaire) {
             $scope.result.extraInfos = existing.commentaire;
-
         }
     };
 
-    $scope.setTimeGoalMode = function(value){
+    $scope.setTimeGoalMode = (value) => {
         $scope.result.timeGoalMode = value;
     };
 
-
-    $scope.selectInHour = function(h){
+    $scope.selectInHour = (h) => {
         $scope.modelTime.In.hours = h;
     };
 
-    $scope.selectInMinute = function(m){
+    $scope.selectInMinute = (m) => {
         $scope.modelTime.In.minutes = m;
     };
 
-    $scope.selectCustomer = function(){
-        let modalInstance = $uibModal.open({
-            templateUrl: 'modals/modalCustomerForPhone.html',
-            controller: 'ModalCustomerForPhoneController',
-            backdrop: 'static',
-            size: 'lg'
-        });
-
-        modalInstance.result.then(function (loyalty){
-            $scope.result.customerLoyalty = loyalty;
-
-            var barcodeClient = Enumerable.from(loyalty.Barcodes).firstOrDefault().Barcode;
-
-            // If Livraison
-            if(shoppingCartModel.getDeliveryType() == 2){
-                // Query les adresses de livraison du client, choisir la premiere
-                $http.get($rootScope.IziBoxConfiguration.UrlSmartStoreApi + '/RESTLoyalty/RESTLoyalty/GetAddresses?barcode=' + barcodeClient).then(function (response) {
-                    //Bind les adresse a une variable du scope
-                    if(response.data.Addresses) {
-                        $scope.result.deliveryAddress = Enumerable.from(response.data.Addresses).firstOrDefault();
-                    }
-                });
-            }
-            console.log(loyalty);
-        })
-        // Then recuperer l'objet result retourné par la modal
-        // Et le stocker dans le scope pour affichage dans la modal
+    $scope.choosePartner = (partner) => {
+        // On ne peut choisir qu'un partenaire
+        if ($scope.result.deliveryPartner && $scope.result.deliveryPartner.Id === partner.Id) {
+            $scope.result.deliveryPartner = null;
+        } else {
+            $scope.result.deliveryPartner = partner;
+        }
     };
 
-    $scope.promptDeliveryAddress = function(barcode){
+    $scope.selectCustomer = () => {
+        if ($rootScope.Logged) {
+            let modalInstance = $uibModal.open({
+                templateUrl: 'modals/modalCustomer.html',
+                controller: 'ModalCustomerController',
+                backdrop: 'static',
+                size: 'lg',
+                resolve: {
+                    selectedTab: () => {
+                        return "LOYALTY";
+                    },
+                }
+            });
+
+            modalInstance.result.then(() => {
+                if ($rootScope.currentShoppingCart.customerLoyalty && $rootScope.currentShoppingCart.customerLoyalty.Barcodes) {
+                    let firstBarcode = Enumerable.from($rootScope.currentShoppingCart.customerLoyalty.Barcodes).firstOrDefault();
+                    if (firstBarcode && firstBarcode.Barcode) {
+                        var barcodeClient = firstBarcode.Barcode;
+
+                        // If Livraison
+                        if ($rootScope.currentDeliveryType == 2) {
+                            // Query les adresses de livraison du client, choisir la premiere
+                            loyaltyService.getAddressesAsync(barcodeClient).then((addresses) => {
+                                $scope.result.deliveryAddress = Enumerable.from(addresses).firstOrDefault();
+                            });
+                        }
+                    }
+                }
+            });
+        } else {
+            if(!$rootScope.borne && $rootScope.IziBoxConfiguration.UseFid) {
+                swal({
+                    title: "Erreur d'authentification !",
+                    text: "Veuillez contacter le support"
+                });
+            }
+        }
+    };
+
+    $scope.promptDeliveryAddress = (barcode) => {
         // console.log($scope.result.customerLoyalty);
         /**Proposer de renseigner une adresse de livraison */
         let modalInstance = $uibModal.open({
             templateUrl: 'modals/modalPromptDeliveryAddress.html',
             controller: 'ModalPromptDeliveryAddressController',
             resolve: {
-                barcodeClient: function () {
+                barcodeClient: () => {
                     return barcode;
                 }
             },
@@ -135,7 +182,7 @@ app.controller('ModalEditDeliveryInfoController', function ($scope, $rootScope, 
 
         modalInstance.result.then(function (deliveryAddress) {
             console.log(deliveryAddress);
-            if(!deliveryAddress){
+            if (!deliveryAddress) {
                 $scope.result.deliveryAddress = undefined;
             } else {
                 $scope.result.deliveryAddress = {
@@ -149,32 +196,40 @@ app.controller('ModalEditDeliveryInfoController', function ($scope, $rootScope, 
                     PhoneNumber: deliveryAddress.PhoneNumber
                 };
             }
-        }, function () {
+        }, () => {
             $rootScope.hideLoading();
         });
     };
 
-    $scope.clear = function () {
+    $scope.clear = () => {
         $rootScope.closeKeyboard();
         $uibModalInstance.close();
     };
 
-    $scope.close = function(){
+    $scope.close = () => {
         $rootScope.closeKeyboard();
         $uibModalInstance.dismiss();
     };
 
-    $scope.ok = function () {
-        switch($scope.result.timeGoalMode){
+    $scope.ok = () => {
+        switch ($scope.result.timeGoalMode) {
             case 'In':
-                if(Number.isInteger($scope.modelTime.In.minutes) && $scope.modelTime.In.minutes >= 0 && $scope.modelTime.In.minutes < 60) {
+                $scope.modelTime.In.minutes = Number($scope.modelTime.In.minutes);
+                $scope.modelTime.In.hours = Number($scope.modelTime.In.hours);
+                if ($scope.modelTime.In.minutes > 60) {
+                    $scope.modelTime.In.minutes = 60;
+                }
+                if ($scope.modelTime.In.hours > 23) {
+                    $scope.modelTime.In.hours = 23;
+                }
+                if (Number.isInteger($scope.modelTime.In.minutes) && $scope.modelTime.In.minutes >= 0 && $scope.modelTime.In.minutes < 60) {
                     // On set la datePickup, la customer loyalty, et le commentaire dans le shoppingCart
                     $scope.modelTime.date.setHours($scope.modelTime.date.getHours() + $scope.modelTime.In.hours);
                     $scope.modelTime.date.setMinutes($scope.modelTime.date.getMinutes() + $scope.modelTime.In.minutes);
                     $scope.result.timeGoal = {
-                        hours : $scope.modelTime.In.hours,
-                        minutes : $scope.modelTime.In.minutes,
-                        date : $scope.modelTime.date
+                        hours: $scope.modelTime.In.hours,
+                        minutes: $scope.modelTime.In.minutes,
+                        date: $scope.modelTime.date
                     };
 
                     $rootScope.closeKeyboard();
@@ -185,20 +240,26 @@ app.controller('ModalEditDeliveryInfoController', function ($scope, $rootScope, 
 
                 break;
             case 'For':
-                if((Number.isInteger($scope.modelTime.For.minutes) && $scope.modelTime.For.minutes >= 0 && $scope.modelTime.For.minutes < 60) &&
+                $scope.modelTime.For.minutes = Number($scope.modelTime.For.minutes);
+                $scope.modelTime.For.hours = Number($scope.modelTime.For.hours);
+                if ($scope.modelTime.For.minutes >= 60) {
+                    $scope.modelTime.For.minutes = 59;
+                }
+                if ($scope.modelTime.For.hours >= 24) {
+                    $scope.modelTime.For.hours = 23;
+                }
+                if ((Number.isInteger($scope.modelTime.For.minutes) && $scope.modelTime.For.minutes >= 0 && $scope.modelTime.For.minutes < 60) &&
                     Number.isInteger($scope.modelTime.For.hours) && $scope.modelTime.For.hours >= 0 && $scope.modelTime.For.hours < 24) {
-
                     $scope.modelTime.date.setHours($scope.modelTime.For.hours);
                     $scope.modelTime.date.setMinutes($scope.modelTime.For.minutes);
                     $scope.result.timeGoal = {
-                        hours : $scope.modelTime.For.hours,
-                        minutes : $scope.modelTime.For.minutes,
-                        date : $scope.modelTime.date
+                        hours: $scope.modelTime.For.hours,
+                        minutes: $scope.modelTime.For.minutes,
+                        date: $scope.modelTime.date
                     };
 
                     $rootScope.closeKeyboard();
                     $uibModalInstance.close($scope.result);
-
                 } else {
                     $scope.errorMessage = "Veuillez saisir une heure correct"
                 }
@@ -209,5 +270,4 @@ app.controller('ModalEditDeliveryInfoController', function ($scope, $rootScope, 
                 break;
         }
     };
-
 });

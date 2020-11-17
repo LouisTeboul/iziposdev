@@ -1,45 +1,45 @@
-﻿<section class="shoppingCartModal" ng-init="init()">
+﻿<section class="shoppingCartModal" layout="column" layout-align="space-between stretch" layout-fill ng-init="init()">
     <div class="modal-header">
-        <h1 class="modal-title">Tickets enregistrés</h1>
+        <h1 class="modal-title" translate>Tickets enregistrés</h1>
+    </div>
+
+    <div class="modal-loader" ng-show="loading">
+        <div class="close-action" ng-show="acLoadingTimer > 15">
+            <div class="close-text">C'est long ?</div>
+            <a class="btn btn-info" ng-click="hideLoading()">Fermer</a>
+        </div>
     </div>
 
     <div class="form-panel modal-body">
 
-        <div ng-hide="loading" class="row">
-            <label for="date-start" class="control-label col-md-2">Début</label>
-            <label for="date-end" class="control-label col-md-2">Fin</label>
-            <label for="filterCaisse" class="control-label col-md-3">Caisse</label>
-            <label for="filterPaiementType" class="control-label col-md-3">Mode de paiement</label>
-            <label for="filterAmount" class="control-label col-md-2" ng-hide="filterAmountDisabled">Montant</label>
-        </div>
         <div ng-hide="loading" class="row selectDate">
-            <div class="row">
-                <div class="input-group input-group-date col-md-2">
+            <div layout="row" layout-wrap>
+                <div class="input-group input-group-date">
                     <input type="text" class="form-control" max-date="{{dateEnd}}" uib-datepicker-popup="dd/MM/yyyy"
                            ng-required="true" ng-model="dateStart" is-open="dateStartOpened" starting-day="1"
                            close-text="Fermer" current-text="Aujourd'hui" clear-text="Effacer" disabled
-                           style="background-color:white;padding: 6px 3px;"/>
+                           style="background-color:white;padding: 6px 3px;" />
                     <span class="input-group-btn">
-                        <button type="button" class="btn btn-default" ng-click="openDateStart($event)"><i
-                                class="glyphicon glyphicon-calendar"></i></button>
+                        <button type="button" class="btn btn-default" ng-click="openDateStart($event)">
+                            <i class="glyphicon glyphicon-calendar"></i>
+                        </button>
                     </span>
                 </div>
 
-                <div class="input-group input-group-date col-md-2">
+                <div class="input-group input-group-date">
                     <input type="text" class="form-control" uib-datepicker-popup="dd/MM/yyyy"
                            ng-model="dateEnd" is-open="dateEndOpened" starting-day="1" close-text="Fermer"
                            current-text="Aujourd'hui" clear-text="Effacer" disabled
-                           style="padding: 6px 3px;background-color:white"/>
+                           style="padding: 6px 3px;background-color:white" />
                     <span class="input-group-btn">
-                        <button type="button" class="btn btn-default" ng-click="openDateEnd($event)"><i
-                                class="glyphicon glyphicon-calendar"></i></button>
+                        <button type="button" class="btn btn-default" ng-click="openDateEnd($event)">
+                            <i class="glyphicon glyphicon-calendar"></i>
+                        </button>
                     </span>
                 </div>
 
-                <div class="input-group input-group-date col-md-3" uib-dropdown is-open="status.isopenAlias">
-                    <button id="filterCaisse" type="button" class="btn btn-default btnFiltreCaisse"
-                            uib-dropdown-toggle
-                            ng-disabled="filterAliasDisabled">
+                <div class="input-group input-group-date" uib-dropdown is-open="status.isopenAlias">
+                    <button id="filterCaisse" type="button" class="btn btn-default btnFiltreCaisse" uib-dropdown-toggle>
                         <div class="textBtnFiltreCaisse">{{ filterAlias != 0 ? filterAlias : "Toutes les caisses" }}</div>
                         <span style="margin-top:8px;float:right" class="caret"></span>
                     </button>
@@ -54,9 +54,8 @@
                     </ul>
                 </div>
 
-                <div class="input-group input-group-date col-md-3" uib-dropdown>
-                    <button id="filterPaiement" type="button" class="btn btn-default" style="width:100%"
-                            ng-disabled="filterPaiementDisabled" uib-dropdown-toggle>
+                <div class="input-group input-group-date" uib-dropdown>
+                    <button id="filterPaiement" type="button" class="btn btn-default" style="width:100%" uib-dropdown-toggle>
                         {{ filterPaiement ? filterPaiement : "Moyens de paiement" }}
                         <span style="margin-top:8px;float:right" class="caret"></span>
                     </button>
@@ -65,39 +64,35 @@
                         <li class="item">
                             <a ng-click="updateFilterPaiement(undefined)">Moyens de paiement</a>
                         </li>
+                        <li class="item">
+                            <a ng-click="updateFilterPaiement('Offerts')">Offerts</a>
+                        </li>
+
                         <li ng-repeat="paiement in listPaiements" class="item">
-                            <a ng-click="updateFilterPaiement(paiement)">&nbsp;{{paiement}}</a>
+                            <a ng-click="updateFilterPaiement(paiement)">{{paiement.trim()}}</a>
                         </li>
                     </ul>
                 </div>
 
-                <div class="input-group input-group-date col-md-2" ng-hide="filterAmountDisabled"
-                     style="width:145px;">
-                    <text-field id="filterAmount" ng-model="filterAmount" location="end-start" type="decimal"
-                                validfunction="filterAmountHandler" style="width:75px; height : 34px"></text-field>
+                <div class="input-group input-group-date col-md-2" style="width:145px">
+                    <text-field id="filterAmount" ng-model="filterAmount" location="center-end" type="decimal"
+                                validfunction="filterAmountHandler" placeholder="Montant" style="width:100%; height:34px"></text-field>
                     <span class="input-group-btn">
-                        <button type="button" class="btn btn-default" ng-click="filterAmountHandler(); ">
+                        <button type="button" class="btn btn-default" ng-click="filterAmountHandler()">
                             <i class="glyphicon glyphicon-search"></i>
                         </button>
                     </span>
                 </div>
             </div>
         </div>
-        <div ng-if="loading">
-            <div style="text-align: center;">
-                <h2>Chargement, Cela peut prendre jusqu'à une minute.</h2><br>
-                <h2>Veuillez patienter...</h2>
-            </div>
-        </div>
-        <kendo-grid ng-hide="loading" k-data-source="gridDatas"
+        <kendo-grid ng-hide="loading" id="kendogrid" k-data-source="gridDatas"
                     k-columns="gridColumns" k-sortable="true" k-filterable="false" k-groupable="false" k-pageable="true"
                     k-scrollable="true">
         </kendo-grid>
     </div>
 
-    <div class="modal-footer">
-        <button ng-hide="loading" class="btn btn-info" ng-click="showZPos()" translate>Statistiques de date à date
-        </button>
+    <div class="modal-footer sticky-footer">
+        <button ng-hide="loading" class="btn btn-info" ng-click="showZPos()" translate>Statistiques de date à date</button>
         <button class="btn btn-rose" ng-click="cancel()" translate>Annuler</button>
     </div>
 

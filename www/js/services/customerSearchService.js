@@ -1,7 +1,6 @@
-﻿
-// Reddit constructor function to encapsulate HTTP and pagination logic
+﻿// Reddit constructor function to encapsulate HTTP and pagination logic
 app.factory('CustomerSearch', function ($rootScope, $http) {
-    var CustomerSearch = function (newBooking) {
+    let CustomerSearch = function (newBooking) {
         this.query = '';
         this.items = [];
         this.busy = false;
@@ -23,11 +22,11 @@ app.factory('CustomerSearch', function ($rootScope, $http) {
         this.loadedPages = {};
 
         this.getItemAtIndex(0);
-    }
+    };
 
     CustomerSearch.prototype.getItemAtIndex = function (index) {
-        var pageNumber = Math.floor(index / this.PAGE_SIZE);
-        var page = this.loadedPages[pageNumber];
+        let pageNumber = Math.floor(index / this.PAGE_SIZE);
+        let page = this.loadedPages[pageNumber];
         if (page) {
             return page[index % this.PAGE_SIZE];
         } else if (page !== null) {
@@ -39,7 +38,7 @@ app.factory('CustomerSearch', function ($rootScope, $http) {
         this.loadedPages[pageNumber] = null;
 
         if (this.query != undefined && this.query != '') {
-            var url = $rootScope.IziBoxConfiguration.BookingEndpoint + "/Admin/Booking/SearchCustomer?query=" + this.query + "&pageSize=" + this.PAGE_SIZE + "&page=" + pageNumber;
+            let url = $rootScope.IziBoxConfiguration.BookingEndpoint + "/Admin/Booking/SearchCustomer?query=" + this.query + "&pageSize=" + this.PAGE_SIZE + "&page=" + pageNumber;
 
             $http({
                 method: 'GET',
@@ -49,9 +48,9 @@ app.factory('CustomerSearch', function ($rootScope, $http) {
                     this.totalCount = response.data.totalCount;
                     this.loadedPages[pageNumber] = [];
                     if (response.data.items) {
-                        var ret = response.data.items;
+                        let ret = response.data.items;
                         this.loadedItems = true;
-                        for (var i = 0; i < ret.length; i++) {
+                        for (let i = 0; i < ret.length; i++) {
                             this.loadedPages[pageNumber].push(ret[i]);
                         }
                     }
@@ -63,7 +62,7 @@ app.factory('CustomerSearch', function ($rootScope, $http) {
     CustomerSearch.prototype.fetchNumItems_ = function () {
         this.fetchPage_(0);
     };
-    
+
     CustomerSearch.prototype.getLength = function () {
         return this.totalCount;
     };

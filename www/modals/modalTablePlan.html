@@ -1,54 +1,52 @@
-﻿<section ng-init="init()" layout="column" flex id="modalTablePlan" class="tableplan">
+﻿<section ng-init="init()" layout="column" flex id="modalTablePlan" class="tableplan" style="height: 100%">
     <div class="modal-header" style="min-height:69px;height:69px;">
-        <h1 class="modal-title" translate>Tables</h1>
+        <h1 class="modal-title" translate>{{titleText}}</h1>
     </div>
     <div class="modal-body" layout="row" style="justify-content: space-between" flex>
-        <table-repeat ng-if="$mdMedia('max-width: 799px') || !modalPlanBO" style="flex:1;"></table-repeat>
-        <table-plan-repeat ng-if="$mdMedia('min-width: 800px') && modalPlanBO" style="flex:1;"></table-plan-repeat>
+        <table-repeat ng-if="!mdMedia('min-width: 800px') || !TablePlanEnabled()" style="flex:1;"></table-repeat>
+        <table-plan-repeat ng-if="mdMedia('min-width: 800px') && TablePlanEnabled()" style="flex:1;"></table-plan-repeat>
         <div ng-show="!isLoading" layout="column" class="tableInfos" style="flex:1;margin-top:50px;" flex>
             <div layout="row" layout-wrap>
-                <md-checkbox class="checkbox-criterias" ng-checked="tableModel.allCriteriasSelected"
-                             ng-click="toggleAllCriterias()">
+                <md-checkbox class="checkbox-criterias" ng-checked="tableModel.allCriteriasSelected" ng-click="toggleAllCriterias()">
                     <x translate>Tous</x>
                 </md-checkbox>
-                <md-checkbox ng-disabled="tableModel.allCriteriasSelected"
-                             ng-repeat="criteria in ::tableModel.criterias" class="checkbox-criterias"
-                             ng-checked="criteria.IsSelected" ng-click="toggleCriteria(criteria)">
+                <md-checkbox ng-disabled="tableModel.allCriteriasSelected" ng-repeat="criteria in ::tableModel.criterias" class="checkbox-criterias" ng-checked="criteria.IsSelected" ng-click="toggleCriteria(criteria)">
                     {{criteria.Name}}
                 </md-checkbox>
             </div>
             <div class="form-panel modal-body">
+                <md-switch ng-show="EnablePlanBO" ng-model="EnablePlanLocal">Plan de table</md-switch>
                 <div class="inp">
                     <label for="txtTable">
                         <x translate>Numéro</x>
                     </label>
-                    <text-field id="txtTable" ng-model="tableModel.valueTable" location="center-end"
-                                type="numeric" validfunction="ok" style="width:50px"></text-field>
+                    <text-field id="txtTable" ng-model="tableModel.valueTable" location="center-end" type="numeric" validfunction="ok" style="width:50px"></text-field>
                 </div>
-                <br/>
+                <br />
                 <div class="inp">
                     <label for="txtCutleries">
                         <x translate>Couvert(s)</x>
                     </label>
-                    <text-field id="txtCutleries" ng-model="tableModel.valueCutleries"
-                                location="center-end" type="numeric" validfunction="ok"
-                                style="width:50px"></text-field>
+                    <text-field id="txtCutleries" ng-model="tableModel.valueCutleries" location="center-end" type="numeric" validfunction="ok" style="width:50px"></text-field>
+                </div>
+
+                <div class="inp">
+                    <div ng-repeat="criteria in tableModel.valueCriterias">- {{criteria.Name}}</div>
                 </div>
                 <div class="inp" ng-if="errorMessage">
+                    <span class="labelErr glyphicon glyphicon-warning-sign"></span>&nbsp;
                     <span class="labelErr">{{errorMessage}}</span>
                 </div>
-                <br/>
+                <br />
                 <div class="inp" ng-if="tableModel.activeTimer">
-                    <label for="timer">
-                        <x translate> Active depuis</x>
-                        : </label>
+                    <label for="timer"><x translate> Active depuis</x> : </label>
                     <p id="timer">{{tableModel.activeTimer | date:'HH:mm:ss'}}</p>
                 </div>
             </div>
         </div>
     </div>
     <div class="modal-footer">
-        <button class="btn btn-green" ng-click="ok()">OK</button>
+        <button class="btn btn-green" ng-click="ok()" ng-disabled="tableModel.hasShoppingCart && isReaffectation">{{validText}}</button>
         <button class="btn btn-rose" ng-click="cancel()" translate>Annuler</button>
     </div>
 </section>

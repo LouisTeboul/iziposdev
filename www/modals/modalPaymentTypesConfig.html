@@ -1,0 +1,105 @@
+<section class="modal-payment-types-config" ng-init="init()">
+
+    <div class="modal-header">
+        <h1 class="modal-title">Moyens de paiement</h1>
+    </div>
+
+    <div class="modal-body">
+
+        <div class="payment-type-toggle">
+            <div class="payment-type-infos">
+                <div class="payment-type-picto"></div>
+                <div class="payment-type-label">Espèces</div>
+            </div>
+
+            <div class="payment-type-switch">
+                <md-switch ng-model="model[PaymentType.ESPECE]"></md-switch>
+            </div>
+        </div>
+
+        <div class="payment-type-toggle">
+            <div class="payment-type-infos">
+                <div class="payment-type-picto"></div>
+                <div class="payment-type-label">CB</div>
+            </div>
+
+            <div class="payment-type-switch">
+                <md-switch ng-model="model[PaymentType.CB]"></md-switch>
+            </div>
+        </div>
+
+        <div class="payment-type-toggle">
+            <div class="payment-type-infos">
+                <div class="payment-type-picto"></div>
+                <div class="payment-type-label">Chèques</div>
+            </div>
+
+            <div class="payment-type-switch">
+                <md-switch ng-model="model[PaymentType.CHEQUE]"></md-switch>
+            </div>
+        </div>
+
+        <div class="payment-type-toggle">
+            <div class="payment-type-infos">
+                <div class="payment-type-picto"></div>
+                <div class="payment-type-label">Ticket Restaurant</div>
+            </div>
+
+            <div class="payment-type-switch">
+                <md-switch ng-model="model[PaymentType.TICKETRESTAURANT]"></md-switch>
+            </div>
+        </div>
+
+        <div class="payment-type-toggle">
+            <div class="payment-type-infos">
+                <div class="payment-type-picto"></div>
+                <div class="payment-type-label">Avoir</div>
+            </div>
+
+            <div class="payment-type-switch">
+                <md-switch ng-model="model[PaymentType.AVOIR]"></md-switch>
+            </div>
+        </div>
+
+        <div class="payment-type-toggle">
+            <div class="payment-type-infos">
+                <div class="payment-type-picto"></div>
+                <div class="payment-type-label">En Compte</div>
+            </div>
+
+            <div class="payment-type-switch">
+                <md-switch ng-model="model[PaymentType.ENCOMPTE]"></md-switch>
+            </div>
+        </div>
+
+
+        <div class="payment-type-toggle">
+            <div class="payment-type-infos">
+                <div class="payment-type-picto"></div>
+                <div class="payment-type-label">LyfPay</div>
+            </div>
+
+            <div class="payment-type-switch">
+                <md-switch ng-model="model[PaymentType.LYFPAY]"></md-switch>
+            </div>
+        </div>
+
+        <div class="payment-type-toggle">
+            <div class="payment-type-infos">
+                <div class="payment-type-picto"></div>
+                <div class="payment-type-label">CB Ticket Restaurant</div>
+            </div>
+
+            <div class="payment-type-switch">
+                <md-switch ng-model="model[PaymentType.CBTICKETRESTAURANT]"></md-switch>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="modal-footer">
+        <button class="btn btn-success" ng-click="ok()" translate>Appliquer</button>
+        <button class="btn btn-rose" ng-click="cancel()" translate>Annuler</button>
+    </div>
+
+</section>

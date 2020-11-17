@@ -3,7 +3,10 @@
         <span class="offerModalTitle" translate>Commentaire</span><br>
         <span class="offerModalSecondTitle" translate>Personnalisez votre produit</span>
     </div>
-    <div class="pubProductsCut reverse" ng-style="{'top': mdMedia('min-width:800px') ? '174px' : '65px'}"></div>
+    <div class="pubProductsCut reverse" ng-style="{'top': $root.borneVertical ?
+     (mdMedia('min-width: 800px') ? '174px' : '65px') :
+     (mdMedia('min-height: 800px') ? '174px' : '65px')
+    }"></div>
     <div class="listOffers">
         <md-button class="modalCommentBtn" ng-repeat="item in ProductComments"
                    ng-click="item.selected ? removeComment(item) : addComment(item)"
@@ -12,8 +15,11 @@
             <span class="modalCommentBtnText" translate>{{item.Name}}</span>
         </md-button>
     </div>
-    <div class="pubProductsCut" ng-style="{'bottom': mdMedia('min-width:800px') ? '175px' : '80px'}"></div>
-    <div class="offerModalFooter" ng-style="{'margin-top': mdMedia('min-width:800px') ? '50px' : '10px'}">
+    <div class="pubProductsCut" ng-style="{'bottom': $root.borneVertical ? 
+    (mdMedia('min-width: 800px') ? '175px' : '80px') :
+    (mdMedia('min-height: 800px') ? '175px' : '125px')
+}"></div>
+    <div class="offerModalFooter" ng-style="{'margin-top': mdMedia('min-width: 800px') ? '50px' : '10px'}">
         <md-button class="offerModalBtn modalBtnBig" ng-click="close()"
                    ng-style="{ 'background-color' : $root.tenantColor}">
             <span class="offerModalBtnText" translate>Valider</span>

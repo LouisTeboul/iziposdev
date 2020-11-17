@@ -1,0 +1,25 @@
+﻿<section>
+    <div ng-init="init()" class="modal-header">
+        <h1 class="modal-title" translate>Glory</h1>
+    </div>
+    <div class="modal-loader gloryOverList" ng-show="loading" layout="column">
+        <button class="btn btn-menu" style="margin-top:75px" ng-show="restock" ng-click="StopRestock()">Finir réapprovisionnement</button>
+        <button class="btn btn-menu" style="margin-top:15px" ng-show="restock" ng-click="CancelRestock()">Annuler réapprovisionnement</button>
+        <!--<button class="btn btn-menu" style="margin-top:75px" ng-show="billsOpen" ng-click="CloseMoney('BILL')">Fermer cassette (Billets)</button>
+        <button class="btn btn-menu" style="margin-top:75px" ng-show="coinsOpen" ng-click="CloseMoney('COIN')">Fermer cassette (Pièces)</button>-->
+    </div>
+    <div layout="column" class="gloryList">
+        <button class="btn btn-menu" ng-click="Restock()" style="margin:20px 0">Réapprovisionnement</button>
+        <button class="btn btn-menu" ng-click="Collect('EXIT')">Extraire pièces (Monnayeur)</button>
+        <button class="btn btn-menu" ng-click="Collect('CST')">Collecter (Cassette)</button>
+        <button class="btn btn-menu" ng-click="GetInventory('MON')" style="margin-top:20px">Inventaire (Monnayeur)</button>
+        <button class="btn btn-menu" ng-click="GetInventory('CST')" style="margin-bottom:20px">Inventaire (Cassette)</button>
+        <!--<button class="btn btn-menu" ng-click="OpenMoney('BILL')">Ouvrir cassette (Billets)</button>
+        <button class="btn btn-menu" ng-click="OpenMoney('COIN')">Ouvrir cassette (Pièces)</button>
+        <button class="btn btn-menu" ng-click="Reset()" style="margin:20px 0">Redémarrer le monnayeur</button>-->
+        <button class="btn btn-menu" ng-click="Admin()" style="margin:20px 0">Administrer le monnayeur</button>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-rose" ng-click="cancel()" translate>Annuler</button>
+    </div>
+</section>

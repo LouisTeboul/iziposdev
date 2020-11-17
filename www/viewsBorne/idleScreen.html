@@ -1,17 +1,19 @@
 <section ng-init="init()" ng-controller="IdleScreenController" ng-click="disableIdle()">
-    <div class="lIdleScreen" ng-style="{'flex-direction' : $root.borne && $root.borneVertical ? 'column' : 'row'}">
-        <div class="imageIdleScreen" ng-style="{'width' : $root.borne && $root.borneVertical ? '100%' : 'auto',
-        'height' : $root.borne && $root.borneVertical ? 'auto' : '100%',
-        'background-image': $root.borneBgIdle ? 'url(' + $root.borneBgIdle + ')' : 'url(\'img/borne-idle.jpg\')'}">
-            <img ng-src="{{$root.borneMainLogo && $root.borneMainLogo || 'img/logo.png'}}" alt=""
-                 ng-style="{'width': $root.borne && $root.borneVertical ?
-                 (mdMedia('min-width: 800px') ? '240px' : '100px')
-                 : (mdMedia('min-width: 800px') ? '200px' : '100px')}" src=""/>
+    <div class="lIdleScreen">
+        <div class="imageIdleScreen"
+             style="background-size: cover"
+             ng-style="{'width' : $root.borneVertical ? '100%' : '100%',
+                        'height' : $root.borneVertical ? '100%' : '100%',
+                        'background-image': $root.borneBgIdle ? 'url(' + $root.borneBgIdle + ')' : 'url(\'img/borne-idle.jpg\')'}">
         </div>
         <div class="bottomIdleScreen"
              ng-style="{ 'background-color': $root.tenantColor,
-                'width' : $root.borne && $root.borneVertical ? '100%' : '69%',
-                'height' : $root.borne && $root.borneVertical ?
-                (mdMedia('min-width: 800px') ? '289px' : '100px') : '100%' }" translate>Touchez pour commander</div>
+                'color' : $root.textColor ? $root.textColor : '',
+                'width' : $root.borneVertical ? '100%' : '100%',
+                'height' : $root.borneVertical ?
+                (mdMedia('min-width: 800px') ? '289px' : '100px') : '20%' }" translate>
+            Touchez pour commander
+        </div>
     </div>
+    <ng-barcodetextfield style="display:none" flex></ng-barcodetextfield>
 </section>

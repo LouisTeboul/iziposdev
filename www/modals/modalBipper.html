@@ -1,0 +1,27 @@
+<section>
+    <div ng-init="init()" class="modal-header">
+        <h1 class="modal-title" translate>
+            <span ng-show="$root.currentDeliveryType === DeliveryType.FORHERE">{{$root.borneForHereCollectLabel}}</span>
+            <span ng-show="$root.currentDeliveryType === DeliveryType.TAKEOUT">{{$root.borneTakeawayCollectLabel}}</span>
+        </h1>
+    </div>
+
+    <div class="form-panel modal-body">
+        <div class="inp">
+            <label for="txtTable">
+                <x translate>Numéro</x>:
+            </label>
+            <text-field id="txtTable" ng-model="valueBipper" location="end-start" type="numeric" validfunction="ok"
+                        style="width:150px" auto-focus></text-field>
+        </div>
+        <div class="inp" ng-if="errorMessage">
+            <span class="labelErr">{{errorMessage}}</span>
+        </div>
+    </div>
+
+    <div class="modal-footer">
+        <!--<button class="btn btn-green" ng-click="ok()">OK</button>-->
+        <button class="btn btn-rose" ng-click="cancel()" translate>Annuler</button>
+    </div>
+
+</section>

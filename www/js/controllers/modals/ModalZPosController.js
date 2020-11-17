@@ -1,4 +1,4 @@
-﻿app.controller('ModalZPosController', function ($scope, $rootScope, $uibModalInstance, $uibModal, $http, $filter, zposService, dateStart, dateEnd) {
+﻿app.controller('ModalZPosController', function ($scope, $rootScope, $uibModalInstance, $uibModal, $http, zposService, dateStart, dateEnd) {
     $scope.dateStart = dateStart;
     $scope.dateEnd = dateEnd;
     $scope.loading = true;
@@ -9,7 +9,7 @@
             Start: moment(dateStart).startOf('day').format('x'),
             End: moment(dateEnd).endOf('day').format('x')
         };
-        const intervalStatsApiUrl = "http://" + $rootScope.IziBoxConfiguration.LocalIpIziBox + ":" + $rootScope.IziBoxConfiguration.RestPort + "/zpos/getIntervalStats";
+        const intervalStatsApiUrl = $rootScope.APIBaseURL + "/zpos/getIntervalStats";
 
         $http.post(intervalStatsApiUrl, interval).then((stats) => {
             if (stats && stats.data) {
@@ -18,6 +18,8 @@
                 $scope.columns = zposService.getStatsColumnsTitles(stats.data.Rows);
                 $scope.totalITPeriod = stats.data.TotalIT;
                 $scope.totalETPeriod = stats.data.TotalET;
+                $scope.totalLossPeriod = stats.data.LossAmount;
+                $scope.totalEmployeeMealsPeriod = stats.data.EmployeeMealsAmount;
                 $scope.columnsCompta = $scope.columns[0];
                 $scope.rowsCompta = zposService.getStatsRowsByColumns($scope.columnsCompta, stats.data.Rows, 0);
                 $scope.columnsMetier = $scope.columns[2];
@@ -27,10 +29,10 @@
                 for (let user of $scope.columnsOperat) {
                     $scope.rowsOperat.push(zposService.getStatsRowsByColumns(user, stats.data.Rows, 1));
                 }
-                setTimeout(function () {
+                setTimeout(() => {
                     let dataTableSettings = {
                         "lengthMenu": [[10, 25, 50, 100, 250, -1], [10, 25, 50, 100, 250, "All"]],
-                        "pageLengtht": 10,
+                        "pageLength": 10,
                         "bPaginate": true,
                         "bLengthChange": false,
                         "bFilter": false,
@@ -69,7 +71,11 @@
             resolve: {
                 datas: function () {
                     return $scope.stats;
-                }, printMode: function () {
+                },
+                count: function () {
+                    return null;
+                },
+                printMode: function () {
                     return StatsPrintMode.INTERVAL;
                 }
             },
@@ -77,7 +83,7 @@
         });
     };
 
-    $scope.emailZPos = function () {
+    $scope.emailZPos = () => {
         zposService.emailStatsAsync($scope.stats, false);
     }
 });

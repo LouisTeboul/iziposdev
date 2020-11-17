@@ -1,36 +1,26 @@
-﻿app.controller('ModalShoppingCartNoteController', function ($scope, $rootScope, $uibModalInstance, $translate) {
-    let current = this;
+﻿app.controller('ModalShoppingCartNoteController', function ($scope, $rootScope, $uibModalInstance, $translate, $mdSidenav) {
 
-    $scope.valueKeyboard = "";
-    $scope.value = "";
-    $scope.errorMessage = undefined;
-
-    $scope.init = function () {
-
-        setTimeout(function () {
-            const txtNbNote = document.getElementById("txtNbNote");
-            if (txtNbNote) {
-                txtNbNote.focus();
-            }
-
-        }, 1000);
+    $scope.init = () => {
+        $scope.quantity = 1;
+        $scope.errorMessage = "";
     };
 
-    $scope.ok = function () {
+    $scope.ok = () => {
         $rootScope.closeKeyboard();
-        const nbNote = parseInt($scope.value);
 
-        if (isNaN(nbNote)) {
+        const nbNote = parseInt($scope.quantity);
+
+        if (isNaN(nbNote) || nbNote <= 0) {
             $scope.errorMessage = $translate.instant("Saisissez le nombre de repas");
         } else {
-            $scope.errorMessage = undefined;
+            $mdSidenav('drawerMenuDiv').close();
             $uibModalInstance.close(nbNote);
         }
     };
 
-    $scope.cancel = function () {
-        $rootScope.closeKeyboard();
+    $scope.cancel = () => {
+        $mdSidenav('drawerMenuDiv').close();
         $uibModalInstance.dismiss('cancel');
-    }
-
+        $rootScope.closeKeyboard();
+    };
 });

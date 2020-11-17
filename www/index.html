@@ -51,6 +51,8 @@
     <!--<link href="css/lib/ngToast-animations.min.css" rel="stylesheet" />-->
     <link href="css/lib/angular-material.min.css" rel="stylesheet" />
     <link href="css/lib/fabricjs/mcColorPicker.css" rel="stylesheet" />
+    <link href="css/lib/ui-select/select.css" rel="stylesheet" />
+    <link href="css/progressive-image.css" rel="stylesheet" />
 
     <!--Admin specifics styles-->
     <link href="js/lib/AdminLibs/fullcalendar-2.6.1/fullcalendar.min.css" rel="stylesheet" />
@@ -68,9 +70,11 @@
     <script src="js/lib/angular-translate.js"></script>
     <script src="js/lib/ui-bootstrap-tpls-0.14.3.min.js"></script>
     <script src="js/lib/angular-locale_fr-fr.js"></script>
+    <script src="js/lib/angular-lazy-img.js"></script>
     <script src="js/lib/linq.js"></script>
     <!--<script src="js/lib/pouchdb-3.6.0.min.js"></script>-->
-    <script src="js/lib/pouchdb-6.4.3.min.js"></script>
+    <!--<script src="js/lib/pouchdb-6.4.3.min.js"></script>-->
+    <script src="js/lib/pouchdb-7.0.0.min.js"></script>
     <!--<script src="js/lib/pouchdb.relationnal-pouch.1.4.5.js"></script>-->
     <script src="js/lib/pouchdb.relational-pouch-izipass.js"></script>
     <script src="js/lib/pouchdb.load.js"></script>
@@ -92,33 +96,34 @@
     <script src="js/lib/ngKeypad/ngKeypad.js"></script>
     <script src="js/lib/ngKeypad/ngKeypadInput.js"></script>
     <script src="js/lib/angular-md5.js"></script>
-    <script src="js/lib/fingerprint2.js"></script>
+    <script src="js/lib/fp2.js"></script>
     <script src="js/lib/ngToast.min.js"></script>
     <script src="js/lib/jquery.scrollTo.min.js"></script>
-    <script src="js/lib/object_hash.js"></script>
+
+    <script src="js/lib/hash-sum.js"></script>
+
     <script src="js/lib/fabricjs/fabric.min.js"></script>
     <script src="js/lib/fabricjs/mcColorPicker.js"></script>
     <script src="js/lib/aes.js"></script>
     <script src="js/lib/aes-ctr.js"></script>
     <script src="js/lib/angular-gage.min.js"></script>
     <script src="js/lib/gauge.js"></script>
+    <script src="js/lib/misc.js"></script>
     <!-- NE PLUS DECOMMENTER ;)-->
     <script src="js/lib/fastclick.js"></script>
     <script src="js/lib/randomColor.js"></script>
     <script src="js/lib/angular-uuid2.min.js"></script>
     <script src="js/lib/decimal.min.js"></script>
     <script src="js/lib/raphael.min.js"></script>
+    <script src="js/lib/progressive-image.js"></script>
+    <script src="js/lib/ui-select/select.js"></script>
+    <script src="js/lib/angular-websocket.min.js"></script>
+    <script src="js/lib/fuse.js"></script>
 
-
-    <!-- App COMMENT THIS TO ACTIVATE DEMO -->
     <script src="js/app.js"></script>
     <script src="js/configPouchDb.js"></script>
     <script src="js/configIziBox.js"></script>
 
-    <!-- AppDemo  UNCOMMENT THESE TO ACTIVATE-->
-    <!--<script src="js/appDemo.js"></script>
-    <script src="js/configPouchDbDemo.js"></script>
-    <script src="js/configIziBoxDemo.js"></script>-->
     <!-- Admin libs -->
     <script src="js/lib/AdminLibs/adminLibs.js"></script>
     <script src="js/lib/AdminLibs/fullcalendar-2.6.1/moment.min.js"></script>
@@ -128,7 +133,6 @@
     <script src="js/lib/AdminLibs/justgage-1.2.2/raphael-2.1.4.min.js"></script>
     <script src="js/lib/AdminLibs/justgage-1.2.2/justgage.js"></script>
 
-
     <!-- Controllers -->
     <script src="js/controllers/AppController.js"></script>
     <script src="js/controllers/InitIziboxController.js"></script>
@@ -136,13 +140,13 @@
     <script src="js/controllers/ConfigurationController.js"></script>
     <script src="js/controllers/CatalogController.js"></script>
     <script src="js/controllers/CatalogMenuController.js"></script>
+    <script src="js/controllers/CategorySelectController.js"></script>
     <script src="js/controllers/CategoryTemplateController.js"></script>
     <script src="js/controllers/ProductTemplateController.js"></script>
     <script src="js/controllers/MiniBasketController.js"></script>
     <script src="js/controllers/CatalogDrawerMenuController.js"></script>
     <script src="js/controllers/BorneClosedController.js"></script>
     <script src="js/controllers/IdleScreenController.js"></script>
-
 
     <!-- Modals Controllers -->
     <script src="js/controllers/modals/ModalCashRegisterShoppingCartsController.js"></script>
@@ -194,12 +198,28 @@
     <script src="js/controllers/modals/ModalPickPaymentModeController.js"></script>
     <script src="js/controllers/modals/ModalConsumptionModeController.js"></script>
     <script src="js/controllers/modals/ModalPrintStatsController.js"></script>
+    <script src="js/controllers/modals/ModalPostPaymentController.js"></script>
+    <script src="js/controllers/modals/ModalSwitchModeController.js"></script>
+    <script src="js/controllers/modals/ModalPickQuantityController.js"></script>
+    <script src="js/controllers/modals/ModalPrinterConfigController.js"></script>
+    <script src="js/controllers/modals/ModalOpenCloseStoreController.js"></script>
+    <script src="js/controllers/modals/ModalProductRecapBorneController.js"></script>
+    <script src="js/controllers/modals/ModalCustomerInfoController.js"></script>
+    <script src="js/controllers/modals/ModalGloryController.js"></script>
+    <script src="js/controllers/modals/ModalTRValuesController.js"></script>
+    <script src="js/controllers/modals/ModalSearchProductsController.js"></script>
+    <script src="js/controllers/modals/ModalBipperBorneController.js"></script>
+    <script src="js/controllers/modals/ModalBipperController.js"></script>
+    <script src="js/controllers/modals/ModalPaymentTypesConfigController.js"></script>
+
+    
 
     <!-- Partials Controllers -->
     <script src="js/controllers/partials/BarcodeTextFieldController.js"></script>
 
     <!-- CategoryTemplate Controllers -->
     <script src="js/controllers/CategoryTemplate/IZIPASSController.js"></script>
+    <script src="js/controllers/CategoryTemplate/StoreCategoriesController.js"></script>
 
     <!-- ProductTemplate Controllers -->
     <script src="js/controllers/ProductTemplate/ConfigurableMenuController.js"></script>
@@ -220,25 +240,34 @@
     <script src="js/services/storeMapService.js"></script>
     <script src="js/services/authService.js"></script>
     <script src="js/services/customerSearchService.js"></script>
-    <script src="js/services/orderShoppingCartService.js"></script>
+    <script src="js/services/orderService.js"></script>
     <script src="js/services/taxesService.js"></script>
     <script src="js/services/loyaltyService.js"></script>
     <script src="js/services/eventService.js"></script>
     <script src="js/services/posPeriodService.js"></script>
     <script src="js/services/posService.js"></script>
     <script src="js/services/borneService.js"></script>
-
-    <!-- Models -->
-    <script src="js/models/shoppingCartModel.js"></script>
+    <script src="js/services/repositoryLoaderService.js"></script>
+    <script src="js/services/storeService.js"></script>
+    <script src="js/services/deliveryService.js"></script>
+    <script src="js/services/lossTypeService.js"></script>
+    <script src="js/services/discountService.js"></script>
+    <script src="js/services/webSocketService.js"></script>
+    <script src="js/services/stockService.js"></script>
+    <script src="js/services/paymentService.js"></script>
+    <script src="js/services/printService.js"></script>
 
     <!-- Directives -->
     <script src="js/directives/directives.js"></script>
     <script src="js/directives/filters.js"></script>
     <script src="js/directives/textfield.js"></script>
     <script src="js/directives/categoryRepeat.js"></script>
+    <script src="js/directives/categoryBorneRepeat.js"></script>
     <script src="js/directives/tableRepeat.js"></script>
     <script src="js/directives/tablePlanRepeat.js"></script>
-    <script src="js/directives/categoryBorneRepeat.js"></script>
+    <script src="js/directives/productionStagesGauge.js"></script>
+    <script src="js/directives/orderFreezeRepeat.js"></script>
+    <script src="js/directives/autoFocus.js"></script>
 
     <!-- Core -->
     <script src="js/core/Category.js"></script>
@@ -247,9 +276,18 @@
     <script src="js/core/ShoppingCartDiscount.js"></script>
     <script src="js/core/LoyaltyObjecBalancetUpdateModel.js"></script>
     <script src="js/core/PaymentType.js"></script>
-    <script src="js/core/DeliveryTypes.js"></script>
+    <script src="js/core/TRSupplier.js"></script>
+    <script src="js/core/DeliveryType.js"></script>
+    <script src="js/core/DiscountType.js"></script>
     <script src="js/core/StatsPrintMode.js"></script>
-    <script src="js/core/ProductPictureFor.js"></script>
+    <script src="js/core/SetPictureFor.js"></script>
+    <script src="js/core/ShoppingCartOrigins.js"></script>
+    <script src="js/core/ProductionStages.js"></script>
+    <script src="js/core/PosStatus.js"></script>
+    <script src="js/core/DeliverooRemakeFaults.js"></script>
+    <script src="js/core/StockAction.js"></script>
+    <script src="js/core/AutoPrintProdType.js"></script>
+    <script src="js/core/PrintProdMode.js"></script>
 
     <!-- Translations -->
     <script src="js/translations/translations_en_EN.js"></script>
@@ -261,26 +299,53 @@
     <script src="on-izibox.js"></script>
     <script src="ip-izibox.js"></script>
 
+    <!-- Env -->
+    <script src="env.js"></script>
+
     <title>IziPos</title>
 </head>
 <body id="appbody" ng-app="app" ng-controller="AppController" ng-init="init()">
-<div class="loader" ng-show="loading > 0"></div>
-<toast ng-if="!borne"></toast>
-<div class="keyboardContainer layout-row layout-align-{{keyboardLocation}}">
-    <div id="keyboard-decimal" ng-if="currentKeyboardType == 'decimal'" data-ng-keypad="keyboard-decimal"
-         class="numpad">
-        <div ng-include="'partials/decimal.html'" layout-fill></div>
+    <style ng-if="$root.borne && $root.tenantColor">
+        .swal-button--confirm {
+            background-color : {{ $root.tenantAltColor || $root.tenantColor }};
+        }
+        .swal-button--confirm:hover {
+            background-color : {{ $root.tenantAltColor || $root.tenantColor  }};
+        }
+        .swal-button--confirm:not([disabled]):hover {
+            background-color: {{ $root.tenantAltColor || $root.tenantColor }};
+        }
+    </style>
+
+    <div style="display: none" id="indexUtils">
+        <div class="loader" ng-show="$root.loading">
+            <div class="close-action" ng-show="$root.loadingTimer > 10">
+                <div class="close-text">C'est long ?</div>
+                <a class="btn btn-info" ng-click="$root.hideLoading()">Fermer</a>
+            </div>
+        </div>
+
+        
+        <div class="keyboardContainer layout-row layout-align-{{keyboardLocation}}">
+            <div id="keyboard-decimal" ng-show="currentKeyboardType == 'decimal'" data-ng-keypad="keyboard-decimal"
+                class="numpad">
+                <div ng-include="'partials/decimal.html'" layout-fill></div>
+            </div>
+            <div id="keyboard-numeric" ng-show="currentKeyboardType == 'numeric'" data-ng-keypad="keyboard-numeric"
+                class="numpad">
+                <div ng-include="'partials/numeric.html'" layout-fill></div>
+            </div>
+            <div id="keyboard-azerty" ng-show="currentKeyboardType == 'azerty'" data-ng-keypad="keyboard-azerty"
+                class="azerty" ng-class="{'phone': !mdMedia('min-width: 800px')}">
+                <div ng-include="'partials/azerty.html'" layout-fill></div>
+            </div>
+        </div>
     </div>
-    <div id="keyboard-numeric" ng-if="currentKeyboardType == 'numeric'" data-ng-keypad="keyboard-numeric"
-         class="numpad">
-        <div ng-include="'partials/numeric.html'" layout-fill></div>
-    </div>
-    <div id="keyboard-azerty" ng-if="currentKeyboardType == 'azerty'" data-ng-keypad="keyboard-azerty"
-         class="azerty" ng-class="{'phone': $mdMedia('(min-width: 800px)') == false}">
-        <div ng-include="'partials/azerty.html'" layout-fill></div>
-    </div>
-</div>
-<div layout="column" ng-style="{'overflow-y' : $root.borne ? 'hidden' : 'visible'}" layout-fill ui-view></div>
-<div id="loadAdmin"></div>
+
+
+    <toast ng-if="!borne"></toast>
+
+    <div layout="column" ng-style="{'overflow-y' : $root.borne ? 'hidden' : 'visible'}" layout-fill ui-view></div>
+    <div id="loadAdmin"></div>
 </body>
 </html>

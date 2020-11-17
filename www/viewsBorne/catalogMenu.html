@@ -1,37 +1,120 @@
-<md-toolbar class="catalogMenu" ng-class="{'vertical': $root.borne && $root.borneVertical}"
-            ng-controller="CatalogMenuController" ng-init="init()">
-    <md-content ng-style="{'flex-direction' : $rootScope.borne && $rootScope.borneVertical ? 'column' : 'row'}"
-                class="toolsContainer">
-                <!--ng-style="{'flex-direction' : $rootScope.borne && $rootScope.borneVertical ? 'column' : 'row'}">-->
-        <div layout="column" class="tools" ng-class="{'vertical': $root.borne && $root.borneVertical}"
-             ng-style="{'margin-left' : $root.borne && $root.borneVertical ? (mdMedia('min-width: 800px') ? '25px' : '7px') : '25px'}"
+<md-toolbar class="catalogMenu" ng-class="{'vertical': $root.borneVertical}"
+            ng-controller="CatalogMenuController" ng-init="init()" style="min-height:50px"
+            ng-style="{'height': $root.borneVertical ? '' :
+            (mdMedia('min-height: 800px') ? '125px' : '125px')}">
+    <md-content ng-style="{'flex-direction' : $root.borneVertical ? 'column' : 'row',
+    'min-height' :  $root.borneVertical  ? '50px' : '125px'
+}"
+                class="toolsContainer" style="overflow-y: hidden">
+        <!--ng-style="{'flex-direction' : $root.borneVertical ? 'column' : 'row'}">-->
+        <div layout="column" class="tools" ng-class="{'vertical': $root.borneVertical,'horizontal': !$root.borneVertical}"
+             ng-style="{'margin-left' : $root.borneVertical ?
+             (mdMedia('min-width: 800px') ? '25px' : '25px') :
+             ''  
+            }"
              layout-align="center center">
-            <img ng-src="{{$root.borneMainLogo && $root.borneMainLogo || 'img/logo.png'}}"
-                 class="imgLogoHeader smallCatalogLogo" draggable="false" alt="" src=""/>
-            <div class="clock">
+            <img ng-src="{{$root.borneAltLogo || $root.borneMainLogo || 'img/logo.png'}}"
+                 class="imgLogoHeader smallCatalogLogo" draggable="false" alt="" src=""
+                 ng-style="{'max-width' : $root.borneVertical ?
+                 (mdMedia('min-width: 800px') ? '110px' : '50px') :
+                 (mdMedia('min-height: 800px') ? '60px' : '50px')}" />
+            <div class="clock" ng-style="{'font-size' : $root.borneVertical ?
+            (mdMedia('min-width: 800px') ? '25px' : '15px') :
+            (mdMedia('min-height: 800px') ? '25px' : '15px')}">
                 <horloge format="HH:mm"></horloge>
             </div>
         </div>
         <md-divider ng-if="!$root.borneVertical" class="vertical-divider"></md-divider>
         <md-content style="background:transparent" id="Menu" layout-align="{{categoryAlign}}" layout="{{layoutMain}}">
-                    <!--ng-style="{'flex-direction' :  $rootScope.borne && $rootScope.borneVertical ? 'column' : 'row'}">-->
-            <div class="menuItems">
-                <div ng-repeat="category in categories track by $index" class="itemCategory" ng-click="navig(category)">
-                    <md-button aria-label="{{category.Name}}" class="md-icon-button linkCategory">
-                        <img class="imgCategory" ng-src="{{category.PictureUrl}}" draggable="false" alt="" src=""/>
+            <!--ng-style="{'flex-direction' : $root.borneVertical ? 'column' : 'row'}">-->
+            <div class="menuItems" ng-if="!$root.EnableMultiStore">
+                <div ng-repeat="category in categories track by $index" class="itemCategory" ng-click="navig(category)"
+                     ng-if="!category.DisabledOnBorne"
+                     ng-style="{'height': $root.borneVertical ?
+                     (mdMedia('min-width: 800px') ? '150px' : '75px') :
+                     (mdMedia('min-height: 800px') ? '110px' : '100px'),
+                     'min-width': $root.borneVertical ?
+                     (mdMedia('min-width: 800px') ? '150px' : '75px') :
+                     (mdMedia('min-width: 800px') ? '110px' : '75px'),
+                     'width' : $root.borneVertical ? '' : '100px'
+                    }"
+                     >
+                    <md-button aria-label="{{category.Name}}" class="md-icon-button linkCategory"
+                               ng-style="{'margin-top' : $root.borneVertical ?
+                               (mdMedia('min-width: 800px') ? '30px' : '8px') :
+                               (mdMedia('min-height: 800px') ? '3px' : '3px'),
+                               'width' : $root.borneVertical ?
+                               (mdMedia('min-width: 800px') ? '70px' : '40px') :
+                               (mdMedia('min-height: 800px') ? '80px' : '100px'),
+                               'max-height' : $root.borneVertical ?
+                               (mdMedia('min-width: 800px') ? '70px' : '40px') : (mdMedia('min-height: 800px') ? '80px' : '100px')}">
+                        <img class="imgCategory" ng-src="{{category.PictureUrl}}" draggable="false" alt="" src=""
+                             ng-style="{'max-width' : $root.borneVertical ?
+                             (mdMedia('min-width: 800px') ? '70px' : '40px') :
+                             (mdMedia('min-height: 800px') ? '55px' : '55px'),
+                             'max-height' : $root.borneVertical ?
+                             (mdMedia('min-width: 800px') ? '70px' : '40px') :
+                             (mdMedia('min-height: 800px') ? '55px' : '55px')}" />
                     </md-button>
                     <div class="titleCategory"
-                         ng-class="{'vertical' : $root.borne && $root.borneVertical}"
+                         ng-class="{'vertical' : $root.borneVertical}"
                          layout="row" layout-align="center center">
                         {{category.Name}}
                     </div>
                 </div>
             </div>
+
+            <div class="menuItems" ng-if="$root.EnableMultiStore">
+                <div ng-repeat="store in stores track by $index" class="itemCategory"
+                     ng-click="setStoreFilter(store)"
+                     ng-show="store.Id !== $root.MainStoreId"
+                     ng-class="{'disabled' : store.StoreLocalClosed}"
+                     ng-style="{'height': $root.borneVertical ?
+                                     (mdMedia('min-width: 800px') ? '150px' : '75px') :
+                                     (mdMedia('min-height: 800px') ? '100px' : '50px'),
+                                'min-width': $root.borneVertical ?
+                                     (mdMedia('min-width: 800px') ? '150px' : '75px') :
+                                     (mdMedia('min-width: 800px') ? '150px' : '75px'),
+                                'border' : ($root.storeFilter.Id === store.Id) && ('1px solid ' + $root.tenantColor ) }">
+
+                    <div layout="column" layout-align="space-around center" layout-fill>
+                        <md-button aria-label="{{store.Name}}" class="md-icon-button linkCategory"
+                                   ng-style="{'margin-top' : $root.borneVertical ?
+                               (mdMedia('min-width: 800px') ? '30px' : '8px') :
+                               (mdMedia('min-height: 800px') ? '5px' : '3px'),
+                               'width' : $root.borneVertical ?
+                               (mdMedia('min-width: 800px') ? '70px' : '40px') :
+                               (mdMedia('min-height: 800px') ? '60px' : '26px'),
+                               'max-height' : $root.borneVertical ?
+                               (mdMedia('min-width: 800px') ? '70px' : '40px') :
+                               (mdMedia('min-height: 800px') ? '60px' : '26px')}">
+                            <img class="imgCategory" ng-src="{{store.LogoPictureUrl}}" draggable="false" alt="" src=""
+                                 ng-style="{'max-width' : $root.borneVertical ?
+                             (mdMedia('min-width: 800px') ? '70px' : '40px') :
+                             (mdMedia('min-height: 800px') ? '60px' : '26px'),
+                             'max-height' : $root.borneVertical ?
+                             (mdMedia('min-width: 800px') ? '70px' : '40px') :
+                             (mdMedia('min-height: 800px') ? '60px' : '26px')}" />
+                        </md-button>
+                        <div class="titleCategory"
+                             ng-class="{'vertical' : $root.borneVertical}"
+                             layout="row" layout-align="center center">
+                            {{store.Name}}
+                        </div>
+                    </div>
+
+                    <div ng-show="$root.storeFilter.Id == store.Id" class="active-store-arrow" layout="row" layout-align="center center">
+                        <div>
+                            <div> > </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </md-content>
-        <div ng-if="$root.borne && $root.borneVertical" class="pubProductsCut catR"></div>
-        <div ng-if="$root.borne && $root.borneVertical" class="pubProductsCut cat"></div>
-        <md-icon ng-if="$root.borne && $root.borneVertical" class="scrollCatArrow"
-                 ng-style="{ 'fill' : $root.tenantColor ? $root.tenantColor : '#98C8CC' }"
+        <!--        <div ng-if="$root.borneVertical && menuIsScrolling()" class="pubProductsCut catR"></div>-->
+        <!--        <div ng-if="$root.borneVertical && menuIsScrolling()" class="pubProductsCut cat"></div>-->
+        <md-icon ng-if="$root.borneVertical && menuIsScrolling()" class="scrollCatArrow"
+                 ng-style="{ 'fill' : $root.tenantColor }"
                  md-svg-src="img/icons/arrow.svg"></md-icon>
     </md-content>
 </md-toolbar>

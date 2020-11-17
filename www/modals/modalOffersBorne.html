@@ -3,12 +3,14 @@
         <span class="offerModalTitle" translate>Mes offres</span><br>
         <span class="offerModalSecondTitle" translate>Profitez des promotions du moment</span>
     </div>
-    <div class="pubProductsCut reverse" style="top:174px !important;"></div>
+    <div class="pubProductsCut reverse" ng-style="{'top': $root.borneVertical ?
+    (mdMedia('min-width: 800px') ? '174px' : '65px') :
+    (mdMedia('min-height: 800px') ? '174px' : '65px')}"></div>
     <div class="listOffers">
         <div class="itemOfferList" ng-repeat="offer in offers" ng-class="{'noBar': $first}" ng-if="offer.isValid">
             <div class="offerImage">
-                <img ng-src="{{offer.OfferImageUrl}}" ng-if="offer.OfferImageUrl" class="offerImage"/>
-                <img src="img/offer.png" ng-if="!offer.OfferImageUrl" class="offerImage"/>
+                <img ng-src="{{offer.OfferImageUrl}}" ng-if="offer.OfferImageUrl" class="offerImage" src="" alt=""/>
+                <img src="img/offer.png" ng-if="!offer.OfferImageUrl" class="offerImage" alt=""/>
             </div>
             <div class="offerDetails">
                 <span class="offerTitle" translate>{{offer.OfferClassDescription}}</span>
@@ -19,7 +21,10 @@
             </md-button>
         </div>
     </div>
-    <div class="pubProductsCut" style="bottom: 124px;"></div>
+    <div class="pubProductsCut" ng-style="{'bottom': $root.borneVertical ? 
+    (mdMedia('min-width: 800px') ? '124px' : '75px') :
+    (mdMedia('min-height: 800px') ? '174px' : '85px')
+}"></div>
     <div class="offerModalFooter">
         <md-button class="offerModalBtn" ng-click="cancel()">
             <span class="offerModalBtnText" translate>Annuler</span>

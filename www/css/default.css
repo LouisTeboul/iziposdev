@@ -115,21 +115,16 @@ label {
     font-weight: normal !important;
 }
 
+._md-select-menu-container._md-active {
+    z-index: 2000;
+}
+
 .glyphicon {
     font-family: 'Glyphicons Halflings', sans-serif !important;
 }
 
 .center {
     text-align: center;
-}
-
-.loader {
-    position: fixed;
-    background: url("../img/ajax-loader.gif") center center no-repeat rgba(57, 66, 100, 0.6);
-    background-size: 80px;
-    z-index: 500;
-    width: 100%;
-    height: 100%;
 }
 
 .keyboardContainer {
@@ -143,11 +138,11 @@ label {
     margin-top: 30px;
 }
 
-.loading .gauge {
-    width: 300px;
-    height: 150px;
-    position: relative;
-}
+    .loading .gauge {
+        width: 300px;
+        height: 150px;
+        position: relative;
+    }
 
 .loadingMessage {
     text-align: center;
@@ -164,16 +159,16 @@ text-field {
     height: 100%;
 }
 
-text-field.flexbox {
-    position: relative;
-    min-height: 34px;
-}
+    text-field.flexbox {
+        position: relative;
+        min-height: 34px;
+    }
 
-text-field.flexbox div {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-}
+        text-field.flexbox div {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+        }
 
 md-progress-linear {
     display: block;
@@ -194,6 +189,13 @@ md-input-container label:not(._md-container-ignore) {
     right: auto;
 }
 
+.imageContainer .preview img,
+.imageContainer .preview.progressive img,
+.imageContainer img {
+    max-height: 100% !important;
+    max-width: 100% !important;
+}
+
 .bold {
     font-family: "SignikaNegative-Bold", sans-serif !important;
 }
@@ -202,19 +204,177 @@ md-input-container label:not(._md-container-ignore) {
     margin-top: 30px;
 }
 
-.configuration .gaugeIziboxContainer {
-    width: 450px;
-    height: 320px;
+    .configuration .gaugeIziboxContainer {
+        width: 450px;
+        height: 320px;
+    }
+
+    .configuration .gaugeIzibox {
+        width: 450px;
+        position: relative;
+    }
+
+    .configuration .gaugeIziboxValue {
+        position: relative;
+        bottom: 170px;
+    }
+
+    .modal-payment-types-config .payment-type-toggle {
+        width: 180px;
+        height : 50px;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: flex-start;
+
+    }
+
+    .modal-payment-types-config .payment-type-toggle .payment-type-infos {
+
+    }
+
+    .modal-payment-types-config .payment-type-toggle .payment-type-infos .payment-type-picto {
+
+    }
+
+
+    .modal-payment-types-config .payment-type-toggle .payment-type-infos .payment-type-label{
+        width: 160px;
+    }
+
+
+    .modal-payment-types-config .payment-type-toggle .payment-type-switch {
+
+    }
+
+
+.config-category-title {
+    font-size: 27px;
+    margin: 10px -10px;
+    font-weight: 900;
 }
 
-.configuration .gaugeIzibox {
-    width: 450px;
-    position: relative;
+.subItem {
+    transform: scale(0.9);
 }
 
-.configuration .gaugeIziboxValue {
-    position: relative;
-    bottom: 170px;
+.spin{
+    -webkit-transform-origin: 50% 50%;
+    transform-origin: 50% 50%;
+    -ms-transform-origin: 50% 50%; /* IE 9 */
+    -webkit-animation: spin 1.5s infinite linear;
+    -moz-animation: spin 1.5s infinite linear;
+    -o-animation: spin 1.5s infinite linear;
+    animation: spin 1.5s infinite linear;
+}
+
+@-moz-keyframes spin {
+    from {
+        -moz-transform: rotate(0deg);
+    }
+
+    to {
+        -moz-transform: rotate(360deg);
+    }
+}
+
+@-webkit-keyframes spin {
+    from {
+        -webkit-transform: rotate(0deg);
+    }
+
+    to {
+        -webkit-transform: rotate(360deg);
+    }
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.textfield {
+    padding-left: 5px;
+}
+
+    .textfield .tfPlaceholder {
+        font-style: italic;
+        font-size: 0.9em;
+        color: grey;
+    }
+
+.p-headers {
+    font-size: 1.2em;
+    color: #afafaf;
+}
+
+.p-lines .p-line {
+    padding: 10px 0;
+}
+
+.printerConfigLine {
+    margin-top: 50px;
+    font-size: 1.2em;
+    background-color: #dfdfdf;
+}
+
+.printOption-button {
+    margin: 15px 0;
+    padding: 0 10px;
+    background-color: #4c4c4c;
+    color: white;
+    border-radius: 25px;
+    cursor: pointer;
+}
+
+.printerInfoContainer {
+    border: 1px solid #dfdfdf;
+    border-radius: 5px;
+    width: 80%;
+    height: 37px;
+    font-size: 1em;
+    line-height: 35px;
+}
+
+.dropDownvalue {
+    max-width: 150px;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    float: left;
+}
+
+.addPrinterText {
+    border: unset !important;
+    width: 100%;
+    height: 100%
+}
+
+.btnTestPrinter {
+    width: 20%;
+    height: 100%;
+    border-radius: 0 5px 5px 0;
+}
+
+.btnAddPrinter {
+    min-height: 37px;
+    background-color: #dfdfdf;
+    color: grey;
+}
+
+.btnTestPrinter img {
+    height: 90%;
+    max-width: 90%;
+}
+
+.printer-error {
+    text-align: center;
+    color: red;
+    font-weight: bold;
 }
 
 .loading .gaugeValue {
@@ -223,12 +383,19 @@ md-input-container label:not(._md-container-ignore) {
     font-family: "SignikaNegative-Bold", sans-serif !important;
 }
 
+.no-border {
+    border: unset !important;
+    border-top: unset !important;
+    border-right: unset !important;
+    border-bottom: unset !important;
+    border-left: unset !important;
+}
+
 .gaugeWrap {
     justify-content: center !important;
 }
 
 @media (min-width: 800px) {
-
     .loadingTitle {
         font-size: 36px;
     }
@@ -262,7 +429,6 @@ md-input-container label:not(._md-container-ignore) {
 }
 
 @media (max-width: 799px) {
-
     .configRow .value.special {
         min-width: 100px;
     }
@@ -293,10 +459,10 @@ md-input-container label:not(._md-container-ignore) {
         margin: 10px 0;
     }
 
-    .loading .gaugeContainer .gauge {
-        width: 150px !important;
-        height: 75px !important;
-    }
+        .loading .gaugeContainer .gauge {
+            width: 150px !important;
+            height: 75px !important;
+        }
 
     .loading .gaugeValue {
         bottom: 62px;
@@ -316,35 +482,35 @@ md-input-container label:not(._md-container-ignore) {
     padding-bottom: 0;
 }
 
-.configRow.special {
-    border-bottom: 1px solid #C2C2C2;
-}
+    .configRow.special {
+        border-bottom: 1px solid #C2C2C2;
+    }
 
-.configRow .title {
-    text-align: right;
-}
+    .configRow .title {
+        text-align: right;
+    }
 
-.configRow .value {
-    text-align: center;
-}
+    .configRow .value {
+        text-align: center;
+    }
 
-.configRow .value.special md-switch {
-    margin:10px 0;
-}
+        .configRow .value.special md-switch {
+            margin: 10px 0;
+        }
 
-.configRow .uib-dropdown-menu .menuItemLink {
-    width: 100%
-}
+    .configRow .uib-dropdown-menu .menuItemLink {
+        width: 100%
+    }
 
-.configRow .uib-dropdown-menu .menuItemDelete {
-    cursor: pointer;
-    color: red;
-    padding: 10px
-}
+    .configRow .uib-dropdown-menu .menuItemDelete {
+        cursor: pointer;
+        color: red;
+        padding: 10px
+    }
 
-.configRow .uib-dropdown-menu .menuItemDelete:hover {
-    cursor: pointer;
-}
+        .configRow .uib-dropdown-menu .menuItemDelete:hover {
+            cursor: pointer;
+        }
 
 .configurableMenu .heading .title {
     color: #FFF;
@@ -354,6 +520,25 @@ md-input-container label:not(._md-container-ignore) {
     text-align: center;
     font-size: 20px;
 }
+
+.printerRoles {
+    max-width: 145px !important;
+}
+
+.printerStatus {
+    border-radius: 50%;
+    margin: auto 5px;
+    width: 10px;
+    height: 10px;
+}
+
+    .printerStatus.down {
+        background-color: red;
+    }
+
+    .printerStatus.up {
+        background-color: green;
+    }
 
 .attributesPanelInfos .title {
     font-size: 16px;
@@ -378,6 +563,22 @@ md-input-container label:not(._md-container-ignore) {
     margin-right: 10px;
 }
 
+.btn-black {
+    background-color: #262626 !important;
+    border-color: #071015;
+    color: #fff !important;
+    font-weight: normal !important;
+    font-family: "SignikaNegative-Bold", sans-serif !important;
+}
+
+.btn-blue {
+    background-color: #31b0d5 !important;
+    border-color: #269abc;
+    color: #fff !important;
+    font-weight: normal !important;
+    font-family: "SignikaNegative-Bold", sans-serif !important;
+}
+
 .btn-orange {
     background: #ec971f !important;
     color: #fff !important;
@@ -397,7 +598,60 @@ md-input-container label:not(._md-container-ignore) {
     color: #fff !important;
     font-weight: normal !important;
     font-family: "SignikaNegative-Bold", sans-serif !important;
+}
 
+.productDetails {
+    font-weight: normal;
+    color: #cacac9;
+}
+
+.productTools {
+    display: flex;
+    flex-wrap: wrap;
+    height: 100%;
+}
+
+    .productTools md-icon {
+        color: #98C8CC;
+    }
+
+.productSep {
+    border-top: 1px dashed #E5E5E5;
+}
+
+.productBGroup, .productGroup {
+    border: 1px solid #E5E5E5;
+    border-radius: 5px;
+}
+
+.productGroup {
+    padding: 10px;
+    display: flex;
+    flex-direction: row;
+}
+
+.productBGroup {
+    height: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.productSGroup {
+    margin: 3px 0;
+    padding: 10px;
+    display: flex;
+    flex-direction: row;
+}
+
+    .productSGroup .productInfos {
+        max-width: 260px;
+    }
+
+.productInfos .minProduct {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    max-height: 35px;
 }
 
 .tfCommentProduct {
@@ -419,4 +673,43 @@ md-input-container label:not(._md-container-ignore) {
 .imgLogoHeader.smallCatalogLogo {
     pointer-events: none;
     max-width: 100px;
+}
+
+.modal-backdrop {
+    z-index: 1020;
+    height: 100%;
+}
+
+.modal-large {
+    min-width: 60% !important;
+}
+
+.modal-wide {
+    min-width: 65% !important;
+}
+
+.modal-xlg {
+    min-width: 75% !important;
+}
+
+.modal-xxlg {
+    width: 80% !important;
+}
+
+.modal-max {
+    width: 100%;
+}
+
+.modal-full {
+    width: 95% !important;
+    min-height: 90% !important;
+}
+
+    .modal-full .modal-content {
+        height: 95vh;
+    }
+
+.modal-footer:before, .modal-footer:after {
+    display: none;
+    content: unset;
 }

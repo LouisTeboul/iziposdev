@@ -1,146 +1,182 @@
 app
 
 
-.filter('PictureNameToImage', function () {
-	return function (input, alt) {
-		var res = undefined;
+    .filter('PictureNameToImage', function () {
+        return function (input, alt) {
+            var res = undefined;
 
-		if (input) {
-			var filename = input.SeoFilename;
-			res = 'img/' + filename + '.png';
-		} else {
-			res = alt;
-		}
+            if (input) {
+                var filename = input.SeoFilename;
+                res = 'img/' + filename + '.png';
+            } else {
+                res = alt;
+            }
 
-		return res;
-	}
-})
+            return res;
+        };
+    })
 
-.filter('CurrencyFormat', function ($rootScope) {
-	return function (input) {
-		var res = 0;
+    .filter('CurrencyFormat', function ($rootScope) {
+        return function (input) {
+            var res = 0;
 
-		if (!input || isNaN(input)) {
-			input = 0;
-		}
+            if (!input || isNaN(input)) {
+                input = 0;
+            }
 
-		try{
-			res = input.toLocaleString($rootScope.IziPosConfiguration.Currency.DisplayLocale, { style: 'currency', currency: $rootScope.IziPosConfiguration.Currency.CurrencyCode, minimumFractionDigits: ROUND_NB_DIGIT });
-		} catch(exRes){}
+            try {
+                if($rootScope.IziPosConfiguration && $rootScope.IziPosConfiguration.Currency) {
+                    res = input.toLocaleString($rootScope.IziPosConfiguration.Currency.DisplayLocale, {
+                        style: 'currency',
+                        currency: $rootScope.IziPosConfiguration.Currency.CurrencyCode,
+                        minimumFractionDigits: 2
+                    });
+                }
 
-		if (res == 0 || input.toString() == res) {
-			//Pas réussi à déterminer la devise
-			if($rootScope.IziPosConfiguration.Currency) {
-                if ($rootScope.IziPosConfiguration.Currency.CurrencyCode == "EUR") res = roundValue(input).toFixed(2) + " €";
-                if ($rootScope.IziPosConfiguration.Currency.CurrencyCode == "KMF") res = roundValue(input).toFixed(2) + " F";
-                if ($rootScope.IziPosConfiguration.Currency.CurrencyCode == "USD") res = "$" + roundValue(input).toFixed(2);
-                if ($rootScope.IziPosConfiguration.Currency.CurrencyCode == "CAD") res = "$" + roundValue(input).toFixed(2);
-			}
+            } catch (exRes) {
+                console.error(exRes);
+            }
 
-		}
+            if (res == 0 || input.toString() == res) {
+                //Pas réussi à déterminer la devise
+                if ($rootScope.IziPosConfiguration && $rootScope.IziPosConfiguration.Currency) {
+                    if ($rootScope.IziPosConfiguration.Currency.CurrencyCode == "EUR") res = roundValue(input).toFixed(2) + " €";
+                    if ($rootScope.IziPosConfiguration.Currency.CurrencyCode == "KMF") res = roundValue(input).toFixed(2) + " F";
+                    if ($rootScope.IziPosConfiguration.Currency.CurrencyCode == "USD") res = "$" + roundValue(input).toFixed(2);
+                    if ($rootScope.IziPosConfiguration.Currency.CurrencyCode == "CAD") res = "$" + roundValue(input).toFixed(2);
+                }
+            }
 
-		return res;
-	}
-})
+            return res;
+        };
+    })
 
-.filter('RoundedValue', function (settingService) {
-	return function (input) {
-		var res = 0;
+    .filter('QuantityFormat', () => {
+        return (input) => {
+            let res = 0;
 
-		if (!input || isNaN(input)) {
-			input = 0;
-		}
+            if (!input || isNaN(input)) {
+                input = 0;
+            }
 
-		res = roundValue(input).toFixed(2);
+            // Si l'input est entier, on le retourne tel quel
+            // Sinon, on arrondis à la troiseme decimale
+            if(Number.isInteger(input)) {
+                res = input;
+            } else {
+                res = Number(input.toFixed(2));
+            }
 
-		return res;
-	}
-})
+            return res;
+        }
+    })
 
-.filter('NullConverter', function () {
-	return function (input, defaultValue) {
-		var ret = input;
+    .filter('RoundedValue', function (settingService) {
+        return function (input) {
+            var res = 0;
 
-		if (!input || input == null) {
-			ret = defaultValue;
-		}
+            if (!input || isNaN(input)) {
+                input = 0;
+            }
 
-		return ret;
-	}
-})
+            res = roundValue(input).toFixed(2);
 
-.filter('PercentFormat', function () {
-	return function (input) {
-		var res = 0;
+            return res;
+        };
+    })
 
-		if (!input || isNaN(input)) {
-			input = 0;
-		}
+    .filter('NullConverter', function () {
+        return function (input, defaultValue) {
+            var ret = input;
 
-		res = parseFloat(Math.round(input * 100) / 100).toFixed(2);
+            if (!input || input == null) {
+                ret = defaultValue;
+            }
 
-		return res;
-	}
-})
+            return ret;
+        };
+    })
 
-.filter('DateTimeFormat', function () {
-	return function (input) {
-		var dateOfDay = input.split("T")[0];
-		var date = Date.parse(dateOfDay);
-		var ret = date.toString('dd/MM/yyyy HH:mm');
-		return ret;
-	}
-})
+    .filter('PercentFormat', function () {
+        return function (input) {
+            var res = 0;
 
-.filter('DateFormat', function () {
-	return function (input) {
-		var dateOfDay = input.split("T")[0];
-		var date = Date.parse(dateOfDay);
-		var ret = date.toString('dd/MM/yyyy');
-		return ret;
-	}
-})
+            if (!input || isNaN(input)) {
+                input = 0;
+            }
 
-.filter('Truncate', function () {
-	return function (input, max) {
-		var ret = input;
+            res = parseFloat(Math.round(input * 100) / 100).toFixed(2);
 
-		if (input && input.length > max) {
-			ret = input.substring(0,max-1)+".";
-		} else {
-			ret = input;
-		}
+            return res;
+        };
+    })
 
-		return ret;
-	}
-})
+    .filter('DateTimeFormat', function () {
+        return function (input) {
+            let ret = input;
+            if(input) {
+                var dateOfDay = input.split("T")[0];
+                var date = Date.parse(dateOfDay);
+                ret = date.toString('dd/MM/yyyy HH:mm');
+            }
+            return ret;
+        };
+    })
 
-.filter('PaymentTypeImg', function () {
-	return function (input) {
+    .filter('DateFormat', function () {
+        return function (input) {
+            ret = input;
 
-		var type = input.PaymentType;
+            if(input) {
+                var dateOfDay = input.split("T")[0];
+                var date = Date.parse(dateOfDay);
+                ret = date.toString('dd/MM/yyyy');
+            }
 
-		if (!type) {
-			type = PaymentType.AUTRE;
-		}
+            return ret;
+        };
+    })
 
-		var ret = "img/paymentModes/" + type + ".png";
+    .filter('Truncate', function () {
+        return function (input, max) {
+            var ret = input;
 
-		return ret;
-	}
-})
+            if (input && input.length > max) {
+                ret = input.substring(0, max - 1) + ".";
+            } else {
+                ret = input;
+            }
 
-.filter('StepName', function () {
-	return function (input, stepNames) {
-		var res = "Etape "+input;
+            return ret;
+        };
+    })
 
-		if (stepNames) {
-			var name = stepNames[input];
-			if (name) {
-				res = name.Name;
-			}
-		}
-		
-		return res;
-	}
-})
+    .filter('PaymentTypeImg', function () {
+        return function (input) {
+
+            let type = PaymentType.AUTRE
+
+            if(input && input.PaymentType) {
+                type = input.PaymentType;
+            }
+
+            var ret = "img/paymentModes/" + type + ".png";
+
+            return ret;
+        };
+    })
+
+    .filter('StepName', function () {
+        return function (input, stepNames) {
+            var res = "Etape " + input;
+
+            if (stepNames) {
+                var name = stepNames[input];
+                if (name) {
+                    res = name.Name;
+                }
+            }
+
+            return res;
+        };
+    });

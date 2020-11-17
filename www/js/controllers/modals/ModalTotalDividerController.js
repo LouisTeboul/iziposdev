@@ -1,28 +1,24 @@
-﻿app.controller('ModalTotalDividerController', function ($scope, $rootScope, $uibModalInstance, currentTotalDivider, $translate) {
-    $scope.valueDivider = currentTotalDivider;
+﻿app.controller('ModalTotalDividerController', function ($scope, $rootScope, $uibModalInstance, $translate) {
+    $scope.valueDivider = 2;
 
-    $scope.init = function () {
-        setTimeout(function () {
-            const txtDivider = document.getElementById("txtDivider");
-            if (txtDivider) {
-                txtDivider.focus();
-            }
-        }, 500);
+    $scope.init = () => {
     };
 
-    $scope.ok = function () {
+    $scope.ok = () => {
         $rootScope.closeKeyboard();
         const totalDividerValue = parseInt($scope.valueDivider);
 
-        if (isNaN(totalDividerValue) || totalDividerValue <= 0 || !Number.isInteger(totalDividerValue)) {
+        if (totalDividerValue > 100) {
+            $scope.errorMessage = $translate.instant("La valeur doit être inférieur à 100");
+        } else if (isNaN(totalDividerValue) || totalDividerValue <= 0 || !Number.isInteger(totalDividerValue)) {
             $scope.errorMessage = $translate.instant("Valeur non valide");
         } else {
             $uibModalInstance.close(totalDividerValue);
         }
     };
 
-    $scope.cancel = function () {
+    $scope.cancel = () => {
         $rootScope.closeKeyboard();
         $uibModalInstance.dismiss('cancel');
-    }
+    };
 });

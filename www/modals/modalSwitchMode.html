@@ -1,0 +1,44 @@
+<section ng-init="init()">
+    <div class="form-panel modal-body">
+        <div layout="row" layout-align="center center" style="height: 250px">
+
+            <div ng-click="chooseEmployeeMeal()" ng-disabled="EmplMealDisabled"
+                 ng-class="{'lossesAndMealDisabled': EmplMealDisabled}" layout="column" layout-align="center center"
+                 class="mode-tile">
+                <md-icon md-svg-src="img/icons/employee.svg" style="width:50px;height: 50px;margin: 0;"></md-icon>
+                <span class="center tile-name" translate>Repas employé</span>
+            </div>
+
+            <div ng-repeat="type in lossTypes track by $index"
+                 ng-show="type.IsVisible"
+                 ng-click="chooseLoss(type)" ng-disabled="LossDisabled"
+                 ng-class="{'lossesAndMealDisabled': LossDisabled}" layout="column" layout-align="center center"
+                 class="mode-tile">
+                <img ng-src="{{type.PictureURL}}" width="50" height="50">
+                <span class="center tile-name" translate>{{type.Name}}</span>
+            </div>
+
+            <!--<div ng-click="chooseLoss(LossTypes.BROKEN)" ng-disabled="LossDisabled"-->
+                 <!--ng-class="{'lossesAndMealDisabled': LossDisabled}" layout="column" layout-align="center center"-->
+                 <!--class="mode-tile" flex>-->
+                <!--<img src="img/broken-bottle.png" width="50" height="50">-->
+                <!--<span class="center tile-name" translate>Casse</span>-->
+            <!--</div>-->
+            <!--<div ng-click="chooseLoss(LossTypes.GIVEN_AWAY)" ng-disabled="LossDisabled"-->
+                 <!--ng-class="{'lossesAndMealDisabled': LossDisabled}" layout="column" layout-align="center center"-->
+                 <!--class="mode-tile" flex>-->
+                <!--<img src="img/give-away.png" width="50" height="50">-->
+                <!--<span class="center tile-name" translate>Don</span>-->
+            <!--</div>-->
+            <!--<div ng-click="chooseLoss(LossTypes.TRASH)" ng-disabled="LossDisabled"-->
+                 <!--ng-class="{'lossesAndMealDisabled': LossDisabled}" layout="column" layout-align="center center"-->
+                 <!--class="mode-tile" flex>-->
+                <!--<img src="img/trash-black.png" width="50" height="50">-->
+                <!--<span class="center tile-name" translate>Jeté</span>-->
+            <!--</div>-->
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-rose" ng-click="cancel()" translate>Annuler</button>
+        </div>
+    </div>
+</section>

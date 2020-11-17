@@ -14,9 +14,7 @@
                         <text-field flex="40" id="searchBar" class="flexbox" ng-model="search.query"
                                     location="center-end" type="azerty" validfunction="searchForCustomer"
                                     style="width:510px;margin-right:10px;min-height:34px;"></text-field>
-                        <md-button flex="20" ng-click="searchForCustomer()"
-                                   style="background-color:lightgrey;">Rechercher
-                        </md-button>
+                        <md-button flex="20" ng-click="searchForCustomer()" style="background-color:lightgrey;" translate>Rechercher</md-button>
                     </div>
                     <md-content layout-padding style="max-height:400px">
                         <div ng-if="search.results && search.results.length > 0" ng-repeat="client in search.results"
@@ -25,7 +23,7 @@
                             <h4 style="margin-top: 0">{{client.FirstName}} {{client.LastName}}</h4>
                             <h4>{{client.Email}}</h4>
                             <h4 style="margin-bottom: 0">
-                                <small translate>N° de carte</small>
+                                <small translate>N&deg; de carte</small>
                                 :
                                 {{client.Barcode}}
                             </h4>

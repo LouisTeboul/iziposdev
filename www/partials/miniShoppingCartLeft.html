@@ -1,0 +1,70 @@
+﻿<div class="shoppingCartSplit">
+    <uib-accordion close-others="false">
+        <uib-accordion-group id="panelTotal" class="panel panel-default miniBasket panel-total" is-open="true">
+            <uib-accordion-heading>
+                <span style="margin-right: 4px;">{{currentSCLeft.Total | CurrencyFormat}}</span>
+            </uib-accordion-heading>
+            <div class="panel-body itemsPanel">
+                <div class="groupItemsSplit">
+                    <div ng-show="currentSCLeft.TableCutleries" style="margin-top:8px">
+                        <label for="nbCouvert" translate>Couvert(s)</label>
+                        <span id="nbCouvert"> {{currentSCLeft.TableCutleries - result.nb}}</span>
+                    </div>
+                    <div ng-repeat="item in currentSCLeft.Discounts" style="text-align:center;padding-bottom:0" class="itemRow">
+                        <div class="productLine">
+                            <strong translate>REMISE</strong>
+                            <strong ng-show="!item.IsPercent">&nbsp;{{leftMDiscount}}&nbsp;{{IziPosConfiguration.Currency.currencySymbol}}</strong>
+                            <strong ng-show="item.IsPercent">&nbsp;{{item.Value}}&nbsp;%</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </uib-accordion-group>
+        <uib-accordion-group heading="En Attente" id="miniBasketHeader" is-open="true" class="panel panel-default miniBasket">
+            <div id="miniBasketItemsSplit" class="panel-body shoppingCartPanel">
+                <div style="margin-top: -1px;">
+                    <div ng-repeat="item in currentSCLeft.Items track by $index" class="itemRow"
+                         ng-attr-id="{{'itemRow'+item.$$hashkey}}" layout="column">
+                        <div layout="column">
+                            <div layout="row">
+                                <div class="productLine" layout="column" flex>
+                                    <strong>{{item.Product.Name}}</strong>
+
+                                    <div layout="row" ng-show="item.Quantity > 0" style="white-space: nowrap;">
+                                        <!-- ng-show="item.Quantity > 1 && !item.isPartSplitItem" -->
+                                        <strong ng-show="item.Quantity !=1">x {{item.Quantity | QuantityFormat}}&nbsp;</strong>
+                                        <div>
+                                            <span>(</span>
+                                            <span ng-show="item.IsFree">{{0 | CurrencyFormat}}</span>
+                                            <span ng-show="!item.IsFree">{{(item.Product.Price * item.Quantity) | CurrencyFormat}}</span>
+                                            <span ng-show="(item.DiscountIT && item.DiscountIT!=0)">- {{ item.DiscountIT | CurrencyFormat }}</span>
+                                            <span>)</span>
+                                        </div>
+
+                                    </div>
+                                </div>
+                                <div class="column" flex>
+                                    <md-button aria-label="sendToIn" ng-click="sendToIn(item)" class="md-icon-button">
+                                        <span class="glyphicon glyphicon-arrow-right"></span>
+                                    </md-button>
+                                    <md-button aria-label="splitToIn" ng-click="splitToIn(item)" class="md-icon-button">
+                                        <md-icon md-svg-icon="img/icons/split-item.svg"></md-icon>
+                                    </md-button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="detailsSplitTicket" ng-if="item.Attributes && item.Attributes.length > 0">
+                            <div ng-repeat="attr in item.Attributes" style="margin-left:5px;display:flex;">
+                                <div style="padding:0" data-ng-bind-html="attr.Name"
+                                     ng-show="mdMedia('min-width: 800px') || (attr.PriceAdjustment && attr.PriceAdjustment!=0)"></div>
+                                <div ng-show="attr.PriceAdjustment && attr.PriceAdjustment!=0"
+                                     style="padding:0;margin-left:5px;">+ {{attr.PriceAdjustment | CurrencyFormat }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </uib-accordion-group>
+    </uib-accordion>
+</div>

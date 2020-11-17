@@ -1,29 +1,64 @@
-app.service('borneService', ['$rootScope', '$q', '$location', 'posPeriodService', 'posLogService', '$uibModal',
-    function ($rootScope, $q, $location, posPeriodService, posLogService, $uibModal) {
+app.service('borneService', function ($rootScope, $location, $uibModal, $uibModalStack, posPeriodService, posLogService, printService, orderService, paymentService) {
+    const self = this;
 
-        this.redirectToHome = function () {
-            if ($rootScope.borne) {
-                posLogService.getHardwareIdAsync().then(function (result) {
-                    posPeriodService.getYPeriodAsync(result, undefined, false).then(function (YPeriod) {
-                        if (!angular.equals(YPeriod, {})) {
-                            $rootScope.borneEventLoaded = false;
+    this.redirectToHome = () => {
+        if ($rootScope.borne) {
+            delete $rootScope.storeFilter;
+            posLogService.getHardwareIdAsync().then(function (result) {
+                posPeriodService.getYPeriodAsync(result, undefined, false, false).then(function (periodPair) {
+                    $rootScope.isPMREnabled = false;
+                    if (!angular.equals(periodPair.YPeriod, {})) {
+                        $rootScope.borneEventLoaded = false;
+
+                        if ($rootScope.IziBoxConfiguration.UseFID && $rootScope.borneFid && $rootScope.Logged) {
+                            //let modalConnection = document.querySelector("#modalConstumptionOpen");
                             $uibModal.open({
                                 templateUrl: 'modals/modalConnectionMode.html',
                                 controller: 'ModalConnectionController',
-                                backdrop: 'static',
-                                keyboard :false,
+                                backdrop: false,
+                                keyboard: false,
                                 size: 'lg',
                                 windowClass: 'mainModals'
                             });
-                            $location.path("/catalog");
                         } else {
-                            $location.path("/borneClosed");
+                            let modalConsumption = document.querySelector("#modalConstumptionOpen");
+                            if (!modalConsumption) {
+                                $uibModal.open({
+                                    templateUrl: 'modals/modalConsumptionMode.html',
+                                    controller: 'ModalConsumptionModeController',
+                                    size: 'lg',
+                                    backdrop: false,
+                                    windowClass: 'mainModals'
+                                });
+                            }
                         }
-                        $rootScope.hideLoading();
-                    });
+
+                        $location.path("/catalog");
+                    } else {
+                        $location.path("/borneClosed");
+                    }
+
+                    $rootScope.hideLoading();
+                }, (err) => {
+                    console.error(err);
+                    if ($rootScope.borne) {
+                        $location.path("/borneClosed");
+                    }
                 });
-            } else {
-                $location.path("/catalog");
-            }
+            });
+        } else {
+            $location.path("/catalog");
         }
-    }]);
+    };
+
+    this.closeBorne = () => {
+        $uibModalStack.dismissAll();
+        $location.path("/borneClosed");
+    };
+
+    $rootScope.$on('iziboxConnected', (event, isConnected) => {
+        if (!isConnected && $rootScope.borne) {
+            self.closeBorne();
+        }
+    });
+});

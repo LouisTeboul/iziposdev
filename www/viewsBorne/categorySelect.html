@@ -1,0 +1,66 @@
+<div ng-controller="CategorySelectController" ng-init="init()" layout-fill>
+    <div layout="column" layout-align="start stretch"  ng-if="$root.borneVertical">
+        <div id="storePicture" ng-show="$root.storeFilter.BackGroundPictureUrl && !$rootScope.isPMREnabled">
+            <img ng-src="{{$root.storeFilter.BackGroundPictureUrl}}" />
+        </div>
+        <div class="storeInfos vertical">
+            <div class="storeName"> {{$root.storeFilter.Name}}</div>
+            <div class="storeDescription" ng-show="$root.storeFilter.DescriptionHTML" ng-bind-html="$root.storeFilter.DescriptionHTML">
+            </div>
+        </div>
+
+        <div layout="row" class="catMenu vertical" ng-if="$root.storeFilter && !$root.storeFilter.SmallMenuEnabled">
+            <div ng-repeat="category in categories track by $id(category)"
+                 ng-if="!category.DisabledOnBorne"
+                 class="itemCategory"
+                 ng-class="{'active' : $state.params.id == category.Id}"
+                 ng-style="{'background-color' : ($state.params.id == category.Id) && $root.tenantColor}"
+                 layout="row" layout-align="center center" ng-show="isCategoryVisible(category)"
+                 ng-click="navig(category)">
+                <div class="titleCategory" style="cursor:pointer;" flex>{{category.Name}}</div>
+                <!--            <div ng-show="category.SubCategories && $state.params.id == category.Id" class="subcat-container" layout="column" layout-align="start stretch">-->
+                <!--                <div ng-repeat="subcat in category.SubCategories" class="subcat-button">-->
+                <!--                    <div ng-click="scrollTo(subcat.Id)"> {{subcat.Name}} </div>-->
+                <!--                </div>-->
+                <!--            </div>-->
+            </div>
+        </div>
+    </div>
+
+
+    <!-- TODO : Refaire pour que ce soit comme la caisse -->
+    <div layout="column" layout-align="start stretch" ng-if="!$root.borneVertical" layout-fill>
+        <div class="storeDescription horizontal" ng-show="$root.storeFilter.DescriptionHTML" ng-bind-html="$root.storeFilter.DescriptionHTML">
+        </div>
+
+        <div layout="column" layout-align="start center" class="catMenu horizontal" ng-if="$root.storeFilter && !$root.storeFilter.SmallMenuEnabled">
+            <div ng-repeat="category in categories track by $id(category)" class="itemCategory" layout="column"
+                 layout-align="start center"
+                 ng-show="isCategoryVisible(category)"
+                 ng-click="navig(category)">
+                <div class="category-button" >
+                    <!-- On affiche l'alias si il existe, sinon le nom-->
+                    <div  layout="column" layout-align="space-around center" layout-fill>
+                        <md-button aria-label="{{category.Alias || category.Name}}" ng-if="category.PictureUrl" class="md-icon-button linkCategory">
+                            <img class="imgCategory" ng-src="{{category.PictureUrl}}" alt="" src=""/>
+                        </md-button>
+                        <div class="titleCategory" style="cursor:pointer; width:90%" flex fit-text="category.Name">{{}}</div>
+                    </div>
+
+                    <div ng-show="$state.params.id == category.Id" class="active-category-arrow" layout="row" layout-align="center center">
+                        <i class="glyphicon glyphicon-chevron-right" style="font-size: 9px; margin-bottom: 5px; margin-left: 12px;"></i>
+                    </div>
+                </div>
+
+                <div ng-show="category.SubCategories && category.SubCategories.length > 0 && $state.params.id == category.Id" class="subcat-container"
+                     layout="column" layout-align="start stretch">
+
+                    <div ng-repeat="subcat in category.SubCategories" class="subcat-button">
+                        <div ng-click="scrollTo(subcat.Id)"> {{subcat.Name}} </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

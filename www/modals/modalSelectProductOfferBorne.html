@@ -1,29 +1,53 @@
 ﻿<section class="offerModal" ng-init="init()">
     <div class="offerModalHeader">
-        <span class="offerModalTitle" translate>{{category.Name}}</span>
+        <span class="offerModalTitle">Choisissez votre produit</span>
+        <!-- <span class="offerModalTitle" translate>{{category.Name}}</span> -->
     </div>
-    <div class="pubProductsCut reverse" style="top:174px !important;"></div>
+    <div class="pubProductsCut reverse" ng-style="{'top': $root.borneVertical ?
+     (mdMedia('min-width: 800px') ? '174px' : '65px') : 
+     (mdMedia('min-height: 800px') ? '174px' : '65px')
+    }"></div>
     <div class="listOffers">
-        <div class="itemOfferList" ng-repeat="product in products track by $index" ng-class="{'noBar': $first}">
-            <div class="offerImage">
-                <img ng-src="{{product.DefaultPictureUrl}}" ng-if="product.DefaultPictureUrl" class="offerImage"/>
-                <img src="img/offer.png" ng-if="!product.DefaultPictureUrl" class="offerImage"/>
+        <div class="itemOfferList" ng-repeat="product in products track by $index"
+            ng-init="productIsDisabled = product.DisableBuyButton || (product.ManageInventoryMethodId === 1 && product.StockQuantity <= 0)"
+            ng-class="{'noBar': $first}">
+            <div class="offerImage" ng-class="{'outOfStock' : productIsDisabled}">
+                <img ng-src="{{product.DefaultPictureUrl}}" class="offerImage" alt="" src=""
+                    ng-if="product.DefaultPictureUrl" />
+                <img src="img/offer.png" ng-if="!product.DefaultPictureUrl" class="offerImage" alt="" />
             </div>
             <div class="offerDetails">
                 <span class="offerTitle" translate>{{product.Name}}</span>
-                <span class="offerDescription">{{product.Price | CurrencyFormat}}</span>
+                <span class="offerDescription" ng-if="!productIsDisabled">
+                    <span ng-show="product.Price && product.Price > 0">
+                        {{product.Price | CurrencyFormat}}
+                    </span>
+                    <span ng-show="!product.Price || product.Price && product.Price == 0">
+                        GRATUIT
+                    </span>
+                </span>
             </div>
-            <md-button class="offerModalBtn" ng-click="addToCart(product)" aria-label="Confirm"
-                       ng-style="{'background-color' : product.DisableBuyButton ? '#cacac9' : $root.tenantColor}">
-                <span ng-if="!product.DisableBuyButton && product.ProductAttributes.length == 0 && !product.EmployeeTypePrice"
-                      class="offerModalBtnText" ng-style="{ 'background-color' : $root.tenantColor}" translate>Ajouter au panier</span>
-                <span ng-if="!product.DisableBuyButton && product.ProductAttributes.length > 0 && !product.EmployeeTypePrice"
-                      class="offerModalBtnText" ng-style="{ 'background-color' : $root.tenantColor}" translate>Choisir produit</span>
-                <span ng-if="!product.DisableBuyButton && product.ProductAttributes.length == 0 && product.EmployeeTypePrice"
-                      class="offerModalBtnText" ng-style="{ 'background-color' : $root.tenantColor}" translate>Saisir le prix</span>
+            <md-button ng-if="!productIsDisabled" class="offerModalBtn" ng-click="addToSC(product)" aria-label="Confirm"
+                ng-style="{'background-color' : product.DisableBuyButton ? '#cacac9' : $root.tenantColor}">
+                <span ng-if="!product.DisableBuyButton && !product.EmployeeTypePrice" class="offerModalBtnText"
+                    ng-style="{ 'background-color' : $root.tenantColor}" translate>
+                    Ajouter au panier
+                </span>
+                <span
+                    ng-if="!product.DisableBuyButton && product.ProductAttributes.length == 0 && product.EmployeeTypePrice"
+                    class="offerModalBtnText" ng-style="{ 'background-color' : $root.tenantColor}" translate>
+                    Saisir le prix</span>
                 <span ng-if="product.DisableBuyButton" class="offerModalBtnText" translate>Rupture</span>
             </md-button>
+            <div class="outOfStockLabel" ng-if="productIsDisabled">
+                RUPTURE
+            </div>
         </div>
     </div>
-    <div class="pubProductsCut" style="bottom: 74px;"></div>
+    <div class="pubProductsCut" ng-style="{'bottom': $root.borneVertical ?
+    (mdMedia('min-width: 800px') ? '175px' : '25px') :
+    (mdMedia('min-height: 800px') ? '175px' : '105px')}"></div>
+    <div class="modal-footer">
+        <button class="btn btnMainBorne big-btn" ng-click="cancel()" translate>Non merci</button>
+    </div>
 </section>

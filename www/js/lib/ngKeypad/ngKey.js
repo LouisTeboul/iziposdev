@@ -45,7 +45,7 @@
             $element.addClass('pressed');
             event.preventDefault();
             event.stopImmediatePropagation();
-            $scope.$emit(Key.PRESSED, $attrs.ngKey);
+            $scope.$emit(Key.PRESSED, $attrs.ngKey, "keyboard-"+$scope.currentKeyboardType);
         }
 
 

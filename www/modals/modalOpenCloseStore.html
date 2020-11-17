@@ -1,0 +1,46 @@
+<section class="">
+
+    <div class="modal-header">
+        <h1 class="modal-title" translate>Etat du store {{$root.selectedStore.Name}}</h1>
+    </div>
+
+    <div class="form-panel modal-body" layout-align="center center" layout="column">
+        <div layout="row" layout-align="start center">
+            <div>
+                <md-switch ng-model="$root.selectedStore.StoreCloudClosed" ng-true-value="false" ng-false-value="true" ng-change="closeCloudStore()" class="md-primary md-block">
+                </md-switch>
+            </div>
+            <div>
+                <h4 class="bold titreCommandeFermeture">Commande en ligne</h4>
+                <div ng-show="cloudStoreClosed === false || (!$root.selectedStore.StoreCloudClosed && cloudStoreClosed === undefined )">
+                    <strong style="color:green" class="text-uppercase">ouverte</strong>
+                </div>
+
+                <div ng-show="cloudStoreClosed || ($root.selectedStore.StoreCloudClosed && cloudStoreClosed === undefined )">
+                    <strong style="color:red" class="text-uppercase">fermée</strong>
+                </div>
+            </div>
+        </div>
+
+        <div layout="row" layout-align="start center">
+            <div>
+                <md-switch ng-model="$root.selectedStore.StoreLocalClosed" ng-true-value="false" ng-false-value="true" ng-change="closeLocalStore()" class="md-primary md-block">
+                </md-switch>
+            </div>
+            <div>
+                <h4 class="bold titreCommandeFermeture">Commande locale</h4>
+                <p ng-show="localStoreClosed === false || (!$root.selectedStore.StoreLocalClosed && localStoreClosed === undefined )">
+                    <strong style="color:green" class="text-uppercase">ouverte</strong>
+                </p>
+                <p ng-show="localStoreClosed || ($root.selectedStore.StoreLocalClosed && localStoreClosed === undefined )">
+                    <strong style="color:red" class="text-uppercase">fermée</strong>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-footer">
+        <button class="btn btn-rose" ng-click="close()" translate>Fermer</button>
+    </div>
+
+</section>

@@ -1,48 +1,67 @@
-<section id="modalConstumptionOpen" class="modalCenterFS" ng-init="init()"
-         ng-style="customStyle">
-    <section class="groupModal"
-             ng-style="{'justify-content' : $root.borne && $root.borneVertical ? 'flex-end' : 'center'}">
-        <img ng-src="{{$root.borneMainLogo && $root.borneMainLogo || 'img/logo.png'}}"
-             class="imgLogoHeader" draggable="false" alt=""/>
-        <div class="firstTitle">
-            <span translate>Commander ici</span>
+<section id="modalConstumptionOpen" class="modalCenterFS" ng-init="init()" ng-class="{'pmr' : $root.isPMREnabled}"
+    ng-style="customStyle">
+    <section class="groupModal" ng-style="{'justify-content' : $root.borneVertical ? 'flex-end' : 'center',
+             'flex' : $root.borneVertical ? '2' : '3'}">
+        <img ng-src="{{$root.borneMainLogo || 'img/logo.png'}}" class="imgLogoHeader bigLogo" draggable="false" alt=""
+            src="" />
+        <div class="firstTitle" ng-style="{'color' : $root.textColor ? $root.textColor : ''}">
+            <span ng-if="!currentShoppingCart.customerLoyalty.CustomerFirstName"> <span translate>Bonjour</span>,</span>
+            <span ng-if="currentShoppingCart.customerLoyalty.CustomerFirstName">
+                <span translate>Bonjour</span> {{currentShoppingCart.customerLoyalty.CustomerFirstName}},</span>
         </div>
     </section>
-    <hr ng-class="{'smallModalHR': $root.borne && $root.borneVertical,
-                        'smallModalHRH': $root.borne && !$root.borneVertical}"
-        ng-style="{ 'background-color': $root.tenantColor }">
+    <hr ng-class="{'smallModalHR': $root.borneVertical,
+                        'smallModalHRH': !$root.borneVertical}" ng-style="{ 'background-color': $root.tenantColor }">
     <section class="groupModal" style="flex:4"
-             ng-style="{'justify-content' : $root.borne && $root.borneVertical ? 'flex-start' : 'center'}">
-        <md-button class="btnModalBig" ng-click="setDeliveryType(DeliveryTypes.FORHERE)"
-                   ng-style="{'margin' : $root.borne && $root.borneVertical ?
+        ng-style="{'justify-content' : $root.borneVertical ? 'flex-start' : 'center'}">
+        <md-button class="btnModalBig" ng-click="setDeliveryType(DeliveryType.FORHERE)" ng-if="$root.borneForHere" ng-style="{'margin' : $root.borneVertical ?
                     (mdMedia('min-width: 800px') ? '50px 0 0' : '26px 0 0') : '0'}">
             <div class="btnMbIcon">
                 <md-icon md-svg-src="img/icons/sur-place.svg"
-                         ng-style="{ 'color': $root.tenantColor }"></md-icon>
+                    ng-style="{ 'color': $root.tenantAltColor || $root.tenantColor}"></md-icon>
             </div>
-            <hr class="verticalBtnMbHR"
-                ng-style="{ 'background-color': $root.tenantColor }">
+            <hr class="verticalBtnMbHR" ng-style="{ 'background-color' : $root.tenantAltColor || $root.tenantColor}">
             <div class="btnMbText">
                 <span class="mainBtnMbText" translate>Sur place</span>
-                <span class="altBtnMbText"
-                      ng-if="mdMedia('min-width: 800px')"><x translate>Commandez et savourez votre repas à table</x>&nbsp;!</span>
+                <span class="altBtnMbText" ng-if="$root.borneVertical ?
+                      mdMedia('min-width: 800px') :
+                      mdMedia('min-height: 800px')">
+                    <x translate>Commandez et savourez votre repas à table</x>&nbsp;!
+                </span>
             </div>
         </md-button>
-        <md-button class="btnModalBig" ng-click="setDeliveryType(DeliveryTypes.TAKEOUT)">
+
+        <md-button class="btnModalBig" ng-click="setDeliveryType(DeliveryType.TAKEOUT)" ng-if="$root.borneTakeaway">
             <div class="btnMbIcon">
                 <md-icon md-svg-src="img/icons/emporter.svg"
-                         ng-style="{ 'color': $root.tenantColor }"></md-icon>
+                    ng-style="{ 'color': $root.tenantAltColor || $root.tenantColor}"></md-icon>
             </div>
-            <hr class="verticalBtnMbHR"
-                ng-style="{ 'background-color': $root.tenantColor }">
+            <hr class="verticalBtnMbHR" ng-style="{ 'background-color' : $root.tenantAltColor || $root.tenantColor}">
             <div class="btnMbText">
                 <span class="mainBtnMbText" translate>A emporter</span>
-                <span class="altBtnMbText"
-                      ng-if="mdMedia('min-width: 800px')"><x translate>Commandez et dégustez votre repas où vous voulez</x>&nbsp;!</span>
+                <span class="altBtnMbText" ng-if="$root.borneVertical ?
+                      mdMedia('min-width: 800px') :
+                      mdMedia('min-height: 800px')">
+                    <x translate>Commandez et dégustez votre repas où vous voulez</x>&nbsp;!
+                </span>
             </div>
         </md-button>
-        <md-button class="btnModalSmallS" ng-click="cancelDeliveryType()">
+        <md-button class="btnModalSmallS" ng-show="$root.IziBoxConfiguration.UseFID" ng-click="cancelDeliveryType()">
             <span translate>Annuler</span>
         </md-button>
+
+        <div class="langSelection" ng-show="!$root.IziBoxConfiguration.UseFID">
+            <div class="langBtn" ng-click="setLanguage('fr_FR')">
+                <md-icon md-svg-src="img/icons/flag-fr.svg"></md-icon>
+            </div>
+            <div class="langBtn" ng-click="setLanguage('en_EN')">
+                <md-icon md-svg-src="img/icons/flag-en.svg"></md-icon>
+            </div>
+            <div class="pmrBtn" ng-show="$root.borneVertical && mdMedia('min-height: 1280px')" ng-click="setPMRmode()">
+                <a style="background-color: #ddd;border-color:#ddd">
+                    <md-icon md-svg-src="img/icons/pmr.svg"></md-icon>
+                </a>
+            </div>
+        </div>
     </section>
 </section>

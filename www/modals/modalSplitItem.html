@@ -1,55 +1,44 @@
 <section>
-
     <div ng-init="init()" class="modal-header">
         <h1 class="modal-title ng_scope" translate>Choisissez une opération</h1>
     </div>
-
     <uib-tabset ng-cloak>
-
-
-        <uib-tab ng-click="setMode('MONTANT')">
-            <tab-heading>
-                <x translate>Montant</x>
-            </tab-heading>
-
-            <div style="height:50px; margin-top:20px; margin-bottom: 10px">
-                <div class = "center">
-                    <label for="splitAmount"> Montant : </label>
-                    <text-field id="splitAmount" ng-model="result.montant" location="end-start" type="decimal" validfunction="okMontant" style="width:155px;"></text-field>
-                </div>
-
-                <div class="inp center" ng-if="errorMessageMontant">
-                    <span class="labelErr">{{errorMessageMontant}}</span>
-                </div>
-            </div>
-
-            <div class="modal-footer">
-                <button class="btn btn-success" ng-click="okMontant()" translate>OK</button>
-                <button class="btn btn-rose" ng-click="cancel()" translate>Annuler</button>
-            </div>
-
-        </uib-tab>
-
-        <uib-tab ng-click="setMode('PART')">
-                 <!--ng-if="!item.isPartSplitItem || item.isPartSplitItem == false ">-->
-
+        <uib-tab ng-click="setFocusPart()">
+            <!--ng-show="!item.isPartSplitItem || !item.isPartSplitItem ">-->
             <tab-heading>
                 <x translate>Part</x>
             </tab-heading>
-
             <div style="height:50px; margin-top:20px; margin-bottom: 10px">
-                <div class = "center">
+                <div class="center">
                     <label for="splitPart" translate> Nombre de parts : </label>
-                    <text-field id="splitPart" ng-model="result.part" location="end-start" type="decimal" validfunction="okPart" style="width:155px;"></text-field>
+                    <text-field id="splitPart" ng-model="result.part" location="end-start" type="numeric" validfunction="okPart" style="width:155px;" auto-focus="true"></text-field>
+                </div>
+                <div class="inp center" ng-show="errorMessagePart">
+                    <span class="labelErr">{{errorMessagePart}}</span>
                 </div>
             </div>
-
             <div class="modal-footer">
                 <button class="btn btn-success" ng-click="okPart()" translate>OK</button>
                 <button class="btn btn-rose" ng-click="cancel()" translate>Annuler</button>
             </div>
         </uib-tab>
-
+        <uib-tab ng-click="setFocusMontant()">
+            <tab-heading>
+                <x translate>Montant</x>
+            </tab-heading>
+            <div style="height:50px; margin-top:20px; margin-bottom: 10px">
+                <div class="center">
+                    <label for="splitAmount"> Montant : </label>
+                    <text-field id="splitAmount" ng-model="result.montant" location="end-start" type="decimal" validfunction="okMontant" style="width:155px;" auto-focus="true"></text-field>
+                </div>
+                <div class="inp center" ng-show="errorMessageMontant">
+                    <span class="labelErr">{{errorMessageMontant}}</span>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-success" ng-click="okMontant()" translate>OK</button>
+                <button class="btn btn-rose" ng-click="cancel()" translate>Annuler</button>
+            </div>
+        </uib-tab>
     </uib-tabset>
-
 </section>

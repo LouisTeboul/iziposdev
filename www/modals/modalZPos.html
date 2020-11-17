@@ -2,6 +2,7 @@
     <div class="modal-header">
         <h1 class="modal-title">Statistiques</h1>
     </div>
+    <div class="modal-loader" ng-show="loading"></div>
     <uib-tabset ng-hide="loading || emptyData">
         <uib-tab>
             <tab-heading>
@@ -11,18 +12,19 @@
                 <div style="overflow-x:scroll;">
                     <table id="tableCompta" class="table table-striped">
                         <thead>
-                        <tr>
-                            <th class="zheader" ng-repeat="column in columnsCompta" ng-if="column.isUsed" translate>
-                                {{column.value}}
-                            </th>
-                        </tr>
+                            <tr>
+                                <th class="zheader" ng-repeat="column in columnsCompta" ng-if="column.isUsed" translate>
+                                    {{column.value}}
+                                </th>
+                            </tr>
                         </thead>
                         <tbody>
-                        <tr ng-repeat="row in rowsCompta track by $index">
-                            <td class="zvalue" ng-repeat="item in row track by $index" ng-if="item.show"
-                                data-order="{{item.sort}}">{{item.value}}
-                            </td>
-                        </tr>
+                            <tr ng-repeat="row in rowsCompta track by $index">
+                                <td class="zvalue" ng-repeat="item in row track by $index" ng-if="item.show" style="white-space: nowrap"
+                                    data-order="{{item.sort}}">
+                                    {{item.value}}
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
                     <table class="table table-striped" style="max-width: 400px;">
@@ -47,16 +49,16 @@
                     <h2>{{user.name}}</h2>
                     <table id="table{{user.name}}" class="table table-striped">
                         <thead>
-                        <tr ng-repeat="userC in columnsOperat" ng-if="userC.name === user.name">
-                            <th class="zheader" ng-repeat="column in userC.data" ng-if="column.isUsed" translate>
-                                {{column.value}}
-                            </th>
-                        </tr>
+                            <tr ng-repeat="userC in columnsOperat" ng-if="userC.name === user.name">
+                                <th class="zheader" ng-repeat="column in userC.data" ng-if="column.isUsed" translate>
+                                    {{column.value}}
+                                </th>
+                            </tr>
                         </thead>
                         <tbody>
-                        <tr ng-repeat="row in user.data track by $index">
-                            <td class="zvalue" ng-repeat="item in row track by $index">{{item}}</td>
-                        </tr>
+                            <tr ng-repeat="row in user.data track by $index">
+                                <td class="zvalue" ng-repeat="item in row track by $index" style="white-space: nowrap">{{item}}</td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
@@ -80,21 +82,32 @@
                 <div style="overflow-x:scroll;">
                     <table id="tableMetier" class="table table-striped">
                         <thead>
-                        <tr>
-                            <th class="zheader" ng-repeat="column in columnsMetier" ng-if="column.isUsed" translate>
-                                {{column.value}}
-                            </th>
-                        </tr>
+                            <tr>
+                                <th class="zheader" ng-repeat="column in columnsMetier" ng-if="column.isUsed" translate>
+                                    {{column.value}}
+                                </th>
+                            </tr>
                         </thead>
                         <tbody>
-                        <tr ng-repeat="row in rowsMetier track by $index">
-                            <td class="zvalue" ng-repeat="item in row track by $index"
-                                ng-if="item.show" data-order="{{item.sort}}">{{item.value}}
-                            </td>
-                        </tr>
+                            <tr ng-repeat="row in rowsMetier track by $index">
+                                <td class="zvalue" ng-repeat="item in row track by $index"
+                                    ng-if="item.show" data-order="{{item.sort}}" style="white-space: nowrap">
+                                    {{item.value}}
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
                     <table class="table table-striped" style="max-width: 400px;">
+                        <tr ng-show="IziBoxConfiguration.EnableLossesAndMeal">
+                            <td>Total pertes période</td>
+                            <td>{{totalLossPeriod | CurrencyFormat}}</td>
+                        </tr>
+                        <tr ng-show="IziBoxConfiguration.EnableLossesAndMeal">
+                            <td>Total repas personnel période</td>
+                            <td>{{totalEmployeeMealsPeriod | CurrencyFormat}}</td>
+                        </tr>
+
+
                         <tr>
                             <td>Total TTC période</td>
                             <td>{{totalITPeriod | CurrencyFormat}}</td>
@@ -108,12 +121,6 @@
             </div>
         </uib-tab>
     </uib-tabset>
-    <div ng-if="loading">
-        <div style="text-align: center;">
-            <h2>Chargement, Cela peut prendre jusqu'à une minute.</h2><br>
-            <h2>Veuillez patienter...</h2>
-        </div>
-    </div>
     <div ng-if="emptyData">
         <div style="text-align: center;">
             <h2>Aucune donnée à afficher.</h2>
@@ -121,7 +128,9 @@
     </div>
     <div class="modal-footer">
         <button ng-if="IziBoxConfiguration.EmailSmtpTargetZpos && !emptyData"
-                class="btn btn-green" ng-click="emailZPos()" translate>Envoyer par email</button>
+                class="btn btn-green" ng-click="emailZPos()" translate>
+            Envoyer par email
+        </button>
         <button class="btn btn-green" ng-click="printZPos()" ng-if="!emptyData" translate>Imprimer</button>
         <button class="btn btn-rose" ng-click="cancel()" translate>Annuler</button>
     </div>

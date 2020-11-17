@@ -1,6 +1,6 @@
-app.controller('ModalChooseOfferController', function ($scope, $rootScope, $uibModalInstance, $translate, shoppingCartModel) {
-
+app.controller('ModalChooseOfferController', function ($scope, $rootScope, $uibModalInstance, $translate, $mdMedia, paymentService, product) {
     $scope.defaultValue = '';
+    $scope.mdMedia = $mdMedia;
 
     $scope.result = {
         action: undefined, // Discount or Offer
@@ -9,72 +9,71 @@ app.controller('ModalChooseOfferController', function ($scope, $rootScope, $uibM
         isPercent: true // % or flat ?
     };
 
-
-    $scope.submitItem = function () {
-
-        let currentShoppingCart = shoppingCartModel.getCurrentShoppingCart();
-
-        if (currentShoppingCart.Discounts.length === 0) {
+    $scope.submitItem = () => {
+        if ($rootScope.currentShoppingCart.Discounts.length === 0) {
             $scope.result.type = "item";
-            if ($scope.result.action.localeCompare('Offer') !== 0) {
+            if ($scope.result.action !== 'Offer') {
                 $scope.result.montant = Number(document.querySelector('#txtAmount').textContent);
             }
             $rootScope.closeKeyboard();
             // Check if the user has already selected payments modes
-            if (currentShoppingCart.PaymentModes && currentShoppingCart.PaymentModes.length > 0) {
-                shoppingCartModel.removeAllPayments();
+            if ($rootScope.currentShoppingCart.PaymentModes && $rootScope.currentShoppingCart.PaymentModes.length > 0) {
+                paymentService.removeAllPayments();
             }
             $uibModalInstance.close($scope.result);
         } else {
             $rootScope.closeKeyboard();
             $uibModalInstance.dismiss('cancel');
-            sweetAlert($translate.instant("Le ticket a déjà une remise !"));
+            swal({ title: $translate.instant("Le ticket a déjà une remise !") });
         }
     };
 
-    $scope.submitLine = function () {
-
-        let currentShoppingCart = shoppingCartModel.getCurrentShoppingCart();
-
-        if (currentShoppingCart.Discounts.length === 0) {
+    $scope.submitLine = () => {
+        if ($rootScope.currentShoppingCart.Discounts.length === 0) {
             $scope.result.type = "line";
-            if ($scope.result.action.localeCompare('Offer') !== 0) {
+            if ($scope.result.action !== 'Offer') {
                 $scope.result.montant = Number(document.querySelector('#txtAmount').textContent);
             }
             $rootScope.closeKeyboard();
             // Check if the user has already selected payments modes
-            if (currentShoppingCart.PaymentModes && currentShoppingCart.PaymentModes.length > 0) {
-                shoppingCartModel.removeAllPayments();
+            if ($rootScope.currentShoppingCart.PaymentModes && $rootScope.currentShoppingCart.PaymentModes.length > 0) {
+                paymentService.removeAllPayments();
             }
             $uibModalInstance.close($scope.result);
         } else {
             $rootScope.closeKeyboard();
             $uibModalInstance.dismiss('cancel');
-            sweetAlert($translate.instant("Le ticket a déjà une remise !"));
+            swal({ title: $translate.instant("Le ticket a déjà une remise !") });
         }
     };
 
-    $scope.setFocus = function () {
-
-        setTimeout(function () {
-            if (document.querySelector('#txtAmount')) {
+    $scope.setFocus = () => {
+        const loadOffer = () => {
+            if ($("#txtAmount").length) {
                 document.querySelector('#txtAmount').focus();
-                $rootScope.openKeyboard('decimal', "end-start");
+            } else {
+                window.requestAnimationFrame(loadOffer);
             }
-        }, 100);
+        };
+        loadOffer();
     };
 
-    $scope.isMode = function () {
+    $scope.checkType = () => {
+        if (product.Product && product.Product.SaleUnit || product.Quantity === 1) {
+            $scope.submitLine();
+        }
+    };
+
+    $scope.isMode = () => {
         return !$scope.mode;
     };
 
-    $scope.cancel = function () {
+    $scope.cancel = () => {
         $rootScope.closeKeyboard();
         $uibModalInstance.dismiss('cancel');
     };
 
-    $scope.ok = function () {
+    $scope.ok = () => {
         $rootScope.closeKeyboard();
     };
-
 });

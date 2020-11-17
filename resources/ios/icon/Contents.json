@@ -32,12 +32,6 @@
         },
         {
             "idiom":"iphone",
-            "size":"40x40",
-            "scale":"3x",
-            "filename":"Icon-App-40x40@3x.png"
-        },
-        {
-            "idiom":"iphone",
             "size":"60x60",
             "scale":"1x",
             "filename":"Icon-App-60x60@1x.png"
@@ -95,12 +89,6 @@
             "size":"76x76",
             "scale":"3x",
             "filename":"Icon-App-76x76@3x.png"
-        },
-        {
-            "idiom":"ipad",
-            "size":"83.5x83.5",
-            "scale":"2x",
-            "filename":"Icon-App-83.5x83.5@2x.png"
         }
     ],
     "info":{

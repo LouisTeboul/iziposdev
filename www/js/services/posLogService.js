@@ -1,82 +1,83 @@
-﻿app.service('posLogService', ['$rootScope', '$q',
-    function ($rootScope, $q) {
-    	var _hardwareId = undefined;
+﻿app.service('posLogService', function ($rootScope, $q, $http) {
+    const self = this;
+    let _hardwareId = undefined;
 
-        /** Get the hardware id 
-        * CAUTION : can sometimes be null and cause trouble
-        * */
-        this.getHardwareIdAsync = function () {
-            var self = this;
-            var hIdDefer = $q.defer();
+    //Get the hardware id
+    //CAUTION : can sometimes be null and cause trouble
+    this.getHardwareIdAsync = () => {
+        const hIdDefer = $q.defer();
 
-            try {
-            	if (!_hardwareId) {
-            		setTimeout(function () {
-            			try {
-            				_hardwareId = device.uuid;
-            				hIdDefer.resolve(_hardwareId);
-            			} catch (errHid) {
+        try {
+            if (!_hardwareId) {
+                setTimeout(() => {
+                    try {
+                        _hardwareId = device.uuid;
+                        hIdDefer.resolve(_hardwareId);
+                    }
+                    catch (errHid) {
+                        new Fingerprint2().get((result) => {
+                            if (result.length === 0) {
+                                result = undefined;
+                            }
 
-            				new Fingerprint2().get(function (result) {
-            					if (result.length == 0) result = undefined;
-            					_hardwareId = result;
-            					hIdDefer.resolve(_hardwareId);
-            				});
-            			}
-            		}, 2000);
-            	} else {
-            		hIdDefer.resolve(_hardwareId);
-            	}
-            } catch (err) {
-                hIdDefer.reject(err);
+                            _hardwareId = result;
+                            hIdDefer.resolve(_hardwareId);
+                        });
+                    }
+                }, 2000);
             }
-
-            return hIdDefer.promise;
-        };
-
-
-        // démarrage du terminal
-
-
-
-        /** Log the event from post 
-        * Events are sent to the replicate 
-        * TODO: Log in the audit event 
-        * */
-        this.updatePosLogAsync = function () {
-            var self = this;
-            var posLogDefer = $q.defer();
-
-            try {
-                var dateInfo = new Date().toString('dd/MM/yyyy H:mm:ss');
-                var hardwareType = "BROWSER";
-
-                if ($rootScope.isWindowsContainer) {
-                    hardwareType = "WINDOWS";
-                } else if (navigator.userAgent.match(/(iPhone|iPod|iPad|Android|BlackBerry|IEMobile)/)) {
-                    hardwareType = "TABLET";
-                }
-
-                this.getHardwareIdAsync().then(function (result) {
-                    var posLog = {
-                        HardwareId: result,
-                        Date: dateInfo,
-                        IziboxVersion: $rootScope.IziBoxConfiguration.VersionIziBox,
-                        PosVersion: $rootScope.Version,
-                        PosDescription: hardwareType
-                    };
-
-                    $rootScope.dbReplicate.rel.save('PosLog', posLog).then(function () {
-                        posLogDefer.resolve(posLog);
-                    }, function (errSave) {
-                        posLogDefer.reject(errSave);
-                    });
-                }, function (errHId) {
-                    posLogDefer.reject(errHId);
-                });
-            } catch (err) {
-                posLogDefer.reject(err);
+            else {
+                hIdDefer.resolve(_hardwareId);
             }
-            return posLogDefer.promise;
         }
-    }]);
+        catch (err) {
+            hIdDefer.reject(err);
+        }
+
+        return hIdDefer.promise;
+    };
+
+    // démarrage du terminal
+
+    //Log the event from post
+    //Events are sent to the replicate
+    //TODO: Log in the audit event
+    this.updatePosLogAsync = () => {
+        const posLogDefer = $q.defer();
+
+        try {
+            let dateInfo = new Date().toString('dd/MM/yyyy H:mm:ss');
+            let hardwareType = "BROWSER";
+
+            if ($rootScope.isWindowsContainer) {
+                hardwareType = "WINDOWS";
+            }
+            else if (navigator.userAgent.match(/(iPhone|iPod|iPad|Android|BlackBerry|IEMobile)/)) {
+                hardwareType = "TABLET";
+            }
+
+            self.getHardwareIdAsync().then((result) => {
+                let posLog = {
+                    HardwareId: result,
+                    Date: dateInfo,
+                    IziboxVersion: $rootScope.IziBoxConfiguration.VersionIziBox,
+                    PosVersion: $rootScope.Version,
+                    PosDescription: hardwareType
+                };
+                let urlApi = $rootScope.APIBaseURL + "/saveposlog";
+
+                $http.post(urlApi, posLog).then(() => {
+                    posLogDefer.resolve(posLog);
+                }, (err) => {
+                    posLogDefer.reject(err);
+                });
+            }, (errHId) => {
+                posLogDefer.reject(errHId);
+            });
+        }
+        catch (err) {
+            posLogDefer.reject(err);
+        }
+        return posLogDefer.promise;
+    };
+});

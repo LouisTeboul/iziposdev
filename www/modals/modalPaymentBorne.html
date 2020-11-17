@@ -1,51 +1,91 @@
-<section id="modalPaymentMode" ng-init="init()" style="height: 100%;">
-    <div class="modalCenterFS" ng-if="paymentMode.PaymentType == paymentType.CB"
-         style="flex:1;justify-content: space-evenly"
-         ng-style="customStyle">
-        <img ng-src="{{$root.borneMainLogo && $root.borneMainLogo || 'img/logo.png'}}" alt=""
-             class="imgLogoHeader bigLogo" draggable="false" style="justify-content: space-evenly"
-             ng-style="{'margin' : $root.borne && $root.borneVertical ? '0' : '0 100px'}" src=""/>
-        <img class="imgTPE" src="img/tpe.png"/>
-        <div class="textAndArrow">
-            <span class="textTPE" translate>Veuillez suivre les instructions de paiement affichées sur le terminal de la borne</span>
-            <md-icon class="arrowTPE" md-svg-src="img/icons/arrow.svg"></md-icon>
+<section id="modalPaymentMode" ng-init="init()" style="height: 100%;" ng-style="customBackground" ng-class="{'pmr' : $root.isPMREnabled}">
+    <div class="modalCenterFS" ng-if="paymentMode.PaymentType == paymentType.CB || paymentMode.PaymentType == paymentType.CBTICKETRESTAURANT">
+        <div class="modalPayment" ng-style="customStyle">
+            <img ng-src="{{$root.borneMainLogo || 'img/logo.png'}}" alt=""
+                 class="imgLogoHeader bigLogo" draggable="false" style="max-height: 300px;"
+                 ng-style="{'margin' : $root.borneVertical ? '0' :
+                 (mdMedia('min-width: 800px') ? 'auto 100px' : 'auto 50px' )}" src="" />
+            <img class="imgTPE" src="img/tpe.png" alt="" />
+            <div class="textAndArrow" ng-style="{'margin': $root.borneVertical ?
+            (mdMedia('min-width: 800px') ? 'auto 0' : 'auto 20px') :
+            (mdMedia('min-height: 800px') ? 'auto 0' : 'auto 20px')}">
+                <span class="textTPE" ng-style="{'color' : $root.textColor ? $root.textColor : ''}" translate>Veuillez suivre les instructions de paiement affichées sur le terminal de la borne</span>
+                <md-icon class="arrowTPE" md-svg-src="img/icons/arrow.svg"></md-icon>
+            </div>
         </div>
-        <md-button class="btnModalSmallS" ng-style="{'margin-bottom': mdMedia('min-width:800px') ? '50px' : '26px',
-                    'width': mdMedia('min-width:800px') ? '300px' : '200px'}"
+        <md-button class="btnModalSmallS" ng-style="{'margin-bottom':  $root.borneVertical ?
+        (mdMedia('min-width: 800px') ? '50px' : '26px') :
+        (mdMedia('min-height: 800px') ? '50px' : '26px'),
+        'width': mdMedia('min-width: 800px') ? '300px' : '200px'}"
                    ng-show="paymentOver" style="display:block !important;" ng-click="cancel()">
             <span translate>Annuler</span>
         </md-button>
     </div>
-    <div ng-if="paymentMode.PaymentType == paymentType.EASYTRANSAC" class="modalCenterFS"
-         style="flex:1;justify-content: space-evenly"
-         ng-style="{'flex-direction' : $root.borne && $root.borneVertical ? 'column' : 'row',
-         'background-image': $root.borneBgModal ? 'url(' + $root.borneBgModal + ')' : 'url(\'img/fond-borne\')'}">
-        <img ng-src="{{$root.borneMainLogo && $root.borneMainLogo || 'img/logo.png'}}" alt=""
-             class="imgLogoHeader bigLogo" draggable="false" style="justify-content: space-evenly"
-             ng-style="{'margin' : $root.borne && $root.borneVertical ? '0' : '0 100px'}" src=""/>
-        <md-icon class="imgTPE" md-svg-src="img/icons/cb.svg"></md-icon>
-        <div class="textAndArrow">
-            <span class="textTPE" translate>Veuillez passer votre carte sur le scanner NFC</span>
-            <md-icon class="arrowTPE" md-svg-src="img/icons/arrow.svg"></md-icon>
+    <div class="modalCenterFS" ng-if="paymentMode.PaymentType == paymentType.ESPECE && gloryEnabled">
+        <div class="modalPayment" ng-style="customStyle">
+            <img ng-src="{{$root.borneMainLogo || 'img/logo.png'}}" alt=""
+                 class="imgLogoHeader bigLogo" draggable="false" style="max-height: 300px;"
+                 ng-style="{'margin' : $root.borneVertical ? '0' :
+                 (mdMedia('min-width: 800px') ? 'auto 100px' : 'auto 50px' )}" src="" />
+            <div class="textAndArrow" ng-style="{'margin': $root.borneVertical ?
+            (mdMedia('min-width: 800px') ? 'auto 0' : 'auto 20px') :
+            (mdMedia('min-height: 800px') ? 'auto 0' : 'auto 20px')}">
+                <span class="textTPE" ng-style="{'color' : $root.textColor ? $root.textColor : ''}" translate>Veuillez payer votre commande via le monnayeur</span>
+                <span class="textTPE" style="font-size:69px" ng-style="{'color' : $root.textColor ? $root.textColor : ''}">{{value.pay | CurrencyFormat}}</span>
+                <md-icon class="arrowTPE" md-svg-src="img/icons/arrow.svg"></md-icon>
+            </div>
         </div>
-        <md-button class="btnModalSmallS" ng-style="{'margin-bottom': mdMedia('min-width:800px') ? '50px' : '26px',
-            'width': mdMedia('min-width:800px') ? '300px' : '200px'}" style="display:block !important;" ng-click="cancel()">
+        <md-button class="btnModalSmallS" ng-style="{'margin-bottom':  $root.borneVertical ?
+        (mdMedia('min-width: 800px') ? '50px' : '26px') :
+        (mdMedia('min-height: 800px') ? '50px' : '26px'),
+        'width': mdMedia('min-width: 800px') ? '300px' : '200px'}"
+                   ng-show="paymentOver" style="display:block !important;" ng-click="cancel()">
             <span translate>Annuler</span>
         </md-button>
     </div>
-    <div ng-if="paymentMode.PaymentType != paymentType.EASYTRANSAC && paymentMode.PaymentType != paymentType.CB"
-         class="modalCenterFS" style="flex:1;justify-content: space-evenly"
-         ng-style="customStyle">
-        <img ng-src="{{$root.borneMainLogo && $root.borneMainLogo || 'img/logo.png'}}" alt=""
-             class="imgLogoHeader bigLogo" draggable="false" style="justify-content: space-evenly"
-             ng-style="{'margin' : $root.borne && $root.borneVertical ? '0' : '0 100px'}" src=""/>
-        <md-icon class="imgTPE" md-svg-src="img/icons/cb.svg"></md-icon>
-        <div class="textAndArrow">
-            <span class="textTPE" translate>Paiement en cours de traitement</span>
-            <md-icon class="arrowTPE" md-svg-src="img/icons/arrow.svg"></md-icon>
+    <div ng-if="paymentMode.PaymentType == paymentType.EASYTRANSAC" class="modalCenterFS">
+        <div class="modalPayment" ng-style="customStyle">
+            <img ng-src="{{$root.borneMainLogo || 'img/logo.png'}}" alt=""
+                 class="imgLogoHeader bigLogo" draggable="false" style="max-height: 300px;"
+                 ng-style="{'margin' : $root.borneVertical ? '0' :
+                 (mdMedia('min-height: 800px') ? 'auto 100px' : 'auto 50px' )}" src="" />
+            <md-icon class="imgTPE" md-svg-src="img/icons/cb.svg"
+                     ng-style="{'margin' : $root.borneVertical ? '100px 0 0 0' : '50px 0'}"></md-icon>
+            <div class="textAndArrow" ng-style="{'margin': $root.borneVertical ?
+            (mdMedia('min-width: 800px') ? 'auto 0' : 'auto 20px') :
+            (mdMedia('min-height: 800px') ? 'auto 0' : 'auto 20px')}">
+                <span class="textTPE" translate>Veuillez passer votre carte sur le scanner NFC</span>
+                <md-icon class="arrowTPE" md-svg-src="img/icons/arrow.svg"></md-icon>
+            </div>
         </div>
-        <md-button class="btnModalSmallS" ng-style="{'margin-bottom': mdMedia('min-width:800px') ? '50px' : '26px',
-            'width': mdMedia('min-width:800px') ? '300px' : '200px'}" style="display:block !important;" ng-click="cancel()">
+        <md-button class="btnModalSmallS" ng-style="{'margin-bottom': mdMedia('min-width: 800px') ? '50px' : '26px',
+            'width': mdMedia('min-width: 800px') ? '300px' : '200px'}" style="display:block !important;"
+                   ng-click="cancel()">
+            <span translate>Annuler</span>
+        </md-button>
+    </div>
+    <div ng-if="paymentMode.PaymentType != paymentType.EASYTRANSAC && paymentMode.PaymentType != paymentType.CB && paymentMode.PaymentType != paymentType.CBTICKETRESTAURANT && !(paymentMode.PaymentType == paymentType.ESPECE && gloryEnabled)"
+         class="modalCenterFS">
+        <div class="modalPayment" ng-style="customStyle">
+            <img ng-src="{{$root.borneMainLogo || 'img/logo.png'}}" alt=""
+                 class="imgLogoHeader bigLogo" draggable="false" style="max-height: 300px;"
+                 ng-style="{'margin' : $root.borneVertical ? '0' :
+                 (mdMedia('min-height: 800px') ? 'auto 100px' : 'auto 50px' )}" src="" />
+            <md-icon class="imgTPE" md-svg-src="img/icons/cb.svg"></md-icon>
+            <div class="textAndArrow" ng-style="{'margin': $root.borneVertical ?
+            (mdMedia('min-width: 800px') ? 'auto 0' : 'auto 20px') :
+            (mdMedia('min-height: 800px') ? 'auto 0' : 'auto 20px')}">
+                <span class="textTPE" translate>Paiement en cours de traitement</span>
+                <md-icon class="arrowTPE" md-svg-src="img/icons/arrow.svg"></md-icon>
+            </div>
+        </div>
+        <md-button class="btnModalSmallS" ng-style="{'margin-bottom': $root.borneVertical ?
+        (mdMedia('min-width: 800px') ? '50px' : '26px') :
+        (mdMedia('min-height: 800px') ? '50px' : '26px'),
+        'width': $root.borneVertical ?
+        (mdMedia('min-width: 800px') ? '300px' : '200px') :
+        (mdMedia('min-height: 800px') ? '300px' : '200px')}" style="display:block !important;"
+                   ng-click="cancel()">
             <span translate>Annuler</span>
         </md-button>
     </div>

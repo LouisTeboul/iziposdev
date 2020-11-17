@@ -73,7 +73,7 @@ app.controller('ModalAddAddressFormController', function ($scope, $rootScope, $u
                 $scope.errorMessage = "Veuillez entrer un numéro de téléphone valide";
             }
         } else {
-            $scope.errorMessage = "Veuillez renseigner tout les champs obligatoire";
+            $scope.errorMessage = "Veuillez renseigner tous les champs obligatoire";
         }
     };
 

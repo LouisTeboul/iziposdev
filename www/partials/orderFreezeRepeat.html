@@ -1,0 +1,138 @@
+<div ng-show="allOrders && allOrders.length > 0" style="max-height:65vh; overflow: scroll">
+    <div ng-repeat="order in allOrders | orderBy: orderByDate track by $index" ng-show="!order.FreezeLockedBy || order.FreezeLockedBy
+         && showLocked" class="freezeOrder" ng-class="{'locked' : order.FreezeLockedBy}">
+
+        <div layout="row" style="padding:5px 15px 0; line-height: 20px"
+             ng-style="(order.Customer || order.customerLoyalty || order.ExtraInfos) && {'line-height':'30px'} || {'line-height':'60px'}">
+            <div class="unFreezeTable" layout="row" style="max-width: max-content" ng-click="$event.stopPropagation(); selectOrder(order)" flex>
+                <div class="bold orderListTo" layout="row" layout-align="center center">
+                    <div class="bold unfreezeCheck"
+                         ng-if="!order.isPayed && ($root.IziBoxConfiguration && (!$root.IziBoxConfiguration.EnableKDS || ($root.IziBoxConfiguration.EnableKDS && order.ProductionStage != 'in_kitchen')))"
+                         ng-class="{'orange' : order.ProductionStage == 'in_kitchen', 'green' : order.ProductionStage == 'ready_for_collection'}">
+                        <label class="cbUnfreezeLabel" for="cbuf{{order.Timestamp}}" ng-click="$event.stopPropagation(); checkShoppingCart(order, $event);">
+                            <input type="checkbox" id="cbuf{{order.Timestamp}}">
+                            <span class="cbUnfreezeMark"></span>
+                        </label>
+                    </div>
+                    <md-icon ng-show="order.Origin === 0" md-svg-src="img/icons/phone.svg"
+                             ng-class="{'svg-red' : !order.ProductionStage,
+                                        'svg-orange' : order.ProductionStage == 'in_kitchen',
+                                        'svg-green' : order.ProductionStage == 'ready_for_collection'}">
+                    </md-icon>
+                    <md-icon ng-show="order.Origin === 1" md-svg-src="img/icons/web.svg"
+                             ng-class="{'svg-red' : !order.ProductionStage,
+                                        'svg-orange' : order.ProductionStage == 'in_kitchen',
+                                        'svg-green' : order.ProductionStage == 'ready_for_collection'}">
+                    </md-icon>
+                    <md-icon ng-show="order.Origin === 2" md-svg-src="img/icons/deliveroo.svg"
+                             ng-class="{'svg-red' : !order.ProductionStage,
+                                        'svg-orange' : order.ProductionStage == 'in_kitchen',
+                                        'svg-green' : order.ProductionStage == 'ready_for_collection'}">
+                    </md-icon>
+                    <md-icon ng-show="order.Origin === 3" md-svg-src="img/icons/ubereats.svg"
+                             ng-class="{'svg-red' : !order.ProductionStage,
+                                        'svg-orange' : order.ProductionStage == 'in_kitchen',
+                                        'svg-green' : order.ProductionStage == 'ready_for_collection'}">
+                    </md-icon>
+                </div>
+                <div layout="column" style="line-height: 20px;margin-right: 20px">
+                    <div class="orderNumber" ng-class="{'txt-red' : !order.ProductionStage,
+                                                'txt-orange' : order.ProductionStage == 'in_kitchen',
+                                                'txt-green' : order.ProductionStage == 'ready_for_collection'}">
+                        #{{order.PartnerOrderId || order.OrderId || order.dailyTicketId || order.Timestamp}}
+                    </div>
+                    <div>
+                        <div ng-show="order.Customer">
+                            {{order.Customer.FirstName + " " + order.Customer.LastName}}
+                        </div>
+                        <div ng-show="order.customerLoyalty ">
+                            {{order.customerLoyalty.CustomerFirstName + " " + order.customerLoyalty.CustomerLastName}}
+                        </div>
+                    </div>
+
+                    <div class="bold" layout="row">
+                        <div ng-show="order.TableNumber">
+                            Table {{order.TableNumber}}
+                        </div>
+
+                        <div ng-show="order.TableNumber && order.BipperNumber">
+                            &nbsp;-&nbsp;
+                        </div>
+
+                        <div ng-show="order.BipperNumber">
+                            <span ng-show="order.DeliveryType === 0">
+                                {{$root.borneForHereCollectLabel}}</span>
+                            <span ng-show="order.DeliveryType === 1">
+                                {{$root.borneTakeawayCollectLabel}}
+                            </span>
+                            {{order.BipperNumber}}
+                        </div>
+                    </div>
+
+                    <!-- TODO : Code couleur pour l'heure de retrait -->
+                    <div class="bold" ng-show="order.Customer">
+                        {{order.ShippingOption}}
+                    </div>
+                    <div class="bold" ng-show="order.DatePickup">
+                        {{order.DatePickup.split(' ')[1]}}
+                    </div>
+                    <div>
+                        {{getItemsCount(order)}} {{getItemsCount(order) > 1 ? "items" : "item"}}:
+                        {{order.Total | CurrencyFormat}}
+                    </div>
+                    <div ng-show="order.ExtraInfos" class="productComment">
+                        {{order.ExtraInfos}}
+                    </div>
+                    <div class="orderDetailsToggle" ng-class="{'visible' : order.detailsToggled, 'not_visible' : !order.detailsToggled,
+                                    'txt-red' : !order.ProductionStage,
+                                    'txt-orange' : order.ProductionStage == 'in_kitchen',
+                                    'txt-green' : order.ProductionStage == 'ready_for_collection'}"
+                        ng-click="$event.stopPropagation(); toggleOrderDetails(order)">
+                        Détails
+                    </div>
+                </div>
+            </div>
+            <div style="flex:1;">
+                <production-stages-gauge order="order" />
+            </div>
+        </div>
+        <div class="orderDetails" layout="row" layout-align="start center"
+            ng-class="{'visible' : order.detailsToggled, 'not_visible' : !order.detailsToggled}">
+            <div ng-repeat="item in order.AttrItems" id="{{item.ProductId}}">
+                <div class="productGroup">
+                    <div class="productCount" ng-class="{'txt-red' : !order.ProductionStage,
+                                    'txt-orange' : order.ProductionStage == 'in_kitchen',
+                                    'txt-green' : order.ProductionStage == 'ready_for_collection'}">
+                        <span>{{item.Quantity | QuantityFormat}}x</span>
+                    </div>
+                    <div class="productInfos">
+                        <span>{{item.Product.Name}}</span>
+                        <div ng-repeat="attr in item.Attributes" class="productDetails">{{attr.Name}}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <div ng-repeat="groupItems in order.NormalItems track by $index">
+                <div class="productBGroup">
+                    <div ng-repeat="itemd in groupItems track by $index" id="{{itemd.ProductId}}"
+                        ng-class="{'productSep': $index !== 0}" class="productSGroup">
+                        <div class="productCount" ng-class="{'txt-red' : !order.ProductionStage,
+                                                    'txt-orange' : order.ProductionStage == 'in_kitchen',
+                                                    'txt-green' : order.ProductionStage == 'ready_for_collection'}">
+                            <span>{{itemd.Quantity | QuantityFormat}}x</span>
+                        </div>
+                        <div class="productInfos">
+                            <span ng-class="{'minProduct': groupItems.length == 3}">{{itemd.Product.Name}}</span>
+                            <!--<div ng-repeat="attr in itemd.Attributes"-->
+                            <!--ng-if="!IziBoxConfiguration.StepEnabled || attr.Step == step.Step"-->
+                            <!--class="productDetails">{{attr.Name}}-->
+                            <!--</div>-->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,4 +1,4 @@
-app.controller('ModalCashValuesController', function ($scope, $rootScope, $uibModalInstance, settingService) {
+app.controller('ModalCashValuesController', function ($scope, $uibModalInstance, settingService, moneyInventory, allowEdit, returnListBC, isGlory) {
     this.isCountEdit = true;
     this.currentEdit = undefined;
     this.currentText = "";
@@ -9,9 +9,11 @@ app.controller('ModalCashValuesController', function ($scope, $rootScope, $uibMo
     //Fournis par le settingService
     let currency = settingService.getCurrencyAsync().$$state.value;
 
-    let billsHandler = undefined;
-    let coinsHandler = undefined;
+    let moneyHandler = undefined;
     let otherHandler = undefined;
+
+    $scope.allowEdit = allowEdit;
+    $scope.isGlory = isGlory;
 
     $scope.model = {
         keypad: "partials/numeric.html"
@@ -20,283 +22,100 @@ app.controller('ModalCashValuesController', function ($scope, $rootScope, $uibMo
     // TODO: Changer les devises
     // TODO: Récupérer le settings devise
 
-    $scope.init = function () {
+    $scope.init = () => {
         console.log(currency);
-
+        
         //Default : EUR, €
-        $scope.money = {
-            "total": 0,
-            "other": 0,
-            "bills":
-                [
-                    {
-                        "value": 500,
-                        "picture": "img/money/billet-500e.png",
-                        "count": 0
-                    },
-                    {
-                        "value": 200,
-                        "picture": "img/money/billet-200e.png",
-                        "count": 0
-                    },
-                    {
-                        "value": 100,
-                        "picture": "img/money/billet-100e.png",
-                        "count": 0
-                    },
-                    {
-                        "value": 50,
-                        "picture": "img/money/billet-50e.png",
-                        "count": 0
-                    },
-                    {
-                        "value": 20,
-                        "picture": "img/money/billet-20e.png",
-                        "count": 0
-                    },
-                    {
-                        "value": 10,
-                        "picture": "img/money/billet-10e.png",
-                        "count": 0
-                    },
-                    {
-                        "value": 5,
-                        "picture": "img/money/billet-5e.png",
-                        "count": 0
-                    }
-                ],
-            "coins":
-                [
-                    {
-                        "value": 2,
-                        "picture": "img/money/piece-2e.png",
-                        "count": 0
-                    },
-                    {
-                        "value": 1,
-                        "picture": "img/money/piece-1e.png",
-                        "count": 0
-                    },
-                    {
-                        "value": 0.5,
-                        "picture": "img/money/piece-50c.png",
-                        "count": 0
-                    },
-                    {
-                        "value": 0.20,
-                        "picture": "img/money/piece-20c.png",
-                        "count": 0
-                    },
-                    {
-                        "value": 0.1,
-                        "picture": "img/money/piece-10c.png",
-                        "count": 0
-                    },
-                    {
-                        "value": 0.05,
-                        "picture": "img/money/piece-5c.png",
-                        "count": 0
-                    },
-                    {
-                        "value": 0.02,
-                        "picture": "img/money/piece-2c.png",
-                        "count": 0
-                    },
-                    {
-                        "value": 0.01,
-                        "picture": "img/money/piece-1c.png",
-                        "count": 0
-                    }
-                ]
-        };
+        let isInventory = !!moneyInventory;
 
-        //Si l'objet currency est defini (il existe dans le fichier settings)
-        if (currency) {
-            //Si les propriété symbole ou code existe
-            if (currency.currencySymbol || currency.CurrencyCode) {
-                //Si le symbole est $
-                if (currency.currencySymbol.localeCompare('$') == 0) {
-                    //Si le code est CAD
-                    if (currency.CurrencyCode.localeCompare('CAD') == 0) {
-                        $scope.money = {
-                            "total": 0,
-                            "other": 0,
-                            "bills":
-                                [
-                                    {
-                                        "value": 100,
-                                        "picture": "img/money/billet-100-cad.png",
-                                        "count": 0
-                                    },
-                                    {
-                                        "value": 50,
-                                        "picture": "img/money/billet-50-cad.png",
-                                        "count": 0
-                                    },
-                                    {
-                                        "value": 20,
-                                        "picture": "img/money/billet-20-cad.png",
-                                        "count": 0
-                                    },
-                                    {
-                                        "value": 10,
-                                        "picture": "img/money/billet-10-cad.png",
-                                        "count": 0
-                                    },
-                                    {
-                                        "value": 5,
-                                        "picture": "img/money/billet-5-cad.png",
-                                        "count": 0
-                                    }
-                                ],
-                            "coins":
-                                [
-                                    {
-                                        "value": 1,
-                                        "picture": "img/money/piece-1-cad.png",
-                                        "count": 0
-                                    },
-                                    {
-                                        "value": 0.5,
-                                        "picture": "img/money/piece-50c-cad.png",
-                                        "count": 0
-                                    },
-                                    {
-                                        "value": 0.25,
-                                        "picture": "img/money/piece-25c-cad.png",
-                                        "count": 0
-                                    },
-                                    {
-                                        "value": 0.1,
-                                        "picture": "img/money/piece-10c-cad.png",
-                                        "count": 0
-                                    },
-                                    {
-                                        "value": 0.05,
-                                        "picture": "img/money/piece-5c-cad.png",
-                                        "count": 0
-                                    },
-                                    {
-                                        "value": 0.01,
-                                        "picture": "img/money/piece-1c-cad.png",
-                                        "count": 0
-                                    }
-                                ]
-                        };
-                        //Si le symbole est USD
+        if (!isInventory) {
+            $scope.money = {
+                Total: 0, Values: [
+                    { Denomination: "0", DevId: 1, Status: 2, Value: 5 },
+                    { Denomination: "0", DevId: 1, Status: 2, Value: 10 },
+                    { Denomination: "0", DevId: 1, Status: 2, Value: 20 },
+                    { Denomination: "0", DevId: 1, Status: 2, Value: 50 },
+                    { Denomination: "0", DevId: 1, Status: 2, Value: 100 },
+                    { Denomination: "0", DevId: 1, Status: 2, Value: 200 },
+                    { Denomination: "0", DevId: 1, Status: 2, Value: 500 },
+                    { Denomination: "0", DevId: 2, Status: 2, Value: 0.01 },
+                    { Denomination: "0", DevId: 2, Status: 2, Value: 0.02 },
+                    { Denomination: "0", DevId: 2, Status: 2, Value: 0.05 },
+                    { Denomination: "0", DevId: 2, Status: 2, Value: 0.1 },
+                    { Denomination: "0", DevId: 2, Status: 2, Value: 0.2 },
+                    { Denomination: "0", DevId: 2, Status: 2, Value: 0.5 },
+                    { Denomination: "0", DevId: 2, Status: 2, Value: 1 },
+                    { Denomination: "0", DevId: 2, Status: 2, Value: 2 }
+                ]
+            };
+        } else {
+            $scope.money = moneyInventory;
+        }
+
+        let wrongMoney = $scope.money.Values.find(m => m.Value === 0 && m.Denomination === "0" || m.Denomination === 0);
+        if (wrongMoney) {
+            $scope.money.Values.splice($scope.money.Values.indexOf(wrongMoney), 1);
+        }
+
+        for (let m of $scope.money.Values) {
+            if (currency && currency.CurrencyCode !== "EUR" && !isInventory) {
+                if (currency.currencySymbol || currency.CurrencyCode) {
+                    if (currency.currencySymbol.localeCompare('$') == 0) {
+                        if (currency.CurrencyCode.localeCompare('CAD') == 0) {
+                            if (m.DevId === 1) {
+                                m.Picture = "img/money/billet-" + m.Value + "-cad.png";
+                            } else {
+                                m.Picture = "img/money/piece-" + m.Value + "-cad.png";
+                            }
+                        } else if (currency.CurrencyCode.localeCompare('USD') == 0) {
+                            if (m.DevId === 1) {
+                                m.Picture = "img/money/billet-" + m.Value + "-us.png";
+                            } else {
+                                m.Picture = "img/money/piece-" + m.Value + "-us.png";
+                            }
+                        }
                     }
-                    else if (currency.CurrencyCode.localeCompare('USD') == 0) {
-                        $scope.money = {
-                            "total": 0,
-                            "other": 0,
-                            "bills":
-                                [
-                                    {
-                                        "value": 100,
-                                        "picture": "img/money/billet-199e.png",
-                                        "count": 0
-                                    },
-                                    {
-                                        "value": 50,
-                                        "picture": "img/money/billet-50e.png",
-                                        "count": 0
-                                    },
-                                    {
-                                        "value": 20,
-                                        "picture": "img/money/billet-20e.png",
-                                        "count": 0
-                                    },
-                                    {
-                                        "value": 10,
-                                        "picture": "img/money/billet-10e.png",
-                                        "count": 0
-                                    },
-                                    {
-                                        "value": 5,
-                                        "picture": "img/money/billet-5e.png",
-                                        "count": 0
-                                    }
-                                ],
-                            "coins":
-                                [
-                                    {
-                                        "value": 2,
-                                        "picture": "img/money/piece-2e.png",
-                                        "count": 0
-                                    },
-                                    {
-                                        "value": 1,
-                                        "picture": "img/money/piece-1e.png",
-                                        "count": 0
-                                    },
-                                    {
-                                        "value": 0.5,
-                                        "picture": "img/money/piece-50c.png",
-                                        "count": 0
-                                    },
-                                    {
-                                        "value": 0.25,
-                                        "picture": "img/money/piece-20c.png",
-                                        "count": 0
-                                    },
-                                    {
-                                        "value": 0.1,
-                                        "picture": "img/money/piece-10c.png",
-                                        "count": 0
-                                    },
-                                    {
-                                        "value": 0.05,
-                                        "picture": "img/money/piece-5c.png",
-                                        "count": 0
-                                    },
-                                    {
-                                        "value": 0.01,
-                                        "picture": "img/money/piece-1c.png",
-                                        "count": 0
-                                    }
-                                ]
-                        };
-                    }
+                }
+            } else {
+                if (m.DevId === 1) {
+                    m.Picture = "img/money/billet-" + m.Value + ".png";
+                } else {
+                    m.Picture = "img/money/piece-" + m.Value + ".png";
                 }
             }
         }
 
-
-        for (let i = 0; i < $scope.money.bills.length; i++) {
-            billsHandler = $scope.$watch("money.bills[" + i + "].count", function () {
-                $scope.updateTotal();
-            });
-        }
-
-        for (let i = 0; i < $scope.money.coins.length; i++) {
-            coinsHandler = $scope.$watch("money.coins[" + i + "].count", function () {
-                $scope.updateTotal();
-            });
-        }
-
-        otherHandler = $scope.$watch("money.other", function () {
-            $scope.updateTotal();
+        $scope.money.Values.sort((a, b) => {
+            return a.Value > b.Value ? 1 : a.Value < b.Value ? -1 : 0;
         });
-
+        
+        for (let i = 0; i < $scope.money.Values.length; i++) {
+            moneyHandler = $scope.$watch("money.Values[" + i + "].Denomination", () => {
+                $scope.updateTotal();
+            });
+        }
     };
 
-    $scope.$on("$destroy", function () {
-        if (billsHandler) billsHandler();
-        if (coinsHandler) coinsHandler();
-        if (otherHandler) otherHandler();
+    $scope.$on("$destroy", () => {
+        if (moneyHandler) {
+            moneyHandler();
+        }
+        if (otherHandler) {
+            otherHandler();
+        }
     });
 
-    $scope.editMoneyCount = function (evt, obj) {
+    $scope.editMoneyCount = (evt, obj) => {
 
         $scope.model.keypad = "partials/numeric.html";
 
-        if (current.currentEditElement != undefined) {
+        if (current.currentEditElement) {
             current.currentEditElement.style.backgroundColor = "white";
         }
 
         current.currentEditElement = evt.toElement;
 
-        if (current.currentEditElement != undefined) {
+        if (current.currentEditElement) {
             current.currentEditElement.style.backgroundColor = "#EFEB98";
         }
 
@@ -319,17 +138,17 @@ app.controller('ModalCashValuesController', function ($scope, $rootScope, $uibMo
         current.isCountEdit = true;
     };
 
-    $scope.editMoneyValue = function (evt) {
+    $scope.editMoneyValue = (evt) => {
 
         $scope.model.keypad = "partials/decimal.html";
 
-        if (current.currentEditElement != undefined) {
+        if (current.currentEditElement) {
             current.currentEditElement.style.backgroundColor = "white";
         }
 
         current.currentEditElement = evt.toElement;
 
-        if (current.currentEditElement != undefined) {
+        if (current.currentEditElement) {
             current.currentEditElement.style.backgroundColor = "#EFEB98";
         }
 
@@ -352,36 +171,33 @@ app.controller('ModalCashValuesController', function ($scope, $rootScope, $uibMo
         current.isCountEdit = false;
     };
 
-    $scope.$on(Keypad.KEY_PRESSED, function (event, data) {
+    $scope.$on(Keypad.KEY_PRESSED, (event, data) => {
         current.currentText += data;
 
         if (current.isCountEdit) {
             current.currentEdit.count = parseInt(current.currentText);
             current.currentEditElement.value = current.currentText;
         } else {
-            $scope.money.other = parseFloat(current.currentText);
             current.currentEditElement.value = current.currentText;
         }
 
         $scope.$digest();
     });
 
-    $scope.$on(Keypad.MODIFIER_KEY_PRESSED, function (event, key, id) {
+    $scope.$on(Keypad.MODIFIER_KEY_PRESSED, (event, key, id) => {
         switch (key) {
             case "CLEAR":
                 current.currentText = "";
 
                 if (current.isCountEdit) {
                     current.currentEdit.count = 0;
-                } else {
-                    $scope.money.other = 0;
                 }
 
                 $scope.$digest();
 
                 break;
             case "NEXT":
-                if (current.currentEditElement != undefined) {
+                if (current.currentEditElement) {
                     current.currentEditElement.style.backgroundColor = "white";
                 }
                 $scope.$digest();
@@ -391,34 +207,34 @@ app.controller('ModalCashValuesController', function ($scope, $rootScope, $uibMo
         }
     });
 
-    $scope.updateTotal = function () {
-        var total = 0;
+    $scope.updateTotal = () => {
+        let total = 0;
 
-        for(let b of $scope.money.bills) {
-            total = total + (b.value * b.count);
+        for (let m of $scope.money.Values) {
+            m.Denomination = Number(m.Denomination);
+            total = truncator(total + m.Value * m.Denomination, 2);
         }
 
-        for(let c of $scope.money.coins) {
-            total = total + (c.value * c.count);
-        }
-
-        total = total + roundValue($scope.money.other);
-        $scope.money.total = roundValue(total);
+        $scope.money.Total = total;
     };
 
-    $scope.ok = function () {
-        if (current.currentEditElement != undefined) {
+    $scope.ok = () => {
+        if (current.currentEditElement) {
             current.currentEditElement.style.backgroundColor = "white";
         }
         $scope.$emit(Keypad.CLOSE, "moneyKeypad");
-        $uibModalInstance.close($scope.money.total);
+        if (returnListBC) {
+            $uibModalInstance.close($scope.money);
+        } else {
+            $uibModalInstance.close($scope.money.Total);
+        }
     };
 
-    $scope.cancel = function () {
-        if (current.currentEditElement != undefined) {
+    $scope.cancel = () => {
+        if (current.currentEditElement) {
             current.currentEditElement.style.backgroundColor = "white";
         }
         $scope.$emit(Keypad.CLOSE, "moneyKeypad");
         $uibModalInstance.dismiss('cancel');
-    }
+    };
 });

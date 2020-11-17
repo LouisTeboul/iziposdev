@@ -1,38 +1,41 @@
-app.controller('BarcodeTextFieldController', function ($scope, $rootScope, $uibModal, shoppingCartModel, textFieldService) {
-
+app.controller('BarcodeTextFieldController', function ($scope, $rootScope, $uibModal, $mdMedia, $translate, textFieldService, shoppingCartService, productService, stockService, loyaltyService, paymentService) {
     let txtBarcode;
 
-    $scope.init = function () {
-        txtBarcode = document.getElementById("txtBarcode");
-        $scope.barcode = shoppingCartModel.getCurrentBarcode();
+    $scope.init = () => {
+        txtBarcode = document.querySelector("#txtBarcode");
+        $scope.barcode = $rootScope.currentBarcode;
 
-        $rootScope.$on(Keypad.KEY_PRESSED, function (event, data) {
-            if (!textFieldService.getFocusedTextField() && document.querySelectorAll(".modal").length === 0) {
-                $scope.$evalAsync(function () {
+        if (!$rootScope.keypressListener) {
+            $rootScope.keypressListener = $rootScope.$on(Keypad.KEY_PRESSED, (event, data) => {
+                let a = textFieldService.getFocusedTextField();
+                let b = document.querySelectorAll(".modal");
+                if (document.querySelectorAll(".modal").length === 0 || $rootScope.borne) {
                     focusTextField();
                     $scope.barcode.barcodeValue += data;
+                }
+            });
+        }
 
-                });
-            }
-        });
+        if (!$rootScope.modifierKeyListener) {
+            $rootScope.modifierKeyListener = $rootScope.$on(Keypad.MODIFIER_KEY_PRESSED, (event, data) => {
+                if (data === "NEXT") {
+                    $scope.validTextField(false);
+                }
+                if (data === "CLEAR") {
+                    $scope.$evalAsync();
+                }
+            });
+        }
 
-        $rootScope.$on(Keypad.MODIFIER_KEY_PRESSED, function (event, data) {
-            if (data === "NEXT") {
-                $scope.validTextField(false);
-            }
-            if (data === "CLEAR") {
-                //$scope.barcode.barcodeValue = $scope.barcode.barcodeValue.substring(0, $scope.barcode.barcodeValue.length - 1);
-                //FIXME: Appelé de plus en plus de fois ??
-                $scope.$evalAsync();
-            }
+        $scope.$on("$destroy", () => {
+            $scope.resetKeyboard();
         });
     };
 
-    $scope.showKeyboard = function () {
+    $scope.showKeyboard = () => {
         if ($rootScope.isKeyboardOpen("decimal")) {
             $rootScope.closeKeyboard();
-        }
-        else {
+        } else {
             focusTextField();
             let location = "end-center";
 
@@ -43,89 +46,268 @@ app.controller('BarcodeTextFieldController', function ($scope, $rootScope, $uibM
         }
     };
 
-    const focusTextField = function () {
+    const focusTextField = () => {
         if (txtBarcode) {
             txtBarcode.focus();
         }
     };
 
-    $scope.clearTextField = function () {
-        $scope.barcode.barcodeValue = '';
-        $scope.$evalAsync();
+    const unfocusTextField = () => {
+        if (txtBarcode) {
+            txtBarcode.blur();
+        }
     };
 
-    $scope.validTextField = function (scanned) {
+    $scope.validTextField = (scanned) => {
         let result = false;
         if ($scope.barcode.barcodeValue) {
             let barcode = $scope.barcode.barcodeValue.trim();
+
+            $scope.resetKeyboard();
+
+            unfocusTextField();
+
             barcode = barcode.replace(/.+\//, '');
             const barcodeLength = barcode.length;
 
             if (barcodeLength > 0) {
-                if (barcode.indexOf("TK") === 0) { /* Freezed shoppingCart */
+                if (barcode.toUpperCase().startsWith("ADMIN")) {
+                    /* Admin barcodes */
+                    // Check si le barcode est dans la liste des barcode admin
+                    if ($rootScope.IziBoxConfiguration.AdminBarcodes &&
+                        $rootScope.IziBoxConfiguration.AdminBarcodes.map(b => b.toUpperCase()).includes(barcode.toUpperCase())) {
+                        window.location.reload();
+                    }
+                } else if (barcode.startsWith("TK")) {
+                    /* Freezed shoppingCart */
                     let id = barcode.replace("TK", "");
                     id = parseInt(id);
-                    shoppingCartModel.unfreezeShoppingCartById(id);
+                    shoppingCartService.unfreezeShoppingCartById(id);
                     result = true;
-                } else if (barcode.indexOf("AV") === 0) { /* Avoir */
-                    if (shoppingCartModel.getCurrentShoppingCart()) {
-                        const avoirValues = (atob(barcode.replace("AV", ""))).split("|");
+                } else if (barcode.startsWith("AV")) {
+                    /* Avoir */
+                    if ($rootScope.currentShoppingCart && $rootScope.currentShoppingCart.Residue > 0) {
+                        const avoirValues = atob(barcode.replace("AV", "")).split("|");
                         const avoirAmount = parseFloat(avoirValues[1]) / 100;
-                        console.log("Avoir : " + avoirValues + " Montant : " + avoirAmount);
-                        const paymentModes = shoppingCartModel.getPaymentModesAvailable();
-                        const avoirPaymentMode = Enumerable.from(paymentModes).firstOrDefault(function (pm) {
-                            return pm.PaymentType == PaymentType.AVOIR;
-                        });
+                        const avoirStoreId = Number(avoirValues[2]);
+                        const avoirValidity = Number(avoirValues[3]);
+                        console.log("Avoir : " + avoirValues + " Montant : " + avoirAmount + " StoreId : " + avoirStoreId + " Validity : " + avoirValidity);
 
-                        if (avoirPaymentMode) {
-                            let paymentByAvoir = clone(avoirPaymentMode);
-                            paymentByAvoir.Total = avoirAmount;
-                            shoppingCartModel.addPaymentMode(paymentByAvoir);
+                        const timestamp = new Date().getTime();
+
+                        if (!avoirStoreId && !avoirValidity || avoirStoreId == $rootScope.IziBoxConfiguration.StoreId && timestamp < avoirValidity) {
+                            const avoirPaymentMode = $rootScope.paymentModesAvailable.find((pm) => pm.PaymentType === PaymentType.AVOIR);
+
+                            if (avoirPaymentMode && $rootScope.currentShoppingCart.TotalTR !== 0) {
+                                shoppingCartService.checkCreditUsedAsync(barcode).then((creditUsed) => {
+                                    if (creditUsed.data.Result.toLowerCase() === 'false') {
+                                        addCreditToCart(barcode, avoirPaymentMode, avoirAmount);
+                                    } else {
+                                        swal({
+                                            title: "Avoir déjà utilisé !"
+                                        });
+                                    }
+                                }, (err) => {
+                                    addCreditToCart(barcode, avoirPaymentMode, avoirAmount);
+                                });
+                            } else {
+                                let desc = "";
+
+                                if (!avoirPaymentMode) {
+                                    desc += "Aucun mode de paiement de type avoir n'a été trouvé.";
+                                }
+
+                                if ($rootScope.currentShoppingCart.TotalTR === 0) {
+                                    desc += (desc ? " " : "") + "Le ticket n'est pas éligible.";
+                                }
+
+                                swal({
+                                    title: $translate.instant("Impossible de payer ces produits avec un avoir."),
+                                    text: desc
+                                });
+                            }
+                        } else {
+                            swal({
+                                title: $translate.instant("Avoir expiré ou invalide !")
+                            });
                         }
-                    }
-                    result = true;
-                } else if /* TicketResto */ (barcodeLength === 24 && !isNaN(barcode)) {
-                    result = shoppingCartModel.addTicketRestaurant(barcode);
-
-                    if (result) {
-
-                        $scope.clearTextField();
-
-                        if (scanned) {
-                            $scope.scanBarcode();
-                        }
-                    }
-                } else if (barcodeLength === 13 && !isNaN(barcode)) { /* Product */
-                    shoppingCartModel.addToCartBySku(barcode);
-                    result = true;
-                } else if ($rootScope.IziBoxConfiguration.UseFID) { /* Fid */
-                    // Si on detecte une carte de fidelité, on verifie si le client a un ticket en attente
-                    // Si oui, on le defreeze
-                    if (shoppingCartModel.getCurrentShoppingCart === undefined) {
-                        shoppingCartModel.unfreezeShoppingCartByBarcode(barcode);
                     } else {
-                        shoppingCartModel.getLoyalty(barcode);
-                        result = true;
-                        $rootScope.closeKeyboard();
+                        $scope.resetKeyboard();
+                        if ($rootScope.currentShoppingCart) {
+                            swal({
+                                title: "Erreur d'ajout !",
+                                text: "L'avoir n'a pas pu être ajouté car le ticket en cours est déjà soldé."
+                            });
+                        } else {
+                            swal({
+                                title: "Erreur d'ajout !",
+                                text: "L'avoir n'a pas pu être ajouté car vous n'avez aucun panier."
+                            });
+                        }
                     }
+                    result = true;
+                } else if (barcodeLength === 24 && !isNaN(barcode)) {
+                    /* TicketResto */
+
+                    if ($rootScope.currentShoppingCart && $rootScope.currentShoppingCart.Residue > 0) {
+                        shoppingCartService.checkTicketRestoUsedAsync(barcode).then((ticketRestoUsed) => {
+                            if (ticketRestoUsed.data.Result.toLowerCase() === 'false') {
+                                result = paymentService.addTicketRestaurant(barcode);
+                                if (result) {
+                                    if (scanned) {
+                                        $scope.scanBarcode();
+                                    }
+                                }
+                            } else {
+                                swal({
+                                    title: "Ticket restaurant déjà utilisé !"
+                                });
+                            }
+                            $scope.resetKeyboard();
+                        }, (err) => {
+                            result = paymentService.addTicketRestaurant(barcode);
+                            if (result) {
+                                if (scanned) {
+                                    $scope.scanBarcode();
+                                }
+                            }
+                            $scope.resetKeyboard();
+                        });
+                    } else {
+                        $scope.resetKeyboard();
+                        if ($rootScope.currentShoppingCart) {
+                            swal({
+                                title: "Erreur d'ajout !",
+                                text: "Le titre-restaurant n'a pas pu être ajouté car le ticket en cours est déjà soldé."
+                            });
+                        } else {
+                            swal({
+                                title: "Erreur d'ajout !",
+                                text: "Le titre-restaurant n'a pas pu être ajouté car vous n'avez aucun panier."
+                            });
+                        }
+                    }
+                } else if (barcodeLength >= 11 && barcodeLength <= 19 && !isNaN(barcode)) {
+                    /* Product */
+                    productService.addToCartBySku(barcode);
+                    result = true;
+                } else if (isNaN(barcode)) {
+                    productService.searchProductAsync(barcode).then((searchResult) => {
+                        if (searchResult && searchResult.length > 0) {
+                            let modal = "modals/modalOneProductInCategory.html";
+                            if ($rootScope.borne) {
+                                modal = 'modals/modalSelectProductOfferBorne.html';
+                            }
+                            let size = "bigModal";
+                            if (!$rootScope.borneVertical) {
+                                size = "smallModal";
+                            }
+                            if (!$mdMedia('min-width: 800px')) {
+                                size = "smallModalH";
+                            }
+
+                            let modalInstance = $uibModal.open({
+                                templateUrl: modal,
+                                controller: 'ModalSearchProductsController',
+                                windowClass: 'centeredModals ' + size,
+                                size: 'lg',
+                                backdrop: false,
+                                resolve: {
+                                    products: () => {
+                                        return searchResult;
+                                    }
+                                }
+                            });
+
+                            modalInstance.result.then((product) => {
+                                let clonedProduct = angular.copy(product);
+                                if (!(clonedProduct.DisableBuyButton || (clonedProduct.ManageInventoryMethodId === 1 && clonedProduct.StockQuantity === 0 || clonedProduct.ManageInventoryMethodId === 1
+                                    && clonedProduct.StockQuantity - stockService.getBufferStockForProductId(clonedProduct.Id) <= 0))) {
+                                    if ($rootScope.EnableMultiStore && $rootScope.storeFilter) {
+                                        clonedProduct.StoreId = $rootScope.storeFilter.Id;
+                                    }
+                                    $rootScope.addToCart(clonedProduct);
+                                }
+                            });
+                        }
+                    }, (errMsg) => {
+                        if (!errMsg) {
+                            errMsg = "Aucun produit ne correspond à votre recherche."
+                        }
+                        swal({
+                            title: "Oops",
+                            text: errMsg
+                        });
+                    });
+                } else if ($rootScope.IziBoxConfiguration.UseFID) {
+                    /* Fid */
+                    if (!$rootScope.borne || barcode.length >= 8) {
+                        // Si on detecte une carte de fidelité, on verifie si le client a un ticket en attente
+                        // Si oui, on le defreeze
+                        if (!$rootScope.currentShoppingCart) {
+                            shoppingCartService.unfreezeShoppingCartByBarcodeAsync(barcode).then(() => { }).catch(() => {
+                                loyaltyService.getLoyaltyAsync(barcode);
+                                result = true;
+                                $scope.resetKeyboard();
+                            });
+                        } else {
+                            loyaltyService.getLoyaltyAsync(barcode);
+                            result = true;
+                            $scope.resetKeyboard();
+                        }
+                    } else {
+                        if ($rootScope.borne && $rootScope.borneBipperStarted) {
+                            $rootScope.borneBipperScanned = barcode;
+                        } else {
+                            result = true;
+                            $scope.resetKeyboard();
+                        }
+                    }
+                    $rootScope.createShoppingCart();
                 } else {
-                    sweetAlert("Le code à barres n'a pas été reconnu...");
-                    $rootScope.closeKeyboard();
+                    swal({
+                        title: "Le code à barres n'a pas été reconnu..."
+                    });
+                    $scope.resetKeyboard();
                 }
             }
-            $scope.clearTextField();
         }
         return result;
     };
 
-    $scope.scanBarcode = function () {
+    $scope.resetKeyboard = () => {
+        setTimeout(() => {
+            $scope.barcode.barcodeValue = '';
+            $scope.$evalAsync();
+            $rootScope.closeKeyboard();
+        }, 100);
+    };
+
+    const addCreditToCart = (barcode, avoirPaymentMode, avoirAmount) => {
+        let added = $rootScope.currentShoppingCart.Credits ? $rootScope.currentShoppingCart.Credits.find((credit) => {
+            return credit.Barcode === barcode;
+        }) : null;
+        if (!added) {
+            paymentService.addCredit(barcode);
+            let paymentByAvoir = clone(avoirPaymentMode);
+            paymentByAvoir.Total = avoirAmount;
+            paymentByAvoir.Barcode = barcode;
+            paymentService.addPaymentMode(paymentByAvoir);
+        } else {
+            swal({
+                title: "Avoir déjà utilisé !"
+            });
+        }
+    };
+
+    $scope.scanBarcode = () => {
         try {
             cordova.plugins.barcodeScanner.scan(
-                function (result) {
+                (result) => {
                     $scope.barcode.barcodeValue = result.text;
                     $scope.validTextField();
-                },
-                function (error) {
+                }, (err) => {
+                    console.error(err);
                 }
             );
         } catch (err) {
@@ -135,11 +317,12 @@ app.controller('BarcodeTextFieldController', function ($scope, $rootScope, $uibM
                 backdrop: 'static'
             });
 
-            modalInstance.result.then(function (value) {
+            modalInstance.result.then((value) => {
                 $scope.barcode.barcodeValue = value;
                 $scope.validTextField();
-            }, function () {
+            }, (err) => {
+                console.error(err);
             });
         }
-    }
+    };
 });

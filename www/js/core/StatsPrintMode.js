@@ -1,4 +1,4 @@
-var StatsPrintMode = Object.freeze({
+const StatsPrintMode = Object.freeze({
     INTERVAL:0,
     Y: 1,
     Z: 2,

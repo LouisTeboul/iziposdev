@@ -1,18 +1,18 @@
-﻿app.controller('CatalogDrawerMenuController', function ($scope, $rootScope, $state, $uibModal, $http, shoppingCartModel, posUserService, $translate, $compile, $location, authService, posPeriodService) {
+﻿app.controller('CatalogDrawerMenuController', function ($scope, $rootScope, $uibModal, $translate, posUserService, posService, authService, posPeriodService, printService, deliveryService) {
     $scope.closable = false;
     $scope.authService = authService;
     $scope.docToSynchronize = 0;
-    $scope.OrderButtonEnabled = $rootScope.IziBoxConfiguration.PhoneOrderEnable || ($rootScope.UserPreset && $rootScope.UserPreset.PhoneOrder && $rootScope.UserPreset.PhoneOrder.Menu);
+    $scope.OrderButtonEnabled = $rootScope.IziBoxConfiguration && $rootScope.IziBoxConfiguration.PhoneOrderEnable && ($rootScope.UserPreset && $rootScope.UserPreset.PhoneOrder && $rootScope.UserPreset.PhoneOrder.Menu);
+    $scope.GloryButtonEnabled = window.glory && ($rootScope.UserPreset && $rootScope.UserPreset.EnableGlory);
 
-    $scope.init = function () {
-
-        var btnMenus = document.getElementsByClassName("btn-menu-closable");
+    $scope.init = () => {
+        let btnMenus = document.getElementsByClassName("btn-menu-closable");
 
         for (let i = 0; i < btnMenus.length; i++) {
-            var btn = btnMenus[i];
-            btn.onclick = function () {
+            let btn = btnMenus[i];
+            btn.onclick = () => {
                 $scope.closeDrawerMenu();
-            }
+            };
         }
 
         $scope.closable = $rootScope.isWindowsContainer;
@@ -21,63 +21,60 @@
             $rootScope.IziPosConfiguration = {};
         }
 
-        $rootScope.IziPosConfiguration.IsDirectPayment = window.localStorage.getItem("IsDirectPayment") == "true" ? true : false;
+        $rootScope.IziPosConfiguration.IsDirectPayment = window.localStorage.getItem("IsDirectPayment") === "true";
         $rootScope.$evalAsync();
 
         $scope.checkDocSynchro();
     };
 
-    $scope.isValidCancelledTicket = function () {
-        $scope.currentShoppingCart = shoppingCartModel.getCurrentShoppingCart();
-        if ($scope.currentShoppingCart) {
-            if ($scope.currentShoppingCart.ParentTicket) {
-                return true;
-            } else {
-                return false;
-            }
-
-        } else {
-            return false
-        }
+    $scope.LossOrEmpMealEnable = () => {
+        return posUserService.isEnable('LOSS', true) || posUserService.isEnable('EMPMEAL', true);
     };
 
+    $scope.isValidShoppingCart = () => {
+        let ret = false;
+        if ($rootScope.currentShoppingCart) {
+            ret = $rootScope.currentShoppingCart && !$rootScope.currentShoppingCart.IsAccountConsignorPayment && !$rootScope.currentShoppingCart.IsEmployeeMeal &&
+                !$rootScope.currentShoppingCart.IsLoss && !$rootScope.currentShoppingCart.ParentTicket;
+        } else {
+            ret = true;
+        }
+        return ret;
+    };
 
-    /**
-     * Check if there's still tickets in the replicate in every 3s
-     * and display the result - useful to tell if the data are synchronised between the Back-Office and the Pos
-     * doesn't tell if there was a problem during ticket validation
-     */
-    $scope.checkDocSynchro = function () {
-        var loop = function () {
-            setTimeout(function () {
+    $scope.shoppingCartHasItems = () => {
+        let ret = false;
+        if ($rootScope.currentShoppingCart) {
+            ret = $rootScope.currentShoppingCart && $rootScope.currentShoppingCart.Items && $rootScope.currentShoppingCart.Items.length > 0;
+        }
+        return ret;
+    };
+
+    //Check if there's still tickets in the replicate in every 3s
+    //and display the result - useful to tell if the data are synchronised between the Back-Office and the Pos
+    //doesn't tell if there was a problem during ticket validation
+    $scope.checkDocSynchro = () => {
+        let loop = () => {
+            setTimeout(() => {
                 $scope.checkDocSynchro();
             }, 3000);
         };
 
-        if (!$("#drawerMenuDiv").hasClass("_md-closed")) {
-            $rootScope.dbReplicate.allDocs({
+        if (!$("#drawerMenuDiv").hasClass("_md-closed") && $rootScope.dbValidatePool) {
+            // Log the result
+            // $scope.docToSynchronize = Enumerable.from(result.rows).count(function (item) {
+            //     return item.id.indexOf("PosLog_") === -1;
+            // });
+            //$scope.$evalAsync();
+
+            $rootScope.dbValidatePool.allDocs({
                 include_docs: false,
                 attachments: false
-            }).then(function (result) {
-                // Log the result
-                $scope.docToSynchronize = Enumerable.from(result.rows).count(function (item) {
-                    return item.id.indexOf("PosLog_") === -1;
-                });
+            }).then((resPool) => {
+                $scope.docToSynchronize = resPool.rows.length;
                 $scope.$evalAsync();
-
-                $rootScope.dbValidatePool.allDocs({
-                    include_docs: false,
-                    attachments: false
-                }).then(function (resPool) {
-                    $scope.docToSynchronize += resPool.rows.length;
-                    $scope.$evalAsync();
-                    loop();
-                }).catch(function () {
-                    loop();
-                });
-
-
-            }).catch(function (err) {
+                loop();
+            }).catch(() => {
                 loop();
             });
         } else {
@@ -85,131 +82,108 @@
         }
     };
 
-    /**
-     * Set Localisation - caution only US FR supported ?
-     * @param codeLng
-     */
-    $scope.setLanguage = function (codeLng) {
+    //Set Localisation - caution only US FR supported ?
+    $scope.setLanguage = (codeLng) => {
         window.localStorage.setItem("CurrentLanguage", codeLng);
         $translate.use(codeLng);
     };
 
-    /**
-     * Set the option for not having to complete the amount of a payment mode
-     */
-    $scope.toggleDirectPayment = function () {
+    //Set the option for not having to complete the amount of a payment mode
+    $scope.toggleDirectPayment = () => {
         $rootScope.IziPosConfiguration.IsDirectPayment = $rootScope.IziPosConfiguration.IsDirectPayment ? false : true;
         window.localStorage.setItem("IsDirectPayment", $rootScope.IziPosConfiguration.IsDirectPayment);
     };
 
-    /**
-     * Open the view to apply a discount on the current shopping cart
-     */
-    $scope.shoppingCartDiscount = function () {
-        if (shoppingCartModel.getCurrentShoppingCart()) {
+    //Open the view to apply a discount on the current shopping cart
+    $scope.shoppingCartDiscount = () => {
+        if ($scope.isValidShoppingCart()) {
             if (posUserService.isEnable('DISC')) {
-                var modalInstance = $uibModal.open({
+                let modalInstance = $uibModal.open({
                     templateUrl: 'modals/modalShoppingCartDiscount.html',
                     controller: 'ModalShoppingCartDiscountController',
-                    backdrop: 'static',
-                    resolve: {
-                        defaultValue: function () {
-                            return 15;
-                        }
-                    }
+                    backdrop: 'static'
                 });
 
-                modalInstance.result.then(function (result) {
-                    shoppingCartModel.addShoppingCartDiscount(result.value, result.isPercent);
+                modalInstance.result.then(() => {
                     $scope.closeDrawerMenu();
-                }, function () {
+                }, () => {
                     $scope.closeDrawerMenu();
+                });
+            } else {
+                swal({
+                    title: $translate.instant("Vous n'avez pas les droits nécessaires.")
                 });
             }
         }
     };
 
-
-    /**
-     * Opens the view to Manage the past ticket
-     * TODO: We can only modify the ticket from the current period
-     */
-    $scope.showAllShoppingCarts = function () {
-        var modalInstance = $uibModal.open({
+    //Opens the view to Manage the past ticket
+    $scope.showAllShoppingCarts = () => {
+        let modalInstance = $uibModal.open({
             templateUrl: 'modals/modalAllShoppingCarts.html',
             controller: 'ModalAllShoppingCartsController',
-            size: 'lg',
-            backdrop: 'static'
+            backdrop: 'static',
+            size: 'full'
         });
 
-        modalInstance.result.then(function (shoppingCart) {
+        modalInstance.result.then((shoppingCart) => {
             $scope.closeDrawerMenu();
-        }, function () {
+        }, () => {
             $scope.closeDrawerMenu();
         });
     };
 
-    /**
-     * Print the last Shopping Cart
-     */
-    $scope.printLastShoppingCart = function () {
-        shoppingCartModel.printLastShoppingCart();
+    //Print the last Shopping Cart
+    $scope.printLastShoppingCart = () => {
+        printService.printLastShoppingCart();
     };
 
-    /**
-     * Open the view for  printing a 'Note'
-     */
-    $scope.printShoppingCartNote = function () {
-        shoppingCartModel.printShoppingCartNote();
+    //Open the view for  printing a 'Note'
+    $scope.printShoppingCartNote = () => {
+        printService.printShoppingCartNote();
     };
 
-    /**
-     * Open the view for 'opening' the POS
-     */
-    $scope.openPos = function () {
+    //Open the view for 'opening' the POS
+    $scope.openPos = () => {
         //TODO sur le YPeriod courant
         $scope.closeDrawerMenu();
 
-        posPeriodService.getYPeriodAsync($rootScope.modelPos.hardwareId, $rootScope.PosUserId, true, true).then(function (yPeriod) {
-
-        });
+        posPeriodService.getYPeriodAsync($rootScope.modelPos.hardwareId, $rootScope.PosUserId, true, false).then((periodPair) => { });
     };
 
-    /**
-     * Open the view to manage cash
-     */
-    $scope.cashManagement = function () {
+    //Open the view to manage cash
+    $scope.cashManagement = () => {
         //TODO sur le YPeriod
         $scope.closeDrawerMenu();
 
         if (posUserService.isEnable('CASH')) {
-
-            posPeriodService.getYPeriodAsync($rootScope.modelPos.hardwareId, $rootScope.PosUserId, false).then(function (yPeriod) {
-
-                if (yPeriod) {
-                    var modalInstance = $uibModal.open({
+            posPeriodService.getYPeriodAsync($rootScope.modelPos.hardwareId, $rootScope.PosUserId, false, false).then((periodPair) => {
+                if (periodPair.YPeriod) {
+                    let modalInstance = $uibModal.open({
                         templateUrl: 'modals/modalOpenPos.html',
                         controller: 'ModalOpenPosController',
                         resolve: {
-                            openPosParameters: function () {
+                            openPosParameters: () => {
                                 return {
                                     isOpenPos: false,
-                                    zPeriodId: yPeriod.zPeriodId,
-                                    yPeriodId: yPeriod.id,
-                                    yPeriod: yPeriod
+                                    zPeriodId: periodPair.YPeriod.zPeriodId,
+                                    yPeriodId: periodPair.YPeriod.id,
+                                    yPeriod: periodPair.YPeriod
                                 };
                             }
                         },
                         backdrop: 'static'
                     });
-                    modalInstance.result.then(function () {
-
-                    }, function () {
-                    });
+                    modalInstance.result.then(() => { }, () => { });
                 }
-            }, function () {
-                sweetAlert({title: $translate.instant("Veuillez renseigner le fond de caisse")}, function () {
+            }, () => {
+                swal({
+                    title: $translate.instant("Veuillez renseigner le fond de caisse")
                 });
+            });
+        } else {
+            swal({
+                title: $translate.instant("Vous n'avez pas les droits nécessaires.")
             });
         }
     };
@@ -217,70 +191,64 @@
     /**
      * Open the view for 'closing' the POS
      */
-    $scope.pickClose = function () {
-        $scope.closeDrawerMenu();
+    $scope.pickClose = () => {
+        if (!$rootScope.currentShoppingCart) {
+            $scope.closeDrawerMenu();
 
-        $uibModal.open({
-            templateUrl: 'modals/modalYperiodPick.html',
-            controller: 'ModalYperiodPickController',
-            size: 'lg',
-            backdrop: 'static'
-        });
-    };
-
-    /**
-     * Open the cash drawer
-     */
-    $scope.openDrawer = function () {
-        /**
-         * TODO: Log this event
-         */
-        if (posUserService.isEnable('ODRAW')) {
-            var configApiUrl = "http://" + $rootScope.IziBoxConfiguration.LocalIpIziBox + ":" + $rootScope.IziBoxConfiguration.RestPort + "/open/" + $rootScope.PrinterConfiguration.POSPrinter;
-            $http.get(configApiUrl, {timeout: 10000});
+            $uibModal.open({
+                templateUrl: 'modals/modalYperiodPick.html',
+                controller: 'ModalYperiodPickController',
+                size: 'lg',
+                backdrop: 'static'
+            });
         }
     };
 
-    $scope.openModalOrderInfo = function() {
-        $scope.closeDrawerMenu();
-        shoppingCartModel.editDeliveryInfos();
+    //Open the view for 'Glory'
+    $scope.openGlory = () => {
+        if (posUserService.isEnable('GLORY')) {
+            $scope.closeDrawerMenu();
+
+            $uibModal.open({
+                templateUrl: 'modals/modalGlory.html',
+                controller: 'ModalGloryController',
+                size: 'lg',
+                backdrop: 'static'
+            });
+        } else {
+            swal({
+                title: $translate.instant("Vous n'avez pas les droits nécessaires.")
+            });
+        }
     };
 
-    /*
-    $scope.openPhoneOrder = function(){
-        $scope.closeDrawerMenu();
+    //Open the cash drawer
+    $scope.openDrawer = () => {
+        posService.openDrawer();
+    };
 
-        //Active le mode commande telephonique
-        //Ce mode du mini basket permet la création de ticket speciaux pour les commandes telephoniques
-        // Il n'est pas possible de "valider" la commande
-        // On doit lui attribuer une heure de retrait relative à l'heure actuelle
-        // On peut la regler
-        // Une fois le ticket realiser, on le met dans le freeze
+    $scope.openModalOrderInfo = () => {
+        if ($scope.isValidShoppingCart()) {
+            $scope.closeDrawerMenu();
+            deliveryService.editDeliveryInfos(true);
+        }
+    };
 
-        var modalInstance = $uibModal.open({
-            templateUrl: 'modals/modalCustomerForPhone.html',
-            controller: 'ModalCustomerForPhoneController',
-            size: 'lg',
-            backdrop: 'static'
-        });
-
-        modalInstance.result.then(function () {
-            console.log("On a add un client");
-
-            $rootScope.PhoneOrderMode = true;
-        }, function () {
-            console.log("On a annulé");
-            $rootScope.PhoneOrderMode = false;
+    $scope.openModalSwitchMode = () => {
+        // TODO : Ouvrir une modal qui propose un choix entre Perte et Repas Employé
+        $uibModal.open({
+            templateUrl: 'modals/modalSwitchMode.html',
+            controller: 'ModalSwitchModeController'
         });
     };
-    */
 
-    $scope.openConfig = function() {
+    $scope.openConfig = () => {
+        document.body.innerHTML = '';
         window.location.reload();
     };
 
-    $scope.openDeviceMonitoring = function () {
-        var modalInstance = $uibModal.open({
+    $scope.openDeviceMonitoring = () => {
+        let modalInstance = $uibModal.open({
             templateUrl: 'modals/modalMonitoring.html',
             controller: 'ModalMonitoringController',
             size: 'lg',
@@ -288,71 +256,65 @@
         });
     };
 
-    $scope.logout = function () {
+    $scope.openStoreStateModal = () => {
+        let modalInstance = $uibModal.open({
+            templateUrl: 'modals/modalOpenCloseStore.html',
+            controller: 'ModalOpenCloseStoreController',
+            size: 'lg',
+            backdrop: 'static'
+        });
+    };
+
+    $scope.logout = () => {
         $scope.closeDrawerMenu();
-        posUserService.saveEventAsync("Logout", 1, 0);
-        posUserService.StopWork($rootScope.PosUserId);
+        //posUserService.saveEventAsync("Logout", 1, 0, $rootScope.PosUserId);
+        //posUserService.StopWork($rootScope.PosUserId);
         $rootScope.PosUserId = 0;
         $rootScope.PosUserName = "";
     };
 
-    /**
-     * Close the application - only available for windows platforms
-     */
-    $scope.exit = function () {
-        if ($rootScope.isWindowsContainer) {
-            try {
-                wpfCloseApp.shutdownApp();
-            } catch (err) {
+    //Close the application - only available for windows platforms
+    $scope.exit = () => {
+        if (!$rootScope.currentShoppingCart) {
+            if ($rootScope.isWindowsContainer) {
+                try {
+                    wpfCloseApp.shutdownApp();
+                } catch (err) {
+                    console.error(err);
+                }
             }
         }
     };
 
-    /**
-     * Change the current user - doesn't unlog the user
-     * This action needs privilege
-     */
-    $scope.changeUser = function () {
-        $scope.closeDrawerMenu();
-        posUserService.saveEventAsync("Logout", 1, 0);
-        $rootScope.PosUserId = 0;
-        $rootScope.PosUserName = "";
-    };
-
-    /**
-     * Open the view managing the split ticket
-     * This action needs privilege
-     */
-    $scope.shoppingCartSplit = function () {
+    //Open the view managing the split ticket
+    //This action needs privilege
+    $scope.shoppingCartSplit = () => {
         this.openAdmin();
         if (posUserService.isEnable('SPLIT')) {
-            var modalInstance = $uibModal.open({
+            $uibModal.open({
                 templateUrl: 'modals/modalShoppingCartSplit.html',
                 controller: 'ModalShoppingCartSplitController',
                 backdrop: 'static',
                 size: 'lg',
                 resolve: {
-                    defaultValue: function () {
+                    defaultValue: () => {
                         return true;
                     }
                 }
             });
+        } else {
+            swal({
+                title: $translate.instant("Vous n'avez pas les droits nécessaires.")
+            });
         }
     };
 
-    /**
-     * Open the BO administarion
-     * @Experimental
-     * @param adminController
-     * @param adminAction
-     */
-    $scope.openAdmin = function (adminController, adminAction) {
-        $scope.closeDrawerMenu();
-        var htmlcontent = $('#loadAdmin ');
-        $http.get($rootScope.IziBoxConfiguration.UrlSmartStoreApi + '/../PosAdminV2/' + adminController + '/' + adminAction).then(function (response) {
-            htmlcontent.html(response.data);
-        });
-
-    };
-
+    //Open the BO administarion
+    // $scope.openAdmin = (adminController, adminAction) => {
+    //     $scope.closeDrawerMenu();
+    //     let htmlcontent = $('#loadAdmin ');
+    //     $http.get($rootScope.IziBoxConfiguration.UrlSmartStoreApi + '/../PosAdminV2/' + adminController + '/' + adminAction).then((response) => {
+    //         htmlcontent.html(response.data);
+    //     });
+    // };
 });

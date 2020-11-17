@@ -1,55 +1,92 @@
 <section ng-init="init()">
-    <div class="modal-header">
+    <div class="modal-header center">
         <h1 class="modal-title" translate>Fermetures</h1>
+        <div>Fermez vos services ou votre journée</div>
     </div>
-
+    <div class="modal-loader" ng-show="loading"></div>
     <div class="form-panel modal-body" ng-cloak>
 
-        <div id="quickAccess">
-            <button class="btn btn-warning" ng-if="model.closingEnable" ng-click="setHid('*', $index, true, false);"
-                    style="margin: 5px" translate>
-                Fermer la journée
-            </button>
-            <button class="btn btn-success" ng-if="model.closingEnable" ng-click="setHid('*', $index, false, true);"
-                    style="margin: 5px" translate>
-                Consulter le Z
-            </button>
+        <!--<div id="quickAccess">-->
+            <!--<button class="btn btn-warning" ng-if="model.closingEnable" ng-click="closePeriod(null, true)"-->
+                    <!--style="margin: 5px" translate>-->
+                <!--Fermer la journée-->
+            <!--</button>-->
+            <!--<button class="btn btn-success" ng-if="model.closingEnable" ng-click="openStats(null, true)"-->
+                    <!--style="margin: 5px" translate>-->
+                <!--Consulter le Z-->
+            <!--</button>-->
+        <!--</div>-->
+
+
+        <div layout="row" layout-align="start start" class="cardContainer">
+            <div ng-repeat="pos in model.yPeriodByHid" layout="column" layout-align="start center" class="posPeriodContainer">
+                <div layout="row" layout-align="end center" style="padding-top:7px; align-self: flex-end;">
+                    <div class="posStatus"
+                         ng-class="{'posOpenClean' : pos.Status === PosStatus.OPENCLEAN,
+                                    'posOpenDirty' : pos.Status === PosStatus.OPENDIRTY,
+                                    'posClosedClean' : pos.Status === PosStatus.CLOSEDCLEAN,
+                                    'posClosedDirty' : pos.Status === PosStatus.CLOSEDDIRTY }"></div>
+                </div>
+                <div class="posTypeIcon" layout="row" layout-align="center center">
+                    <md-icon md-svg-src="img/icons/icn-caisse.svg"></md-icon>
+                </div>
+                <div class="center posAlias cashMachineName center" flex="1">{{pos.Alias}}</div>
+
+                <div class="yPeriodContainer"
+                     layout="column" layout-align="space-between center">
+                    <div ng-repeat="yp in pos.yps"
+                         ng-class="{'highlighted' : yp.IsOwnYPeriod }"
+                         ng-click="closeYPeriod(yp)"
+                         class="yPeriodButton" layout="row" layout-align="center center">
+                        <div ng-show="!yp.endDate">{{dateFormat(yp.startDate)}}</div>
+                        <div ng-show="yp.endDate" style="color: #c2c2c2">{{dateFormat(yp.endDate)}}</div>
+                        <div class="status" ng-class="{'periodOpen' : !yp.endDate, 'periodHasDiscrepency' : HasDiscrepency(yp), 'periodClosedClean' : yp.endDate && !HasDiscrepency(yp)}"></div>
+                    </div>
+
+                </div>
+            </div>
         </div>
 
-        <div id="caisseContainer">
-            <h2 translate>Choisissez votre caisse :</h2>
+        <!--<div id="caisseContainer">-->
+            <!--<h2 translate>Choisissez votre caisse :</h2>-->
 
-            <button class="btn btn-default" ng-repeat="line in model.hids" ng-click="setHid(line.hid, $index); "
-                    ng-class="{true:'activeButton'}[activeHidBtn == $index]" style="margin: 5px">
-                {{line.alias ? line.alias : line.hid}}
-            </button>
-        </div>
+            <!--<button class="btn btn-default" ng-repeat="line in model.hids" ng-click="setHid(line.hid, $index); "-->
+                    <!--ng-class="{true:'activeButton'}[activeHidBtn == $index]" style="margin: 5px">-->
+                <!--{{line.alias ? line.alias : line.hid}}-->
+            <!--</button>-->
+        <!--</div>-->
 
 
-        <div id="yperiodContainer" style="padding-top:10px" ng-if="model.chosenHid">
-            <hr>
-            <!-- Cette div est peuplé quand on selectionne une caisse -->
-            <h2 translate>Choisissez votre service :</h2>
+        <!--<div id="yperiodContainer" style="padding-top:10px" ng-if="model.chosenHid">-->
+            <!--<hr>-->
+            <!--&lt;!&ndash; Cette div est peuplé quand on selectionne une caisse &ndash;&gt;-->
+            <!--<h2 translate>Choisissez votre service :</h2>-->
 
-            <button class="btn btn-default" ng-repeat="yperiod in yperiods track by $index"
-                    ng-click="setYPeriod(yperiod, $index)"
-                    ng-class="{activeButton : activeYpidBtn == $index, closedPeriod : yperiod.endDate, emptyPeriod: yperiod.isEmpty}"
-                    style="margin: 5px">
-                {{printDate(yperiod)}}
-            </button>
+            <!--<button class="btn btn-default" ng-repeat="yperiod in yperiods track by $index"-->
+                    <!--ng-click="setYPeriod(yperiod, $index)"-->
+                    <!--ng-class="{activeButton : activeYpidBtn == $index, closedPeriod : yperiod.endDate, emptyPeriod: yperiod.isEmpty}"-->
+                    <!--style="margin: 5px">-->
+                <!--{{printDate(yperiod)}}-->
+            <!--</button>-->
 
-            <button class="btn btn-default" ng-if="model.closingEnable" ng-click="setYPeriod('*', $index)"
-                    ng-class="{true:'activeButton'}[activeYpidBtn == $index]"
-                    style="margin: 5px" translate>
-                Tous les services
-            </button>
+            <!--<button class="btn btn-default" ng-if="model.closingEnable" ng-click="setYPeriod('*', $index)"-->
+                    <!--ng-class="{true:'activeButton'}[activeYpidBtn == $index]"-->
+                    <!--style="margin: 5px" translate>-->
+                <!--Tous les services-->
+            <!--</button>-->
 
-        </div>
+        <!--</div>-->
     </div>
 
     <div class="modal-footer">
-        <button class="btn btn-green" ng-click="closePos(model.mode)" ng-if="isClosingEnabled" translate> Fermeture</button>
-        <button class="btn btn-green" ng-click="openZ()" ng-if="isDisplayZEnabled" translate>Afficher les stats</button>
+        <button class="btn btn-warning" ng-if="model.closingEnable" ng-click="closePeriod(null, true)"
+                style="margin: 5px" translate>
+            Fermer la journée
+        </button>
+        <button class="btn btn-success" ng-if="model.closingEnable" ng-click="openStats(null, true)"
+                style="margin: 5px" translate>
+            Consulter le Z
+        </button>
         <button class="btn btn-rose" ng-click="cancel()" translate>Annuler</button>
     </div>
 

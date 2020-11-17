@@ -4,7 +4,7 @@
             url: '/configurablemenu/{id}',
             params: {
                 id: null,
-                offer: null,
+                offer: null
             },
             templateUrl: 'viewsBorne/ProductTemplate/configurableMenu.html'
         })
@@ -12,239 +12,289 @@
             url: '/configurablemenu/{id}',
             params: {
                 id: null,
-                offer: null,
+                offer: null
             },
             templateUrl: 'views/ProductTemplate/configurableMenu.html'
-        })
+        });
 });
 
+app.controller('ConfigurableMenuController', function ($scope, $rootScope, $stateParams, $mdMedia, settingService, productService, pictureService) {
+    $scope.pictureService = pictureService;
 
-app.controller('ConfigurableMenuController', function ($scope, $rootScope, $stateParams, $location, $mdMedia, categoryService, settingService, productService, pictureService, shoppingCartModel) {
-    var deliveryType = shoppingCartModel.getDeliveryType();
-    $rootScope.$on('deliveryTypeChanged', (e, newValue) => {
-        var nextDeliveryType = newValue;
-        var nextPrice;
-
-        switch (nextDeliveryType) {
-            case 0:
-                nextPrice = $scope.initialProduct.Price;
-                break;
-            case 1:
-                nextPrice = $scope.initialProduct.TakeawayPrice || $scope.initialProduct.Price;
-                break;
-            case 2:
-                nextPrice = $scope.initialProduct.DeliveryPrice || $scope.initialProduct.Price;
-                break;
-            default:
-                nextPrice = $scope.initialProduct.Price;
-                break;
-        }
-
-        $scope.TotalPrice = $scope.TotalPrice - $scope.lastPrice + nextPrice;
-        $scope.lastPrice = nextPrice;
-        deliveryType = newValue;
-
-    });
-    $scope.init = function () {
-        $scope.$mdMedia = $mdMedia;
+    $scope.init = () => {
+        $scope.mdMedia = $mdMedia;
         if ($rootScope.IziBoxConfiguration.StepEnabled) {
-            settingService.getStepNamesAsync().then(function (stepNames) {
+            settingService.getStepNamesAsync().then((stepNames) => {
                 $scope.stepNames = stepNames;
             });
         }
+        productService.ReloadSelected = false;
     };
 
-    var currentProductHandler = $rootScope.$watch('currentConfigurableProduct', function () {
-
+    const currentProductHandler = $rootScope.$watch('currentConfigurableProduct', () => {
         if ($rootScope.currentConfigurableProduct) {
-            if ($rootScope.borne) {
-                productService.getProductForCategoryAsync([$rootScope.currentConfigurableProduct.ProductCategory.CategoryId]).then(function (products) {
-
-                    $scope.initialProduct = Enumerable.from(products).firstOrDefault(function (p) {
-                        return p.Id == $rootScope.currentConfigurableProduct.Id;
-                    });
-
-                    if ($rootScope.currentConfigurableProduct) {
-                        loadProduct(clone($rootScope.currentConfigurableProduct));
-                    }
-
-                    $rootScope.currentConfigurableProduct = undefined;
+            productService.getProductForCategoryAsync([$rootScope.currentConfigurableProduct.CategoryId]).then(function (products) {
+                let matchingProduct = Enumerable.from(products).firstOrDefault(function (p) {
+                    return p.Id === $rootScope.currentConfigurableProduct.Id;
                 });
-            } else {
-                if ($rootScope.currentConfigurableProduct.ProductCategory) {
-                    productService.getProductForCategoryAsync([$rootScope.currentConfigurableProduct.ProductCategory.CategoryId]).then(function (products) {
 
-                        $scope.initialProduct = Enumerable.from(products).firstOrDefault(function (p) {
-                            return p.Id == $rootScope.currentConfigurableProduct.Id;
-                        });
+                let productIds = [];
+                matchingProduct.ProductAttributes.forEach((attr) => {
+                    productIds.push(...attr.ProductAttributeValues.filter(pav => pav.LinkedProduct).map(pav => pav.LinkedProduct.Id));
+                });
 
-                        if ($rootScope.currentConfigurableProduct) {
-                            loadProduct(clone($rootScope.currentConfigurableProduct));
-                        }
+                if (!matchingProduct.StoreId) {
+                    matchingProduct.StoreId = $rootScope.currentConfigurableProduct.StoreId;
+                }
+
+                if (productIds && productIds.length > 0) {
+                    $rootScope.getProductByIdsAsync(productIds).then((products) => {
+                        for (let attr of matchingProduct.ProductAttributes) {
+                            let previouslySelectedValue = $rootScope.currentConfigurableProduct.ProductAttributes.find(a => a.Id === attr.Id).ProductAttributeValues.find(av => av.Selected);
+                            for (let pav of attr.ProductAttributeValues) {
+                                if (pav.LinkedProduct && pav.LinkedProduct.Id) {
+                                    matching = Enumerable.from(products).firstOrDefault(p => p.Id === pav.LinkedProduct.Id);
+                                    if (matching) {
+                                        matchingProduct.TaxCategoryId = matchingProduct.TaxCategory.TaxCategoryId;
+                                        pav.LinkedProduct = matching;
+                                    }
+                                }
+                                if (previouslySelectedValue) {
+                                    pav.Selected = previouslySelectedValue.Id === pav.Id;
+                                }
+                                let previousAV = $rootScope.currentConfigurableProduct.ProductAttributes.find(a => a.Id === attr.Id).ProductAttributeValues.find(av => av.Id === pav.Id);
+                                if (previousAV) {
+                                    pav.IsPreSelected = previousAV.IsPreSelected;
+                                }
+                            }
+                        };
+
+                        $scope.initialProduct = matchingProduct;
+
+                        loadProduct(clone(matchingProduct));
 
                         $rootScope.currentConfigurableProduct = undefined;
                     });
+                } else {
+                    // Si on ne trouve aucun des produit lié de la formule
+                    if ($rootScope.currentConfigurableProduct) {
+                        productService.getProductForCategoryAsync([$rootScope.currentConfigurableProduct.CategoryId]).then(function (products) {
+                            let matchingProduct = Enumerable.from(products).firstOrDefault(function (p) {
+                                return p.Id === $rootScope.currentConfigurableProduct.Id;
+                            });
+                            let productIds = [];
+                            matchingProduct.ProductAttributes.forEach((attr) => {
+                                productIds.push(...attr.ProductAttributeValues.filter(pav => pav.LinkedProduct).map(pav => pav.LinkedProduct.Id));
+                            });
+                            $scope.initialProduct = clone(matchingProduct);
+                            if (productIds && productIds.length > 0) {
+                                $rootScope.getProductByIdsAsync(productIds).then((products) => {
+                                    matchingProduct.ProductAttributes.forEach((attr) => {
+                                        attr.ProductAttributeValues.forEach((pav) => {
+                                            if (pav.LinkedProduct && pav.LinkedProduct.Id) {
+                                                pav.LinkedProduct = Enumerable.from(products).firstOrDefault(p => p.Id === pav.LinkedProduct.Id);
+                                            }
+                                        });
+                                    });
+
+                                    $rootScope.currentConfigurableProduct = matchingProduct;
+
+                                    if ($rootScope.currentConfigurableProduct) {
+                                        loadProduct(clone($rootScope.currentConfigurableProduct));
+                                    }
+
+                                    $rootScope.currentConfigurableProduct = undefined;
+                                });
+                            } else {
+                                if ($rootScope.currentConfigurableProduct) {
+                                    loadProduct(clone($rootScope.currentConfigurableProduct));
+                                }
+                                if (!$scope.initialProduct.StoreId) {
+                                    $scope.initialProduct.StoreId = $rootScope.currentConfigurableProduct.StoreId;
+                                }
+
+                                $rootScope.currentConfigurableProduct = undefined;
+                            }
+                        });
+                    } else {
+                        $scope.initialProduct = $rootScope.currentConfigurableProduct;
+                        loadProduct(clone($rootScope.currentConfigurableProduct));
+                        $rootScope.currentConfigurableProduct = undefined;
+                    }
                 }
-                else {
-                    $scope.initialProduct = $rootScope.currentConfigurableProduct;
-                    loadProduct(clone($rootScope.currentConfigurableProduct));
-                    $rootScope.currentConfigurableProduct = undefined;
-                }
-            }
+            });
         }
     });
 
-    $scope.$on("$destroy", function () {
-        currentProductHandler();
+    $scope.$on("$destroy", () => {
+        if (currentProductHandler) {
+            currentProductHandler();
+        }
     });
 
-    var loadProduct = function (selectedProduct, isOfferConsumed) {
+    const loadProduct = (selectedProduct, isOfferConsumed = false, ignoreSelected = false) => {
         // Init Step
         if ($rootScope.IziBoxConfiguration.StepEnabled) {
             $scope.currentStep = 0;
-            if (!shoppingCartModel.getCurrentShoppingCart()) {
-                shoppingCartModel.createShoppingCart();
+            if (!$rootScope.currentShoppingCart) {
+                $rootScope.createShoppingCart();
             }
-            if (shoppingCartModel.getCurrentShoppingCart().CurrentStep) {
-                $scope.currentStep = shoppingCartModel.getCurrentShoppingCart().CurrentStep;
+            if ($rootScope.currentShoppingCart.CurrentStep) {
+                $scope.currentStep = $rootScope.currentShoppingCart.CurrentStep;
             }
         }
 
         //Clone instance
-        $scope.product = jQuery.extend(true, {}, selectedProduct);
-        if ($rootScope.borne) {
-            $scope.TotalPrice = $scope.initialProduct.Price;
-        } else {
-            if (($rootScope.isConfigurableProductOffer || ($stateParams.offer && $stateParams.offer.OfferParam.Price == 0)) && !isOfferConsumed) {
-                $scope.TotalPrice = 0;
-            } else {
-                console.log($scope.initialProduct);
-                switch (deliveryType) {
-                    case 0:
-                        $scope.TotalPrice = $scope.initialProduct.Price;
-                        break;
-                    case 1:
-                        $scope.TotalPrice = $scope.initialProduct.TakeawayPrice || $scope.initialProduct.Price;
-                        break;
-                    case 2:
-                        $scope.TotalPrice = $scope.initialProduct.DeliveryPrice || $scope.initialProduct.Price;
-                        break;
-                    default:
-                        $scope.TotalPrice = $scope.initialProduct.Price;
-                        break;
-                }
-                $scope.lastPrice = $scope.TotalPrice;
+        $scope.product = angular.copy(selectedProduct);
 
+        // Sort by display order
+        $scope.product.ProductAttributes = Enumerable.from($scope.product.ProductAttributes).orderBy(p => p.DisplayOrder).thenBy(p => p.Name).toArray();
+
+        if (($rootScope.isConfigurableProductOffer || ($stateParams.offer && $stateParams.offer.OfferParam)) && !isOfferConsumed) {
+            $scope.TotalPrice = $stateParams.offer.OfferParam.Price || 0;
+            $scope.product.Price = $stateParams.offer.OfferParam.Price || 0;
+
+        } else {
+            console.log($scope.initialProduct);
+            switch ($rootScope.currentDeliveryType) {
+                case 0:
+                    $scope.TotalPrice = $scope.initialProduct.Price;
+                    break;
+                case 1:
+                    $scope.TotalPrice = $scope.initialProduct.TakeawayPrice || $scope.initialProduct.Price;
+                    break;
+                case 2:
+                    $scope.TotalPrice = $scope.initialProduct.DeliveryPrice || $scope.initialProduct.Price;
+                    break;
+                default:
+                    $scope.TotalPrice = $scope.initialProduct.Price;
+                    break;
+            }
+            $scope.lastPrice = $scope.TotalPrice;
+        }
+
+        $scope.productIsValid();
+
+        if (productService.ReloadSelected && ignoreSelected) {
+            for (let pAttr of $scope.product.ProductAttributes) {
+                for (let pAttrValue of pAttr.ProductAttributeValues) {
+                    pAttrValue.Selected = false;
+                }
             }
         }
-        $scope.productIsValid();
 
         //Load selected value
         for (let pAttr of $scope.product.ProductAttributes) {
-            let pAttrId = pAttr.Id;
+            pAttr.ProductAttributeValues = Enumerable.from(pAttr.ProductAttributeValues).orderBy(pav => pav.DisplayOrder).thenBy(pav => pav.Name).toArray();
+
+            let countSelected = pAttr.ProductAttributeValues.filter(a => a.Selected).length;
+
             for (let pAttrValue of pAttr.ProductAttributeValues) {
                 //Load pictures for attributes values
-                if (!pAttrValue.DefaultPictureUrl) {
-                    pictureService.getPictureIdsForProductAsync(pAttrValue.LinkedProductId).then(function (ids) {
-                        const id = pictureService.getCorrectPictureId(ids);
-                        pictureService.getPictureUrlAsync(id).then(function (url) {
-                            if (!url) {
-                                url = 'img/photo-non-disponible.png';
+                if (!pAttrValue.DefaultPictureUrl || pAttrValue.DefaultPictureUrl === 'img/photo-non-disponible.png') {
+                    if (pAttrValue.LinkedProduct) {
+                        pictureService.loadPictureForProductAsync(pAttrValue.LinkedProduct.Id).then((picture) => {
+                            if (picture) {
+                                pAttrValue.DefaultPictureUrl = picture.PictureUrl;
                             }
-                            pAttrValue.DefaultPictureUrl = url;
                         });
-                    });
+                    }
                 }
 
                 //Select attributes values
-                if (pAttrValue.IsPreSelected || pAttrValue.Selected) {
+                if ((pAttrValue.IsPreSelected && (!countSelected)) || (pAttrValue.Selected && !productService.ReloadSelected && !ignoreSelected)) {
                     pAttrValue.Selected = false;
-                    $scope.selectAttributeValue(pAttrId, pAttrValue.Id, true);
+                    $scope.selectAttributeValue(pAttr.Id, pAttrValue.Id, true);
                 }
             }
         }
     };
 
     //#region Actions
-    $scope.addToCart = function (product) {
+    $scope.addToSC = (product) => {
+        productService.ReloadSelected = true;
         console.log($stateParams);
-        shoppingCartModel.addToCart(product, true);
+        $rootScope.addToCart(product, true, $stateParams.offer);
         if (!$rootScope.borne) {
             $stateParams.offer = null;
         }
-        loadProduct($scope.initialProduct);
+        loadProduct($scope.initialProduct, true, true);
     };
+
     //#endregion
-    $scope.moveStep = function (i) {
+    $scope.moveStep = (i) => {
         if ($scope.currentStep + i >= 0) $scope.currentStep += i;
     };
 
+    const adjustTotalPrice = () => {
+
+        let attrPriceAdjustment = 0;
+        $scope.product.ProductAttributes.forEach((attr) => {
+            let selectedAttr = attr.ProductAttributeValues.filter(pav => pav.Selected);
+            let nbSelected = selectedAttr.length;
+            let selectedAttrPrices = selectedAttr.map(pav => pav.PriceAdjustment);
+
+            if (attr.NbFree && attr.NbFree > 0) {
+
+                let paidAttr = nbSelected - attr.NbFree;
+
+                if (paidAttr > 0) {
+                    let sorted = selectedAttrPrices.sort((a, b) => b - a);
+                    let sliced = sorted.slice(0, paidAttr);
+                    attrPriceAdjustment += sliced.reduce((a, b) => a + b, 0);
+                }
+            } else {
+                attrPriceAdjustment += selectedAttrPrices.reduce((a, b) => a + b, 0);
+            }
+        });
+
+        $scope.TotalPrice = $scope.initialProduct.Price + attrPriceAdjustment;
+    };
+
     // Select (unselect) Attribute value
-    $scope.selectAttributeValue = function (productAttributeId, id, reload, event) {
-        let Attribute = Enumerable.from($scope.product.ProductAttributes).firstOrDefault("x => x.Id ==" + productAttributeId);
+    $scope.selectAttributeValue = (productAttributeId, id, reload) => {
+        let Attribute = Enumerable.from($scope.product.ProductAttributes).firstOrDefault(x => x.Id === productAttributeId);
 
         if (!reload) {
-            if (shoppingCartModel.getCurrentShoppingCart()) {
+            if ($rootScope.currentShoppingCart) {
                 Attribute.Step = $scope.currentStep;
-            }
-            else {
+            } else {
                 Attribute.Step = 0;
             }
         }
-        let AttributeValue = Enumerable.from(Attribute.ProductAttributeValues).firstOrDefault("x => x.Id ==" + id);
+        let AttributeValue = Enumerable.from(Attribute.ProductAttributeValues).firstOrDefault(x => x.Id === id);
 
         if (AttributeValue.Selected) {
             if (testSelectCheckbox(Attribute, AttributeValue, false)) {
-                if (AttributeValue.PriceAdjustment) {
-                    $scope.TotalPrice -= AttributeValue.PriceAdjustment;
-                }
+                adjustTotalPrice();
             }
         } else {
-            if ($rootScope.borne) {
-                AttributeValue.Selected = true;
-
+            if (testSelectCheckbox(Attribute, AttributeValue, true)) {
                 if (!reload) {
                     Attribute.Step = $scope.currentStep;
 
                     if (AttributeValue.LinkedProduct && AttributeValue.LinkedProduct.ProductComments && AttributeValue.LinkedProduct.ProductComments.length > 0) {
-                        shoppingCartModel.editComment(AttributeValue);
+                        productService.editComment(AttributeValue);
                     }
                 } else {
                     if (!Attribute.Step) {
                         Attribute.Step = $scope.currentStep;
                     }
                 }
-                if (AttributeValue.PriceAdjustment) {
-                    $scope.TotalPrice += AttributeValue.PriceAdjustment;
-                }
-                $scope.$evalAsync();
-            } else {
-                if (testSelectCheckbox(Attribute, AttributeValue, true)) {
-                    if (!reload) {
-                        Attribute.Step = $scope.currentStep;
 
-                        if (AttributeValue.LinkedProduct && AttributeValue.LinkedProduct.ProductComments && AttributeValue.LinkedProduct.ProductComments.length > 0) {
-                            shoppingCartModel.editComment(AttributeValue);
-                        }
-                    } else {
-                        if (!Attribute.Step) {
-                            Attribute.Step = $scope.currentStep;
-                        }
-                    }
-                    if (AttributeValue.PriceAdjustment) {
-                        $scope.TotalPrice += AttributeValue.PriceAdjustment;
-                    }
-                    $scope.$evalAsync();
-                }
+                adjustTotalPrice();
+
+                $scope.$evalAsync();
             }
         }
+
         if (Attribute.Type == 2) // Radiolist
         {
             for (let i = 0; i < Attribute.ProductAttributeValues.length; i++) {
-                let item = Attribute.ProductAttributeValues[i];
-                if (item.Selected && item.Id != id) {
-                    item.Selected = false;
-                    $scope.TotalPrice -= item.PriceAdjustment;
+                let pav = Attribute.ProductAttributeValues[i];
+                if (pav.Selected && pav.Id != id) {
+                    pav.Selected = false;
+                    adjustTotalPrice();
                 }
             }
         }
@@ -253,57 +303,62 @@ app.controller('ConfigurableMenuController', function ($scope, $rootScope, $stat
         $scope.$evalAsync();
     };
 
-    function testSelectCheckbox(Attribute, AttributeValue, state) {
-        if (Attribute.Type != 2) { // Checkbox
+    const testSelectCheckbox = (Attribute, AttributeValue, state) => {
+        if (Attribute) {
+            if (Attribute.Type != 2) { // Checkbox
+                //A faire descendre du BO, mais pour l'instant c'est en dur
+                const max = Attribute.Max ? Attribute.Max : 99;
+                const min = Attribute.Min ? Attribute.Min : 0;
+                // Pas besoin d'un min ?
 
-            //A faire descendre du BO, mais pour l'instant c'est en dur
-            const max = Attribute.Max ? Attribute.Max : 99;
-            const min = Attribute.Min ? Attribute.Min : 0;
-            // Pas besoin d'un min ?
+                let nbSelect = Attribute.ProductAttributeValues.filter(a => a.Selected).length;
 
-            // On recupere le container de l'element cliqué
-            let container = document.querySelector("#a" + Attribute.Id);
-
-            // On regarde le nombre d'element selectionné dans le container
-            let nbSelect = container.querySelectorAll("button.attributeBox.active").length;
-
-            // Si on veut selectionné et qu'on est en dessous du max, on autorise
-            if (nbSelect < max && state === true) {
-                AttributeValue.Selected = state;
-                return true;
-            }
-            // Si on veut déselectionné et qu'on est au dessus du min, on autorise
-            if (nbSelect > min && state === false) {
-                if (Attribute.IsRequired && nbSelect === 0) {
-                    return false;
-                } else {
-                    AttributeValue.Selected = state;
+                // Si on veut selectionné et qu'on est en dessous du max, on autorise
+                if (nbSelect < max && state) {
+                    if (AttributeValue) {
+                        AttributeValue.Selected = state;
+                    }
                     return true;
                 }
+                // Si on veut déselectionné et qu'on est au dessus du min, on autorise
+                if (nbSelect > min && !state) {
+                    if (Attribute.IsRequired && nbSelect === 0) {
+                        return false;
+                    } else {
+                        if (AttributeValue) {
+                            AttributeValue.Selected = state;
+                        }
+                        return true;
+                    }
+                }
+
+                return false;
+            } else {
+                // Dans le cas radio, on autorise
+                if (AttributeValue) {
+                    AttributeValue.Selected = state;
+                }
+                return true;
             }
-            return false;
-        } else {
-            // Dans le cas radio, on autorise
-            AttributeValue.Selected = state;
-            return true;
         }
+
     }
 
     /**
      * Test if all required attributes are selected
      */
-    $scope.productIsValid = function () {
+    $scope.productIsValid = () => {
         $scope.canAddToCart = true;
-        var retval = true;
-        var attributes = Enumerable.from($scope.product.ProductAttributes).where("x => x.IsRequired").toArray();
-        for (var i = 0; i < attributes.length; i++) {
-            var attribute = attributes[i];
+        let retval = true;
+        let attributes = Enumerable.from($scope.product.ProductAttributes).where("x => x.IsRequired").toArray();
+        for (let i = 0; i < attributes.length; i++) {
+            let attribute = attributes[i];
             retval = retval && Enumerable.from(attribute.ProductAttributeValues).any("x => x.Selected");
         }
         $scope.canAddToCart = retval;
     };
 
-    $scope.scrollTo = function (elementId) {
+    $scope.scrollTo = (elementId) => {
         const elem = document.querySelector('#a' + elementId);
         if (elem) {
             const top = elem.offsetTop;
@@ -313,4 +368,3 @@ app.controller('ConfigurableMenuController', function ($scope, $rootScope, $stat
         }
     };
 });
-

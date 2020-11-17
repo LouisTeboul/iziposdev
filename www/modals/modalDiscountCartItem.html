@@ -1,4 +1,5 @@
-﻿<section>
+﻿<!-- MODAL NOT USED ? REMOVE IT ? -->
+<section>
     <div ng-init="init()" class="modal-header">
         <h1 class="modal-title" translate>Remise sur un article</h1>
     </div>
@@ -15,6 +16,7 @@
         <center class="inp">
             <label ng-if="result.isPercent"><x translate>Pourcentage</x> :</label>
             <label ng-if="!result.isPercent"><x translate>Montant</x> :</label>
+            <!-- TODO : CHECK IF IT'S WORKING -->
             <text-field ng-if="result.isPercent" id="txtAmount" ng-model="result.value" location="end-start" type="numeric" validfunction="ok" style="width:160px"></text-field>
             <text-field ng-if="!result.isPercent" id="txtAmount" ng-model="result.value" location="end-start" type="decimal" validfunction="ok" style="width:160px"></text-field>
         </center>

@@ -11,7 +11,7 @@
                 $rootScope.closeKeyboard();
             },
             function (error) {
-                //console.log(error);
+                //console.error(error);
             }, function (videoError) {
                 //the video stream could be opened
                 console.log(videoError);

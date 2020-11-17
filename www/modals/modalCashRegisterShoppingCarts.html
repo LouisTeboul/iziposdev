@@ -2,20 +2,35 @@
     <div class="modal-header">
         <h1 class="modal-title">Tickets de la caisse</h1>
     </div>
-
     <div class="form-panel modal-body">
-
         <div ng-hide="loading" class="row">
-
             <label for="filterAmount" class="control-label col-md-3">Montant</label>
         </div>
         <div ng-hide="loading" class="row selectDate">
-            <div class="row">
-                <div class="input-group input-group-date col-md-3">
-                    <text-field id="filterAmount" ng-model="filterAmount" location="end-start" type="decimal" validfunction="filterAmountHandler" style="width: 155px;height:33px;border-color: #cecdcd;border-radius: 2px;padding-top: 1px;font-size: medium;"></text-field>
+            <div class="row" style="display:flex">
+                <div class="input-group-date" style="display:flex">
+                    <text-field id="filterAmount" class="closeFilterAmount" ng-model="filterAmount" location="end-start" type="decimal"
+                                validfunction="filterAmountHandler" placeholder="Montant"></text-field>
                     <span class="input-group-btn">
-                        <button type="button" class="btn btn-default" ng-click="filterAmountHandler(); "><i class="glyphicon glyphicon-search"></i></button>
+                        <button type="button" class="btn btn-default" ng-click="filterAmountHandler()"><i class="glyphicon glyphicon-search"></i></button>
                     </span>
+                </div>
+                <div class="input-group-date" uib-dropdown>
+                    <button id="filterPaiement" type="button" class="btn btn-default" style="width:100%" uib-dropdown-toggle>
+                        {{ filterPayment ? filterPayment : "Moyens de paiement" }}
+                        <span style="margin-top:8px;float:right" class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu" role="menu" style="left:6%" aria-labelledby="filterPaiement">
+                        <li class="item">
+                            <a ng-click="updateFilterPayment('')">Moyens de paiement</a>
+                        </li>
+                        <li class="item">
+                            <a ng-click="updateFilterPayment('Offerts')">Offerts</a>
+                        </li>
+                        <li ng-repeat="paiement in listPaiements" class="item">
+                            <a ng-click="updateFilterPayment(paiement)">{{paiement.trim()}}</a>
+                        </li>
+                    </ul>
                 </div>
             </div>
         </div>

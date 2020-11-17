@@ -1,0 +1,8 @@
+<md-content class="IZIPASSTemplate" id="IZIPASSController" ng-init="init()"
+            ng-controller="StoreCategoriesController"
+            ng-class="{'isBorneVertical': $root.borneVertical}">
+    <category-borne-repeat ng-class="{'leftHanded' : $root.UserPreset.HandPreference==2,
+                            'rightHanded' : $root.UserPreset.HandPreference==1}"
+                           layout="column" delivery-type="deliveryType"
+                           class="categoryContent" ng-cloak></category-borne-repeat>
+</md-content>

@@ -1,43 +1,54 @@
-<section id="modalPickPaymentMode" class="modalCenterFS" ng-init="init()" ng-style="customStyle">
-    <section class="groupModal" ng-style="{'flex': mdMedia('min-width: 800px') ? '3' : '2'}"
-             ng-style="{'justify-content' : $root.borne && $root.borneVertical ? 'flex-end' : 'center'}">
-        <img ng-src="{{$root.borneMainLogo && $root.borneMainLogo || 'img/logo.png'}}"
-             class="imgLogoHeader" draggable="false" alt="" src=""/>
-        <div class="firstTitle">
-            <span translate>Moyen de paiement</span>
-        </div>
-    </section>
-    <hr ng-class="{'smallModalHR': $root.borne && $root.borneVertical,
-                        'smallModalHRH': $root.borne && !$root.borneVertical}"
-        ng-style="{ 'background-color': $root.tenantColor }">
-    <section class="groupModal groupPaymentModal" style="flex:4"
-             ng-style="{'justify-content' : $root.borne && $root.borneVertical ? 'flex-start' : 'center'}">
-        <md-button class="btnModalBig" ng-repeat="paymentMode in pmAvailable" ng-click="selectPm(paymentMode)">
-            <div class="btnMbIcon">
-                <img ng-src="{{paymentMode | PaymentTypeImg}}" alt="Image" width="75"
-                     ng-style="{ 'fill': $root.tenantColor }" src=""/>
+<section id="modalPickPaymentMode" class="modalCenterFS" ng-init="init()" ng-style="customBackground" ng-class="{'pmr' : $root.isPMREnabled}"
+         style="flex-direction:column;">
+    <div class="groupModal" ng-style="customStyle" style="width:100%; height:100%; overflow:hidden">
+        <section class="groupModal" ng-style="{'flex': $root.borneVertical ?
+        (mdMedia('min-width: 800px') ? '3' : '2') :
+        (mdMedia('min-height: 800px') ? '3' : '2'),
+        'flex' : '3',
+        'justify-content' : $root.borneVertical ? 'flex-end' : 'center'}">
+            <img ng-src="{{$root.borneMainLogo || 'img/logo.png'}}"
+                 class="imgLogoHeader bigLogo" draggable="false" alt="" src=""/>
+            <div class="firstTitle" ng-style="{'color' : $root.textColor ? $root.textColor : ''}">
+                <span translate>Moyen de paiement</span>
             </div>
-            <hr class="verticalBtnMbHR"
-                ng-style="{ 'background-color': $root.tenantColor }">
-            <div class="btnMbText">
-                <span class="mainBtnMbText">{{paymentMode.Text}}</span>
+        </section>
+        <hr ng-class="{'smallModalHR': $root.borneVertical,
+                        'smallModalHRH': !$root.borneVertical}"
+            ng-style="{ 'background-color': $root.tenantColor }">
+        <section class="groupModal" style="flex:4;justify-content:flex-start"
+                 ng-class="{'groupPaymentModal': !$root.borneVertical &&
+                 ($root.borneVertical ? !mdMedia('min-width: 800px') : !mdMedia('min-height: 800px'))}">
+            <div class="paymentModeWrap">
+                <md-button class="btnModalBig" aria-label="paymentModes"
+                           ng-repeat="paymentMode in pmAvailable" ng-click="selectPm(paymentMode)" ng-disabled="paymentMode.PaymentType === 2 && !$root.tpaInitialized">
+                    <div class="btnMbIcon">
+                        <img ng-src="{{paymentMode | PaymentTypeImg}}" alt="Image" width="75"
+                             ng-style="{ 'fill': $root.tenantColor }" src=""/>
+                    </div>
+                    <hr class="verticalBtnMbHR"
+                        ng-style="{ 'background-color': $root.tenantAltColor || $root.tenantColor }">
+                    <div class="btnMbText">
+                        <span class="mainBtnMbText" ng-if="paymentMode.PaymentType === 2">Carte bancaire</span>
+                        <span class="mainBtnMbText" ng-if="!(paymentMode.PaymentType === 2)">{{paymentMode.Text}}</span>
+                    </div>
+                </md-button>
+                <md-button class="btnModalBig"
+                           ng-if="$root.borne && $root.borneAtCashier"
+                           ng-click="payAtPos()">
+                    <div class="btnMbIcon">
+                        <md-icon md-svg-src="img/icons/cash.svg"
+                                 ng-style="{ 'fill': $root.tenantColor }"></md-icon>
+                    </div>
+                    <hr class="verticalBtnMbHR"
+                        ng-style="{ 'background-color': $root.tenantAltColor || $root.tenantColor }">
+                    <div class="btnMbText">
+                        <span class="mainBtnMbText" translate>Au comptoir</span>
+                    </div>
+                </md-button>
             </div>
-        </md-button>
-        <md-button class="btnModalBig"
-                   ng-if="$root.borne && $root.borneAtCashier"
-                   ng-click="payAtPos()">
-            <div class="btnMbIcon">
-                <md-icon md-svg-src="img/icons/cash.svg"
-                         ng-style="{ 'fill': $root.tenantColor }"></md-icon>
-            </div>
-            <hr class="verticalBtnMbHR"
-                ng-style="{ 'background-color': $root.tenantColor }">
-            <div class="btnMbText">
-                <span class="mainBtnMbText" translate>Au comptoir</span>
-            </div>
-        </md-button>
-    </section>
+        </section>
+    </div>
     <md-button class="btnModalSmallS" ng-click="cancel()">
-        <span translate>Retour</span>
+        <span translate>Annuler</span>
     </md-button>
 </section>

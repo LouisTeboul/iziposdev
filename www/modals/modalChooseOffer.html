@@ -1,34 +1,32 @@
 <section>
 
+    <div style="height: 370px;">
 
-        <div style="height: 370px;">
+        <div class="center">
+            <img src="img/icons/Remise.svg" alt="Offrir" height="200px" width="200px" />
+            <h2 translate> {{mode || 'Selectionnez un type de remise'}} </h2>
 
-            <div class="center">
-                <img src="../www/img/icons/Remise.svg" alt="Offrir" height="200px" width="200px"/>
-                <h2 translate> {{mode || 'Selectionnez un type de remise'}} </h2>
-
-                <div class="btn-group">
-                    <label class="btn btn-primary" ng-model="mode" ng-click="result.action='Offer'; submitItem()" uib-btn-radio="'Offre'"><x translate>Offrir</x></label>
-                    <label class="btn btn-primary" ng-model="mode" ng-click="result.action='Discount'; result.isPercent=true; setFocus()" uib-btn-radio="'Remise %'"><x translate>Remise %</x></label>
-                    <label class="btn btn-primary" ng-model="mode" ng-click="result.action='Discount'; result.isPercent=false; setFocus()" uib-btn-radio="'Remise €'"><x translate>Remise</x> {{IziPosConfiguration.Currency.currencySymbol}}</label>
-                </div>
-            </div>
-            <br/>
-            <div class="center inp">
-                <label ng-if="mode=='Remise %'"><x translate>Pourcentage</x> :</label>
-                <label ng-if="mode=='Remise €'"><x translate>Montant</x> :</label>
-                <text-field ng-if="mode=='Remise %'" id="txtAmount" ng-model="result.value" location="end-start" type="decimal" validfunction="ok" style="width:160px"></text-field>
-                <text-field ng-if="mode=='Remise €'" id="txtAmount" ng-model="result.value" location="end-start" type="decimal" validfunction="ok" style="width:160px"></text-field>
-            </div>
-            <div class="inp" ng-if="errorMessage">
-                <span class="labelErr">{{errorMessage}}</span>
+            <div class="btn-group">
+                <label class="btn btn-primary" ng-model="mode" ng-click="result.action='Offer'; checkType()" uib-btn-radio="'Offre'"><x translate>Offrir</x></label>
+                <label class="btn btn-primary" ng-model="mode" ng-click="result.action='Discount'; result.isPercent=true; setFocus()" uib-btn-radio="'Remise %'"><x translate>Remise %</x></label>
+                <label class="btn btn-primary" ng-model="mode" ng-click="result.action='Discount'; result.isPercent=false; setFocus()" uib-btn-radio="'Remise {{IziPosConfiguration.Currency.currencySymbol}}'"><x translate>Remise</x> {{IziPosConfiguration.Currency.currencySymbol}}</label>
             </div>
         </div>
+        <br />
+        <div class="center inp">
+            <label ng-if="mode=='Remise %'"><x translate>Pourcentage</x> :</label>
+            <label ng-if="mode=='Remise €'"><x translate>Montant</x> :</label>
+            <text-field ng-if="mode=='Remise %'" id="txtAmount" ng-model="result.value" location="end-start" type="decimal" validfunction="ok" style="width:160px" auto-focus="true"></text-field>
+            <text-field ng-if="mode=='Remise €'" id="txtAmount" ng-model="result.value" location="end-start" type="decimal" validfunction="ok" style="width:160px" auto-focus="true"></text-field>
+        </div>
+        <div class="inp" ng-if="errorMessage">
+            <span class="labelErr">{{errorMessage}}</span>
+        </div>
+    </div>
 
     <div class="modal-footer" style="display:flex; justify-content: space-between">
         <button class="btn btn-success" ng-click="submitItem()" ng-disabled="isMode()" translate>Appliquer sur un produit</button>
         <button class="btn btn-success" ng-click="submitLine()" ng-disabled="isMode()" translate>Appliquer sur toute la ligne</button>
         <button class="btn btn-rose" ng-click="cancel()" translate>Annuler</button>
     </div>
-
 </section>

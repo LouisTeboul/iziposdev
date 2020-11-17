@@ -1,12 +1,10 @@
-<section class="" ng-init="init()">
-
+<section class="modal-preset" ng-init="init()">
     <div class="modal-header">
-        <h1 class="modal-title" ng-if="mode == 1" translate>Edition de la config.</h1>
-        <h1 class="modal-title" ng-if="mode == 2" translate>Creation de config</h1>
+        <h1 class="modal-title" ng-if="mode == 1"><span translate>Edition de la config :</span> {{preset.name}}</h1>
+        <h1 class="modal-title" ng-if="mode == 2">{{ "Cr&eacute;ation de config" | translate }}</h1>
     </div>
-
     <div style="padding: 10px 0 0 10px">
-        <label for="presetName"> Nom du preset : </label>
+        <label for="presetName" translate>Nom du preset :</label>
         <text-field id="presetName" ng-model="preset.name"
                     location="center-end"
                     type="azerty"
@@ -18,22 +16,24 @@
         <uib-tabset>
             <uib-tab ng-repeat=" tab in model.preset.tabs" heading="{{tab.name}}">
                 <div class="flags" layout="row" layout-align="space-around center" layout-wrap>
-                    <div ng-repeat="(key, flag) in tab.flags" flex="50" layout="row" layout-align="center center">
+                    <div ng-repeat="(key, flag) in tab.flags" ng-show="checkCondition(flag.condit) && checkNotCondition(flag.notcondit)" layout="row" layout-align="center center">
                         <md-switch ng-model="preset.settings[key]">{{flag.text}}</md-switch>
                     </div>
                 </div>
-                <div class="radios" layout="row" layout-align="space-around start">
-                    <div ng-repeat="(key, rad) in tab.radios" layout="column">
+                <div class="radios" layout="row" layout-align="space-around start" style="margin-top: 10px">
+                    <div ng-repeat="(key, rad) in tab.radios" ng-show="checkCondition(rad.condit) && checkNotCondition(rad.notcondit)" layout="column">
                         <span class="bold"> {{rad.text}}</span>
                         <md-radio-group ng-model="preset.settings[key]">
-                            <md-radio-button value="{{option.value}}" ng-repeat="option in rad.values">
+<!--                            {{preset.settings[key]}}-->
+                            <md-radio-button ng-value="option.value" ng-repeat="option in rad.values">
+<!--                                {{option.value}}-->
                                 {{option.text}}
                             </md-radio-button>
                         </md-radio-group>
                     </div>
                 </div>
-                <div class="checkboxes" layout="row" layout-align="space-around start">
-                    <div ng-repeat="(cbkey, cb) in tab.checkboxes" layout="column">
+                <div class="checkboxes" layout="row" layout-align="space-around start" style="margin-top: 10px">
+                    <div ng-repeat="(cbkey, cb) in tab.checkboxes" ng-show="checkCondition(cb.condit) && checkNotCondition(cb.notcondit)"layout="column">
                         <span class="bold"> {{cb.text}}</span>
                         <md-checkbox ng-repeat="(optkey, option) in cb.values" ng-model="preset.settings[cbkey][optkey]">
                             {{option.text}}

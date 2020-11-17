@@ -1,284 +1,456 @@
 ﻿<section class="shoppingCartModal" ng-init="init()">
     <div class="modal-header">
         <h1 class="modal-title" translate>Reprendre un ticket</h1>
+        <md-switch style="margin: 0" ng-model="showLocked">Afficher les tickets verrouillés</md-switch>
     </div>
-
-    <div class="form-panel modal-body modal-unfreeze">
-        <uib-tabset>
-            <uib-tab>
-                <uib-tab-heading>
-                    <x translate>En attente</x>
+    <div class="modal-loader gloryOverList" ng-show="loading"></div>
+    <div class="form-panel modal-body modal-unfreeze flexOrders">
+        <uib-tabset class="tabSetOrders">
+            <!--Untouched-->
+            <uib-tab class="catsUnfreeze" active="webTabActive"
+                ng-if="($root.UserPreset.DisplayWebOrders || $root.IziBoxConfiguration.EnableKDS) 
+                        || (!showLocked && $root.OrderCount.untouched.unlocked + $root.FreezeCount.untouched.unlocked != 0)">
+                <uib-tab-heading class="ongletUnfreeze">
+                    <x class="textOngletUnfreeze" translate>Reçu</x>
+                    <div ng-show="(showLocked && $root.OrderCount.untouched.unlocked + $root.OrderCount.untouched.locked + $root.FreezeCount.untouched.unlocked + $root.FreezeCount.untouched.locked > 0)
+                        || (!showLocked && $root.OrderCount.untouched.unlocked + $root.FreezeCount.untouched.unlocked > 0)"
+                        class="tabNotif notifRed freeze">
+                        <span class="tabNotif-text">
+                            <span ng-show="showLocked">
+                                {{$root.OrderCount.untouched.unlocked + $root.OrderCount.untouched.locked + $root.FreezeCount.untouched.unlocked + $root.FreezeCount.untouched.locked}}
+                            </span>
+                            <span ng-show="!showLocked">
+                                {{$root.OrderCount.untouched.unlocked + $root.FreezeCount.untouched.unlocked}}
+                            </span>
+                        </span>
+                    </div>
                 </uib-tab-heading>
-
-                <div class="itemRow" style="text-align: center;margin: 0 -15px">
-                    <div style="margin: 0 15px;display:flex;">
-                        <strong id="checkToMergeOrder" style="width:25px;"></strong>
-                        <strong style="flex:1;">
-                            <md-icon md-svg-src="img/icons/table.svg"></md-icon>
-                        </strong>
-                        <strong ng-if="$mdMedia('(min-width: 800px)')" style="flex:1;">
-                            <md-icon md-svg-src="img/icons/shoppingcart.svg"></md-icon>
-                        </strong>
-                        <strong style="flex:1;">
-                            <md-icon md-svg-src="img/icons/cutleries.svg"></md-icon>
-                        </strong>
-                        <strong style="flex:1;">
-                            <md-icon md-svg-src="img/icons/user.svg"></md-icon>
-                        </strong>
-                        <strong style="flex:1;">
-                            <md-icon md-svg-src="img/icons/box.svg"></md-icon>
-                        </strong>
-                        <strong style="flex:1;">
-                            <md-icon md-svg-src="img/icons/euro.svg"></md-icon>
-                        </strong>
+                <div class="itemRow" ng-show="modelDb.orderReady && (showLocked &&
+                     ($root.OrderCount.untouched.unlocked + $root.OrderCount.untouched.locked + $root.FreezeCount.untouched.unlocked + $root.FreezeCount.untouched.locked) === 0) ||
+                     (!showLocked && ($root.OrderCount.untouched.unlocked + $root.FreezeCount.untouched.unlocked) === 0)">
+                    <div class="bold freezeMsg" translate>Aucune commande à préparer</div>
+                </div>
+                <div class="itemRow" ng-show="ordersLoading">
+                    <div class="bold freezeMsg">
+                        Chargement ...
                     </div>
                 </div>
 
-                <div ng-if="shoppingCarts != undefined && shoppingCarts.length > 0">
-                    <div class="itemRow" layout="column" ng-repeat="shoppingCart in shoppingCarts track by $index"
-                         ng-if="!shoppingCart.DatePickup"
-                         style="line-height: 30px;margin: 0 -15px;">
+                <div class="itemRow" ng-show="ordersLoadingError">
+                    <div class="bold freezeMsg">
+                        Erreur de chargement : {{ordersLoadingError}}
+                    </div>
+                </div>
 
-                        <div class="unFreezeTable" layout="column" style="height: 75px;" flex>
-                            <div layout="row" style="align-items: center;" flex>
-                                <div layout="row" style="height:100%;align-items: center;" flex>
-                                    <strong style="margin-right:10px;">
-                                        <input type="checkbox"
-                                               ng-click="$event.stopPropagation();checkShoppingCart(shoppingCart,$event);"
-                                               style="width:25px;height:25px;">
-                                    </strong>
-                                    <div layout="row" style="line-height: 20px;height:100%;align-items: center;"
-                                         ng-click="select(shoppingCart)" flex>
-                                        <strong style="flex:1;">
-                                            <div ng-if="shoppingCart.TableNumber != undefined">
-                                                {{shoppingCart.TableNumber}}
+
+                <order-freeze-repeat all-orders="orders.untouched" select-order="selectOrder" show-locked="showLocked"
+                    ng-check="checkShoppingCart" />
+
+            </uib-tab>
+
+            <!--Kitchen-->
+            <uib-tab class="catsUnfreeze"
+                ng-if="$root.UserPreset.DisplayWebOrders || $root.IziBoxConfiguration.EnableKDS" active="webTabActive">
+                <uib-tab-heading class="ongletUnfreeze">
+                    <x class="textOngletUnfreeze" translate>En cours</x>
+                    <div ng-show="(showLocked && $root.OrderCount.in_kitchen.unlocked + $root.OrderCount.in_kitchen.locked + $root.FreezeCount.in_kitchen.unlocked + $root.FreezeCount.in_kitchen.locked > 0)
+                        || (!showLocked && $root.OrderCount.in_kitchen.unlocked + $root.FreezeCount.in_kitchen.unlocked > 0)"
+                        class="tabNotif notifOrange freeze">
+                        <span class="tabNotif-text">
+                            <span ng-show="showLocked">
+                                {{$root.OrderCount.in_kitchen.unlocked + $root.OrderCount.in_kitchen.locked + $root.FreezeCount.in_kitchen.unlocked + $root.FreezeCount.in_kitchen.locked}}
+                            </span>
+                            <span ng-show="!showLocked">
+                                {{$root.OrderCount.in_kitchen.unlocked + $root.FreezeCount.in_kitchen.unlocked}}
+                            </span>
+                        </span>
+                    </div>
+                </uib-tab-heading>
+
+                <div class="itemRow"
+                    ng-show="modelDb.orderReady && !ordersLoading && !ordersLoadingError
+                     && (showLocked && $root.OrderCount.in_kitchen.unlocked + $root.OrderCount.in_kitchen.locked + $root.FreezeCount.in_kitchen.unlocked + $root.FreezeCount.in_kitchen.locked === 0)
+                        || (!showLocked && $root.OrderCount.in_kitchen.unlocked + $root.FreezeCount.in_kitchen.unlocked === 0)">
+                    <div class="freezeMsg bold" translate>Aucune commande à valider</div>
+                </div>
+
+                <div class="itemRow" ng-show="ordersLoading">
+                    <div class="bold freezeMsg">
+                        Chargement ...
+                    </div>
+                </div>
+
+                <div class="itemRow" ng-show="ordersLoadingError">
+                    <div class="bold freezeMsg">
+                        Erreur de chargement : {{ordersLoadingError}}
+                    </div>
+
+                </div>
+
+                <order-freeze-repeat all-orders="orders.in_kitchen" select-order="selectOrder" show-locked="showLocked"
+                    ng-check="checkShoppingCart" />
+
+            </uib-tab>
+
+            <!--Ready-->
+            <uib-tab class="catsUnfreeze"
+                ng-if="$root.UserPreset.DisplayWebOrders || $root.IziBoxConfiguration.EnableKDS">
+                <uib-tab-heading class="ongletUnfreeze">
+                    <x class="textOngletUnfreeze" translate>Prêt</x>
+                    <div ng-show="(showLocked && $root.OrderCount.ready.unlocked + $root.OrderCount.ready.locked + $root.FreezeCount.ready.unlocked + $root.FreezeCount.ready.locked > 0)
+                        || (!showLocked && $root.OrderCount.ready.unlocked + $root.FreezeCount.ready.unlocked > 0)"
+                        class="tabNotif notifGreen freeze">
+                        <span class="tabNotif-text">
+                            <span ng-show="showLocked">
+                                {{$root.OrderCount.ready.unlocked + $root.OrderCount.ready.locked + $root.FreezeCount.ready.unlocked + $root.FreezeCount.ready.locked}}
+                            </span>
+                            <span ng-show="!showLocked">
+                                {{$root.OrderCount.ready.unlocked + $root.FreezeCount.ready.unlocked}}
+                            </span>
+                        </span>
+                    </div>
+                </uib-tab-heading>
+
+                <div class="itemRow" ng-show="modelDb.orderReady && !ordersLoading && !ordersLoadingError
+                     && (showLocked && $root.OrderCount.ready.unlocked + $root.OrderCount.in_kitchen.locked + $root.FreezeCount.ready.unlocked + $root.FreezeCount.ready.locked === 0)
+                        || (!showLocked && $root.OrderCount.ready.unlocked + $root.FreezeCount.ready.unlocked === 0)">
+                    <div class="bold freezeMsg" translate>Aucune commande prête</div>
+                </div>
+
+                <div class="itemRow" ng-show="ordersLoading">
+                    <div class="bold freezeMsg">
+                        Chargement ...
+                    </div>
+                </div>
+
+                <div class="itemRow" ng-show="ordersLoadingError">
+                    <div class="bold freezeMsg">
+                        Erreur de chargement : {{ordersLoadingError}}
+                    </div>
+                </div>
+
+                <order-freeze-repeat all-orders="orders.ready" select-order="selectOrder" show-locked="showLocked"
+                    ng-check="checkShoppingCart" />
+
+            </uib-tab>
+
+            <!--Local-->
+            <uib-tab style="float: right;flex: 1" active="localTabActive" class="catsUnfreeze"
+                ng-if="!$root.IziBoxConfiguration.EnableKDS">
+
+                <uib-tab-heading class="ongletUnfreeze">
+                    <x class="textOngletUnfreeze" translate>Tickets ouverts</x>
+
+                    <!-- #region Only Local -->
+                    <div ng-if="$root.UserPreset.DisplayWebOrders || $root.IziBoxConfiguration.EnableKDS" ng-show="(showLocked && $root.FreezeCount.local.unlocked + $root.FreezeCount.local.locked > 0)
+                                || (!showLocked && $root.FreezeCount.local.unlocked > 0)"
+                        class="tabNotif notifGray freeze">
+                        <span class="tabNotif-text">
+
+                            <span ng-show="showLocked">
+                                {{ $root.FreezeCount.local.unlocked + $root.FreezeCount.local.locked}}
+                            </span>
+                            <span ng-show="!showLocked">
+                                {{ $root.FreezeCount.local.unlocked}}
+                            </span>
+                        </span>
+                    </div>
+                    <!-- #endregion -->
+
+
+                    <!-- #region All orders -->
+                    <div ng-if="!$root.UserPreset.DisplayWebOrders && !$root.IziBoxConfiguration.EnableKDS"
+                        class="tabNotif notifGray freeze">
+                        <span class="tabNotif-text">
+
+                            <span ng-show="showLocked">
+                                {{ $root.FreezeCount.local.unlocked + $root.FreezeCount.local.locked
+                                +  $root.OrderCount.untouched.unlocked + $root.OrderCount.untouched.locked + $root.FreezeCount.untouched.unlocked + $root.FreezeCount.untouched.locked 
+                                +  $root.OrderCount.in_kitchen.unlocked + $root.OrderCount.in_kitchen.locked + $root.FreezeCount.in_kitchen.unlocked + $root.FreezeCount.in_kitchen.locked
+                                +  $root.OrderCount.ready.unlocked + $root.OrderCount.ready.locked + $root.FreezeCount.ready.unlocked + $root.FreezeCount.ready.locked}}
+                            </span>
+                            <span ng-show="!showLocked">
+                                {{ $root.FreezeCount.local.unlocked
+                                +  $root.OrderCount.untouched.unlocked + $root.FreezeCount.untouched.unlocked
+                                +  $root.OrderCount.in_kitchen.unlocked + $root.FreezeCount.in_kitchen.unlocked
+                                +  $root.OrderCount.ready.unlocked + $root.FreezeCount.ready.unlocked}}
+                            </span>
+                        </span>
+                    </div>
+                    <!-- #endregion -->
+
+                </uib-tab-heading>
+
+                <!-- #region Only Local -->
+
+                <div ng-if="$root.UserPreset.DisplayWebOrders || $root.IziBoxConfiguration.EnableKDS" ng-show="modelDb.orderReady && !ordersLoading && !ordersLoadingError
+                    && (showLocked && $root.FreezeCount.local.unlocked + $root.FreezeCount.local.locked > 0)
+                    || (!showLocked && $root.FreezeCount.local.unlocked > 0)" class="itemRow">
+                    <div class="iconListUF">
+                        <div class="bold" ng-style="{'width' : mdMedia('min-width: 1000px') ? '350px' : '50px' }"></div>
+                        <div class="bold" style="flex:1">
+                            <md-icon md-svg-src="img/icons/u_table.svg" class="svg-red"></md-icon>
+                        </div>
+                        <div class="bold" style="flex:1">
+                            <md-icon md-svg-src="img/icons/u_ticket.svg" class="svg-red"></md-icon>
+                        </div>
+                        <div class="bold" style="flex:1">
+                            <md-icon md-svg-src="img/icons/u_couverts.svg" class="svg-red"></md-icon>
+                        </div>
+                        <div class="bold" style="flex:1" ng-show="mdMedia('min-width: 1000px')">
+                            <md-icon md-svg-src="img/icons/u_user.svg" class="svg-red"></md-icon>
+                        </div>
+                        <div class="bold" style="flex:1">
+                            <md-icon md-svg-src="img/icons/u_panier.svg" class="svg-red"></md-icon>
+                        </div>
+                        <div class="bold" style="flex:1">
+                            <md-icon md-svg-src="img/icons/u_total.svg" class="svg-red"></md-icon>
+                        </div>
+                    </div>
+                </div>
+
+                <div ng-if="$root.UserPreset.DisplayWebOrders || $root.IziBoxConfiguration.EnableKDS"
+                    ng-show="orders.local && orders.local.length > 0"
+                    style="max-height: 50vh; overflow: scroll; text-align: center;">
+                    <div class="listOrders">
+                        <div layout="column" ng-repeat="order in orders.local | orderBy: 'TableNumber' track by $index"
+                            class="itemRow localFreezeOrder list" ng-class="{'locked' : order.FreezeLockedBy}"
+                            ng-show="!order.DatePickup && (!order.FreezeLockedBy || order.FreezeLockedBy && showLocked)"
+                            ng-click="select(order)">
+
+                            <div layout="row" class="unFreezeTable" layout-align="center center" flex>
+
+                                <div layout="row"
+                                    ng-style="{'width' : mdMedia('min-width: 1000px') ? '350px' : '50px' }">
+                                    <div class="bold unfreezeCheck">
+                                        <label class="cbUnfreezeLabel" for="cbuf{{order.Timestamp}}"
+                                            ng-if="!order.isPayed"
+                                            ng-click="$event.stopPropagation();checkShoppingCart(order, $event);">
+                                            <input type="checkbox" id="cbuf{{order.Timestamp}}">
+                                            <span class="cbUnfreezeMark"></span>
+                                        </label>
+                                    </div>
+
+                                    <div layout="column" class="freezeExtraInfos" ng-show="mdMedia('min-width: 1000px')">
+                                        <div class="bold" ng-show="order.ShippingOption">
+                                            {{order.ShippingOption}}
+                                        </div>
+
+                                        <div class="bold" ng-show="order.DatePickup">
+                                            {{order.DatePickup.split(' ')[1]}}
+                                        </div>
+
+                                        <div ng-show="order.Customer && !order.customerInfo" layout="column">
+                                            <div>
+                                                {{ order.Customer.FirstName + " " + order.Customer.LastName}}
                                             </div>
-                                        </strong>
-                                        <strong ng-if="$mdMedia('(min-width: 800px)')" style="flex:1;">
-                                            {{shoppingCart.Timestamp}}
-                                        </strong>
-                                        <strong style="flex:1;">
-                                            <div ng-if="shoppingCart.TableCutleries != undefined">
-                                                {{shoppingCart.TableCutleries}}
+
+                                            <div>
+                                                {{order.Customer.Email }}
                                             </div>
-                                        </strong>
-                                        <strong style="flex:1;">
-                                            {{shoppingCart.PosUserName}}
-                                        </strong>
-                                        <strong style="flex:1;">
-                                            {{getItemsCount(shoppingCart)}}
-                                        </strong>
-                                        <strong style="flex:1;">
-                                            {{shoppingCart.Total | CurrencyFormat}}
-                                        </strong>
+                                        </div>
+
+                                        <div ng-show="order.customerInfo" layout="column">
+                                            <div>
+                                                {{ order.customerInfo.FirstName + " " + order.customerInfo.LastName }}
+                                            </div>
+                                            <div>
+                                                {{ order.customerInfo.Email }}
+                                            </div>
+
+                                        </div>
+
+                                        <div ng-show="order.ExtraInfos" class="productComment">
+                                            {{order.ExtraInfos}}
+                                        </div>
+                                    </div>
+
+                                </div>
+
+
+
+                                <div style="flex:1;">
+                                    <div ng-show="order.TableNumber ">
+                                        {{order.TableNumber}}
                                     </div>
                                 </div>
-                            </div>
-                            <div class="productComment">
-                                <div ng-if="shoppingCart.Customer != undefined">
-                                    <strong>
-                                        <x translate>Horaire</x>
-                                        : {{shoppingCart.ShippingOption}}</strong>
-                                    {{shoppingCart.Customer.FirstName
-                                    + " " + shoppingCart.Customer.LastName
-                                    + " - " + shoppingCart.Customer.Email}}
+                                <div style="flex:1">
+                                    {{order.OrderId || order.dailyTicketId || order.Timestamp}}
                                 </div>
-                                <div ng-if="shoppingCart.customerLoyalty != undefined">
-                                    {{shoppingCart.customerLoyalty.CustomerFirstName
-                                    + " " + shoppingCart.customerLoyalty.CustomerLastName
-                                    + " - " + shoppingCart.customerLoyalty.CustomerEmail}}
+                                <div style="flex:1">
+                                    <div ng-show="order.TableCutleries ">
+                                        {{order.TableCutleries}}
+                                    </div>
+                                </div>
+                                <div style="flex:1" ng-show="mdMedia('min-width: 1000px')">
+                                    {{order.PosUserName}}
+                                </div>
+                                <div style="flex:1">
+                                    {{getItemsCount(order)}}
+                                </div>
+                                <div style="flex:1">
+                                    {{order.Total | CurrencyFormat}}
                                 </div>
                             </div>
+
                         </div>
+                    </div>
+                </div>
 
-                        <!--<div ng-if="shoppingCart.Customer != undefined"
-                             style="margin-left:10px; margin-right:10px">
-                            <strong style="width:20%;float:left">
-                                <x translate>Horaire</x>
-                                : {{shoppingCart.ShippingOption}}</strong>
-                            <span style="width:30%;float:left">{{shoppingCart.Customer.FirstName+" "+shoppingCart.Customer.LastName}}</span>
-                            <span style="width:30%;float:left">{{shoppingCart.Customer.Email}}</span>
+                <div class="itemRow" ng-if="$root.UserPreset.DisplayWebOrders || $root.IziBoxConfiguration.EnableKDS"
+                    ng-show="modelDb.orderReady && !ordersLoading && !ordersLoadingError 
+                    && (showLocked && $root.FreezeCount.local.unlocked + $root.FreezeCount.local.locked === 0)
+                    || (!showLocked && $root.FreezeCount.local.unlocked === 0)">
+                    <div class="freezeMsg bold" translate>Aucun ticket en attente</div>
+                </div>
+
+
+                <!-- #endregion -->
+
+
+                <!-- #region All orders -->
+
+                <div ng-if="!$root.UserPreset.DisplayWebOrders && !$root.IziBoxConfiguration.EnableKDS"
+                    ng-show="modelDb.orderReady && !ordersLoading && !ordersLoadingError" class="itemRow">
+                    <div class="iconListUF">
+                        <div class="bold" ng-style="{'width' : mdMedia('min-width: 1000px') ? '350px' : '50px' }"></div>
+                        <div class="bold" style="flex:1">
+                            <md-icon md-svg-src="img/icons/u_table.svg" class="svg-red"></md-icon>
                         </div>
-
-                        <div ng-if="shoppingCart.customerLoyalty != undefined"
-                             style="margin-left:10px; margin-right:10px">
-                            <span style="width:30%;float:left">{{shoppingCart.customerLoyalty.CustomerFirstName+" "+shoppingCart.customerLoyalty.CustomerLastName}}</span>
-                            <span style="width:30%;float:left">{{shoppingCart.customerLoyalty.CustomerEmail}}</span>
-                        </div>-->
-                    </div>
-                </div>
-                <div class="itemRow"
-                     ng-if="modelDb.freezeReady == true && (shoppingCarts == undefined || shoppingCarts.length == 0)">
-                    <strong translate>Aucun ticket en attente</strong>
-                </div>
-                <div class="itemRow" ng-if="!modelDb.freezeReady">
-                    <strong>
-                        <x translate>Les tickets en attentes sont en cours de synchronisation</x>
-                        ...<br/><br/>
-                        <x translate>Veuillez patienter</x>
-                        ...</strong>
-                </div>
-            </uib-tab>
-            <uib-tab>
-                <uib-tab-heading>
-                    <x translate>A traiter</x>
-                    <div ng-if="ordersInProgress.length > 0" class="tabNotif">
-						<span class="tabNotif-text">
-							{{ordersInProgress.length}}
-						</span>
-                    </div>
-                </uib-tab-heading>
-
-                <div class="itemRow" style="text-align: center;margin: 0 -15px">
-                    <div style="margin: 0 15px;display:flex;">
-                        <strong id="orderTypeIcon" style="flex:1"></strong>
-                        <strong ng-if="$mdMedia('(min-width: 800px)')" style="flex:1;">
-                            <md-icon md-svg-src="img/icons/shoppingcart.svg"></md-icon>
-                        </strong>
-                        <strong style="flex:1;">
-                            <md-icon md-svg-src="img/icons/clock.svg"></md-icon>
-                        </strong>
-                        <strong style="flex:1;">
-                            <md-icon md-svg-src="img/icons/user.svg"></md-icon>
-                        </strong>
-                        <strong style="flex:1;">
-                            <md-icon md-svg-src="img/icons/box.svg"></md-icon>
-                        </strong>
-                        <strong style="flex:1;">
-                            <md-icon md-svg-src="img/icons/euro.svg"></md-icon>
-                        </strong>
+                        <div class="bold" style="flex:1">
+                            <md-icon md-svg-src="img/icons/u_ticket.svg" class="svg-red"></md-icon>
+                        </div>
+                        <div class="bold" style="flex:1">
+                            <md-icon md-svg-src="img/icons/u_couverts.svg" class="svg-red"></md-icon>
+                        </div>
+                        <div class="bold" style="flex:1" ng-show="mdMedia('min-width: 1000px')">
+                            <md-icon md-svg-src="img/icons/u_user.svg" class="svg-red"></md-icon>
+                        </div>
+                        <div class="bold" style="flex:1">
+                            <md-icon md-svg-src="img/icons/u_panier.svg" class="svg-red"></md-icon>
+                        </div>
+                        <div class="bold" style="flex:1">
+                            <md-icon md-svg-src="img/icons/u_total.svg" class="svg-red"></md-icon>
+                        </div>
                     </div>
                 </div>
 
-                <div ng-if="ordersInProgress != undefined && ordersInProgress.length > 0">
-                    <div class="itemRow row" ng-repeat="order in ordersInProgress track by $index"
-                         ng-click="selectOrder(order)"
-                         ng-style="(order.Customer != undefined || order.customerLoyalty != undefined || order.ExtraInfos) && {'line-height':'30px'} || {'line-height':'60px'}"
-                         style="padding:5px 5px 0;line-height: 20px">
+                <div ng-if="!$root.UserPreset.DisplayWebOrders && !$root.IziBoxConfiguration.EnableKDS"
+                    style="max-height: 50vh; overflow: scroll; text-align: center;">
+                    <div class="listOrders">
+                        <div layout="column" ng-repeat="order in orders.all | orderBy: 'TableNumber' track by $index"
+                            class="itemRow localFreezeOrder list" ng-class="{'locked' : order.FreezeLockedBy}"
+                            ng-show="!order.FreezeLockedBy || order.FreezeLockedBy && showLocked"
+                            ng-click="select(order)">
 
-                        <div class="unFreezeTable" layout="column" style="height: 75px;" flex>
-                            <div layout="row" style="align-items: center;" flex>
-                                <div layout="row" style="line-height: 20px;align-items: center;" flex>
-                                    <strong class="orderListTo" style="flex:1;">
-                                        <md-icon class="glyphicon" ng-class="{'glyphicon-earphone': order.DatePickup,
-                                        'glyphicon-globe': order.Customer != undefined }"></md-icon>
-                                    </strong>
-                                    <strong ng-if="$mdMedia('(min-width: 800px)')" style="flex:1;">
-                                        {{order.Timestamp}}
-                                    </strong>
-                                    <strong style="flex:1;">
-                                        {{order.DatePickup.split("T")[0]
-                                        + " " + order.DatePickup.split("T")[1].split(".")[0]}}
-                                    </strong>
-                                    <strong style="flex:1;" ng-if="order.Customer != undefined">
-                                        {{order.Customer.FirstName + " " + order.Customer.LastName}}
-                                    </strong>
-                                    <strong style="flex:1;" ng-if="order.Customer == undefined">
-                                        <div ng-if="order.customerLoyalty != undefined">
-                                            {{order.customerLoyalty.CustomerFirstName
-                                            + " " + order.customerLoyalty.CustomerLastName}}
+                            <div layout="row" class="unFreezeTable" layout-align="center center" flex>
+
+                                <div layout="row"
+                                    ng-style="{'width' : mdMedia('min-width: 1000px') ? '350px' : '50px' }">
+                                    <div class="bold unfreezeCheck">
+                                        <label class="cbUnfreezeLabel" for="cbuf{{order.Timestamp}}"
+                                            ng-if="!order.isPayed"
+                                            ng-click="$event.stopPropagation();checkShoppingCart(order, $event);">
+                                            <input type="checkbox" id="cbuf{{order.Timestamp}}">
+                                            <span class="cbUnfreezeMark"></span>
+                                        </label>
+                                    </div>
+
+                                    <div layout="column" class="freezeExtraInfos" ng-show="mdMedia('min-width: 1000px')">
+                                        <div class="bold" ng-show="order.ShippingOption">
+                                            {{order.ShippingOption}}
                                         </div>
-                                    </strong>
-                                    <strong style="flex:1;">
-                                        {{getItemsCount(order)}}
-                                    </strong>
-                                    <strong style="flex:1;">
-                                        {{order.Total}}
-                                    </strong>
-                                </div>
-                            </div>
-                            <div class="productComment">{{order.ExtraInfos}}</div>
-                        </div>
-                    </div>
-                </div>
-                <div class="itemRow"
-                     ng-if="modelDb.orderReady == true && (ordersInProgress == undefined || ordersInProgress.length == 0)">
-                    <strong translate>Aucune commande à préparer</strong>
-                </div>
-            </uib-tab>
-            <uib-tab>
-                <uib-tab-heading>
-                    <x translate>Commandes</x>
-                    <div ng-if="orders.length > 0" class="tabNotif notifWarning">
-			<span class="tabNotif-text">
-				{{orders.length}}
-			</span>
-                    </div>
-                </uib-tab-heading>
 
-                <div class="itemRow" style="text-align: center;margin: 0 -15px">
-                    <div style="margin: 0 15px;display:flex;">
-                        <strong id="orderTypeIconC" style="flex:1"></strong>
-                        <strong ng-if="$mdMedia('(min-width: 800px)')" style="flex:1;">
-                            <md-icon md-svg-src="img/icons/shoppingcart.svg"></md-icon>
-                        </strong>
-                        <strong style="flex:1;">
-                            <md-icon md-svg-src="img/icons/clock.svg"></md-icon>
-                        </strong>
-                        <strong style="flex:1;">
-                            <md-icon md-svg-src="img/icons/user.svg"></md-icon>
-                        </strong>
-                        <strong style="flex:1;">
-                            <md-icon md-svg-src="img/icons/box.svg"></md-icon>
-                        </strong>
-                        <strong style="flex:1;">
-                            <md-icon md-svg-src="img/icons/euro.svg"></md-icon>
-                        </strong>
-                    </div>
-                </div>
-
-                <div ng-if="orders != undefined && orders.length > 0">
-                    <div class="itemRow row" ng-repeat="order in orders track by $index"
-                         ng-click="selectOrder(order)"
-                         ng-style="(order.Customer != undefined || order.customerLoyalty != undefined) && {'line-height':'30px'} || {'line-height':'60px'}"
-                         style="padding:5px 5px 0;line-height: 20px">
-
-                        <div class="unFreezeTable" layout="column" style="height: 75px;" flex>
-                            <div layout="row" style="align-items: center;" flex>
-                                <div layout="row" style="line-height: 20px;align-items: center;" flex>
-                                    <strong class="orderListTo" style="flex:1;">
-                                        <md-icon class="glyphicon" ng-class="{'glyphicon-earphone': order.DatePickup,
-							'glyphicon-globe': order.Customer != undefined }"></md-icon>
-                                    </strong>
-                                    <strong ng-if="$mdMedia('(min-width: 800px)')" style="flex:1;">
-                                        {{order.Timestamp}}
-                                    </strong>
-                                    <strong style="flex:1;">
-                                        {{order.DatePickup.split("T")[0]
-                                        + " " + order.DatePickup.split("T")[1].split(".")[0]}}
-                                    </strong>
-                                    <strong style="flex:1;" ng-if="order.Customer != undefined">
-                                        {{order.Customer.FirstName + " " + order.Customer.LastName}}
-                                    </strong>
-                                    <strong style="flex:1;" ng-if="order.Customer == undefined">
-                                        <div ng-if="order.customerLoyalty != undefined">
-                                            {{order.customerLoyalty.CustomerFirstName
-                                            + " " + order.customerLoyalty.CustomerLastName}}
+                                        <div class="bold" ng-show="order.DatePickup">
+                                            {{order.DatePickup.split(' ')[1]}}
                                         </div>
-                                    </strong>
-                                    <strong style="flex:1;">
-                                        {{getItemsCount(order)}}
-                                    </strong>
-                                    <strong style="flex:1;">
-                                        {{order.Total | CurrencyFormat}}
-                                    </strong>
+
+                                        <div ng-show="order.Customer && !order.customerInfo" layout="column">
+                                            <div>
+                                                {{ order.Customer.FirstName + " " + order.Customer.LastName}}
+                                            </div>
+
+                                            <div>
+                                                {{order.Customer.Email }}
+                                            </div>
+                                        </div>
+
+                                        <div ng-show="order.customerInfo" layout="column">
+                                            <div>
+                                                {{ order.customerInfo.FirstName + " " + order.customerInfo.LastName }}
+                                            </div>
+                                            <div>
+                                                {{ order.customerInfo.Email }}
+                                            </div>
+
+                                        </div>
+
+                                        <div ng-show="order.ExtraInfos" class="productComment">
+                                            {{order.ExtraInfos}}
+                                        </div>
+                                    </div>
+
+                                </div>
+
+
+
+                                <div style="flex:1;">
+                                    <div ng-show="order.TableNumber ">
+                                        {{order.TableNumber}}
+                                    </div>
+                                </div>
+                                <div style="flex:1">
+                                    {{order.OrderId || order.dailyTicketId || order.Timestamp}}
+                                </div>
+                                <div style="flex:1">
+                                    <div ng-show="order.TableCutleries ">
+                                        {{order.TableCutleries}}
+                                    </div>
+                                </div>
+                                <div style="flex:1" ng-show="mdMedia('min-width: 1000px')">
+                                    {{order.PosUserName}}
+                                </div>
+                                <div style="flex:1">
+                                    {{getItemsCount(order)}}
+                                </div>
+                                <div style="flex:1">
+                                    {{order.Total | CurrencyFormat}}
                                 </div>
                             </div>
-                            <div class="productComment">{{order.ExtraInfos}}</div>
+
                         </div>
                     </div>
                 </div>
-                <div class="itemRow"
-                     ng-if="modelDb.orderReady == true && (ordersInProgress == undefined || ordersInProgress.length == 0)">
-                    <strong translate>Aucune commande à préparer</strong>
+
+                <div class="itemRow" ng-if="!$root.UserPreset.DisplayWebOrders && !$root.IziBoxConfiguration.EnableKDS"
+                    ng-show="modelDb.orderReady && !ordersLoading && !ordersLoadingError && orders.all.length === 0">
+                    <div class="freezeMsg bold" translate>Aucun ticket en attente</div>
+                </div>
+
+
+                <!-- #endregion -->
+
+
+                <div class="itemRow" ng-show="ordersLoading">
+                    <div class="freezeMsg bold">
+                        Chargement ...
+                    </div>
+                </div>
+
+                <div class="itemRow" ng-show="ordersLoadingError">
+                    <div class="freezeMsg bold">
+                        Erreur de chargement : {{ordersLoadingError}}
+
+                    </div>
                 </div>
             </uib-tab>
         </uib-tabset>
     </div>
 
-    <div class="modal-footer">
-        <button ng-if="selectedShoppingCarts.length > 1" class="btn btn-info" ng-click="join()"><span
-                style="white-space:normal;font-weight: bold;" translate>Joindre tickets sélectionnés</span></button>
+    <div class="modal-footer no-border ">
+        <button ng-show="selectedShoppingCarts.length > 1" class="btn btn-info" ng-click="join()">
+            <span style="white-space:normal;font-weight: bold;" translate>Joindre tickets sélectionnés</span>
+        </button>
         <button class="btn btn-rose" ng-click="cancel()" translate>Annuler</button>
     </div>
 

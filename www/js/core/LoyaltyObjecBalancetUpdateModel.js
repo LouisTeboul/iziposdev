@@ -1,3 +1,3 @@
-﻿var LoyaltyObjecBalancetUpdateModel = function (data) {
+﻿const LoyaltyObjecBalancetUpdateModel = function (data) {
     $.extend(this, data);
 };

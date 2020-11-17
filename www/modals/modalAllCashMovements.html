@@ -21,13 +21,11 @@
                 <tr>
                     <td class="center" colspan="4">{{periodMovements[0].alias}}</td>
                 </tr>
-                    <tr ng-repeat="movement in periodMovements track by $index">
-                        <td>{{movement.Date}}</td>
-                        <td>{{getMovementName(movement.MovementType_Id)}}</td>
-                        <td>{{movement.CashMovementLines[0].Total | CurrencyFormat}}</td>
-                        <td>{{getPosUserName(movement.PosUserId)}}</td>
-                    </tr>
-
+                <tr ng-repeat="movement in periodMovements track by $index">
+                    <td>{{movement.Date}}</td>
+                    <td>{{getMovementName(movement.MovementType_Id)}}</td>
+                    <td>{{movement.CashMovementLines[0].PaymentMode.Total | CurrencyFormat}}</td>
+                    <td>{{getPosUserName(movement.PosUserId)}}</td>
                 </tr>
             </tbody>
         </table>
@@ -47,7 +45,7 @@
             <tr ng-repeat=" cashMovement in model.allCashMovements">
                 <td>{{cashMovement.Date}}</td>
                 <td>{{getMovementName(cashMovement.MovementType_Id)}}</td>
-                <td>{{cashMovement.CashMovementLines[0].Total | CurrencyFormat}}</td>
+                <td>{{cashMovement.CashMovementLines[0].PaymentMode.Total | CurrencyFormat}}</td>
                 <td>{{getPosUserName(cashMovement.PosUserId)}}</td>
             </tr>
             </tbody>

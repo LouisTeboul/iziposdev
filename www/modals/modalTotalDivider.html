@@ -1,12 +1,12 @@
-﻿<section>
-    <div ng-init="init()" class="modal-header">
-        <h1 class="modal-title" translate>Nombre de parts</h1>
+﻿<section ng-init="init()" id="ModalTotalDivider">
+    <div class="modal-header">
+        <h1 class="modal-title center" translate>Nombre de parts</h1>
     </div>
 
     <div class="form-panel modal-body">
         <div class="inp">
             <label for="txtDivider"><x translate>Parts</x> :</label>
-			<text-field id="txtDivider" ng-model="valueDivider" location="end-start" type="numeric" validfunction="ok" style="width:150px"></text-field>
+            <text-field id="txtDivider" ng-model="valueDivider" location="end-start" type="numeric" validfunction="ok" style="width:150px" auto-focus="true"></text-field>
         </div>
         <div class="inp" ng-if="errorMessage">
             <span class="labelErr">{{errorMessage}}</span>
@@ -17,5 +17,4 @@
         <!--<button class="btn btn-green" ng-click="ok()">OK</button>-->
         <button class="btn btn-rose" ng-click="cancel()" translate>Annuler</button>
     </div>
-
 </section>

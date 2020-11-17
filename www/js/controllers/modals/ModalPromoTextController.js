@@ -1,16 +1,16 @@
-﻿app.controller('ModalPromoTextController', function ($scope, $rootScope, $uibModalInstance, offerPromoText, shoppingCartModel) {
+﻿app.controller('ModalPromoTextController', function ($scope, $rootScope, $uibModalInstance, offerPromoText, discountService) {
     $scope.offerPromoText = offerPromoText;
 
-    $scope.ok = function () {
+    $scope.ok = () => {
         $uibModalInstance.close('ok');
     };
 
-    $scope.cancel = function () {
+    $scope.cancel = () => {
         $uibModalInstance.dismiss('cancel');
     };
 
-    $scope.useOfferText = function (offerText) {
-        shoppingCartModel.useOfferText(offerText);
+    $scope.useOfferText = (offerText) => {
+        discountService.useOfferText(offerText);
         $uibModalInstance.close('ok');
-    }
+    };
 });

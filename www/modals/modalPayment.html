@@ -1,39 +1,45 @@
-﻿<section>
-    <div ng-init="init()" class="modal-header">
+﻿<section ng-init="init()">
+    <div class="modal-header">
         <h1 class="modal-title">{{paymentMode.Text}}</h1>
     </div>
-
+    <div class="modal-loader gloryOverList" ng-show="loading" layout="column">
+        <button class="btn btn-menu" ng-click="CancelDeposit()"
+                ng-show="!canceled && paymentMode.PaymentType != paymentType.LYFPAY" style="margin-top:150px">
+            Cancel Deposit
+        </button>
+    </div>
     <div class="form-panel modal-body">
         <div class="inp" style="text-align: center;">
-            <div ng-if="paymentMode.PaymentType != paymentType.EASYTRANSAC && (paymentMode.PaymentType != paymentType.CB || !$root.borne)">
+            <div ng-if="paymentMode.PaymentType != paymentType.EASYTRANSAC && ((paymentMode.PaymentType != paymentType.CBTICKETRESTAURANT && paymentMode.PaymentType != paymentType.CB) && paymentMode.PaymentType != paymentType.LYFPAY || !$root.borne)">
                 <label for="txtAmount">
-                    <x translate>Montant</x>
-                    :
+                    <x translate>Montant</x> :
                 </label>
-                <!--<input readonly type="tel" id="txtAmount" ng-model="value" ng-keypress="$event.stopPropagation()" />-->
+
                 <text-field tostring="true" id="txtAmount" ng-model="value.pay" location="center-end" type="decimal"
-                            validfunction="ok" style="width:160px"></text-field>
+                            validfunction="ok" style="width:160px;" auto-focus="true"></text-field>
                 <a class="btn btn-default" ng-click="calculate()">
                     <span class="glyphicon itemAction">=</span>
                 </a>
             </div>
-            <!--<a class="btn btn-default" ng-click="remove()">
-                <span class="glyphicon glyphicon-trash itemAction"></span>
-            </a>-->
+
             <div ng-if="paymentMode.PaymentType == paymentType.EASYTRANSAC">
-                <x translate>Montant</x>
-                :
+                <x translate>Montant</x> :
                 {{currentShoppingCart.Residue | CurrencyFormat}}
                 <div ng-if="paymentMode.PaymentType == paymentType.EASYTRANSAC" style="margin:30px 0;">
                     <button class="btn btn-primary" ng-click="toScanner()">Scanner</button>
                     <button class="btn btn-primary" ng-click="toNFC()">NFC</button>
                 </div>
             </div>
-
-            <div ng-if="paymentMode.PaymentType == paymentType.CB && $root.borne">
-                <x translate>Montant</x>
-                :
+            <div ng-if="(paymentMode.PaymentType == paymentType.CB || paymentMode.PaymentType == paymentType.CBTICKETRESTAURANT || paymentMode.PaymentType == paymentType.LYFPAY) && $root.borne">
+                <x translate>Montant</x> :
                 {{currentShoppingCart.Residue | CurrencyFormat}}
+            </div>
+            <div ng-if="paymentMode.PaymentType == paymentType.LYFPAY">
+                <br>
+                <span>Veuillez scanner le QRCode ou le Barcode :</span>
+                <br>
+                <text-field id="lyfpayBarcode" ng-model="value.barcode" location="end-start" type="azerty"
+                            style="line-height:30px; width:200px; font-size:18px;min-height:30px" auto-focus="true"></text-field>
             </div>
         </div>
         <div ng-if="paymentMode.PaymentType == paymentType.TICKETRESTAURANT" style="margin-top: 40px;">
@@ -42,7 +48,6 @@
                     <strong>Ticket :</strong>
                     <strong> {{item.Number}}</strong>
                     <span>( {{item.Value | CurrencyFormat}} )</span>
-
                 </div>
                 <div class="col-md-4" style="padding: 0">
                     <span class="btn-group">
@@ -61,9 +66,19 @@
     </div>
 
     <div class="modal-footer">
-        <button class="btn btn-green" ng-if="paymentMode.PaymentType === paymentType.CB" ng-disabled="lockView" ng-click="ok()">Payer
-        </button>
-        <button class="btn btn-rose" ng-click="cancel()" ng-disabled="lockView" translate>Annuler</button>
-    </div>
 
+        <!-- <md-checkbox style="float: left"
+            ng-show="paymentMode.PaymentType === paymentType.CB && $root.UserPreset && $root.UserPreset.TpeEnabled"
+            ng-disabled="!canForce" ng-model="manualOverride" aria-label="manual override">
+            Forcer
+        </md-checkbox> -->
+
+        <button class="btn btn-green" ng-if="paymentMode.PaymentType === paymentType.CB || paymentMode.PaymentType === paymentType.CBTICKETRESTAURANT || paymentMode.PaymentType == paymentType.LYFPAY" ng-disabled="lockView" ng-click="ok()">
+            Payer
+        </button>
+        <button class="btn btn-rose" ng-click="cancel()" ng-disabled="lockView && isNotLyfPay"
+                translate>
+            Annuler
+        </button>
+    </div>
 </section>

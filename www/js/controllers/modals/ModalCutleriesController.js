@@ -1,6 +1,6 @@
 app.controller('ModalCutleriesController', function ($scope, $rootScope, $uibModal, $uibModalInstance, $translate, $timeout, initCutleries) {
 
-    $scope.init = function () {
+    $scope.init = () => {
         $scope.model = {
             cutleries: initCutleries,
             error: ""
@@ -11,18 +11,26 @@ app.controller('ModalCutleriesController', function ($scope, $rootScope, $uibMod
         }, 10);
     };
 
-    $scope.ok = function () {
+    $scope.ok = () => {
+        $scope.model.cutleries = Number($scope.model.cutleries);
         if ($scope.model.cutleries > 0) {
-            $scope.model.error = "";
-            $rootScope.closeKeyboard();
-            $uibModalInstance.close($scope.model.cutleries);
+            if (Number.isInteger($scope.model.cutleries)) {
+                if ($scope.model.cutleries < 100) {
+                    $scope.model.error = "";
+                    $rootScope.closeKeyboard();
+                    $uibModalInstance.close($scope.model.cutleries);
+                } else {
+                    $scope.model.error = $translate.instant("Veuillez entrer un nombre de couverts inférieurs à 100");
+                }
+            } else {
+                $scope.model.error = $translate.instant("Veuillez entrer un nombre de couverts entier");
+            }
         } else {
-            $scope.model.error = $translate.instant("Veuillez entrer un nombre de couvert supérieur à 0")
+            $scope.model.error = $translate.instant("Veuillez entrer un nombre de couverts supérieurs à 0");
         }
-
     };
 
-    $scope.cancel = function () {
+    $scope.cancel = () => {
         $uibModalInstance.dismiss('cancel');
     }
 });

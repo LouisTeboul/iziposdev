@@ -4,8 +4,6 @@
     </div>
 
     <div class="modal-body" layout="column">
-
-
         <!-- Objectif -->
         <uib-tabset>
             <uib-tab heading="{{ 'Dans' | translate}}" ng-click="setTimeGoalMode('In')">
@@ -65,24 +63,40 @@
 
         <hr/>
 
+        <!-- Delivery Partners-->
+
+        <md-content ng-show="deliveryPartners && deliveryPartners.length > 0 && ((existing.deliveryType === DeliveryType.DELIVERY) || fromButton)" layout="row" layout-align="start center">
+
+            <div ng-repeat="partner in deliveryPartners | orderBy: 'Id' track by $index"
+                 ng-show="partner.IsVisible"
+                 ng-click="choosePartner(partner)"
+                 layout="column" layout-align="center center"
+                 class="mode-tile"
+                 ng-class="{'partnerSelected' : result.deliveryPartner && (partner.Id === result.deliveryPartner.Id) }">
+                <img ng-src="{{partner.PictureURL}}" height="50" style="max-width: 90%">
+                <span class="center tile-name" translate>{{partner.Name}}</span>
+            </div>
+
+        </md-content>
+
 
         <!--Client -->
-        <md-content layout-padding layout="row" style="max-height:400px">
-            <div  layout-align="space-between end" layout="row" style="align-items: center;" flex>
-                <h4 ng-if="!result.customerLoyalty"><x translate>Pas de client</x> ...</h4>
-                <div class="customerInfo" ng-if="result.customerLoyalty">
-                    <h4 style="margin-top: 0">{{result.customerLoyalty.CustomerFirstName}}
-                        {{result.customerLoyalty.CustomerLastName}}</h4>
-                    <h4>{{result.customerLoyalty.CustomerEmail}}</h4>
+        <md-content layout-padding layout="row" style="max-height:400px" ng-show="$root.IziBoxConfiguration.UseFID && $root.Logged">
+            <div layout-align="space-between end" layout="row" style="align-items: center;" flex>
+                <h4 ng-if="!$root.currentShoppingCart.customerInfo"><x translate>Pas de client</x> ...</h4>
+                <div class="customerInfo" ng-if="$root.currentShoppingCart.customerInfo">
+                    <h4 style="margin-top: 0">{{$root.currentShoppingCart.customerInfo.FirstName}}
+                        {{$root.currentShoppingCart.customerInfo.LastName}}</h4>
+                    <span style="font-size: 13px;">{{$root.currentShoppingCart.customerInfo.Email}}</span>
                 </div>
 
                 <md-button ng-click="selectCustomer()" class="md-fab md-primary" aria-label="Add customer">
-                    <md-icon md-svg-src="img/icons/add-plus-button.svg" ng-if="!result.customerLoyalty"></md-icon>
-                    <md-icon md-svg-src="img/icons/pencil-edit-button.svg" ng-if="result.customerLoyalty"></md-icon>
+                    <md-icon md-svg-src="img/icons/add-plus-button.svg" ng-if="!$root.currentShoppingCart.customerInfo"></md-icon>
+                    <md-icon md-svg-src="img/icons/pencil-edit-button.svg" ng-if="$root.currentShoppingCart.customerInfo"></md-icon>
                 </md-button>
             </div>
 
-            <div ng-if="result.customerLoyalty" layout-align="space-between end" layout="row"
+            <div ng-if="$root.currentShoppingCart.customerLoyalty" layout-align="space-between end" layout="row"
                  style="align-items: center;" flex>
                 <h4 ng-if="!result.deliveryAddress" translate>Passage sur place</h4>
                 <div class="deliveryAddressInfo" ng-if="result.deliveryAddress">
@@ -90,7 +104,7 @@
                     <h4>{{result.deliveryAddress.ZipPostalCode}}, {{result.deliveryAddress.City}}</h4>
                 </div>
 
-                <md-button ng-click="promptDeliveryAddress(result.customerLoyalty.Barcodes[0].Barcode)"
+                <md-button ng-click="promptDeliveryAddress($root.currentShoppingCart.customerLoyalty.Barcodes[0].Barcode)"
                            class="md-fab md-primary" aria-label="Add delivery address">
                     <md-icon md-svg-src="img/icons/add-plus-button.svg" ng-if="!result.deliveryAddress"></md-icon>
                     <md-icon md-svg-src="img/icons/pencil-edit-button.svg" ng-if="result.deliveryAddress"></md-icon>

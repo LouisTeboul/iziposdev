@@ -1,30 +1,65 @@
-﻿<section>
-    <div ng-init="init()" class="modal-header">
+﻿<section ng-init="init()">
+    <div class="modal-header">
         <h1 class="modal-title" translate>Remise sur ticket</h1>
     </div>
-
-    <div class="form-panel modal-body">
-		<center>
-            <div class="btn-group">
-                <label class="btn btn-primary" ng-model="mode" ng-click="result.isPercent=true; setFocus()" uib-btn-radio="'percent'"><x translate>Remise %</x></label>
-                <label class="btn btn-primary" ng-model="mode" ng-click="result.isPercent=false; setFocus()" uib-btn-radio="'flat'"><x translate>Remise </x> {{IziPosConfiguration.Currency.currencySymbol}}</label>
+    <uib-tabset>
+        <uib-tab>
+            <uib-tab-heading>
+                Enregistrée
+            </uib-tab-heading>
+            <div class="form-panel modal-body">
+                <div class="discount-preset-list">
+                    <div ng-repeat="discount in presetDiscounts" ng-click="selectPreset(discount)"
+                         ng-class="{'selected' : selectedPreset.Id === discount.Id}" class="discount-preset" layout="column">
+                        <div>
+                            {{discount.Name}}
+                        </div>
+                        <div>
+                            {{discount.Description}}
+                        </div>
+                        <div ng-show="discount.UsePercentage">
+                            {{discount.DiscountPercentage}} %
+                        </div>
+                        <div ng-show="!discount.UsePercentage">
+                            {{discount.DiscountAmount | CurrencyFormat}}
+                        </div>
+                    </div>
+                    <div ng-if="!presetDiscounts || presetDiscounts && presetDiscounts.length === 0">
+                        Aucune remise enregistrée.
+                    </div>
+                </div>
             </div>
-            <br/>
-		</center>
-        <center class="inp">
-            <label ng-if="mode=='percent'"><x translate>Pourcentage</x> :</label>
-            <label ng-if="mode=='flat'"><x translate>Montant</x> :</label>
-            <text-field ng-if="mode=='percent'" id="txtAmount" ng-model="result.value" location="end-start" type="numeric" validfunction="ok" style="width:160px"></text-field>
-            <text-field ng-if="mode=='flat'" id="txtAmount" ng-model="result.value" location="end-start" type="decimal" validfunction="ok" style="width:160px"></text-field>
-        </center>
-        <div class="inp" ng-if="errorMessage">
-            <span class="labelErr">{{errorMessage}}</span>
-        </div>
-    </div>
-
-    <div class="modal-footer">
-        <!--<button class="btn btn-green" ng-click="ok()">OK</button>-->
-        <button class="btn btn-rose" ng-click="cancel()" translate>Annuler</button>
-    </div>
-
+            <div class="modal-footer">
+                <button class="btn btn-green" ng-disabled="!selectedPreset" ng-click="validPreset()">Valider</button>
+                <button class="btn btn-rose" ng-click="cancel()" translate>Annuler</button>
+            </div>
+        </uib-tab>
+        <uib-tab>
+            <uib-tab-heading>
+                Nouvelle
+            </uib-tab-heading>
+            <div class="form-panel modal-body">
+                <div class="discount-type-switch" layout="row" layout-align="center center">
+                    <label ng-click="freeInput.IsPercent = false; setFocus()">
+                        <x translate>Remise </x> {{IziPosConfiguration.Currency.currencySymbol}}
+                    </label>
+                    <md-switch ng-model="freeInput.IsPercent"></md-switch>
+                    <label ng-click="freeInput.IsPercent = true; setFocus()">
+                        <x translate>Remise %</x>
+                    </label>
+                </div>
+                <div class="center inp">
+                    <text-field placeholder="{{freeInput.IsPercent ? 'Pourcentage' : 'Montant'}}" id="txtAmount" style="width:160px" auto-focus="true"
+                        ng-model="freeInput.Value" location="end-start" type="decimal" validfunction="validFreeInput"></text-field>
+                </div>
+                <div class="inp" ng-if="errorMessage">
+                    <span class="labelErr">{{errorMessage}}</span>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-green" ng-click="validFreeInput()">Valider</button>
+                <button class="btn btn-rose" ng-click="cancel()" translate>Annuler</button>
+            </div>
+        </uib-tab>
+    </uib-tabset>
 </section>

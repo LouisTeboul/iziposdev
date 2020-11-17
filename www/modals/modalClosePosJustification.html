@@ -9,7 +9,7 @@
             </tab-heading>
             <div class="form-panel modal-body modal-closepos">
                 <button class="btn btn-success" ng-click="correctTickets(hidMdl.hid)" translate>Correction des tickets</button>
-                <button class="btn btn-success" ng-click="cashManagement(hidMdl.hid)" translate>Gestion des espèces</button>
+                <button class="btn btn-success" ng-disabled="model.cashManagementDisabled" ng-click="cashManagement(hidMdl.hid)" translate>Gestion des espèces</button>
             </div>
         </tab>
     </tabset>

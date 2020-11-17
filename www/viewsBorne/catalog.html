@@ -1,41 +1,59 @@
 <md-content class="catalog" ng-controller="CatalogController" ng-init="init()" layout="column" layout-fill>
-    <div id="PMREnabled" ng-style="{'flex': $mdMedia('min-width: 800px') ? '3' : '1'}"
-         ng-if="$rootScope.borne && $rootScope.isPMREnabled">
-        <div class="pubProductsList" ng-if="$rootScope.isPMREnabled" ng-style="customStyle"></div>
+    <div id="PMREnabled" ng-style="{'flex': mdMedia('min-width: 800px') ? '3' : '1'}"
+        ng-if="$root.borne && $root.isPMREnabled">
+
+        <img class="pubProductsList" ng-show="$root.isPMREnabled" ng-src="{{pubImage}}" alt="pub">
+
     </div>
-    <div layout="column" ng-if="$rootScope.borne && !$rootScope.borneVertical" style="flex:5" flex>
+    <div layout="column" ng-if="!$root.borneVertical" style="flex:5" flex>
         <div id="catalogMenuDiv" ng-include="'viewsBorne/catalogMenu.html'"></div>
         <md-content layout="row" style="overflow-y: hidden;" flex>
+            <md-content ng-if="$root.EnableMultiStore && $root.storeFilter && !$root.storeFilter.SmallMenuEnabled"
+                class="categorySelect horizontal" ng-include="'viewsBorne/categorySelect.html'"></md-content>
             <md-content id="catalogViewDiv" flex ui-view layout="column">
+                <!--        TODO : Mettre un splashScreen pour la borne horizontal multistore-->
+                <md-content ng-show="$root.EnableMultiStore && !$root.storeFilter">
+                    <img style="width: 100%; height: 100%" ng-src="{{$root.borneBgCatalogHorizontal}}">
+                </md-content>
             </md-content>
-            <md-sidenav class="md-sidenav-right md-whiteframe-z2 miniBasketSlideV" style="min-width:345px"
-                        md-is-locked-open="!$rootScope.adminMode.state && ($mdMedia('min-width: 800px') || $rootScope.showShoppingCart)">
+            <md-sidenav class="md-sidenav-right md-whiteframe-z2 miniBasketSlideV" style="min-width:0;"
+                ng-style="{'width': mdMedia('min-height: 800px') ? '345px' : '275px'}"
+                md-is-locked-open="!$root.adminMode.state && (mdMedia('min-height: 800px') || $root.showShoppingCart)">
                 <md-content id="catalogBasketDiv" class="catalogBasketDiv" ng-include="'viewsBorne/miniBasket.html'"
-                            layout="column" style="height:100%" flex>
+                    layout="column" style="height:100%;width:100%;" flex>
                 </md-content>
             </md-sidenav>
         </md-content>
     </div>
-    <div layout="column" ng-if="$rootScope.borne && $rootScope.borneVertical" style="flex:5"
-         ng-style="{'border-top' : $rootScope.isPMREnabled ? '1px solid #E5E5E5' : '0'}" flex>
-        <md-content layout="row" style="overflow-y:hidden;flex:1;" flex>
+    <div layout="column" ng-if="$root.borneVertical" style="flex:5"
+        ng-style="{'border-top' : $root.isPMREnabled ? '1px solid #E5E5E5' : '0'}" flex>
+        <md-content layout="row" id="" style="overflow-y:hidden;flex:1;" flex>
             <div id="catalogMenuDivVertical" ng-include="'viewsBorne/catalogMenu.html'"></div>
-            <md-content id="catalogViewDivVertical" flex ui-view layout="column">
-            </md-content>
+            <div layout="column" style="overflow: hidden" layout-fill>
+                <md-content class="categorySelect vertical" ng-if="$root.EnableMultiStore && $root.storeFilter"
+                    ng-include="'viewsBorne/categorySelect.html'"></md-content>
+                <md-content id="catalogViewDivVertical" flex ui-view layout="column" />
+                <!-- TODO : Mettre un splashScreen pour la borne vertical multistore -->
+                <md-content ng-show="$root.EnableMultiStore && !$root.storeFilter">
+                    <img style="width: 100%;" ng-src="{{$root.borneBgCatalogVertical}}">
+                </md-content>
+            </div>
         </md-content>
-        <md-sidenav class="md-sidenav-right md-whiteframe-z2 miniBasketSlide" style="min-width:100%"
-                    md-is-locked-open="!$rootScope.adminMode.state && ($mdMedia('min-width: 800px') || $rootScope.showShoppingCart)">
-            <md-content id="catalogBasketDivVertical" class="catalogBasketDiv"
-                        ng-include="'viewsBorne/miniBasket.html'" layout="column"  flex>
+        <md-sidenav class="md-sidenav-right md-whiteframe-z2 miniBasketSlide" style="min-width:100%;width: initial;"
+            md-is-locked-open="!$root.adminMode.state && (mdMedia('min-width: 800px') || $root.showShoppingCart)">
+            <md-content id="catalogBasketDivVertical" class="catalogBasketDiv" ng-include="'viewsBorne/miniBasket.html'"
+                layout="column" flex>
             </md-content>
         </md-sidenav>
     </div>
     <script type="text/ng-template" id="warning-dialog.html">
-        <section class="modalCenterFS" ng-style="{'background-image': $root.borneBgModal ? 'url(' + $root.borneBgModal + ')' : 'url(\'img/fond-borne.jpg\')'}">
+        <section class="modalCenterFS"
+                 style="background-size: cover"
+                 ng-style="{'background-image': $root.borneBgModal ? 'url(' + $root.borneBgModal + ')' : 'url(\'img/fond-borne.jpg\')'}">
             <section class="groupModal">
-                <img ng-src="{{$root.borneMainLogo && $root.borneMainLogo || 'img/logo.png'}}"
-                     class="imgLogoHeader" draggable="false" alt=""/>
-                <div class="firstTitle" idle-countdown="countdown" ng-init="countdown=15">
+                <img ng-src="{{$root.borneMainLogo || $root.borneAltLogo || 'img/logo.png'}}"
+                     class="imgLogoHeader bigLogo" draggable="false" alt="" src="" />
+                <div class="firstTitle" ng-style="{'color' : $root.textColor ? $root.textColor : ''}" idle-countdown="countdown" ng-init="countdown=15">
                     <span translate>Mise en veille dans</span><br>
                     <span>&nbsp;{{countdown}}&nbsp;</span>
                     <span translate>secondes</span>...

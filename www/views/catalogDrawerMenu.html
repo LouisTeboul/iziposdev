@@ -1,49 +1,69 @@
 ﻿<div id="menu-principal" ng-controller="CatalogDrawerMenuController" ng-init="init()" layout="column"
-     layout-align="center center" layout-fill>
-    <button class="btn btn-menu" ng-click="shoppingCartDiscount()" ng-disabled="isValidCancelledTicket()" translate>
+     layout-align="center center" style="padding-top: 10px;">
+    <button class="btn btn-menu" ng-click="shoppingCartDiscount()"
+            ng-disabled="!isValidShoppingCart() || !shoppingCartHasItems()" translate>
         Remise sur ticket
     </button>
     <!--<button class="btn btn-menu btn-menu-closable" ng-click="shoppingCartSplit()" translate>Partager un ticket</button>-->
     <button class="btn btn-menu btn-menu-closable" ng-click="printLastShoppingCart()"
-            ng-disabled="!modelPos.iziboxConnected" translate>Imprimer le dernier ticket
+            ng-disabled="!$root.modelPos.iziboxConnected" translate>
+        Imprimer le dernier ticket
     </button>
-    <button class="btn btn-menu btn-menu-closable" ng-click="printShoppingCartNote()"
-            ng-disabled="!modelPos.iziboxConnected" translate>Imprimer une note
+    <button class="btn btn-menu" ng-click="printShoppingCartNote()"
+            ng-disabled="!$root.modelPos.iziboxConnected" translate>
+        Imprimer une note
     </button>
     <button class="btn btn-menu btn-menu-closable" ng-click="showAllShoppingCarts()"
-            ng-disabled="!modelPos.iziboxConnected" translate>Consulter les tickets
+            ng-disabled="!$root.modelPos.iziboxConnected" translate>
+        Consulter les tickets
     </button>
-    <button class="btn btn-menu btn-menu-closable" ng-if="authService.isLogged()"
-            ng-disabled="!modelPos.iziboxConnected" ng-click="openAdmin('Booking','Index')" translate>Réservation
+    <!-- <button class="btn btn-menu btn-menu-closable" ng-if="authService.isLogged()"
+            ng-disabled="!$root.modelPos.iziboxConnected" ng-click="openAdmin('Booking','Index')" translate>
+        Réservation
+    </button> -->
+    <button class="btn btn-menu btn-menu-closable" ng-if="$root.IziBoxConfiguration.UseCashMovement && !$root.modelPos.isPosOpen"
+            ng-disabled="!$root.modelPos.iziboxConnected" ng-click="openPos()" translate>
+        Fonds de caisse
     </button>
-    <button class="btn btn-menu btn-menu-closable" ng-if="IziBoxConfiguration.UseCashMovement && !modelPos.isPosOpen"
-            ng-disabled="!modelPos.iziboxConnected" ng-click="openPos()" translate>Fonds de caisse
+    <button class="btn btn-menu btn-menu-closable" ng-if="$root.IziBoxConfiguration.UseCashMovement && $root.modelPos.isPosOpen"
+            ng-disabled="!$root.modelPos.iziboxConnected" ng-click="cashManagement()" translate>
+        Gestion des espèces
     </button>
-    <button class="btn btn-menu btn-menu-closable" ng-if="IziBoxConfiguration.UseCashMovement && modelPos.isPosOpen"
-            ng-disabled="!modelPos.iziboxConnected" ng-click="cashManagement()" translate>Gestion des espèces
+    <button class="btn btn-menu btn-menu-closable" ng-show="LossOrEmpMealEnable() && $root.IziBoxConfiguration.EnableLossesAndMeal"
+            ng-disabled="!$root.modelPos.iziboxConnected" ng-click="openModalSwitchMode()" translate>
+        Pertes / Repas employé
     </button>
-    <button class="btn btn-menu btn-menu-closable" ng-disabled="!modelPos.iziboxConnected"
-            ng-click="openDeviceMonitoring()" translate>Appareils connectés
+    <button class="btn btn-menu btn-menu-closable" ng-disabled="!$root.modelPos.iziboxConnected"
+            ng-click="openDeviceMonitoring()" translate>
+        Appareils connectés
     </button>
-    <!--<button class="btn btn-menu btn-menu-closable" ng-if="IziBoxConfiguration.UseCashMovement" ng-click="closePos()" translate>Fermeture période</button>
-    <button class="btn btn-menu btn-menu-closable" ng-if="IziBoxConfiguration.UseCashMovement" ng-click="closeZPos()" translate>Fermeture caisse</button>-->
     <button class="btn btn-menu btn-menu-closable" ng-click="openDrawer()" ng-disabled="!modelPos.iziboxConnected"
-            translate>Ouvrir le tiroir
+            translate>
+        Ouvrir le tiroir
     </button>
-    <button class="btn btn-menu btn-menu-closable" ng-if="IziBoxConfiguration.UseCashMovement"
-            ng-disabled="!modelPos.iziboxConnected" ng-click="pickClose()" translate>Fermeture
+    <button class="btn btn-menu btn-menu-closable" ng-if="$root.IziBoxConfiguration.UseCashMovement"
+            ng-disabled="!$root.modelPos.iziboxConnected || $root.currentShoppingCart" ng-click="pickClose()" translate>
+        Fermeture
     </button>
-    <button class="btn btn-tel btn-menu-closable" ng-if="OrderButtonEnabled" ng-disabled="!modelPos.iziboxConnected && isValidCancelledTicket()"
-            ng-click="openModalOrderInfo()" translate>Commande
+    <button class="btn btn-menu btn-menu-closable" ng-if="GloryButtonEnabled" ng-click="openGlory()" translate>
+        Glory
     </button>
-    <button class="btn btn-menu btn-config btn-menu-closable" ng-click="openConfig()" translate>Configuration
+    <button class="btn btn-menu btn-tel btn-menu-closable" ng-if="OrderButtonEnabled" ng-disabled="!$root.modelPos.iziboxConnected || !isValidShoppingCart()"
+            ng-click="openModalOrderInfo()" translate>
+        Commande
     </button>
-    <button class="btn btn-menu btn-menu-closable" ng-if="IziBoxConfiguration.LoginRequired" ng-click="changeUser()"
-            translate>Changer d'utilisateur
+    <button class="btn btn-menu btn-tel btn-menu-closable" ng-if="$root.EnableMultiStore" ng-disabled="!$root.modelPos.iziboxConnected || !$root.selectedStore"
+            ng-click="openStoreStateModal()" translate>
+        Etat du store
     </button>
-    <button class="btn btn-logout btn-menu-closable" ng-if="PosUserId>0" ng-click="logout()" translate>Déconnecter
+    <button class="btn btn-menu btn-logout btn-menu-closable" ng-if="PosUserId>0" ng-click="logout()" translate>
+        Déconnecter
     </button>
-    <button class="btn btn-logout btn-menu-closable" ng-if="closable" ng-click="exit()" translate>Fermer l'application
+    <button class="btn btn-menu btn-config btn-menu-closable" ng-click="openConfig()" ng-disabled="$root.currentShoppingCart" translate>
+        Configuration
+    </button>
+    <button class="btn btn-menu btn-logout btn-menu-closable" ng-if="closable" ng-disabled="$root.currentShoppingCart" ng-click="exit()" translate>
+        Fermer l'application
     </button>
     <!-- <a href="http://exitkiosk" class="btn btn-logout btn-menu-closable" ng-if="isOnIzibox" translate>Fermer l'application</a>-->
     <span flex></span>
@@ -52,11 +72,11 @@
         <x translate>Paiement Rapide</x>
     </md-checkbox>
     <span flex></span>
-    <span style="color:white" ng-show="modelPos.rkCounter > 0" translate>Compteur :&nbsp;{{modelPos.rkCounter}} </span>
+    <span style="color:white" ng-show="$root.modelPos.rkCounter > 0" translate>Compteur :&nbsp;{{modelPos.rkCounter}} </span>
     <span style="color:white">Docs à synchro :&nbsp;{{docToSynchronize}}</span>
-    <a href="http://support.izipass.pro" target="_blank" style="font-size:20px;">Support</a>
+    <a href="https://www.izipass.pro/fr/support" target="_blank" style="font-size:20px;">Support</a>
     <div layout="row" layout-align="center center" layout-padding style="width:100%;margin-bottom:30px">
-        <img src="img/FR.png" ng-click="setLanguage('fr_FR')"/>
-        <img src="img/US.png" ng-click="setLanguage('en_EN')"/>
+        <img src="img/FR.png" ng-click="setLanguage('fr_FR')" alt="" />
+        <img src="img/US.png" ng-click="setLanguage('en_EN')" alt="" />
     </div>
 </div>

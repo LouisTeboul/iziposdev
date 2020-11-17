@@ -1,0 +1,140 @@
+<section ng-init="init()" id="RecapProductBorne" class="sectionRecap">
+    <div ng-show="$root.borneVertical" class="modal-header" layout="row" layout-align="center center">
+        <img class="imgRecapheader" ng-show="$root.borneRecapHeader" ng-src="{{$root.borneRecapHeader}}" alt="pub">
+    </div>
+
+    <div class="bodyInfRecap" ng-class="{'pmr' : $root.isPMREnabled}">
+        <h1 ng-show="shoppingCart.customerInfo != null" class="titleRecap"
+            ng-style="{'color' : $root.tenantColor ? $root.tenantColor : 'initial'}">
+            Compte Client
+        </h1>
+        <div  ng-show="shoppingCart.customerInfo != null" class="modal-recap" layout="row" layout-align="space-between center">
+            <div class="productboxRecapInfo client" ng-show="shoppingCart.customerInfo != null">
+                <div class="nameRecap bold">
+                    {{shoppingCart.customerInfo.FirstName}}
+                    {{shoppingCart.customerInfo.LastName}}
+                </div>
+                <div class="carteRecap bold" ng-style="{'color' : $root.tenantColor ? $root.tenantColor : 'initial'}">
+                    Carte
+                    N&deg;{{shoppingCart.customerLoyalty.Barcodes[0].Barcode}}
+                </div>
+                <div class="infoRecap">
+                    <div class="bold">{{shoppingCart.customerLoyalty.CustomerBillingAddress}}</div>
+                    <div class="bold">Tel. {{shoppingCart.customerInfo.PhoneNumber}}</div>
+                    <div class="bold">{{shoppingCart.customerInfo.Email}}</div>
+                </div>
+            </div>
+
+            <div class="productboxRecapInfo balance" ng-show="shoppingCart.customerInfo != null">
+                <div ng-if="$root.borneVertical" class="nameRecap bold">Ma Cagnotte</div>
+                <div layout="row" layout="start center"  ng-style="{
+                'padding': $root.borneVertical ?
+                '15px 0' : '6px' }" >
+                    <md-icon class="imgCagnotte" md-svg-src="img/icons/Cagnotte.svg" alt="pub"
+                        ng-style="{'color' : $root.tenantColor ? $root.tenantColor : 'initial'}">
+                    </md-icon>
+                    <div class="bold cagnotteValue"
+                        ng-style="{'color' : $root.tenantColor ? $root.tenantColor : 'initial'}">
+                        {{ shoppingCart.customerLoyalty.Balances[0].Value | CurrencyFormat }}
+                    </div>
+                </div>
+                <div class="balanceInfoFid">
+                    <div ng-repeat="item in objectFidClassAction " class="balanceInfo">
+                        <div ng-if="$root.borneVertical" class="bold">Avec la carte</div>
+                        <div class="balanceInfocard bold"
+                            ng-style="{'color' : $root.tenantColor && $root.borneVertical ? $root.tenantColor : 'initial'}">
+                            {{item.Name}}
+                        </div>
+                        <div ng-if="$root.borneVertical" class="bold">vous cagnotez</div>
+                        <div class="balanceInfocard bold"
+                            ng-style="{'color' : $root.tenantColor ? $root.tenantColor : 'initial'}">
+                            {{item.RateBalance | CurrencyFormat }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="modal-body">
+            <h1 class="titleRecap">Récapitulatif de commande</h1>
+            <div class="modal-recapProduit" ng-style="{ 'max-height': shoppingCart.customerInfo ? (mdMedia('min-height: 900px') ? '690px' : '280px') : (mdMedia('min-height: 1080px') ? '1000px' : '590px') }">
+
+                <div class="productboxRecap" layout="column" layout-align="start center"
+                    ng-repeat="item in shoppingCart.Items">
+
+                    <div class="productboxIZIPASS" ng-class="{'nopicture' : $root.IziBoxConfiguration.NoPictures}">
+                        <div class="boxContent">
+                            <div class="productQuantity bold"
+                                ng-style="{'background-color': $root.tenantAltColor || $root.tenantColor}"
+                                ng-show="item.Quantity > 1">
+                                {{item.Quantity}}
+                            </div>
+
+                            <div ng-if="!$root.IziBoxConfiguration.NoPictures"
+                                class="imgProduct bigProduct image progressive borne replace"
+                                data-href="{{getPicture(item.Product.Id)}}"></div>
+
+                            <div class="titleRow">{{item.Product.Name}}</div>
+                            <div ng-if="item.Comment" class="productCommentRecap"> {{item.Comment}}</div>
+                        </div>
+                    </div>
+
+                    <div class="productboxRecapbtn" layout="row" layout-align="space-between center" layout-fill>
+                        <div layout="row" class="productTools" layout-align="start center">
+
+                            <md-icon aria-label="removeLine" md-svg-src="img/icons/corbeille.svg"
+                                ng-style="{ 'color' : $root.tenantAltColor || $root.tenantColor}"
+                                ng-click="$event.stopPropagation();removeItem(item);" class="smallPT"
+                                ng-if="!item.Offer && item.Quantity == 1"></md-icon>
+                            <md-icon aria-label="decrementQty" md-svg-src="img/icons/moins.svg"
+                                ng-style="{ 'color' : $root.tenantAltColor || $root.tenantColor}"
+                                ng-click="$event.stopPropagation();decrementQuantity(item);"
+                                ng-if="!item.Offer && item.Quantity > 1"></md-icon>
+                            <md-icon aria-label="incrementQty" md-svg-src="img/icons/plus.svg"
+                                ng-style="{ 'color' : $root.tenantAltColor || $root.tenantColor}"
+                                ng-click="$event.stopPropagation();incrementQuantity(item);"
+                                ng-disabled="item.Offer != undefined
+                                     || (item.Product.ManageInventoryMethodId === 1 && item.Quantity + 1>
+                                item.Product.StockQuantity)
+                                || (item.Product.ManageInventoryMethodId === 1 && item.Product.StockQuantity - stockService.getBufferStockForProductId(item.Product.Id) <= 0)">
+                            </md-icon>
+                        </div>
+
+                        <div class="borneRecapPrix bold">{{item.PriceIT | CurrencyFormat}}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal-footerRecap" >
+
+            <div class="productboxRecapfooter" layout="row"flex>
+                <span class="productboxRecapfooterTax">
+                    <span class="textefooter">
+                        {{shoppingCart.Items.length}}
+                        <span ng-show="shoppingCart.Items.length <= 1"> produit</span>
+                        <span ng-show="shoppingCart.Items.length > 1"> produits</span>
+                        <span ng-show="shoppingCart && shoppingCart.Discounts && shoppingCart.Discounts.length > 0">
+                            &nbsp; (Remise {{currentShoppingCart.Discounts[0].Value}} {{currentShoppingCart.Discounts[0].IsPercent ? "%" : "€"}})
+                        </span>
+                    </span>
+                    <div class="productboxRecapfooterTax">
+                        <div class="dscTva">{{shoppingCart.TaxDetails[0].TaxCode}}</div>
+                        <div class="dscTva">{{shoppingCart.TaxDetails[0].TaxAmount | CurrencyFormat}}</div>
+                        <div class="textefooterTotal">{{shoppingCart.Total | CurrencyFormat}}</div>
+                    </div>        
+            </div>
+
+            <div class="footerbtn">
+                <div class="btnRecapfooterSupp" layout="row" layout-align="center center"
+                    ng-click="cancelBorneSummary()" translate>
+                    Annuler
+                </div>
+                <div class="btnRecapfooter" layout="row" layout-align="center center" ng-click="validBorneSummary()"
+                    ng-style="{'background-color': $root.tenantColor}" translate>
+                    Confirmer
+                </div>
+            </div>
+        </div>
+</section>

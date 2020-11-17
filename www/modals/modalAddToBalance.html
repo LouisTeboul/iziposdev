@@ -1,12 +1,15 @@
 <section class="" ng-init="init()">
 
     <div class="modal-header">
-        <h1 class="modal-title" translate>Ajouter à la cagnotte</h1>
+        <h1 class="modal-title" translate>{{::modalTitle}}</h1>
     </div>
 
-    <div class="form-panel modal-body" layout="row" layout-align="center center">
-        <text-field id="amountToCredit" ng-model="model.amountToCredit" location="center-end" type="decimal" validfunction="ok"
-                    style="width:150px"></text-field> €
+    <div class="form-panel modal-body" layout="column" layout-align="center center">
+        <div>
+            <text-field id="amountToCredit" ng-model="model.amountToCredit" location="center-end" type="decimal" validfunction="ok" auto-focus
+                        style="width:150px"></text-field> €
+        </div>
+
         <div class="labelErr" ng-if="model.error">
             {{model.error}}
         </div>
