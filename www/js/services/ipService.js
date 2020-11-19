@@ -12,13 +12,13 @@
         }
         else {
             try {
-                networkinterface.getIPAddress((ip) => {
+                networkinterface.getIPAddress(function (ip) {
                     localIpDefer.resolve({ local: ip, izibox: iziboxIp });
-                }, (errGetWifiIp) => {
+                }, function (errGetWifiIp) {
                     console.error(errGetWifiIp);
-                    networkinterface.getCarrierIPAddress((ip) => {
+                    networkinterface.getCarrierIPAddress(function (ip) {
                         localIpDefer.resolve({ local: ip, izibox: iziboxIp });
-                    }, (errGetLanIp) => {
+                    }, function (errGetLanIp) {
                         console.error(errGetLanIp);
                     });
                 });
@@ -28,13 +28,13 @@
                     //compatibility for firefox and chrome
                     window.RTCPeerConnection = window.RTCPeerConnection || window.mozRTCPeerConnection || window.webkitRTCPeerConnection;
                     let pc = new RTCPeerConnection({ iceServers: [] });
-                    let noop = () => { };
+                    let noop = function () { };
                     //create a bogus data channel
                     pc.createDataChannel("");
                     // create offer and set local description
                     pc.createOffer(pc.setLocalDescription.bind(pc), noop);
                     //listen for candidate events
-                    pc.onicecandidate = (ice) => {
+                    pc.onicecandidate = function (ice) {
                         if (!ice || !ice.candidate || !ice.candidate.candidate) {
                             return;
                         }
